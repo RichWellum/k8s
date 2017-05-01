@@ -198,9 +198,11 @@ def main():
         DOCKER_INFO = run(['sudo', 'docker', 'info'])
         print(DOCKER_INFO)
         for line in DOCKER_INFO:
-            fields = line.strip().split()
+            if 'Cgroup Driver' in line:
+                print(line)
+            # fields = line.strip().split()
             # Array indices start at 0 unlike AWK
-            print(fields[0])
+            # print(fields[0])
         # , | grep "Cgroup Driver"
 
     except Exception:
