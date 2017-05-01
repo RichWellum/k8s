@@ -196,7 +196,7 @@ def main():
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
         DOCKER_INFO = run(['sudo', 'docker', 'info'])
-        print(DOCKER_INFO)
+        # print(DOCKER_INFO)
         for line in DOCKER_INFO:
             if 'Cgroup Driver' in line:
                 print(line)
