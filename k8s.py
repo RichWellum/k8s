@@ -187,10 +187,20 @@ def main():
                 run(['sudo', 'systemctl', 'stop', 'firewalld'])
                 run(['sudo', 'systemctl', 'disable', 'firewalld'])
 
-        print("Install k8s 1.6.1 or later")
+        print("Installing k8s 1.6.1 or later - please wait")
         create_k8s_repo()
         run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
              'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni', 'git', 'gcc'])
+
+        print("Enable the correct cgroup driver and disable CRI")
+        run(['sudo', 'systemctl', 'enable', 'docker'])
+        run(['sudo', 'systemctl', 'start', 'docker'])
+        DOCKER_INFO = run(['sudo', 'docker', 'info'])
+        for line in DOCKER_INFO:
+            fields = line.strip().split()
+            # Array indices start at 0 unlike AWK
+            print(fields[0])
+        # , | grep "Cgroup Driver"
 
     except Exception:
         print("Exception caught:")
