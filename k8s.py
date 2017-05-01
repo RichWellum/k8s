@@ -214,10 +214,11 @@ def main():
 
         print('Installing k8s 1.6.1 or later - please wait')
         create_k8s_repo()
-        run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
-             'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
-             'git', 'gcc', 'xterm'])
-
+        # run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
+        #      'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
+        #      'git', 'gcc', 'xterm'])
+        subprocess.check_output(
+            'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
