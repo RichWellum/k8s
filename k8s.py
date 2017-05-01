@@ -246,8 +246,7 @@ def main():
         run(['systemctl', 'start', 'kubelet'])
 
         print('Deploy Kubernetes with kubeadm')
-        run(['sudo', 'kubeadm', 'init', '-', '-pod', '-', 'network', '-', 'cidr', '=',
-             '10.1.0.0', '/', '16', '-', '-service', '-', 'cidr', '=', '10.3.3.0', '/', '24'])
+        run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16', '--service-cidr=10.3.3.0/24'])
 
         create_watch_terminal()
 
