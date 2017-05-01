@@ -197,7 +197,7 @@ def main():
         print('We are root!')
     else:
         print("We're not root. Please run again with 'sudo'")
-        sys.exit(1)
+        # sys.exit(1)
 
     try:
         print('Turn off SELinux')
