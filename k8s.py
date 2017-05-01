@@ -198,7 +198,7 @@ def main():
         DOCKER_INFO = run(['sudo', 'docker', 'info'])
         # print(DOCKER_INFO)
         for line in DOCKER_INFO:
-            if 'Cgroup Driver' in line:
+            if re.search(line, 'Cgroup Driver'):
                 print(line)
             # fields = line.strip().split()
             # Array indices start at 0 unlike AWK
