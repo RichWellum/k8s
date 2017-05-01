@@ -46,7 +46,7 @@ import logging
 import psutil
 import fileinput
 from sys import executable
-from subprocess import Popen, CREATE_NEW_CONSOLE
+from subprocess import Popen
 
 # import pexpect
 # import tarfile
