@@ -18,7 +18,8 @@ Inputs:
 
 1. build_vm : Build a centos 7 VM to run k8s on
 2. mgmt_int : Name of the interface to be used for management operations
-3. neutron_int: Name of the interface to be used for Neutron operations
+3. mgmt_ip  : IP Address of management interface
+4. neutron_int: Name of the interface to be used for Neutron operations
 '''
 
 from __future__ import print_function
