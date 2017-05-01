@@ -52,7 +52,8 @@ import fileinput
 # from sys import executable
 # from subprocess import Popen
 from shutil import copyfile
-
+import shlex
+import getpass
 
 # import pexpect
 # import tarfile
@@ -243,10 +244,16 @@ def main():
             inplace=True, backup='.bak')
         print("test6")
 
+        print("This script was called by: " + getpass.getuser())
+
+        print("Now do something as 'root'...")
+        subprocess.call(shlex.split('sudo id -nu'))
+
         for line in file:
             print("test7")
             print(line.replace(textToSearch, textToReplace), end='')
         file.close()
+        print("Now switch back to the calling user: " + getpass.getuser())
 
         print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
