@@ -236,10 +236,15 @@ def main():
         print("test4")
 
         run(['sudo', 'chmod', '766', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        print("test5")
+
         file = fileinput.FileInput(
             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf',
             inplace=True, backup='.bak')
+        print("test6")
+
         for line in file:
+            print("test7")
             print(line.replace(textToSearch, textToReplace), end='')
         file.close()
 
