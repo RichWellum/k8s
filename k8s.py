@@ -174,7 +174,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    run(['mv', './kubernetes.repo', repo])
+    run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
 def create_watch_terminal():
