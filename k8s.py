@@ -153,8 +153,8 @@ def main():
         print("Rich")
 
         print("Turn of SELinux")
-        run('sudo', 'setenforce' '0')
-        run("sudo", "sed", "-i", "'s/enforcing/permissive/g'", "/etc/selinux/config")
+        run(['sudo', 'setenforce' '0'])
+        run(["sudo", "sed", "-i", "'s/enforcing/permissive/g'", "/etc/selinux/config"])
 
     except Exception:
         print("Exception caught:")
