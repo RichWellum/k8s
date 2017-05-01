@@ -27,6 +27,10 @@ TODO:
 
 Dependencies:
 
+curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+
+sudo python get-pip.py
+
 psutil (sudo yum install gcc python-devel
         sudo pip install psutil)
 docker (sudopip install docker)
@@ -52,12 +56,12 @@ from subprocess import Popen
 # import tarfile
 
 
-__author__ = "Rich Wellum"
-__copyright__ = "Copyright 2017, Rich Wellum"
-__license__ = ""
-__version__ = "1.0.0"
-__maintainer__ = "Rich Wellum"
-__email__ = "rwellum@gmail.com"
+__author__ = 'Rich Wellum'
+__copyright__ = 'Copyright 2017, Rich Wellum'
+__license__ = ''
+__version__ = '1.0.0'
+__maintainer__ = 'Rich Wellum'
+__email__ = 'rwellum@gmail.com'
 
 
 # Telnet ports used to access IOS XR via socat
@@ -87,9 +91,9 @@ def parse_args():
     """Parse sys.argv and return args"""
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
-        description="A tool to create a working Kubernetes Cluster \n" +
-        "on Bare Metal or a VM.",
-        epilog="E.g.: k8s.py eth0 10.192.16.32 eth1\n")
+        description='A tool to create a working Kubernetes Cluster \n' +
+        'on Bare Metal or a VM.',
+        epilog='E.g.: k8s.py eth0 10.192.16.32 eth1\n')
     parser.add_argument('MGMT_INT',
                         help='Management Interface, E.g: eth0')
     parser.add_argument('MGMT_IP',
@@ -168,7 +172,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    run(['sudo', 'mv', './kubernetes.repo', repo])
+    run(['mv', './kubernetes.repo', repo])
 
 
 def create_watch_terminal():
@@ -187,38 +191,32 @@ def main():
     logger.setLevel(level=args.verbose)
 
     if os.geteuid() == 0:
-        print("We're root!")
+        print('We are root!')
     else:
         print("We're not root. Please run again with 'sudo'")
         sys.exit(1)
 
     try:
-        print("Turn off SELinux")
-        run(['sudo', 'setenforce', '0'])
-        run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+        print('Turn off SELinux')
+        run(['setenforce', '0'])
+        run(['sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
-        print("Turn off Firewalld if running")
-        PROCNAME = "firewalld"
+        print('Turn off Firewalld if running')
+        PROCNAME = 'firewalld'
         for proc in psutil.process_iter():
             if PROCNAME in proc.name():
-                print("Found %s, Stopping and Disabling firewalld" % proc.name())
-                run(['sudo', 'systemctl', 'stop', 'firewalld'])
-                run(['sudo', 'systemctl', 'disable', 'firewalld'])
+                print('Found %s, Stopping and Disabling firewalld' % proc.name())
+                run(['systemctl', 'stop', 'firewalld'])
+                run(['systemctl', 'disable', 'firewalld'])
 
-        print("Fix iptables")
-        with open("/etc/sysctl.conf", "a") as myfile:
-            myfile.write("net.bridge.bridge-nf-call-ip6tables=1" + "\n")
-            myfile.write("net.bridge.bridge-nf-call-iptables=1")
-        run(['sysctl', '-p'])
-
-        print("Installing k8s 1.6.1 or later - please wait")
+        print('Installing k8s 1.6.1 or later - please wait')
         create_k8s_repo()
-        run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
+        run(['yum', 'install', '-y', 'docker', 'ebtables',
              'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni', 'git', 'gcc'])
 
-        print("Enable the correct cgroup driver and disable CRI")
-        run(['sudo', 'systemctl', 'enable', 'docker'])
-        run(['sudo', 'systemctl', 'start', 'docker'])
+        print('Enable the correct cgroup driver and disable CRI')
+        run(['systemctl', 'enable', 'docker'])
+        run(['systemctl', 'start', 'docker'])
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         if 'systemd' in CGROUP_DRIVER:
@@ -232,7 +230,7 @@ def main():
         file.close()
 
         print('Setup the DNS server with the service CIDR')
-        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
+        run(['sed', '-i', 's/10.96.0.10/10.3.3.10/g',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
         print('Reload the hand-modified service files')
@@ -245,8 +243,14 @@ def main():
         run(['systemctl', 'enable', 'kubelet'])
         run(['systemctl', 'start', 'kubelet'])
 
+        print('Fix iptables')
+        with open('/etc/sysctl.conf', 'a') as myfile:
+            myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
+            myfile.write('net.bridge.bridge-nf-call-iptables=1')
+        run(['sysctl', '-p'])
+
         print('Deploy Kubernetes with kubeadm')
-        run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16', '--service-cidr=10.3.3.0/24'])
+        run(['kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16', '--service-cidr=10.3.3.0/24'])
 
         create_watch_terminal()
 
