@@ -149,7 +149,8 @@ def start_process(args):
 def create_k8s_repo():
     """Create a k8s repository file"""
     # working_dir = '.'
-    name = '/etc/yum.repos.d/kubernetes.repo'
+    name = './kubernetes.repo'
+    repo = '/etc/yum.repos.d/kubernetes.repo'
     with open(name, "w") as w:
         w.write("""\
         [kubernetes]
@@ -161,6 +162,7 @@ def create_k8s_repo():
         gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
         """)
+    run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
 def main():
