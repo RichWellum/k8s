@@ -221,7 +221,9 @@ def main():
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
+        print("test1")
         run(['sudo', 'systemctl', 'start', 'docker'])
+        print("test2")
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         if 'systemd' in CGROUP_DRIVER:
