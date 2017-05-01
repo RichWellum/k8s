@@ -145,45 +145,13 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
+    try:
+        print("Rich")
+
     except Exception:
         print("Exception caught:")
         print(sys.exc_info())
         raise
-
-    cimp_node1.close()
-    cimp_node2.close()
-    cimp_node3.close()
-    if args. compute:
-        cimp_node4.close()
-
-    # Clean up
-    for path in glob.glob('%s/*' % working_dir):
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        if 'ifcfg' in path:
-            os.remove(path)
-
-    logger.info("Created %s/cimp_node1.tar.gz" % working_dir)
-    logger.info("Created %s/cimp_node2.tar.gz" % working_dir)
-    logger.info("Created %s/cimp_node3.tar.gz" % working_dir)
-    if args.compute:
-        logger.info("Created %s/cimp_node4.tar.gz" % working_dir)
-    logger.info("Unpack %s/cimp_node1.tar.gz with 'tar xvf' and " % working_dir)
-    logger.info(" move ./images/running/* to /var/images/running/*")
-    logger.info(" move ./var/images/running/* to /var/images/running/*")
-    logger.info(" move ./images/controller/* to /var/images/controller/*")
-    logger.info("scp cimp_node2.tar.gz to physical server 'cimp_node2' ")
-    logger.info(" Unpack %s/cimp_node2.tar.gz with 'tar xvf' and " % working_dir)
-    logger.info(" move ./var/images/running/* to /var/images/running/*")
-    logger.info(" move ./images/controller/* to /var/images/controller/*")
-    logger.info("scp cimp_node3.tar.gz to physical server 'cimp_node3' ")
-    logger.info(" Unpack %s/cimp_node3.tar.gz with 'tar xvf' and " % working_dir)
-    logger.info(" move ./var/images/running/* to /var/images/running/*")
-    logger.info(" move ./images/controller/* to /var/images/controller/*")
-
-    print('VNC Access Ports - IP Address on br-mgmt:')
-    print('Roller: 5900, Controller1: 5901, Controller2: 5902, Controller3: 5903, XClarity: 5904')
-    print('E.g. access Roller during bringup: xvnc4viewer 192.168.10.22:5900')
 
 
 if __name__ == '__main__':
