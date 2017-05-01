@@ -195,7 +195,9 @@ def main():
         print("Enable the correct cgroup driver and disable CRI")
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
-        DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
+        # DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
+        DOCKER_INFO = subprocess.check_output(
+            'sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver')
         print(DOCKER_INFO)
         # num = 1
         # for line in DOCKER_INFO:
