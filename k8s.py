@@ -153,15 +153,15 @@ def create_k8s_repo():
     repo = '/etc/yum.repos.d/kubernetes.repo'
     with open(name, "w") as w:
         w.write("""\
- [kubernetes]
- name=Kubernetes
- baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
- enabled=1
- gpgcheck=0
- repo_gpgcheck=1
- gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
- https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
- """)
+[kubernetes]
+name=Kubernetes
+baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+""")
     run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
