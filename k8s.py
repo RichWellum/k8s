@@ -209,7 +209,7 @@ def main():
                 print(line.replace(textToSearch, textToReplace), end='')
         # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s',
         #      '--enable-cri=false |g', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'] % CGROUP_DRIVER)
-
+        file.close()
         print("Setup the DNS server with the service CIDR:")
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
