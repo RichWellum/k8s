@@ -49,8 +49,10 @@ from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
 import fileinput
-from sys import executable
-from subprocess import Popen
+# from sys import executable
+# from subprocess import Popen
+from shutil import copyfile
+
 
 # import pexpect
 # import tarfile
@@ -176,9 +178,10 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 
 def create_watch_terminal():
-    os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
+    # os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
 
-    input('Enter to exit from this launcher script...')
+    # input('Enter to exit from this launcher script...')
+    pod_status = run(['watch', '-d', 'kubectl', 'get', 'pods', '--all-namespaces'])
 
 
 def main():
@@ -253,7 +256,18 @@ def main():
         print('Deploy Kubernetes with kubeadm')
         run(['kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16', '--service-cidr=10.3.3.0/24'])
 
-        create_watch_terminal()
+        print('Load the kubeadm credentials into the system')
+        home = os.environ['HOME']
+        kube = os.path.join(home, '.kube', 'config')
+        if not os.path.exists(kube):
+            os.makedirs(kube)
+        copyfile('/etc/kubernetes/admin.conf', kube)
+        os.chown(kube, 1000, 1000)
+
+        # sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
+        # sudo -H chown $(id -u):$(id -g) $HOME/.kube/config
+
+        # create_watch_terminal()
 
     except Exception:
         print('Exception caught:')
