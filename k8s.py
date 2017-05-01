@@ -200,26 +200,13 @@ def main():
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         if 'systemd' in CGROUP_DRIVER:
-            print("GREATE!")
-        # print(CGROUP_DRIVER)
-        # client = docker.from_env()
-        # for x in client.info():
-        #     print (x)
-        # print(client.info())
-        # DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
-        # DOCKER_INFO = subprocess.check_output(
-        #     'sudo docker info | grep Cgroup Driver')
-        # print(DOCKER_INFO)
-        # num = 1
-        # for line in DOCKER_INFO:
-        #     num = num + 1
-        #     if re.search(line, 'Cgroup Driver'):
-        #         print(line)
-        #     print('LINE %s %s' % (num, line))
-        # fields = line.strip().split()
-        # Array indices start at 0 unlike AWK
-        # print(fields[0])
-        # , | grep "Cgroup Driver"
+            CGROUP_DRIVER = 'systemd'
+        run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s',
+             '--enable-cri=false |g', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'] % CGROUP_DRIVER)
+
+        print("Setup the DNS server with the service CIDR:")
+        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
+             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
     except Exception:
         print("Exception caught:")
