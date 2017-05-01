@@ -230,7 +230,7 @@ def main():
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         print("test3")
 
-        subprocess.call(shlex.split('sudo id -nu'))
+        subprocess.call(shlex.split('sudo -i'))
 
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
