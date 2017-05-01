@@ -181,8 +181,6 @@ def main():
         print("We're root!")
     else:
         print("We're not root.")
-        # subprocess.check_output(['sudo', 'python'])
-        # *sys.argv])
 
     try:
         print("Turn off SELinux")
@@ -210,7 +208,7 @@ def main():
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
-            textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s' % CGROUP_DRIVER
+            textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
         file = fileinput.FileInput(
             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', inplace=True, backup='.bak')
         for line in file:
