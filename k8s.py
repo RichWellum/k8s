@@ -20,6 +20,10 @@ Inputs:
 2. mgmt_int   : Name of the interface to be used for management operations
 3. mgmt_ip    : IP Address of management interface
 4. neutron_int: Name of the interface to be used for Neutron operations
+
+TODO:
+
+1. Will need a blueprint if adding this to community
 '''
 
 from __future__ import print_function
@@ -143,10 +147,14 @@ def main():
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
     set_logging()
-    logger.setLevel(level=args.verbose)
+    logger.setLeqvel(level=args.verbose)
 
     try:
         print("Rich")
+
+        print("Turn of SELinux")
+        run('sudo', 'setenforce' '0')
+        run("sudo", "sed", "-i", "'s/enforcing/permissive/g'", "/etc/selinux/config")
 
     except Exception:
         print("Exception caught:")
