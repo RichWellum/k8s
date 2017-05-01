@@ -195,6 +195,10 @@ def main():
                 run(['sudo', 'systemctl', 'stop', 'firewalld'])
                 run(['sudo', 'systemctl', 'disable', 'firewalld'])
 
+        print("Fix iptables")
+        with open("/etc/sysctl.conf", "a") as myfile:
+            myfile.write("net.bridge.bridge-nf-call-ip6tables = 1")
+
         print("Installing k8s 1.6.1 or later - please wait")
         create_k8s_repo()
         run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
