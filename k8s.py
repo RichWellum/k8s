@@ -36,6 +36,7 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import re
 import logging
+import psutil
 # import pexpect
 # import tarfile
 
@@ -155,11 +156,8 @@ def main():
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
         print("Turn off Firewalld if running")
-        # firewalld = run(['ps', '-ef', '|', 'grep', '"firewalld"', '|', 'grep', '-v', '"grep"'])
-        cmd_str = 'ps -ef | grep "firewalld" | grep -v "grep"'
-        firewalld = subprocess.check_output(cmd_str, shell=True)
-
-        if re.search('firewall', firewalld):
+        process_names = [proc.name() for proc in psutil.process_iter()]
+        if re.search('firewall', process_names):
             run(['sudo', 'systemctl', 'stop', 'firewalld'])
             run(['sudo', 'systemctl', 'disable', 'firewalld'])
         else:
