@@ -154,7 +154,7 @@ def main():
 
         print("Turn off SELinux")
         run(['sudo', 'setenforce', '0'])
-        run(['sudo', 'sed', '-i', '"s/enforcing/permissive/g"', '/etc/selinux/config'])
+        run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
     except Exception:
         print("Exception caught:")
