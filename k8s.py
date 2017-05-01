@@ -197,7 +197,7 @@ def main():
         run(['sudo', 'systemctl', 'start', 'docker'])
         # DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
         DOCKER_INFO = subprocess.check_output(
-            'sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver')
+            'sudo docker info | grep Cgroup Driver')
         print(DOCKER_INFO)
         # num = 1
         # for line in DOCKER_INFO:
