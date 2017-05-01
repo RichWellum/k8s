@@ -176,7 +176,7 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 
 def create_watch_terminal():
-    Popen([executable, 'script.py'], creationflags=CREATE_NEW_CONSOLE)
+    os.system("terminal -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
 
     input('Enter to exit from this launcher script...')
 
