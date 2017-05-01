@@ -235,7 +235,7 @@ def main():
             textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
         print("test4")
 
-        run(['sudo', 'chmod', '766', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        run(['sudo', 'chmod', '777', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
         print("test5")
 
         file = fileinput.FileInput(
