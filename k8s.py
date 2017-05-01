@@ -29,6 +29,7 @@ Dependencies:
 
 psutil (sudo yum install gcc python-devel
         sudo pip install psutil)
+docker (sudopip install docker)
 '''
 
 from __future__ import print_function
@@ -39,6 +40,7 @@ import subprocess
 # import getpass
 import argparse
 from argparse import RawDescriptionHelpFormatter
+import docker
 import re
 import logging
 import psutil
@@ -195,10 +197,12 @@ def main():
         print("Enable the correct cgroup driver and disable CRI")
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
+        client = docker.from_env()
+        print(client.info)
         # DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
-        DOCKER_INFO = subprocess.check_output(
-            'sudo docker info | grep Cgroup Driver')
-        print(DOCKER_INFO)
+        # DOCKER_INFO = subprocess.check_output(
+        #     'sudo docker info | grep Cgroup Driver')
+        # print(DOCKER_INFO)
         # num = 1
         # for line in DOCKER_INFO:
         #     num = num + 1
