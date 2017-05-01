@@ -31,13 +31,13 @@ import sys
 import os
 import time
 import subprocess
-import getpass
+# import getpass
 import argparse
 from argparse import RawDescriptionHelpFormatter
-import re
+# import re
 import logging
-import pexpect
-import tarfile
+# import pexpect
+# import tarfile
 
 
 __author__ = "Rich Wellum"
