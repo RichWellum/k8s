@@ -196,6 +196,7 @@ def main():
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
         DOCKER_INFO = run(['sudo', 'docker', 'info'])
+        print(DOCKER_INFO)
         for line in DOCKER_INFO:
             fields = line.strip().split()
             # Array indices start at 0 unlike AWK
