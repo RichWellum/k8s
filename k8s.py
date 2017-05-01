@@ -147,7 +147,7 @@ def main():
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
     set_logging()
-    logger.setLeqvel(level=args.verbose)
+    logger.setLevel(level=args.verbose)
 
     try:
         print("Rich")
