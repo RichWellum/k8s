@@ -230,6 +230,8 @@ def main():
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         print("test3")
 
+        subprocess.call(shlex.split('sudo id -nu'))
+
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
@@ -247,7 +249,6 @@ def main():
         print("This script was called by: " + getpass.getuser())
 
         print("Now do something as 'root'...")
-        subprocess.call(shlex.split('sudo id -nu'))
 
         for line in file:
             print("test7")
