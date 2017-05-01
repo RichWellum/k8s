@@ -176,7 +176,7 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 
 def create_watch_terminal():
-    os.system("terminal -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
+    os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
 
     input('Enter to exit from this launcher script...')
 
@@ -212,7 +212,8 @@ def main():
         print('Installing k8s 1.6.1 or later - please wait')
         create_k8s_repo()
         run(['yum', 'install', '-y', 'docker', 'ebtables',
-             'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni', 'git', 'gcc'])
+             'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
+             'git', 'gcc', 'xterm'])
 
         print('Enable the correct cgroup driver and disable CRI')
         run(['systemctl', 'enable', 'docker'])
