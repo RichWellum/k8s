@@ -72,9 +72,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description="A tool to create a working Kubernetes Cluster \n" +
-        "Bare Metal or a VM.",
+        "on Bare Metal or a VM.",
         epilog="E.g.:\n" +
-        "Build CIMP XML files(and QCOW2's): k8s.py eth0 10.192.16.32 eth1\n")
+        "k8s.py eth0 10.192.16.32 eth1\n")
     parser.add_argument('MGMT_INT',
                         help='Management Interface, E.g: eth0')
     parser.add_argument('MGMT_IP',
