@@ -231,8 +231,10 @@ def main():
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
             textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
+        run(['sudo', 'chmod', '766', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
         file = fileinput.FileInput(
-            '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', inplace=True, backup='.bak')
+            '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf',
+            inplace=True, backup='.bak')
         for line in file:
             print(line.replace(textToSearch, textToReplace), end='')
         file.close()
