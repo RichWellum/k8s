@@ -177,6 +177,13 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
+    if os.geteuid() == 0:
+        print("We're root!")
+    else:
+        print("We're not root.")
+        # subprocess.check_output(['sudo', 'python'])
+        # *sys.argv])
+
     try:
         print("Turn off SELinux")
         run(['sudo', 'setenforce', '0'])
