@@ -201,26 +201,26 @@ def main():
 
     try:
         print('Turn off SELinux')
-        run(['setenforce', '0'])
-        run(['sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+        run(['sudo', 'setenforce', '0'])
+        run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
         print('Turn off Firewalld if running')
         PROCNAME = 'firewalld'
         for proc in psutil.process_iter():
             if PROCNAME in proc.name():
                 print('Found %s, Stopping and Disabling firewalld' % proc.name())
-                run(['systemctl', 'stop', 'firewalld'])
-                run(['systemctl', 'disable', 'firewalld'])
+                run(['sudo', 'systemctl', 'stop', 'firewalld'])
+                run(['sudo', 'systemctl', 'disable', 'firewalld'])
 
         print('Installing k8s 1.6.1 or later - please wait')
         create_k8s_repo()
-        run(['yum', 'install', '-y', 'docker', 'ebtables',
+        run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
              'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
              'git', 'gcc', 'xterm'])
 
         print('Enable the correct cgroup driver and disable CRI')
-        run(['systemctl', 'enable', 'docker'])
-        run(['systemctl', 'start', 'docker'])
+        run(['sudo', 'systemctl', 'enable', 'docker'])
+        run(['sudo', 'systemctl', 'start', 'docker'])
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         if 'systemd' in CGROUP_DRIVER:
@@ -234,24 +234,24 @@ def main():
         file.close()
 
         print('Setup the DNS server with the service CIDR')
-        run(['sed', '-i', 's/10.96.0.10/10.3.3.10/g',
+        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
         print('Reload the hand-modified service files')
-        run(['systemctl', 'daemon-reload'])
+        run(['sudo', 'systemctl', 'daemon-reload'])
 
         print('Stop kubelet if it is running')
-        run(['systemctl', 'stop', 'kubelet'])
+        run(['sudo', 'systemctl', 'stop', 'kubelet'])
 
         print('Enable and start docker and kubelet')
-        run(['systemctl', 'enable', 'kubelet'])
-        run(['systemctl', 'start', 'kubelet'])
+        run(['sudo', 'systemctl', 'enable', 'kubelet'])
+        run(['sudo', 'systemctl', 'start', 'kubelet'])
 
         print('Fix iptables')
         with open('/etc/sysctl.conf', 'a') as myfile:
             myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
             myfile.write('net.bridge.bridge-nf-call-iptables=1')
-        run(['sysctl', '-p'])
+        run(['sudo', 'sysctl', '-p'])
 
         print('Deploy Kubernetes with kubeadm')
         run(['kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16', '--service-cidr=10.3.3.0/24'])
