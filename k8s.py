@@ -24,6 +24,11 @@ Inputs:
 TODO:
 
 1. Will need a blueprint if adding this to community
+
+Dependencies:
+
+psutil (sudo yum install gcc python-devel
+        sudo pip install psutil)
 '''
 
 from __future__ import print_function
@@ -156,12 +161,14 @@ def main():
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
         print("Turn off Firewalld if running")
-        process_names = [proc.name() for proc in psutil.process_iter()]
-        if re.search('firewall', process_names):
-            run(['sudo', 'systemctl', 'stop', 'firewalld'])
-            run(['sudo', 'systemctl', 'disable', 'firewalld'])
-        else:
-            logger.debug("firewalld not running")
+        # process_names = [proc.name() for proc in psutil.process_iter()]
+        PROCNAME = "firewalld"
+        for proc in psutil.process_iter():
+            if PROCNAME in proc.name():
+                run(['sudo', 'systemctl', 'stop', 'firewalld'])
+                run(['sudo', 'systemctl', 'disable', 'firewalld'])
+            else:
+                logger.debug("firewalld not running")
 
     except Exception:
         print("Exception caught:")
