@@ -146,6 +146,23 @@ def start_process(args):
     time.sleep(2)
 
 
+def create_k8s_repo():
+    """Create a k8s repository file"""
+    # working_dir = '.'
+    name = '/etc/yum.repos.d/kubernetes.repo'
+    with open(name, "w") as w:
+        w.write("""\
+        [kubernetes]
+        name=Kubernetes
+        baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+        enabled=1
+        gpgcheck=0
+        repo_gpgcheck=1
+        gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        """)
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -161,16 +178,19 @@ def main():
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
         print("Turn off Firewalld if running")
-        # process_names = [proc.name() for proc in psutil.process_iter()]
         PROCNAME = "firewalld"
         for proc in psutil.process_iter():
-            # print(proc.name())
             if PROCNAME in proc.name():
-                print(proc.name())
+                print("Found %s, Stopping and Disabling firewalld" % proc.name())
                 run(['sudo', 'systemctl', 'stop', 'firewalld'])
                 run(['sudo', 'systemctl', 'disable', 'firewalld'])
             else:
                 logger.debug("firewalld not running")
+
+        print("Install k8s 1.6.1 or later")
+        create_k8s_repo()
+        run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
+             'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni', 'git', 'gcc'])
 
     except Exception:
         print("Exception caught:")
