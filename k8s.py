@@ -197,7 +197,7 @@ def main():
 
         print("Fix iptables")
         with open("/etc/sysctl.conf", "a") as myfile:
-            myfile.write("net.bridge.bridge-nf-call-ip6tables=1")
+            myfile.write("net.bridge.bridge-nf-call-ip6tables=1" + "\n")
             myfile.write("net.bridge.bridge-nf-call-iptables=1")
         run(['sysctl', '-p'])
 
