@@ -180,7 +180,8 @@ def main():
     if os.geteuid() == 0:
         print("We're root!")
     else:
-        print("We're not root.")
+        print("We're not root. Please run again with 'sudo'")
+        sys.exit(1)
 
     try:
         print("Turn off SELinux")
