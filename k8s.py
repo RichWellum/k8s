@@ -227,10 +227,14 @@ def main():
         print("test2")
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
+        print("test3")
+
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
             textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
+        print("test4")
+
         run(['sudo', 'chmod', '766', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
         file = fileinput.FileInput(
             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf',
