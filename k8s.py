@@ -45,6 +45,9 @@ from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
 import fileinput
+from sys import executable
+from subprocess import Popen, CREATE_NEW_CONSOLE
+
 # import pexpect
 # import tarfile
 
@@ -168,6 +171,12 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
+def create_watch_terminal():
+    Popen([executable, 'script.py'], creationflags=CREATE_NEW_CONSOLE)
+
+    input('Enter to exit from this launcher script...')
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -220,15 +229,30 @@ def main():
             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', inplace=True, backup='.bak')
         for line in file:
             print(line.replace(textToSearch, textToReplace), end='')
-        # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s',
-        #      '--enable-cri=false |g', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'] % CGROUP_DRIVER)
         file.close()
-        print("Setup the DNS server with the service CIDR:")
+
+        print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
+        print('Reload the hand-modified service files')
+        run(['systemctl', 'daemon-reload'])
+
+        print('Stop kubelet if it is running')
+        run(['systemctl', 'stop', 'kubelet'])
+
+        print('Enable and start docker and kubelet')
+        run(['systemctl', 'enable', 'kubelet'])
+        run(['systemctl', 'start', 'kubelet'])
+
+        print('Deploy Kubernetes with kubeadm')
+        run(['sudo', 'kubeadm', 'init', '-', '-pod', '-', 'network', '-', 'cidr', '=',
+             '10.1.0.0', '/', '16', '-', '-service', '-', 'cidr', '=', '10.3.3.0', '/', '24'])
+
+        create_watch_terminal()
+
     except Exception:
-        print("Exception caught:")
+        print('Exception caught:')
         print(sys.exc_info())
         raise
 
