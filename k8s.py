@@ -40,10 +40,11 @@ import subprocess
 # import getpass
 import argparse
 from argparse import RawDescriptionHelpFormatter
-import docker
-import re
+# import docker
+# import re
 import logging
 import psutil
+import fileinput
 # import pexpect
 # import tarfile
 
@@ -201,8 +202,13 @@ def main():
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
-        run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s',
-             '--enable-cri=false |g', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'] % CGROUP_DRIVER)
+            textToSearch = 'KUBELET_KUBECONFIG_ARGS='
+            textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s' % CGROUP_DRIVER
+        with fileinput.FileInput('/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', inplace=True, backup='.bak') as file:
+            for line in file:
+                print(line.replace(textToSearch, textToReplace), end='')
+        # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s',
+        #      '--enable-cri=false |g', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'] % CGROUP_DRIVER)
 
         print("Setup the DNS server with the service CIDR:")
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
