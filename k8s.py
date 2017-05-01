@@ -155,7 +155,7 @@ def main():
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
         print("Turn off Firewalld if running")
-        firewalld = run(['ps', '-ef', '|', 'grep', 'firewalld', '|', 'grep', '-v', 'grep'])
+        firewalld = run(['ps', '-ef', '|', 'grep', '"firewalld"', '|', 'grep', '-v', '"grep"'])
         if re.search('firewall', firewalld):
             run(['sudo', 'systemctl', 'stop', 'firewalld'])
             run(['sudo', 'systemctl', 'disable', 'firewalld'])
