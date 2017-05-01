@@ -198,6 +198,8 @@ def main():
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
         client = docker.from_env()
+        for x in client.info():
+            print (x)
         print(client.info)
         # DOCKER_INFO = run(['sudo', 'docker', 'info', '|', 'grep', 'Cgroup Driver'])
         # DOCKER_INFO = subprocess.check_output(
