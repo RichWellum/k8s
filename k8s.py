@@ -199,7 +199,9 @@ def main():
         run(['sudo', 'systemctl', 'start', 'docker'])
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
-        print(CGROUP_DRIVER)
+        if 'systemd' in CGROUP_DRIVER:
+            print("GREATE!")
+        # print(CGROUP_DRIVER)
         # client = docker.from_env()
         # for x in client.info():
         #     print (x)
