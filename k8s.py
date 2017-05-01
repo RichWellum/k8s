@@ -34,7 +34,7 @@ import subprocess
 # import getpass
 import argparse
 from argparse import RawDescriptionHelpFormatter
-# import re
+import re
 import logging
 # import pexpect
 # import tarfile
@@ -150,11 +150,17 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
-        print("Rich")
-
         print("Turn off SELinux")
         run(['sudo', 'setenforce', '0'])
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+
+        print("Turn off Firewalld if running")
+        firewalld = run(['ps', '-ef', '|', 'grep', 'firewalld', '|', 'grep', '-v', 'grep'])
+        if re.search('firewall', firewalld):
+            run(['sudo', 'systemctl', 'stop', 'firewalld'])
+            run(['sudo', 'systemctl', 'disable', 'firewalld'])
+        else:
+            logger.debug("firewalld not running")
 
     except Exception:
         print("Exception caught:")
