@@ -164,6 +164,7 @@ def main():
         # process_names = [proc.name() for proc in psutil.process_iter()]
         PROCNAME = "firewalld"
         for proc in psutil.process_iter():
+            print(proc.name())
             if PROCNAME in proc.name():
                 run(['sudo', 'systemctl', 'stop', 'firewalld'])
                 run(['sudo', 'systemctl', 'disable', 'firewalld'])
