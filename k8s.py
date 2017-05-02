@@ -345,6 +345,9 @@ def main():
             '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml',
             '-o', '/tmp/canal.yaml')
+        time.sleep(10)
+        if not os.path.exists('/tmp/canal.yaml'):
+            print('Bugger me with a fish fork')
         print(answer)
         # subprocess.check_output(
         # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
