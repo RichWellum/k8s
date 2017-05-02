@@ -179,6 +179,10 @@ def k8s_wait_for_pods():
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('All pods %s/6 are up, continuing' % (nlines - 1))
+            p = subprocess.Popen('kubectl get pods --all-namespaces',
+                                 stdout=subprocess.PIPE, shell=True)
+            (output, err) = p.communicate()
+            print('%s' % output)
             break
         elif elapsed_time < TIMEOUT:
             if (nlines - 1) < 0:
@@ -212,6 +216,8 @@ def k8s_wait_for_running():
                              stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
         print('Command output : %s' % output)
+        lines = output.splitlines()
+        print(lines)
         p = re.compile(output, re.IGNORECASE)
         if p.match("Pending"):
             print("Still in Pending")
