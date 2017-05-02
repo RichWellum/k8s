@@ -103,8 +103,8 @@ def parse_args():
                         help='Management Interface IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
-    # parser.add_argument('-c', '--compute', action='store_true',
-    #                     help='optionally will build a compute node')
+    parser.add_argument('-c', '--cleanup', action='store_true',
+                        help='Cleanup existing Kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose',
@@ -188,6 +188,9 @@ def create_watch_terminal():
 def main():
     """Main function."""
     args = parse_args()
+
+    if args.clean is True:
+        run(['sudo', 'kubeadm', 'reset'])
 
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
