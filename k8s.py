@@ -245,19 +245,19 @@ def main():
 
         # print("Now do something as 'root'...")
 
-        for line in file:
-            print("test3")
-            print(line.replace(textToSearch, textToReplace), end='')
-        file.close()
+        run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
+             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        # for line in file:
+        #     print("test3")
+        #     print(line.replace(textToSearch, textToReplace), end='')
+        # file.close()
         # print("Now switch back to the calling user: " + getpass.getuser())
+        print('Setup the DNS server with the service CIDR')
+        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
 
         run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
         print("test4")
-
-        print('Setup the DNS server with the service CIDR')
-        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
-             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
         print('Reload the hand-modified service files')
         run(['sudo', 'systemctl', 'daemon-reload'])
