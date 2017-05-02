@@ -229,8 +229,8 @@ def main():
 
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
-            textToSearch = 'KUBELET_KUBECONFIG_ARGS='
-            textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
+            # textToSearch = 'KUBELET_KUBECONFIG_ARGS='
+            # textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
         print("test1")
 
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
@@ -238,8 +238,8 @@ def main():
 
         print("test2")
 
-        file = fileinput.FileInput(
-            '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
+        # file = fileinput.FileInput(
+        # '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
 
         # print("This script was called by: " + getpass.getuser())
 
@@ -271,6 +271,8 @@ def main():
 
         print('Fix iptables')
         run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
+        run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
+
         with open('/tmp/sysctl.conf', 'a') as myfile:
             myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
             myfile.write('net.bridge.bridge-nf-call-iptables=1')
