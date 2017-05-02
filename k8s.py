@@ -186,7 +186,7 @@ def k8s_wait_for_pods():
             else:
                 cnt = nlines - 1
 
-            print("Kubernetes - not up after %d seconds, pods %s/6; "
+            print("Kubernetes - not up after %d seconds, #pods %s/6; "
                   "sleep %d seconds and retry"
                   % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -210,15 +210,17 @@ def k8s_wait_for_running():
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces',
                              stdout=subprocess.PIPE, shell=True)
-
+        (output, err) = p.communicate()
+        print('Command output : ', output)
+        print('Command exit status/return code : ', p.status())
         # pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         # lines = len(pod_status.splitlines())
         # p = re.compile(pod_status, re.IGNORECASE)
-        print(p)
-        if p.match("Pending"):
-            # if re.search('Pending', pod_status):
-            print(p.match("Pending"))
-            break
+        # print(p)
+        # if p.match("Pending"):
+        #     # if re.search('Pending', pod_status):
+        #     print(p.match("Pending"))
+        #     break
         # elif elapsed_time < TIMEOUT:
         #     if (nlines - 1) < 0:
         #         cnt = 0
