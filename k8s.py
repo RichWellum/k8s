@@ -41,22 +41,10 @@ import sys
 import os
 import time
 import subprocess
-# import getpass
 import argparse
 from argparse import RawDescriptionHelpFormatter
-# import docker
-# import re
 import logging
 import psutil
-import fileinput
-# from sys import executable
-# from subprocess import Popen
-from shutil import copyfile
-import shlex
-import getpass
-
-# import pexpect
-# import tarfile
 
 
 __author__ = 'Rich Wellum'
@@ -182,8 +170,29 @@ def create_watch_terminal():
     # os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
 
     # input('Enter to exit from this launcher script...')
-    pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
-    print(pod_status)
+    TIMEOUT = 350  # Give k8s 350s to come up
+    RETRY_INTERVAL = 5
+
+    elapsed_time = 0
+    while True:
+        pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
+        nlines = len(pod_status.splitlines())
+        if nlines == 6:
+            print("All pods are up, continuing")
+            break
+        elif elapsed_time < TIMEOUT:
+            logger.warning("VM is not yet running after %d seconds; "
+                           "sleep %d seconds and retry", elapsed_time,
+                           RETRY_INTERVAL)
+            time.sleep(RETRY_INTERVAL)
+            elapsed_time = elapsed_time + RETRY_INTERVAL
+            continue
+        else:
+            # Dump verbose output in case it helps...
+            print(pod_status)
+            raise AbortScriptException(
+                "k8s did not come up after {0} seconds!"
+                .format(elapsed_time))
 
 
 def main():
