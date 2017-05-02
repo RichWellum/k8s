@@ -190,6 +190,7 @@ def main():
     args = parse_args()
 
     if args.cleanup is True:
+        print("Cleaning up existing Kubernetes Cluster. YMMV.")
         run(['sudo', 'kubeadm', 'reset'])
         # sys.exit(1)
 
@@ -197,12 +198,6 @@ def main():
 
     set_logging()
     logger.setLevel(level=args.verbose)
-
-    if os.geteuid() == 0:
-        print('We are root!')
-    else:
-        print("We're not root. Please run again with 'sudo'")
-        # sys.exit(1)
 
     try:
         print('Turn off SELinux')
@@ -223,7 +218,7 @@ def main():
         #      'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
         #      'git', 'gcc', 'xterm'])
         print('Installing k8s 1.6.1 or later - please wait')
-        subprocess.check_output(
+        subprocess.call(
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
@@ -296,7 +291,9 @@ def main():
         if not os.path.exists(kube):
             os.makedirs(kube)
         run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
-        os.chown(kube, 1000, 1000)
+        subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
+                        shell=True)
+        # os.chown(kube, 1000, 1000)
 
         # sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
         # sudo -H chown $(id -u):$(id -g) $HOME/.kube/config
