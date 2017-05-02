@@ -217,9 +217,10 @@ def k8s_wait_for_running(number):
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
                              stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
-        print('Command output : %s' % output)
+        # print('Command output : %s' % output)
         if output >= number:
-            print('Kubernetes - Number of Running %s >= number of checking %s' % (output, number))
+            # Todo: format is odd
+            print('Kubernetes - Number of Running %s >= number of Checking %s' % (output, number))
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods : %s/%s; sleep %d seconds and retry'
@@ -231,7 +232,7 @@ def k8s_wait_for_running(number):
             # Dump verbose output in case it helps...
             print(output)
             raise AbortScriptException(
-                "k8s did not come up after {0} seconds!"
+                "Kubernetes did not come up after {0} seconds!"
                 .format(elapsed_time))
 
 
@@ -329,6 +330,13 @@ def main():
         # Wait for all pods to be launched
         k8s_wait_for_pods()
         k8s_wait_for_running(5)
+
+        print('Deploy the Canal CNI driver')
+        subprocess.call(
+            'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o canal.yaml')
+        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ canal.yaml')
+        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ canal.yaml')
+        subprocess.call('kubectl apply - f canal.yaml')
 
     except Exception:
         print('Exception caught:')
