@@ -167,11 +167,10 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 
 def create_watch_terminal():
-    # os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
+    """Wait for k8s to come up"""
 
-    # input('Enter to exit from this launcher script...')
     TIMEOUT = 350  # Give k8s 350s to come up
-    RETRY_INTERVAL = 5
+    RETRY_INTERVAL = 10
 
     elapsed_time = 0
     while True:
@@ -181,9 +180,9 @@ def create_watch_terminal():
             print("All pods are up, continuing")
             break
         elif elapsed_time < TIMEOUT:
-            logger.warning("VM is not yet running after %d seconds; "
+            logger.warning("Kubernetes not up after %d seconds %s/6; "
                            "sleep %d seconds and retry", elapsed_time,
-                           RETRY_INTERVAL)
+                           RETRY_INTERVAL, nlines)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
