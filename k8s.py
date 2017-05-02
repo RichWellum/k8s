@@ -190,7 +190,7 @@ def k8s_wait_for_pods():
             else:
                 cnt = nlines - 1
 
-            print("Kubernetes - not up after %d seconds, pods : %s/6; "
+            print("Kubernetes - not up after %d seconds, pods %s:6 - "
                   "sleep %d seconds and retry"
                   % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -216,21 +216,22 @@ def k8s_wait_for_running(number):
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
                              stdout=subprocess.PIPE, shell=True)
-        (output, err) = p.communicate()
-        # print('Command output : %s' % output)
-        if output >= number:
+        (running, err) = p.communicate()
+        p.wait()
+
+        if running >= number:
             # Todo: format is odd
-            print('Kubernetes - Number of Running %s >= number of Checking %s' % (output, number))
+            print('Kubernetes - Number of Running %s >= number of Checking %s' % (running, number))
             break
         elif elapsed_time < TIMEOUT:
-            print('Kubernetes - Running pods : %s/%s; sleep %d seconds and retry'
-                  % (output, number, RETRY_INTERVAL))
+            print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
+                  % (running, number, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
         else:
             # Dump verbose output in case it helps...
-            print(output)
+            print(running)
             raise AbortScriptException(
                 "Kubernetes did not come up after {0} seconds!"
                 .format(elapsed_time))
@@ -332,7 +333,7 @@ def main():
         k8s_wait_for_running(5)
 
         print('Deploy the Canal CNI driver')
-        subprocess.call(
+        subprocess.check_output(
             'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
         print('T1')
         subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ ./canal.yaml')
