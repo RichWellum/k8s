@@ -187,7 +187,7 @@ def create_watch_terminal():
 
             print("Kubernetes - not up after %d seconds, pods %s/6; "
                   "sleep %d seconds and retry",
-                  elapsed_time, cnt, RETRY_INTERVAL)
+                  % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
