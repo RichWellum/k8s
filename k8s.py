@@ -232,7 +232,7 @@ def k8s_wait_for_running(number):
         p.wait()
 
         if int(running) >= number:
-            print('Kubernetes - Running pods %s:%s' % (int(running), number))
+            print('Kubernetes - all Running pods %s:%s' % (int(running), number))
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
@@ -348,6 +348,8 @@ def main():
         time.sleep(10)
         if not os.path.exists('/tmp/canal.yaml'):
             print('Bugger me with a fish fork')
+        else:
+            print('Dont Bugger me with a fish fork')
         print(answer)
         # subprocess.check_output(
         # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
