@@ -217,7 +217,7 @@ def k8s_wait_for_running():
         (output, err) = p.communicate()
         print('Command output : %s' % output)
         lines = output.splitlines()
-        print(lines)
+        print('DEBUG %s' % lines)
         p = re.compile(output, re.IGNORECASE)
         if p.match("Pending"):
             print("Still in Pending")
