@@ -333,10 +333,14 @@ def main():
 
         print('Deploy the Canal CNI driver')
         subprocess.call(
-            'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o canal.yaml')
-        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ canal.yaml')
-        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ canal.yaml')
-        subprocess.call('kubectl apply - f canal.yaml')
+            'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
+        print('T1')
+        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ ./canal.yaml')
+        print('T2')
+        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ ./canal.yaml')
+        print('T3')
+        subprocess.call('kubectl apply - f ./canal.yaml')
+        print('T4')
 
     except Exception:
         print('Exception caught:')
