@@ -210,6 +210,7 @@ def k8s_wait_for_running():
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         p = re.compile(pod_status, re.IGNORECASE)
+        print(p)
         if p.match("Pending"):
             # if re.search('Pending', pod_status):
             print(p.match("Pending"))
