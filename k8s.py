@@ -45,7 +45,7 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
-import re
+# import re
 
 
 __author__ = 'Rich Wellum'
@@ -205,7 +205,9 @@ def k8s_wait_for_pods():
 
 
 def k8s_wait_for_running(number):
-    """Wait for k8s pods to be in running status"""
+    """Wait for k8s pods to be in running status
+
+    number is the minimum number of 'Running' pods expected"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
@@ -220,8 +222,8 @@ def k8s_wait_for_running(number):
             print('Number of Running %s match number of checking %s' % (output, number))
             break
         elif elapsed_time < TIMEOUT:
-            print("Kubernetes - Running pods : %s/%s; "
-                  "sleep %d seconds and retry"
+            print('Kubernetes - Running pods : %s/%s; '
+                  'sleep %d seconds and retry'
                   % (output, number, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -327,7 +329,7 @@ def main():
 
         # Wait for all pods to be launched
         k8s_wait_for_pods()
-        k8s_wait_for_running(6)
+        k8s_wait_for_running(5)
 
     except Exception:
         print('Exception caught:')
