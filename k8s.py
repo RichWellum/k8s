@@ -232,17 +232,17 @@ def k8s_wait_for_running(number):
         p.wait()
 
         if int(running) >= number:
-            print('Kubernetes - Running pods %s:%s' % (running, number))
+            print('Kubernetes - Running pods %s:%s' % (int(running), number))
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
-                  % (running, number, RETRY_INTERVAL))
+                  % (int(running), number, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
         else:
             # Dump verbose output in case it helps...
-            print(running)
+            print(int(running))
             raise AbortScriptException(
                 "Kubernetes did not come up after {0} seconds!"
                 .format(elapsed_time))
@@ -349,11 +349,11 @@ def main():
         # subprocess.check_output(
         # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
         print('T1')
-        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+        subprocess.call("sed - i 's@192.168.0.0/16@10.1.0.0/16@' /tmp/canal.yaml")
         print('T2')
-        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
+        subprocess.call("sed - i 's@10.96.232.136@10.3.3.100@' /tmp/canal.yaml")
         print('T3')
-        subprocess.call('kubectl apply - f /tmp/canal.yaml')
+        subprocess.call('kubectl apply -f /tmp/canal.yaml')
         print('T4')
 
     except Exception:
