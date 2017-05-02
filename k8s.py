@@ -230,31 +230,34 @@ def main():
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
         print("test3")
 
-        subprocess.call(shlex.split('sudo su -'))
+        # subprocess.call(shlex.split('sudo su -'))
 
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
             textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
-        print("test4")
+        run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
+        # print("test4")
 
-        run(['sudo', 'chmod', '777', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        # run(['sudo', 'chmod', '777', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
         print("test5")
 
         file = fileinput.FileInput(
-            '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf',
-            inplace=True, backup='.bak')
+            '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
         print("test6")
 
-        print("This script was called by: " + getpass.getuser())
+        # print("This script was called by: " + getpass.getuser())
 
-        print("Now do something as 'root'...")
+        # print("Now do something as 'root'...")
 
         for line in file:
             print("test7")
             print(line.replace(textToSearch, textToReplace), end='')
         file.close()
-        print("Now switch back to the calling user: " + getpass.getuser())
+        # print("Now switch back to the calling user: " + getpass.getuser())
+
+        run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
+             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
         print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
