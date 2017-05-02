@@ -178,7 +178,7 @@ def k8s_wait_for_pods():
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print('All pods %s/6 are up, continuing' % (nlines - 1))
+            print('Kubernetes - all pods %s/6 are started, continuing' % (nlines - 1))
             p = subprocess.Popen('kubectl get pods --all-namespaces',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
@@ -190,7 +190,7 @@ def k8s_wait_for_pods():
             else:
                 cnt = nlines - 1
 
-            print("Kubernetes - not up after %d seconds, pods %s:6 - "
+            print("Kubernetes - not started after %d seconds, pods %s:6 - "
                   "sleep %d seconds and retry"
                   % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -349,9 +349,9 @@ def main():
         # subprocess.check_output(
         # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
         print('T1')
-        subprocess.call("sed - i 's@192.168.0.0/16@10.1.0.0/16@' /tmp/canal.yaml")
+        subprocess.call("sed -i 's@192.168.0.0/16@10.1.0.0/16@' /tmp/canal.yaml")
         print('T2')
-        subprocess.call("sed - i 's@10.96.232.136@10.3.3.100@' /tmp/canal.yaml")
+        subprocess.call("sed -i 's@10.96.232.136@10.3.3.100@' /tmp/canal.yaml")
         print('T3')
         subprocess.call('kubectl apply -f /tmp/canal.yaml')
         print('T4')
