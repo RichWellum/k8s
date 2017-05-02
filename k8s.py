@@ -177,12 +177,17 @@ def create_watch_terminal():
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print("All pods %s/6 are up, continuing", nlines - 1)
+            print('All pods %s/6 are up, continuing' % (nlines - 1))
             break
         elif elapsed_time < TIMEOUT:
+            if (nlines - 1) < 0:
+                cnt = 0
+            else:
+                cnt = nlines - 1
+
             logger.warning("Kubernetes pods %s/6 - not up after %d seconds; "
                            "sleep %d seconds and retry",
-                           nlines - 1, elapsed_time, RETRY_INTERVAL)
+                           cnt, elapsed_time, RETRY_INTERVAL)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -269,7 +274,7 @@ def main():
         run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
         run(['sudo', 'sysctl', '-p'])
 
-        print('Deploy Kubernetes with kubeadm')
+        print('Deploying Kubernetes with kubeadm')
         run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
              '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
 
