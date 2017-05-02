@@ -327,6 +327,7 @@ def main():
 
         # Wait for all pods to be launched
         k8s_wait_for_pods()
+        k8s_wait_for_running()
 
     except Exception:
         print('Exception caught:')
