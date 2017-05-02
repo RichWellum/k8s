@@ -218,12 +218,11 @@ def k8s_wait_for_running(number):
                              stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
         print('Command output : %s' % output)
-        if output == number:
-            print('Number of Running %s match number of checking %s' % (output, number))
+        if output >= number:
+            print('Kubernetes - Number of Running %s >= number of checking %s' % (output, number))
             break
         elif elapsed_time < TIMEOUT:
-            print('Kubernetes - Running pods : %s/%s; '
-                  'sleep %d seconds and retry'
+            print('Kubernetes - Running pods : %s/%s; sleep %d seconds and retry'
                   % (output, number, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
