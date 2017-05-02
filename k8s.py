@@ -358,9 +358,9 @@ def main():
         run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
         # subprocess.call("sed -i 's@192.168.0.0/16@10.1.0.0/16@' /tmp/canal.yaml")
         print('T2')
-        subprocess.call("sed -i 's@10.96.232.136@10.3.3.100@' /tmp/canal.yaml")
+        run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
         print('T3')
-        subprocess.call('kubectl apply -f /tmp/canal.yaml')
+        run(['kubectl', 'apply', '-f', '/tmp/canal.yaml'])
         print('T4')
 
     except Exception:
