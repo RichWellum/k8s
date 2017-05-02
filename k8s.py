@@ -186,7 +186,7 @@ def k8s_wait_for_pods():
             else:
                 cnt = nlines - 1
 
-            print("Kubernetes - not up after %d seconds, #pods %s/6; "
+            print("Kubernetes - not up after %d seconds, pods : %s/6; "
                   "sleep %d seconds and retry"
                   % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -212,33 +212,39 @@ def k8s_wait_for_running():
                              stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
         print('Command output : %s' % output)
-        # print('Command exit status/return code : ', p.status())
-        # pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
-        # lines = len(pod_status.splitlines())
-        # p = re.compile(pod_status, re.IGNORECASE)
-        # print(p)
-        # if p.match("Pending"):
-        #     # if re.search('Pending', pod_status):
-        #     print(p.match("Pending"))
-        #     break
-        # elif elapsed_time < TIMEOUT:
-        #     if (nlines - 1) < 0:
-        #         cnt = 0
-        #     else:
-        #         cnt = nlines - 1
+        p = re.compile(output, re.IGNORECASE)
+        if p.match("Pending"):
+            print("Still in Pending")
+            continue
+        else:
+            break
+            # print('Command exit status/return code : ', p.status())
+            # pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
+            # lines = len(pod_status.splitlines())
+            # p = re.compile(pod_status, re.IGNORECASE)
+            # print(p)
+            # if p.match("Pending"):
+            #     # if re.search('Pending', pod_status):
+            #     print(p.match("Pending"))
+            #     break
+            # elif elapsed_time < TIMEOUT:
+            #     if (nlines - 1) < 0:
+            #         cnt = 0
+            #     else:
+            #         cnt = nlines - 1
 
-        #     print("Kubernetes - not up after %d seconds, pods %s/6; "
-        #           "sleep %d seconds and retry"
-        #           % (elapsed_time, cnt, RETRY_INTERVAL))
-        #     time.sleep(RETRY_INTERVAL)
-        #     elapsed_time = elapsed_time + RETRY_INTERVAL
-        #     continue
-        # else:
-        #     # Dump verbose output in case it helps...
-        #     print(pod_status)
-        #     raise AbortScriptException(
-        #         "k8s did not come up after {0} seconds!"
-        #         .format(elapsed_time))
+            #     print("Kubernetes - not up after %d seconds, pods %s/6; "
+            #           "sleep %d seconds and retry"
+            #           % (elapsed_time, cnt, RETRY_INTERVAL))
+            #     time.sleep(RETRY_INTERVAL)
+            #     elapsed_time = elapsed_time + RETRY_INTERVAL
+            #     continue
+            # else:
+            #     # Dump verbose output in case it helps...
+            #     print(pod_status)
+            #     raise AbortScriptException(
+            #         "k8s did not come up after {0} seconds!"
+            #         .format(elapsed_time))
 
 
 def main():
