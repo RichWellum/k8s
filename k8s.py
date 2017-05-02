@@ -211,8 +211,8 @@ def k8s_wait_for_running():
         p = subprocess.Popen('kubectl get pods --all-namespaces',
                              stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
-        print('Command output : ', output)
-        print('Command exit status/return code : ', p.status())
+        print('Command output : %s' % output)
+        # print('Command exit status/return code : ', p.status())
         # pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         # lines = len(pod_status.splitlines())
         # p = re.compile(pod_status, re.IGNORECASE)
