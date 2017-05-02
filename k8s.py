@@ -182,7 +182,7 @@ def create_watch_terminal():
     # os.system("xterm -e 'bash -c \"watch -d kubectl get pods --all-namespaces'")
 
     # input('Enter to exit from this launcher script...')
-    pod_status = run(['watch', '-d', 'kubectl', 'get', 'pods', '--all-namespaces'])
+    pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
     print(pod_status)
 
 
