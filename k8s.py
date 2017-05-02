@@ -232,8 +232,7 @@ def k8s_wait_for_running(number):
         p.wait()
 
         if int(running) >= number:
-            # Todo: format is odd, logic is one off
-            print('Kubernetes - Number of Running %s >= number of Checking %s' % (running, number))
+            print('Kubernetes - Running pods %s:%s' % (running, number))
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
@@ -278,9 +277,6 @@ def main():
 
         print('Creating kubernetes repo')
         create_k8s_repo()
-        # run(['sudo', 'yum', 'install', '-y', 'docker', 'ebtables',
-        #      'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
-        #      'git', 'gcc', 'xterm'])
         print('Installing k8s 1.6.1 or later - please wait')
         subprocess.check_output(
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
@@ -346,16 +342,18 @@ def main():
 
         print('Deploy the Canal CNI driver')
         answer = curl(
-            '-L', 'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml')
+            '-L',
+            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml',
+            '-o', '/tmp/canal.yaml')
         print(answer)
         # subprocess.check_output(
         # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
         print('T1')
-        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ ./canal.yaml')
+        subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
         print('T2')
-        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ ./canal.yaml')
+        subprocess.call('sed - i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
         print('T3')
-        subprocess.call('kubectl apply - f ./canal.yaml')
+        subprocess.call('kubectl apply - f /tmp/canal.yaml')
         print('T4')
 
     except Exception:
