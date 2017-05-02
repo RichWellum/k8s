@@ -104,7 +104,7 @@ def parse_args():
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster')
+                        help='Cleanup existing Kubernetes cluster before creating a new one')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose',
@@ -191,6 +191,7 @@ def main():
 
     if args.cleanup is True:
         run(['sudo', 'kubeadm', 'reset'])
+        # sys.exit(1)
 
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
@@ -233,7 +234,8 @@ def main():
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             # textToSearch = 'KUBELET_KUBECONFIG_ARGS='
-            # textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
+            # textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s
+            # --enable-cri=false ' % CGROUP_DRIVER
         print("test1")
 
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
@@ -288,10 +290,12 @@ def main():
 
         print('Load the kubeadm credentials into the system')
         home = os.environ['HOME']
-        kube = os.path.join(home, '.kube', 'config')
+        kube = os.path.join(home, '.kube')
+        config = os.path.join(kube, 'config')
+
         if not os.path.exists(kube):
             os.makedirs(kube)
-        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', kube])
+        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
         os.chown(kube, 1000, 1000)
 
         # sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
