@@ -291,6 +291,7 @@ def main():
         if not os.path.exists(kube):
             os.makedirs(kube)
         run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
+        run(['sudo', 'chmod', '777', kube])
         subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
                         shell=True)
         # os.chown(kube, 1000, 1000)
