@@ -177,7 +177,7 @@ def create_watch_terminal():
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print("All pods are up, continuing")
+            print("All pods %s/6 are up, continuing", nlines - 1)
             break
         elif elapsed_time < TIMEOUT:
             logger.warning("Kubernetes pods %s/6 - not up after %d seconds; "
