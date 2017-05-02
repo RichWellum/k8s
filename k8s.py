@@ -204,6 +204,18 @@ def k8s_wait_for_pods():
                 .format(elapsed_time))
 
 
+def curl(*args):
+    curl_path = '/usr/bin/curl'
+    curl_list = [curl_path]
+    for arg in args:
+        curl_list.append(arg)
+    curl_result = subprocess.Popen(
+        curl_list,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE).communicate()[0]
+    return curl_result
+
+
 def k8s_wait_for_running(number):
     """Wait for k8s pods to be in running status
 
@@ -219,8 +231,8 @@ def k8s_wait_for_running(number):
         (running, err) = p.communicate()
         p.wait()
 
-        if running >= number:
-            # Todo: format is odd
+        if int(running) >= number:
+            # Todo: format is odd, logic is one off
             print('Kubernetes - Number of Running %s >= number of Checking %s' % (running, number))
             break
         elif elapsed_time < TIMEOUT:
@@ -333,8 +345,11 @@ def main():
         k8s_wait_for_running(5)
 
         print('Deploy the Canal CNI driver')
-        subprocess.check_output(
-            'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
+        answer = curl(
+            '-L', 'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml')
+        print(answer)
+        # subprocess.check_output(
+        # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
         print('T1')
         subprocess.call('sed - i s@192.168.0.0/16@10.1.0.0/16@ ./canal.yaml')
         print('T2')
