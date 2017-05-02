@@ -45,6 +45,7 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
+import re
 
 
 __author__ = 'Rich Wellum'
@@ -166,7 +167,7 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
-def create_watch_terminal():
+def k8s_wait_for_pods():
     """Wait for k8s to come up"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
@@ -197,6 +198,40 @@ def create_watch_terminal():
             raise AbortScriptException(
                 "k8s did not come up after {0} seconds!"
                 .format(elapsed_time))
+
+
+def k8s_wait_for_running():
+    """Wait for k8s pods to be in running status"""
+
+    TIMEOUT = 350  # Give k8s 350s to come up
+    RETRY_INTERVAL = 10
+
+    elapsed_time = 0
+    while True:
+        pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
+        p = re.compile(pod_status, re.IGNORECASE)
+        if p.match("Pending"):
+            # if re.search('Pending', pod_status):
+            print(p.match("Pending"))
+            break
+        # elif elapsed_time < TIMEOUT:
+        #     if (nlines - 1) < 0:
+        #         cnt = 0
+        #     else:
+        #         cnt = nlines - 1
+
+        #     print("Kubernetes - not up after %d seconds, pods %s/6; "
+        #           "sleep %d seconds and retry"
+        #           % (elapsed_time, cnt, RETRY_INTERVAL))
+        #     time.sleep(RETRY_INTERVAL)
+        #     elapsed_time = elapsed_time + RETRY_INTERVAL
+        #     continue
+        # else:
+        #     # Dump verbose output in case it helps...
+        #     print(pod_status)
+        #     raise AbortScriptException(
+        #         "k8s did not come up after {0} seconds!"
+        #         .format(elapsed_time))
 
 
 def main():
@@ -290,8 +325,8 @@ def main():
         subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
                         shell=True)
 
-        # Wait for Kubernetes to be happy
-        create_watch_terminal()
+        # Wait for all pods to be launched
+        k8s_wait_for_pods()
 
     except Exception:
         print('Exception caught:')
