@@ -223,41 +223,37 @@ def main():
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
-        print("test1")
         run(['sudo', 'systemctl', 'start', 'docker'])
-        print("test2")
         CGROUP_DRIVER = subprocess.check_output(
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
-        print("test3")
-
-        # subprocess.call(shlex.split('sudo su -'))
 
         if 'systemd' in CGROUP_DRIVER:
             CGROUP_DRIVER = 'systemd'
             textToSearch = 'KUBELET_KUBECONFIG_ARGS='
             textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s --enable-cri=false ' % CGROUP_DRIVER
+        print("test1")
+
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-        # print("test4")
+        print("test2")
 
         # run(['sudo', 'chmod', '777', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
-        print("test5")
 
         file = fileinput.FileInput(
             '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
-        print("test6")
 
         # print("This script was called by: " + getpass.getuser())
 
         # print("Now do something as 'root'...")
 
         for line in file:
-            print("test7")
+            print("test3")
             print(line.replace(textToSearch, textToReplace), end='')
         file.close()
         # print("Now switch back to the calling user: " + getpass.getuser())
 
         run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        print("test4")
 
         print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g',
