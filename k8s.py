@@ -183,6 +183,7 @@ def create_watch_terminal():
 
     # input('Enter to exit from this launcher script...')
     pod_status = run(['watch', '-d', 'kubectl', 'get', 'pods', '--all-namespaces'])
+    print(pod_status)
 
 
 def main():
@@ -218,7 +219,7 @@ def main():
         #      'kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni',
         #      'git', 'gcc', 'xterm'])
         print('Installing k8s 1.6.1 or later - please wait')
-        subprocess.call(
+        subprocess.check_output(
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
@@ -227,37 +228,18 @@ def main():
             'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
 
         if 'systemd' in CGROUP_DRIVER:
+            # Todo: search and use
             CGROUP_DRIVER = 'systemd'
-            # textToSearch = 'KUBELET_KUBECONFIG_ARGS='
-            # textToReplace = 'KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s
-            # --enable-cri=false ' % CGROUP_DRIVER
-        print("test1")
 
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
         run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
-
-        print("test2")
-
-        # file = fileinput.FileInput(
-        # '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
-
-        # print("This script was called by: " + getpass.getuser())
-
-        # print("Now do something as 'root'...")
-
         run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
-        # for line in file:
-        #     print("test3")
-        #     print(line.replace(textToSearch, textToReplace), end='')
-        # file.close()
-        # print("Now switch back to the calling user: " + getpass.getuser())
+
         print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
-
         run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
-        print("test4")
 
         print('Reload the hand-modified service files')
         run(['sudo', 'systemctl', 'daemon-reload'])
@@ -294,12 +276,9 @@ def main():
         run(['sudo', 'chmod', '777', kube])
         subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
                         shell=True)
-        # os.chown(kube, 1000, 1000)
 
-        # sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
-        # sudo -H chown $(id -u):$(id -g) $HOME/.kube/config
-
-        # create_watch_terminal()
+        # Wait for Kubernetes to be happy
+        create_watch_terminal()
 
     except Exception:
         print('Exception caught:')
