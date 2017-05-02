@@ -288,7 +288,7 @@ def main():
         kube = os.path.join(home, '.kube', 'config')
         if not os.path.exists(kube):
             os.makedirs(kube)
-        run('sudo', 'cp', '/etc/kubernetes/admin.conf', kube)
+        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', kube])
         os.chown(kube, 1000, 1000)
 
         # sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
