@@ -189,7 +189,7 @@ def main():
     """Main function."""
     args = parse_args()
 
-    if args.clean is True:
+    if args.cleanup is True:
         run(['sudo', 'kubeadm', 'reset'])
 
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
