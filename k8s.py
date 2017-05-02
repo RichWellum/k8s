@@ -270,9 +270,11 @@ def main():
         run(['sudo', 'systemctl', 'start', 'kubelet'])
 
         print('Fix iptables')
-        with open('/etc/sysctl.conf', 'a') as myfile:
+        run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
+        with open('/tmp/sysctl.conf', 'a') as myfile:
             myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
             myfile.write('net.bridge.bridge-nf-call-iptables=1')
+        run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
         run(['sudo', 'sysctl', '-p'])
 
         print('Deploy Kubernetes with kubeadm')
