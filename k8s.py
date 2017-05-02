@@ -234,9 +234,9 @@ def main():
         print("test1")
 
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-        print("test2")
+        run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
 
-        # run(['sudo', 'chmod', '777', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        print("test2")
 
         file = fileinput.FileInput(
             '/tmp/10-kubeadm.conf', inplace=True, backup='.bak')
