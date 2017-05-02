@@ -180,9 +180,9 @@ def create_watch_terminal():
             print("All pods are up, continuing")
             break
         elif elapsed_time < TIMEOUT:
-            logger.warning("Kubernetes not up after %d seconds %s/6; "
-                           "sleep %d seconds and retry", elapsed_time,
-                           nlines, RETRY_INTERVAL)
+            logger.warning("Kubernetes pods %s/6 - not up after %d seconds; "
+                           "sleep %d seconds and retry",
+                           nlines - 1, elapsed_time, RETRY_INTERVAL)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
