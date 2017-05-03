@@ -309,7 +309,7 @@ subjects:
 def k8s_kolla_install_deploy_helm():
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm')
-    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.2.3-linux-amd64.tar.gz'
     curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
     print('Before tar')
     untar('/tmp/helm-v2.3.0-linux-amd64.tar.gz')
