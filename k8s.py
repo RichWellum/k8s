@@ -150,6 +150,12 @@ def start_process(args):
     time.sleep(2)
 
 
+def pause_to_debug():
+    """Pause the script for manual debugging of the VM before continuing."""
+    print("Pause before debug")
+    raw_input("Press Enter to continue.")
+
+
 def curl(*args):
     curl_path = '/usr/bin/curl'
     curl_list = [curl_path]
@@ -291,16 +297,18 @@ subjects:
 
 def k8s_kolla_install_deploy_helm():
     print("Install and deploy Helm")
-    answer = curl(
-        '-L',
-        'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
-        '-o', '/tmp/get_helm.sh')
+    # answer = curl(
+    #     '-L',
+    #     'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
+    #     '-o', '/tmp/get_helm.sh')
+    # print(answer)
+    answer = curl('-sSL', 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz',
+                  '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print(answer)
+    run(['tar', '-zxv', '--strip-components=1', '-C' '/tmp'])
+    run(['sudo', 'mv', '/tmp/helm', '/usr/local/bin/helm'])
     run(['chmod', '700', '/tmp/get_helm.sh'])
-    subprocess.call(['/tmp/get_helm.sh'])
-    # helm = subprocess.check_output('/tmp/get_helm.sh', shell=True)
-    # print(helm)
-    print("T1")
+    pause_to_debug()
     subprocess.call('helm init')
 
 
