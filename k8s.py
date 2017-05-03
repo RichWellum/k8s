@@ -313,7 +313,7 @@ def k8s_kolla_install_deploy_helm():
     curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
     untar('/tmp/helm-v2.2.3-linux-amd64.tar.gz')
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
-    run(['helm', 'init'])
+    run(['helm', 'init', '--debug'])
 
 
 def main():
