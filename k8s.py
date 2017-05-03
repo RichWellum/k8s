@@ -310,16 +310,13 @@ def k8s_kolla_install_deploy_helm():
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
-    curl('-sSL', url, '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
+    curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
     print('Before tar')
     untar('/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     # subprocess.call('sudo tar -xvzf /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
     print('AFter tar')
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
-    # run(['chmod', '700', '/tmp/get_helm.sh'])
-    pause_to_debug()
     run(['helm', 'init'])
-    # subprocess.call('helm init')
 
 
 def main():
@@ -353,7 +350,7 @@ def main():
         create_k8s_repo()
         print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
         subprocess.check_output(
-            'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
+            'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc', shell=True)
         print('Kubernetes - Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
