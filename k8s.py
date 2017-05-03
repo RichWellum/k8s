@@ -283,17 +283,19 @@ def main():
         print('Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
-        CGROUP_DRIVER = subprocess.check_output(
-            'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
 
-        if 'systemd' in CGROUP_DRIVER:
-            # Todo: search and use
-            CGROUP_DRIVER = 'systemd'
+        # Looks like note needed?
+        # CGROUP_DRIVER = subprocess.check_output(
+        #     'sudo docker info | grep "Cgroup Driver" | awk "{print $3}"', shell=True)
 
-        run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-        run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
-        run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
-             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+        # if 'systemd' in CGROUP_DRIVER:
+        #     # Todo: search and use
+        #     CGROUP_DRIVER = 'systemd'
+
+        # run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
+        # run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
+        # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
+        #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
         print('Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
@@ -321,6 +323,9 @@ def main():
         run(['sudo', 'sysctl', '-p'])
 
         print('Deploying Kubernetes with kubeadm')
+        # kubeadm init --skip-preflight-checks --service-cidr 172.16.128.0/24 --pod-network-cidr 172.16.132.0/22 \
+        # --apiserver-advertise-address $(cat /etc/nodepool/primary_node_private) | tee /tmp/kubeout
+        # grep 'kubeadm join --token' /tmp/kubeout | awk '{print $4}' > /etc/kubernetes/token.txt
         run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
              '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
 
@@ -341,11 +346,14 @@ def main():
         k8s_wait_for_running(5)
 
         print('Deploy the Canal CNI driver')
+        # Looks like some changes here
+        # url="https://raw.githubusercontent.com/projectcalico/canal/master"
+        # url="$url/k8s-install/1.6/canal.yaml"
         answer = curl(
             '-L',
-            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml',
+            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
             '-o', '/tmp/canal.yaml')
-        time.sleep(10)
+        # time.sleep(10)
         if not os.path.exists('/tmp/canal.yaml'):
             print('Bugger me with a fish fork')
         else:
