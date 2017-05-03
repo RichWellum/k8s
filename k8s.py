@@ -292,8 +292,8 @@ def main():
         #     # Todo: search and use
         #     CGROUP_DRIVER = 'systemd'
 
-        # run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-        # run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
+        run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
+        run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
         # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
         #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
