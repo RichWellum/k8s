@@ -311,10 +311,7 @@ def k8s_kolla_install_deploy_helm():
     print('Kolla - Install and deploy Helm')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.2.3-linux-amd64.tar.gz'
     curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
-    print('Before tar')
-    untar('/tmp/helm-v2.3.0-linux-amd64.tar.gz')
-    # subprocess.call('sudo tar -xvzf /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
-    print('AFter tar')
+    untar('/tmp/helm-v2.2.3-linux-amd64.tar.gz')
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init'])
 
