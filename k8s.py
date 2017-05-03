@@ -434,6 +434,9 @@ def main():
 
         k8s_wait_for_running(7)
 
+        print('Mark master node as schedulable')
+        run(['kubectl', 'taint', 'nodes', '--all=true', 'node-role.kubernetes.io/master:NoSchedule-'])
+
         # todo: nslookup check
         if args.kubernetes is True:
             print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
