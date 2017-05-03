@@ -308,9 +308,9 @@ def k8s_kolla_install_deploy_helm():
                   '-o',
                   '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print(answer)
-    run(['tar', '-zxv', '--strip-components=1', '/tmp/helm-v2.3.0-linux-amd64.tar.gz', '-C' '/tmp'])
+    run(['tar', '-xvzf', '/tmp/helm-v2.3.0-linux-amd64.tar.gz', '-C' '/tmp'])
     run(['sudo', 'mv', '/tmp/helm', '/usr/local/bin/helm'])
-    run(['chmod', '700', '/tmp/get_helm.sh'])
+    # run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
     subprocess.call('helm init')
 
