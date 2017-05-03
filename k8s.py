@@ -232,7 +232,7 @@ def k8s_wait_for_running(number):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
 
-    print('Waiting for %s pods to be in Running state' % number)
+    print('Waiting for %s pods to be in Running state:' % number)
     elapsed_time = 0
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
@@ -301,7 +301,7 @@ def k8s_kolla_install_deploy_helm():
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
     curl('-sSL', url, '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print('Before tar')
-    subprocess.call('sudo tar -xvzfv /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
+    subprocess.call('sudo tar -xvzf /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
     print('AFter tar')
     run(['sudo', 'mv', '-f', 'helm', '/usr/local/bin/helm'])
     # run(['chmod', '700', '/tmp/get_helm.sh'])
@@ -317,7 +317,8 @@ def main():
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
 
-    print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+    print('Management Int:%s, Management IP:%s, Neutron Int:%s' %
+          (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
 
     set_logging()
     logger.setLevel(level=args.verbose)
