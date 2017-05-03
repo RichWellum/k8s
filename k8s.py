@@ -148,6 +148,18 @@ def start_process(args):
     time.sleep(2)
 
 
+def curl(*args):
+    curl_path = '/usr/bin/curl'
+    curl_list = [curl_path]
+    for arg in args:
+        curl_list.append(arg)
+    curl_result = subprocess.Popen(
+        curl_list,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE).communicate()[0]
+    return curl_result
+
+
 def create_k8s_repo():
     """Create a k8s repository file"""
     # working_dir = '.'
@@ -168,7 +180,7 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 
 def k8s_wait_for_pods():
-    """Wait for k8s to come up"""
+    """Wait for basic k8s to come up"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
@@ -190,9 +202,10 @@ def k8s_wait_for_pods():
             else:
                 cnt = nlines - 1
 
-            print("Kubernetes - not started after %d seconds, pods %s:6 - "
-                  "sleep %d seconds and retry"
-                  % (elapsed_time, cnt, RETRY_INTERVAL))
+            if elapsed_time is not 0:
+                print("Kubernetes - not started after %d seconds, pods %s:6 - "
+                      "sleep %d seconds and retry"
+                      % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -202,18 +215,6 @@ def k8s_wait_for_pods():
             raise AbortScriptException(
                 "k8s did not come up after {0} seconds!"
                 .format(elapsed_time))
-
-
-def curl(*args):
-    curl_path = '/usr/bin/curl'
-    curl_list = [curl_path]
-    for arg in args:
-        curl_list.append(arg)
-    curl_result = subprocess.Popen(
-        curl_list,
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE).communicate()[0]
-    return curl_result
 
 
 def k8s_wait_for_running(number):
@@ -299,6 +300,7 @@ def main():
 
         run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
         run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
+        # Latest version of canal doesn't need this
         # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
         #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
@@ -351,9 +353,6 @@ def main():
         k8s_wait_for_running(5)
 
         print('Deploy the Canal CNI driver')
-        # Looks like some changes here
-        # url="https://raw.githubusercontent.com/projectcalico/canal/master"
-        # url="$url/k8s-install/1.6/canal.yaml"
         answer = curl(
             '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
@@ -369,8 +368,9 @@ def main():
         run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
         run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
         run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
-        # run(['sudo', 'sed', '-i', 's@"Network":.*"@"Network": "10.1.0.0/16"@', '/tmp/canal.yaml'])
         run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
+
+        k8s_wait_for_running(7)
 
     except Exception:
         print('Exception caught:')
