@@ -302,10 +302,13 @@ def k8s_kolla_install_deploy_helm():
     #     'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
     #     '-o', '/tmp/get_helm.sh')
     # print(answer)
-    answer = curl('-sSL', 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz',
-                  '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
+    answer = curl('-sSL',
+                  url,
+                  '-o',
+                  '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print(answer)
-    run(['tar', '-zxv', '--strip-components=1', '-C' '/tmp'])
+    run(['tar', '-zxv', '--strip-components=1', '/tmp/helm-v2.3.0-linux-amd64.tar.gz', '-C' '/tmp'])
     run(['sudo', 'mv', '/tmp/helm', '/usr/local/bin/helm'])
     run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
