@@ -94,6 +94,8 @@ def parse_args():
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
+    parser.add_argument('-k8s', '--kubernetes', action='store_true',
+                        help='Stop after bringing up kubernetes.')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose',
@@ -162,7 +164,6 @@ def curl(*args):
 
 def create_k8s_repo():
     """Create a k8s repository file"""
-    # working_dir = '.'
     name = './kubernetes.repo'
     repo = '/etc/yum.repos.d/kubernetes.repo'
     with open(name, "w") as w:
@@ -254,6 +255,51 @@ def k8s_wait_for_running(number):
                 .format(elapsed_time))
 
 
+# def k8s_check_dns():
+#     kubectl run - i - t $(uuidgen) - -image = busybox - -restart = Never
+#     p = subprocess.Popen('kubectl get pods --all-namespaces',
+#                                  stdout=subprocess.PIPE, shell=True)
+#             (output, err) = p.communicate()
+#             print('%s' % output)
+
+def k8s_kolla_update_rbac():
+    """..."""
+    print("Overide default RBAC settings")
+    name = '/tmp/rbac'
+    with open(name, "w") as w:
+        w.write("""\
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: Group
+  name: system:masters
+- kind: Group
+  name: system:authenticated
+- kind: Group
+  name: system:unauthenticated
+""")
+
+    run(['kubectl', 'update', '-f', '/tmp/rbac'])
+
+
+def k8s_kolla_install_deploy_helm():
+    print("Install and deploy Helm")
+    answer = curl(
+        '-L',
+        'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
+        '-o', '/tmp/get_helm.sh')
+    print(answer)
+    run(['chmod', '700', '/tmp/get_helm.sh'])
+    run(['/tmp/get_helm.sh'])
+    run(['helm', 'init'])
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -261,7 +307,6 @@ def main():
     if args.cleanup is True:
         print("Cleaning up existing Kubernetes Cluster. YMMV.")
         run(['sudo', 'kubeadm', 'reset'])
-        # sys.exit(1)
 
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
@@ -371,6 +416,14 @@ def main():
         run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
 
         k8s_wait_for_running(7)
+
+        # todo: nslookup check
+        if args.kubernetes is True:
+            print("Kubernetes Cluster is running and healthy and you do not wish to install kolla")
+            sys.exit(1)
+
+        k8s_kolla_update_rbac()
+        k8s_kolla_install_deploy_helm()
 
     except Exception:
         print('Exception caught:')
