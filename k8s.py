@@ -356,14 +356,21 @@ def main():
         # url="$url/k8s-install/1.6/canal.yaml"
         answer = curl(
             '-L',
+            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
+            '-o', '/tmp/rbac.yaml')
+        print(answer)
+        run(['kubectl', 'create', '-f', '/tmp/rbac.yaml'])
+
+        answer = curl(
+            '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
             '-o', '/tmp/canal.yaml')
         print(answer)
         run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
         run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
         run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
-        run(['sudo', 'sed', '-i', 's@"Network":.*"@"Network": "10.1.0.0/16"@', '/tmp/canal.yaml'])
-        run(['kubectl', 'apply', '-f', '/tmp/canal.yaml'])
+        # run(['sudo', 'sed', '-i', 's@"Network":.*"@"Network": "10.1.0.0/16"@', '/tmp/canal.yaml'])
+        run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
 
     except Exception:
         print('Exception caught:')
