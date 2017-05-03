@@ -197,7 +197,7 @@ def k8s_wait_for_pods():
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print('Kubernetes - all pods %s/6 are started, continuing' % (nlines - 1))
+            print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
             p = subprocess.Popen('kubectl get pods --all-namespaces',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
@@ -210,7 +210,7 @@ def k8s_wait_for_pods():
                 cnt = nlines - 1
 
             if elapsed_time is not 0:
-                print('Kubernetes - not started after %d seconds, pods %s:6 - '
+                print('Kubernetes - Pod status after %d seconds, pods %s:6 - '
                       'sleep %d seconds and retry'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -220,7 +220,7 @@ def k8s_wait_for_pods():
             # Dump verbose output in case it helps...
             print(pod_status)
             raise AbortScriptException(
-                "k8s did not come up after {0} seconds!"
+                "Kubernetes - did not come up after {0} seconds!"
                 .format(elapsed_time))
 
 
@@ -298,14 +298,11 @@ subjects:
 def k8s_kolla_install_deploy_helm():
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm')
-    # answer = curl(
-    #     '-L',
-    #     'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
-    #     '-o', '/tmp/get_helm.sh')
-    # print(answer)
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
     curl('-sSL', url, '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
-    run(['sudo', 'tar', '-xvzf', '/tmp/helm-v2.3.0-linux-amd64.tar.gz'])
+    print('Before tar')
+    subprocess.call('sudo tar -xvzfv /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
+    print('AFter tar')
     run(['sudo', 'mv', '-f', 'helm', '/usr/local/bin/helm'])
     # run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
@@ -393,7 +390,7 @@ def main():
         run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
              '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
 
-        print('Kubernetes - Load the kubeadm credentials into the system')
+        print('Kubernetes - Load kubeadm credentials into the system')
         home = os.environ['HOME']
         kube = os.path.join(home, '.kube')
         config = os.path.join(kube, 'config')
@@ -410,11 +407,10 @@ def main():
         k8s_wait_for_running(5)
 
         print('Kubernetes - Deploy the Canal CNI driver')
-        answer = curl(
+        curl(
             '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
             '-o', '/tmp/rbac.yaml')
-        print(answer)
         run(['kubectl', 'create', '-f', '/tmp/rbac.yaml'])
 
         answer = curl(
