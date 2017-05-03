@@ -233,6 +233,11 @@ def k8s_wait_for_running(number):
 
         if int(running) >= number:
             print('Kubernetes - all Running pods %s:%s' % (int(running), number))
+            p = subprocess.Popen('kubectl get pods --all-namespaces',
+                                 stdout=subprocess.PIPE, shell=True)
+            (output, err) = p.communicate()
+            print('%s' % output)
+
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
@@ -353,23 +358,12 @@ def main():
             '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
             '-o', '/tmp/canal.yaml')
-        # time.sleep(10)
-        if not os.path.exists('/tmp/canal.yaml'):
-            print('Bugger me with a fish fork')
-        else:
-            print('Dont Bugger me with a fish fork')
         print(answer)
-        # subprocess.check_output(
-        # 'curl -L https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml -o ./canal.yaml')
-        print('T1')
         run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
         run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
-        # subprocess.call("sed -i 's@192.168.0.0/16@10.1.0.0/16@' /tmp/canal.yaml")
-        print('T2')
         run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
-        print('T3')
+        run(['sudo', 'sed', '-i', 's@"Network":.*"@"Network": "10.1.0.0/16"@', '/tmp/canal.yaml'])
         run(['kubectl', 'apply', '-f', '/tmp/canal.yaml'])
-        print('T4')
 
     except Exception:
         print('Exception caught:')
