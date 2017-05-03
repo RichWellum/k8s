@@ -318,7 +318,8 @@ def k8s_kolla_install_deploy_helm():
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     # run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
-    subprocess.call('helm init')
+    run(['helm', 'init'])
+    # subprocess.call('helm init')
 
 
 def main():
