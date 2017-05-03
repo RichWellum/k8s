@@ -300,6 +300,7 @@ def k8s_kolla_install_deploy_helm():
     subprocess.call(['/tmp/get_helm.sh'])
     # helm = subprocess.check_output('/tmp/get_helm.sh', shell=True)
     # print(helm)
+    print("T1")
     subprocess.call('helm init')
 
 
