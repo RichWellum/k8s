@@ -297,8 +297,9 @@ def k8s_kolla_install_deploy_helm():
         '-o', '/tmp/get_helm.sh')
     print(answer)
     run(['chmod', '700', '/tmp/get_helm.sh'])
-    subprocess.check_output('/tmp/get_helm.sh', shell=True)
-    subprocess.check_output('helm init')
+    helm = subprocess.check_output('/tmp/get_helm.sh', shell=True)
+    print(helm)
+    # subprocess.check_output('helm init')
 
 
 def main():
