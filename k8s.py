@@ -226,6 +226,7 @@ def k8s_wait_for_running(number):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
 
+    print('Waiting for % pods to be in Running state' % number)
     elapsed_time = 0
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
@@ -424,6 +425,7 @@ def main():
 
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
+        k8s_wait_for_running(8)
 
     except Exception:
         print('Exception caught:')
