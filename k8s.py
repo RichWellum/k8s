@@ -152,8 +152,8 @@ def start_process(args):
 
 def pause_to_debug():
     """Pause the script for manual debugging of the VM before continuing."""
-    print("Pause before debug")
-    raw_input("Press Enter to continue.")
+    print('Pause before debug')
+    raw_input('Press Enter to continue')
 
 
 def curl(*args):
@@ -210,8 +210,8 @@ def k8s_wait_for_pods():
                 cnt = nlines - 1
 
             if elapsed_time is not 0:
-                print("Kubernetes - not started after %d seconds, pods %s:6 - "
-                      "sleep %d seconds and retry"
+                print('Kubernetes - not started after %d seconds, pods %s:6 - '
+                      'sleep %d seconds and retry'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -271,7 +271,7 @@ def k8s_wait_for_running(number):
 
 def k8s_kolla_update_rbac():
     """..."""
-    print("Overide default RBAC settings")
+    print('Kolla - Overide default RBAC settings')
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
@@ -296,7 +296,8 @@ subjects:
 
 
 def k8s_kolla_install_deploy_helm():
-    print("Install and deploy Helm")
+    '''Deploy helm binary'''
+    print('Kolla - Install and deploy Helm')
     # answer = curl(
     #     '-L',
     #     'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get',
@@ -309,7 +310,7 @@ def k8s_kolla_install_deploy_helm():
                   '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print(answer)
     run(['tar', '-xvzf', '/tmp/helm-v2.3.0-linux-amd64.tar.gz', '-C' '/tmp'])
-    run(['sudo', 'mv', 'f', '/tmp/helm', '/usr/local/bin/helm'])
+    run(['sudo', 'mv', '-f', '/tmp/helm', '/usr/local/bin/helm'])
     # run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
     subprocess.call('helm init')
@@ -320,7 +321,7 @@ def main():
     args = parse_args()
 
     if args.cleanup is True:
-        print("Cleaning up existing Kubernetes Cluster. YMMV.")
+        print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
 
     print(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
@@ -329,11 +330,11 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
-        print('Turn off SELinux')
+        print('Kubernetes - Turn off SELinux')
         run(['sudo', 'setenforce', '0'])
         run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
 
-        print('Turn off Firewalld if running')
+        print('Kubernetes - Turn off Firewalld if running')
         PROCNAME = 'firewalld'
         for proc in psutil.process_iter():
             if PROCNAME in proc.name():
@@ -341,12 +342,12 @@ def main():
                 run(['sudo', 'systemctl', 'stop', 'firewalld'])
                 run(['sudo', 'systemctl', 'disable', 'firewalld'])
 
-        print('Creating kubernetes repo')
+        print('Kubernetes - Creating kubernetes repo')
         create_k8s_repo()
-        print('Installing k8s 1.6.1 or later - please wait')
+        print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
         subprocess.check_output(
             'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc xterm', shell=True)
-        print('Enable the correct cgroup driver and disable CRI')
+        print('Kubernetes - Enable the correct cgroup driver and disable CRI')
         run(['sudo', 'systemctl', 'enable', 'docker'])
         run(['sudo', 'systemctl', 'start', 'docker'])
 
@@ -364,22 +365,22 @@ def main():
         # run(['sudo', 'sed', '-i', 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=$CGROUP_DRIVER --enable-cri=false |g',
         #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
-        print('Setup the DNS server with the service CIDR')
+        print('Kubernetes - Setup the DNS server with the service CIDR')
         run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
         run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
 
-        print('Reload the hand-modified service files')
+        print('Kubernetes - Reload the hand-modified service files')
         run(['sudo', 'systemctl', 'daemon-reload'])
 
-        print('Stop kubelet if it is running')
+        print('Kubernetes - Stop kubelet if it is running')
         run(['sudo', 'systemctl', 'stop', 'kubelet'])
 
-        print('Enable and start docker and kubelet')
+        print('Kubernetes - Enable and start docker and kubelet')
         run(['sudo', 'systemctl', 'enable', 'kubelet'])
         run(['sudo', 'systemctl', 'start', 'kubelet'])
 
-        print('Fix iptables')
+        print('Kubernetes - Fix iptables')
         run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
         run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
 
@@ -389,14 +390,14 @@ def main():
         run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
         run(['sudo', 'sysctl', '-p'])
 
-        print('Deploying Kubernetes with kubeadm')
+        print('Kubernetes - Deploying Kubernetes with kubeadm')
         # kubeadm init --skip-preflight-checks --service-cidr 172.16.128.0/24 --pod-network-cidr 172.16.132.0/22 \
         # --apiserver-advertise-address $(cat /etc/nodepool/primary_node_private) | tee /tmp/kubeout
         # grep 'kubeadm join --token' /tmp/kubeout | awk '{print $4}' > /etc/kubernetes/token.txt
         run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
              '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
 
-        print('Load the kubeadm credentials into the system')
+        print('Kubernetes - Load the kubeadm credentials into the system')
         home = os.environ['HOME']
         kube = os.path.join(home, '.kube')
         config = os.path.join(kube, 'config')
@@ -412,7 +413,7 @@ def main():
         k8s_wait_for_pods()
         k8s_wait_for_running(5)
 
-        print('Deploy the Canal CNI driver')
+        print('Kubernetes - Deploy the Canal CNI driver')
         answer = curl(
             '-L',
             'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
@@ -434,7 +435,7 @@ def main():
 
         # todo: nslookup check
         if args.kubernetes is True:
-            print("Kubernetes Cluster is running and healthy and you do not wish to install kolla")
+            print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
             sys.exit(1)
 
         k8s_kolla_update_rbac()
