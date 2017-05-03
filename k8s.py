@@ -46,7 +46,7 @@ from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
 # import re
-
+import tarfile
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
@@ -138,6 +138,17 @@ def run(cmd, hide_error=False, cont_on_error=False):
         logger.debug('Continuing despite error %d', output.returncode)
 
     return tup_output[0]
+
+
+def untar(fname):
+    if (fname.endswith("tar.gz")):
+        tar = tarfile.open(fname, "r:gz")
+        tar.extractall()
+        tar.close()
+    elif (fname.endswith("tar")):
+        tar = tarfile.open(fname, "r:")
+        tar.extractall()
+        tar.close()
 
 
 def start_process(args):
@@ -301,9 +312,10 @@ def k8s_kolla_install_deploy_helm():
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.3.0-linux-amd64.tar.gz'
     curl('-sSL', url, '-o', '/tmp/helm-v2.3.0-linux-amd64.tar.gz')
     print('Before tar')
-    subprocess.call('sudo tar -xvzf /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
+    untar('/tmp/helm-v2.3.0-linux-amd64.tar.gz')
+    # subprocess.call('sudo tar -xvzf /tmp/helm-v2.3.0-linux-amd64.tar.gz', shell=True)
     print('AFter tar')
-    run(['sudo', 'mv', '-f', 'helm', '/usr/local/bin/helm'])
+    run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     # run(['chmod', '700', '/tmp/get_helm.sh'])
     pause_to_debug()
     subprocess.call('helm init')
