@@ -205,7 +205,7 @@ def k8s_wait_for_pods():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
-    print('\nKubernetes - Waiting for basic Kubernetes infrastructure')
+    print('\nKubernetes - Wait for basic Kubernetes infrastructure')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
@@ -245,7 +245,7 @@ def k8s_wait_for_running(number):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
 
-    print('Kubernetes - Waiting for %s pods to be in Running state:' % number)
+    print('Kubernetes - Wait for %s pods to be in Running state:' % number)
     elapsed_time = 0
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
@@ -489,7 +489,8 @@ def k8s_check_exit(k8s_only):
 
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
-    with fileinput.FileInput('/etc/kolla/globals.yml', inplace=True,
+    run(['sudo', 'cp', '/etc/kolla/globals.yml', '/tmp'])
+    with fileinput.FileInput('/tmp/globals.yml', inplace=True,
                              backup='.bak') as file:
         for line in file:
             print(line.replace
@@ -498,6 +499,7 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
             print(line.replace
                   ('#neutron_external_interface: "eth1"',
                    'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
+        run(['sudo', 'mv', '/tmp/globals.yml', '/etc/kolla/globals.yml'])
     file.close()
 
 
