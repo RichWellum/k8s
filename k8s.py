@@ -55,6 +55,7 @@ __version__ = '1.0.0'
 __maintainer__ = 'Rich Wellum'
 __email__ = 'rwellum@gmail.com'
 
+HELM_VERSION = '2.2.3'
 
 # Telnet ports used to access IOS XR via socat
 CONSOLE_PORT = 65000
@@ -418,9 +419,9 @@ subjects:
 def k8s_kolla_install_deploy_helm():
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm')
-    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.2.3-linux-amd64.tar.gz'
-    curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
-    untar('/tmp/helm-v2.2.3-linux-amd64.tar.gz')
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION
+    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
+    untar('/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init', '--debug'])
 
@@ -474,12 +475,12 @@ def main():
         k8s_wait_for_running(8)
 
         # Check for helm version
-        out = run(['helm', 'version'])
-        o = out.split('\n')  # --> ['Line 1', 'Line 2', 'Line 3']
-        if o[0] == o[1]:
-            print('Helm is happy %s=%s' % (o[0], o[1]))
+        out = run(['helm', 'version', '|', 'grep', '%s', '|', 'wc', '-l'] % HELM_VERSION)
+        if out is 2:
+            print('Helm is happy')
         else:
-            print('Helm is NOT happy %s=%s' % (o[0], o[1]))
+            print('Helm is NOT happy')
+            sys.exit(1)
 
     except Exception:
         print('Exception caught:')
