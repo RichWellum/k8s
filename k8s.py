@@ -47,7 +47,6 @@ import logging
 import psutil
 import re
 import tarfile
-import fileinput
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
@@ -489,25 +488,196 @@ def k8s_check_exit(k8s_only):
 
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
-    # run(['sudo', 'cp', '/etc/kolla/globals.yml', '/tmp'])
+    # Not pythonic but nothing seems to beat sed for quick word replacement
     run(['sudo', 'sed', '-i', 's/#network_interface: "eth0"/network_interface: "%s"/g' % MGMT_INT,
          '/etc/kolla/globals.yml'])
     run(['sudo', 'sed', '-i',
          's/#neutron_external_interface: "eth1"/neutron_external_interface: "%s"/g' % NEUTRON_INT,
          '/etc/kolla/globals.yml'])
 
-    # with fileinput.FileInput('/tmp/globals.yml', inplace=True,
-    #                          backup='.bak') as file:
-    # file = fileinput.input('/tmp/globals.yml')
-    # for line in file:
-    #     print(line.replace
-    #           ('#network_interface: "eth0"',
-    #            'network_interface: "%s"' % MGMT_INT), end='')
-    #     print(line.replace
-    #           ('#neutron_external_interface: "eth1"',
-    #            'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
-    # run(['sudo', 'mv', '/tmp/globals.yml', '/etc/kolla/globals.yml'])
-    # file.close()
+
+def kolla_add_to_globals():
+    new = '/tmp/add'
+    add_to = '/etc/kolla/globals.yml'
+    with open(new, "w") as w:
+        w.write("""\
+kolla_install_type: "source"
+tempest_image_alt_id: "{{ tempest_image_id }}"
+tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
+
+neutron_plugin_agent: "openvswitch"
+api_interface_address: 0.0.0.0
+tunnel_interface_address: 0.0.0.0
+orchestration_engine: KUBERNETES
+memcached_servers: "memcached"
+keystone_admin_url: "http://keystone-admin:35357/v3"
+keystone_internal_url: "http://keystone-internal:5000/v3"
+keystone_public_url: "http://keystone-public:5000/v3"
+glance_registry_host: "glance-registry"
+neutron_host: "neutron"
+keystone_database_address: "mariadb"
+glance_database_address: "mariadb"
+nova_database_address: "mariadb"
+nova_api_database_address: "mariadb"
+neutron_database_address: "mariadb"
+cinder_database_address: "mariadb"
+ironic_database_address: "mariadb"
+placement_database_address: "mariadb"
+rabbitmq_servers: "rabbitmq"
+openstack_logging_debug: "True"
+enable_haproxy: "no"
+enable_heat: "no"
+enable_cinder: "yes"
+enable_cinder_backend_lvm: "yes"
+enable_cinder_backend_iscsi: "yes"
+enable_cinder_backend_rbd: "no"
+enable_ceph: "no"
+enable_elasticsearch: "no"
+enable_kibana: "no"
+glance_backend_ceph: "no"
+cinder_backend_ceph: "no"
+nova_backend_ceph: "no"
+""")
+    run(['sudo', 'mv', new, add_to])
+
+
+def kolla_enable_qemu():
+    dir = '/etc/kolla/config'
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    new = '/tmp/add'
+    add_to = '/etc/kolla/config/nova.conf'
+    with open(new, "w") as w:
+        w.write("""\
+[libvirt]
+virt_type=qemu
+cpu_mode=none
+""")
+    run(['sudo', 'mv', new, add_to])
+
+
+def kolla_gen_configs():
+    print('Kolla - Generate the default configuration')
+    run(['sudo', 'kolla-ansible', 'genconfig'])
+
+
+def kolla_gen_secrets():
+    print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
+    run(['kolla-kubernetes/tools/secret-generator.py', 'create'])
+
+
+def kolla_create_config_maps():
+    print('Kolla - Create and register the Kolla config maps')
+
+    subprocess.call('kollakube res create configmap mariadb keystone horizon ' +
+                    'rabbitmq memcached nova-api nova-conductor nova-scheduler ' +
+                    'glance-api-haproxy glance-registry-haproxy glance-api ' +
+                    'glance-registry neutron-server neutron-dhcp-agent ' +
+                    'neutron-l3-agent neutron-metadata-agent neutron-openvswitch-agent ' +
+                    'openvswitch-db-server openvswitch-vswitchd nova-libvirt ' +
+                    'nova-compute nova-consoleauth nova-novncproxy nova-novncproxy-haproxy ' +
+                    'neutron-server-haproxy nova-api-haproxy cinder-api cinder-api-haproxy ' +
+                    'cinder-backup cinder-scheduler cinder-volume iscsid tgtd keepalived ' +
+                    'placement-api placement-api-haproxy')
+
+
+def kolla_resolve_workaround():
+    print('Kolla - Enable resolv.conf workaround')
+    run(['kolla-kubernetes/tools/setup-resolv-conf.sh', 'kolla'])
+
+
+def kolla_build_micro_charts():
+    print('Kolla - Build all Helm microcharts, service charts, and metacharts')
+    run(['kolla-kubernetes/tools/helm_build_all.sh', '.'])
+
+
+def kolla_verify_helm_images():
+    out = subprocess.check_output(
+        'ls | grep ".tgz" | wc -l', shell=True)
+    if int(out) > 150:
+        print('Kolla - %s Helm images created' % out)
+    else:
+        print('Kolla - Error: only %s Helm images created' % out)
+        sys.exit(1)
+
+
+def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
+    cloud = '/tmp/cloud.yaml'
+    with open(cloud, "w") as w:
+        w.write("""\
+global:
+   kolla:
+     all:
+       docker_registry: docker.io
+       image_tag: "4.0.0"
+       kube_logger: false
+       external_vip: "192.168.7.105"
+       base_distro: "centos"
+       install_type: "source"
+       tunnel_interface: "docker0"
+       resolve_conf_net_host_workaround: true
+     keystone:
+       all:
+         admin_port_external: "true"
+         dns_name: "192.168.7.105"
+       public:
+         all:
+           port_external: "true"
+     rabbitmq:
+       all:
+         cookie: 67
+     glance:
+       api:
+         all:
+           port_external: "true"
+     cinder:
+       api:
+         all:
+           port_external: "true"
+       volume_lvm:
+         all:
+           element_name: cinder-volume
+         daemonset:
+           lvm_backends:
+           - '192.168.7.105': 'cinder-volumes'
+     ironic:
+       conductor:
+         daemonset:
+           selector_key: "kolla_conductor"
+     nova:
+       placement_api:
+         all:
+           port_external: true
+       novncproxy:
+         all:
+           port: 6080
+           port_external: true
+     openvwswitch:
+       all:
+         add_port: true
+         ext_bridge_name: br-ex
+         ext_interface_name: enp1s0f1
+         setup_bridge: true
+     horizon:
+       all:
+         port_external: true
+""")
+    run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
+    run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
+    run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
+
+
+def helm_install_chart(chart_list):
+    start_number_of_running = 8
+    for chart in chart_list:
+        final_number_of_running = start_number_of_running + 1
+
+    for chart in chart_list:
+        run(['helm', 'install', '--debug', 'kolla-kubernetes/helm/service/%s' % chart,
+             '--namespace', 'kolla', '--name', '%s' % chart, '--values', './cloud.yaml'])
+
+    k8s_wait_for_running(final_number_of_running)
 
 
 def main():
@@ -553,6 +723,19 @@ def main():
         k8s_label_nodes(node_list)
 
         kolla_modify_globals(args.MGMT_INT, args.NEUTRON_INT)
+        kolla_add_to_globals()
+        kolla_enable_qemu()
+        kolla_gen_configs()
+        kolla_gen_secrets()
+        kolla_create_config_maps()
+        kolla_resolve_workaround()
+        kolla_build_micro_charts()
+        kolla_verify_helm_images()
+        kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+
+        # Install Helm charts
+        chart_list = ['mariadb']
+        helm_install_chart(chart_list)
 
     except Exception:
         print('Exception caught:')
