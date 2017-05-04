@@ -439,7 +439,6 @@ def main():
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
     print('Helm version %s' % HELM_VERSION)
-    print('\n')
 
     set_logging()
     logger.setLevel(level=args.verbose)
@@ -481,7 +480,8 @@ def main():
         k8s_wait_for_running(8)
 
         # Check for helm version
-        out = run(['helm', 'version', '|', 'grep', 'v%s', '|', 'wc', '-l'] % HELM_VERSION)
+        out = subprocess.check_output(
+            ['helm', 'version', '|', 'grep', HELM_VERSION, '|', 'wc', '-l'])
         if out is 2:
             print('Helm is happy')
         else:
