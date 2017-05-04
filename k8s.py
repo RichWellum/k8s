@@ -204,7 +204,7 @@ def k8s_wait_for_pods():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
-    print('\nKubernetes - wait for basic kubernetes pods')
+    print('\nKubernetes - waiting for basic Kubernetes infrastructure')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
@@ -424,6 +424,15 @@ def k8s_kolla_install_deploy_helm():
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init', '--debug'])
+    k8s_wait_for_running(8)
+    # Check for helm version
+    out = subprocess.check_output(
+        'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
+    if out == 2:
+        print('Helm is happy')
+    else:
+        print('Helm is NOT happy - versions did not macthout=%s')
+        sys.exit(1)
 
 
 def k8s_cleanup(doit):
@@ -477,17 +486,6 @@ def main():
         # Start Kolla deployment
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
-        k8s_wait_for_running(8)
-
-        # Check for helm version
-        out = subprocess.check_output(
-            'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
-        print(out)
-        if out is 2:
-            print('Helm is happy')
-        else:
-            print('Helm is NOT happy out=%s' % out)
-            sys.exit(1)
 
     except Exception:
         print('Exception caught:')
