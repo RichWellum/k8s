@@ -45,7 +45,7 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
 import psutil
-# import re
+import re
 import tarfile
 
 __author__ = 'Rich Wellum'
@@ -368,9 +368,15 @@ def k8_fix_iptables():
 
 
 def k8s_fix_bridging():
+    reload_sysctl = False
     with open('/tmp/sysctl.conf', 'a') as myfile:
-        myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
-        myfile.write('net.bridge.bridge-nf-call-iptables=1')
+        if not re.search('net.bridge.bridge-nf-call-ip6tables=1', myfile):
+            myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
+            reload_sysctl = True
+        if not re.search('net.bridge.bridge-nf-call-iptables=1', myfile):
+            myfile.write('net.bridge.bridge-nf-call-iptables=1' + '\n')
+            reload_sysctl = True
+    if reload_sysctl is True:
         run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
         run(['sudo', 'sysctl', '-p'])
 
@@ -389,10 +395,10 @@ def k8s_load_kubeadm_creds():
 
     if not os.path.exists(kube):
         os.makedirs(kube)
-        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
-        run(['sudo', 'chmod', '777', kube])
-        subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
-                        shell=True)
+    run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
+    run(['sudo', 'chmod', '777', kube])
+    subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
+                    shell=True)
 
 
 def k8s_deploy_canal_sdn():
@@ -427,6 +433,7 @@ def main():
     if args.cleanup is True:
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
+        k8s_wait_for_running(0)
 
     print('Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
