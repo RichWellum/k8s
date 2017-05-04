@@ -385,7 +385,7 @@ def k8s_deploy_canal_sdn():
 
 
 def k8s_schedule_master_node():
-    print('Mark master node as schedulable')
+    print('Kolla - Mark master node as schedulable')
     run(['kubectl', 'taint', 'nodes', '--all=true',
          'node-role.kubernetes.io/master:NoSchedule-'])
 
@@ -543,15 +543,12 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-    run(['cat', new, '|', 'sudo', 'tee', '-a', add_to])
+    subprocess.call('cat %s | sudo tee -a %s' % (new, add_to))
 
 
 def kolla_enable_qemu():
     print('Kolla - Enable qemu')
     run(['sudo', 'mkdir', '-p', '/etc/kolla/config'])
-    # dir = '/etc/kolla/config'
-    # if not os.path.exists(dir):
-    #     os.makedirs(dir)
 
     new = '/tmp/add'
     add_to = '/etc/kolla/config/nova.conf'
