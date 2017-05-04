@@ -426,20 +426,25 @@ def k8s_kolla_install_deploy_helm():
     run(['helm', 'init', '--debug'])
 
 
+def k8s_cleanup(doit):
+    if doit is True:
+        print('Cleaning up existing Kubernetes Cluster. YMMV.')
+        run(['sudo', 'kubeadm', 'reset'])
+
+
 def main():
     """Main function."""
     args = parse_args()
 
-    if args.cleanup is True:
-        print('Cleaning up existing Kubernetes Cluster. YMMV.')
-        run(['sudo', 'kubeadm', 'reset'])
-
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
     print('Helm version %s' % HELM_VERSION)
+    print('\n')
 
     set_logging()
     logger.setLevel(level=args.verbose)
+
+    k8s_cleanup(args.cleanup)
 
     try:
         k8s_turn_things_off()
@@ -476,7 +481,7 @@ def main():
         k8s_wait_for_running(8)
 
         # Check for helm version
-        out = run(['helm', 'version', '|', 'grep', '%s', '|', 'wc', '-l' % HELM_VERSION])
+        out = run(['helm', 'version', '|', 'grep', 'v%s', '|', 'wc', '-l'] % HELM_VERSION)
         if out is 2:
             print('Helm is happy')
         else:
