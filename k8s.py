@@ -317,6 +317,109 @@ def k8s_kolla_install_deploy_helm():
     run(['helm', 'init', '--debug'])
 
 
+def k8s_turn_things_off():
+    print('Kubernetes - Turn off SELinux')
+    run(['sudo', 'setenforce', '0'])
+    run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+
+    print('Kubernetes - Turn off Firewalld if running')
+    PROCNAME = 'firewalld'
+    for proc in psutil.process_iter():
+        if PROCNAME in proc.name():
+            print('Found %s, Stopping and Disabling firewalld' % proc.name())
+            run(['sudo', 'systemctl', 'stop', 'firewalld'])
+            run(['sudo', 'systemctl', 'disable', 'firewalld'])
+
+
+def k8s_create_repo():
+    print('Kubernetes - Creating kubernetes repo')
+    create_k8s_repo()
+    print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
+    subprocess.check_output(
+        'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc', shell=True)
+
+
+def k8s_setup_dns():
+    print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
+    run(['sudo', 'systemctl', 'enable', 'docker'])
+    run(['sudo', 'systemctl', 'start', 'docker'])
+    run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
+    run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
+    run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
+    run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
+         '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+
+
+def k8s_reload_service_files():
+    print('Kubernetes - Reload the hand-modified service files')
+    run(['sudo', 'systemctl', 'daemon-reload'])
+
+
+def k8s_start_kubelet():
+    print('Kubernetes - Enable and start kubelet')
+    run(['sudo', 'systemctl', 'enable', 'kubelet'])
+    run(['sudo', 'systemctl', 'start', 'kubelet'])
+
+
+def k8_fix_iptables():
+    print('Kubernetes - Fix iptables')
+    run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
+    run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
+
+
+def k8s_fix_bridging():
+    with open('/tmp/sysctl.conf', 'a') as myfile:
+        myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
+        myfile.write('net.bridge.bridge-nf-call-iptables=1')
+        run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
+        run(['sudo', 'sysctl', '-p'])
+
+
+def k8s_deploy_k8s():
+    print('Kubernetes - Deploying Kubernetes with kubeadm')
+    run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
+         '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
+
+
+def k8s_load_kubeadm_creds():
+    print('Kubernetes - Load kubeadm credentials into the system')
+    home = os.environ['HOME']
+    kube = os.path.join(home, '.kube')
+    config = os.path.join(kube, 'config')
+
+    if not os.path.exists(kube):
+        os.makedirs(kube)
+        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
+        run(['sudo', 'chmod', '777', kube])
+        subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
+                        shell=True)
+
+
+def k8s_deploy_canal_sdn():
+    print('Kubernetes - Deploy the Canal CNI driver')
+    curl(
+        '-L',
+        'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
+        '-o', '/tmp/rbac.yaml')
+    run(['kubectl', 'create', '-f', '/tmp/rbac.yaml'])
+
+    answer = curl(
+        '-L',
+        'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
+        '-o', '/tmp/canal.yaml')
+    print(answer)
+    run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
+    run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
+    run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
+    run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
+
+
+def k8s_schedule_master_node():
+    print('Mark master node as schedulable')
+    run(['kubectl', 'taint', 'nodes', '--all=true',
+         'node-role.kubernetes.io/master:NoSchedule-'])
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -332,102 +435,36 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
-        print('Kubernetes - Turn off SELinux')
-        run(['sudo', 'setenforce', '0'])
-        run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+        k8s_turn_things_off()
+        k8s_create_repo()
+        k8s_setup_dns()
+        k8s_reload_service_files()
+        k8s_start_kubelet()
+        k8_fix_iptables()
+        k8s_fix_bridging()
+        k8s_deploy_k8s()
+        k8s_load_kubeadm_creds()
 
-        print('Kubernetes - Turn off Firewalld if running')
-        PROCNAME = 'firewalld'
-        for proc in psutil.process_iter():
-            if PROCNAME in proc.name():
-                print('Found %s, Stopping and Disabling firewalld' % proc.name())
-                run(['sudo', 'systemctl', 'stop', 'firewalld'])
-                run(['sudo', 'systemctl', 'disable', 'firewalld'])
-
-        print('Kubernetes - Creating kubernetes repo')
-        create_k8s_repo()
-        print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
-        subprocess.check_output(
-            'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc', shell=True)
-
-        print('Kubernetes - Enable the correct cgroup driver and disable CRI')
-        run(['sudo', 'systemctl', 'enable', 'docker'])
-        run(['sudo', 'systemctl', 'start', 'docker'])
-        run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-        run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
-
-        print('Kubernetes - Setup the DNS server with the service CIDR')
-        run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
-        run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
-             '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
-
-        print('Kubernetes - Reload the hand-modified service files')
-        run(['sudo', 'systemctl', 'daemon-reload'])
-
-        print('Kubernetes - Stop kubelet if it is running')
-        run(['sudo', 'systemctl', 'stop', 'kubelet'])
-
-        print('Kubernetes - Enable and start docker and kubelet')
-        run(['sudo', 'systemctl', 'enable', 'kubelet'])
-        run(['sudo', 'systemctl', 'start', 'kubelet'])
-
-        print('Kubernetes - Fix iptables')
-        run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
-        run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
-
-        with open('/tmp/sysctl.conf', 'a') as myfile:
-            myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
-            myfile.write('net.bridge.bridge-nf-call-iptables=1')
-        run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
-        run(['sudo', 'sysctl', '-p'])
-
-        print('Kubernetes - Deploying Kubernetes with kubeadm')
-        run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
-             '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
-
-        print('Kubernetes - Load kubeadm credentials into the system')
-        home = os.environ['HOME']
-        kube = os.path.join(home, '.kube')
-        config = os.path.join(kube, 'config')
-
-        if not os.path.exists(kube):
-            os.makedirs(kube)
-        run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
-        run(['sudo', 'chmod', '777', kube])
-        subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
-                        shell=True)
-
-        # Wait for all pods to be launched
+        # Wait for all pods to be launched and running
+        # 5 because dns is not running yet
         k8s_wait_for_pods()
         k8s_wait_for_running(5)
 
-        print('Kubernetes - Deploy the Canal CNI driver')
-        curl(
-            '-L',
-            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
-            '-o', '/tmp/rbac.yaml')
-        run(['kubectl', 'create', '-f', '/tmp/rbac.yaml'])
-
-        answer = curl(
-            '-L',
-            'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
-            '-o', '/tmp/canal.yaml')
-        print(answer)
-        run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
-        run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
-        run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
-        run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
-
+        # Wait for pods to includ running canal sdn
+        # 7 because dns comes up and canal pod runs
+        k8s_deploy_canal_sdn()
         k8s_wait_for_running(7)
 
-        print('Mark master node as schedulable')
-        run(['kubectl', 'taint', 'nodes', '--all=true', 'node-role.kubernetes.io/master:NoSchedule-'])
+        # Set this up as an AIO
+        k8s_schedule_master_node()
 
         # todo: nslookup check
+
         if args.kubernetes is True:
             print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
             sys.exit(1)
 
+        # Start Kolla deployment
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
         k8s_wait_for_running(8)
