@@ -481,11 +481,12 @@ def main():
 
         # Check for helm version
         out = subprocess.check_output(
-            'helm version | grep %s | wc -l' % HELM_VERSION, shell=True)
+            'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
+        print(out)
         if out is 2:
             print('Helm is happy')
         else:
-            print('Helm is NOT happy')
+            print('Helm is NOT happy out=%s' % out)
             sys.exit(1)
 
     except Exception:
