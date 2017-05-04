@@ -370,10 +370,10 @@ def k8_fix_iptables():
 def k8s_fix_bridging():
     reload_sysctl = False
     with open('/tmp/sysctl.conf', 'a') as myfile:
-        if not re.search('net.bridge.bridge-nf-call-ip6tables=1', myfile):
+        if not re.search("net.bridge.bridge-nf-call-ip6tables=1", myfile):
             myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
             reload_sysctl = True
-        if not re.search('net.bridge.bridge-nf-call-iptables=1', myfile):
+        if not re.search("net.bridge.bridge-nf-call-iptables=1", myfile):
             myfile.write('net.bridge.bridge-nf-call-iptables=1' + '\n')
             reload_sysctl = True
     if reload_sysctl is True:
