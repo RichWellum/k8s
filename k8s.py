@@ -222,7 +222,7 @@ def k8s_wait_for_pods():
                 cnt = nlines - 1
 
             if elapsed_time is not 0:
-                print('Kubernetes - Pod status after %d seconds, pods %s:6 - '
+                print('Kubernetes - Pod status after %d seconds, pods up %s:6 - '
                       'sleep %d seconds and retry'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -244,7 +244,7 @@ def k8s_wait_for_running(number):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
 
-    print('Kubernetes - waiting for %s pods to be in Running state:' % number)
+    print('Kubernetes - Waiting for %s pods to be in Running state:' % number)
     elapsed_time = 0
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
@@ -253,7 +253,7 @@ def k8s_wait_for_running(number):
         p.wait()
 
         if int(running) >= number:
-            print('Kubernetes - all Running pods %s:%s' % (int(running), number))
+            print('Kubernetes - All Running pods %s:%s' % (int(running), number))
             p = subprocess.Popen('kubectl get pods --all-namespaces',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
@@ -441,6 +441,46 @@ def k8s_cleanup(doit):
         run(['sudo', 'kubeadm', 'reset'])
 
 
+def kolla_install_repos():
+    print('Kolla - Install repos need for kolla packaging')
+    run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
+
+    print('Kolla - clone or update kolla-ansible')
+    if os.path.exists('kolla-ansible'):
+        run(['sudo', 'rm', '-rf', 'kolla-ansible'])
+        run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
+
+    print('Kolla - clone or update kolla-kubernetes')
+    if os.path.exists('kolla-kubernetes'):
+        run(['sudo', 'rm', '-rf', 'kolla-kubernetes'])
+        run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
+
+    print('Kolla - Install kolla-ansible and kolla-kubernetes')
+    run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
+
+    print('Kolla - Copy default Kolla configuration to /etc')
+    run(['sudo', 'cp', '-aR', '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
+
+    print('Copy default kolla-kubernetes configuration to /etc')
+    run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
+
+
+def kolla_gen_passwords():
+    print('Kolla - Generate default passwords via SPRNG')
+    run(['sudo', 'kolla-kubernetes-genpwd'])
+
+
+def kolla_create_namespace():
+    print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
+    run(['kubectl', 'create', 'namespace', 'kolla'])
+
+
+def k8s_label_nodes(node_list):
+    print('Kubernetes - Label the AIO nodes')
+    for node in node_list:
+        subprocess.call('kubectl label node $(hostname) %s=true' % node, shell=True)
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -486,48 +526,13 @@ def main():
         # Start Kolla deployment
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
+        kolla_install_repos()
+        kolla_gen_passwords()
+        kolla_create_namespace()
 
-        # Install repos need for kolla packaging
-        run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
-        print('T1')
-
-        # Install kolla repos
-        # Clone kolla-ansible:
-        if os.path.exists('kolla-ansible'):
-            run(['sudo', 'rm', '-rf', 'kolla-ansible'])
-        run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
-        print('T2')
-
-        # Clone kolla-kubernetes:
-        if os.path.exists('kolla-kubernetes'):
-            run(['sudo', 'rm', '-rf', 'kolla-kubernetes'])
-        run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
-        print('T3')
-
-        # Install kolla-ansible and kolla-kubernetes:
-        run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
-        print('T4')
-
-        # Copy default Kolla configuration to /etc:
-        run(['sudo', 'cp', '-aR', '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
-        print('T5')
-
-        # Copy default kolla-kubernetes configuration to /etc:
-        run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
-        print('T6')
-
-        # Generate default passwords via SPRNG:
-        run(['sudo', 'kolla-kubernetes-genpwd'])
-        print('T7')
-
-        # Create a Kubernetes namespace to isolate this Kolla deployment:
-        run(['kubectl', 'create', 'namespace', 'kolla'])
-        print('T8')
-
-        # Label the AIO node as the compute and controller node:
-        subprocess.call('kubectl label node $(hostname) kolla_compute=true', shell=True)
-        subprocess.call('kubectl label node $(hostname) kolla_controller=true', shell=True)
-        print('T9')
+        # Label AOI as Compute and Controller nodes
+        node_list = ['kolla_compute', 'kolla_controller']
+        k8s_label_nodes(node_list)
 
     except Exception:
         print('Exception caught:')
