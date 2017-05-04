@@ -498,6 +498,7 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
             print(line.replace
                   ('#neutron_external_interface: "eth1"',
                    'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
+    file.close()
 
 
 def main():
