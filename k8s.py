@@ -362,16 +362,12 @@ def k8s_start_kubelet():
 
 
 def k8_fix_iptables():
+    reload_sysctl = False
     print('Kubernetes - Fix iptables')
     run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
     run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
 
-
-def k8s_fix_bridging():
-    reload_sysctl = False
-    run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp/sysctl.conf'])
-
-    with open('/tmp/sysctl.conf', 'a') as myfile:
+    with open('/tmp/sysctl.conf', 'r+') as myfile:
         contents = myfile.read()
         if not re.search('net.bridge.bridge-nf-call-ip6tables=1', contents):
             myfile.write('net.bridge.bridge-nf-call-ip6tables=1' + '\n')
@@ -450,7 +446,6 @@ def main():
         k8s_reload_service_files()
         k8s_start_kubelet()
         k8_fix_iptables()
-        k8s_fix_bridging()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
 
