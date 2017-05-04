@@ -543,7 +543,7 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-    subprocess.call('cat %s | sudo tee -a %s' % (new, add_to))
+    subprocess.call('cat %s | sudo tee -a %s' % (new, add_to), shell=True)
 
 
 def kolla_enable_qemu():
