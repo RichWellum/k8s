@@ -204,7 +204,7 @@ def k8s_wait_for_pods():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
-    print('\nKubernetes - wait for basic k8s pods')
+    print('\nKubernetes - wait for basic kubernetes pods')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
@@ -436,6 +436,7 @@ def main():
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
+    print('Helm version %s' % HELM_VERSION)
 
     set_logging()
     logger.setLevel(level=args.verbose)
@@ -475,7 +476,7 @@ def main():
         k8s_wait_for_running(8)
 
         # Check for helm version
-        out = run(['helm', 'version', '|', 'grep', '%s', '|', 'wc', '-l'] % HELM_VERSION)
+        out = run(['helm', 'version', '|', 'grep', '%s', '|', 'wc', '-l' % HELM_VERSION])
         if out is 2:
             print('Helm is happy')
         else:
