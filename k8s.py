@@ -494,28 +494,36 @@ def main():
         # Install kolla repos
         # Clone kolla-ansible:
         run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
+        print('T2')
 
         # Clone kolla-kubernetes:
         run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
+        print('T3')
 
         # Install kolla-ansible and kolla-kubernetes:
         run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
+        print('T4')
 
         # Copy default Kolla configuration to /etc:
         run(['sudo', 'cp', '-aR' '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
+        print('T5')
 
         # Copy default kolla-kubernetes configuration to /etc:
         run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
+        print('T6')
 
         # Generate default passwords via SPRNG:
         run(['sudo', 'kolla-kubernetes-genpwd'])
+        print('T7')
 
         # Create a Kubernetes namespace to isolate this Kolla deployment:
         run(['kubectl', 'create', 'namespace', 'kolla'])
+        print('T8')
 
         # Label the AIO node as the compute and controller node:
         subprocess.call('kubectl label node $(hostname) kolla_compute=true', shell=True)
         subprocess.call('kubectl label node $(hostname) kolla_controller=true', shell=True)
+        print('T9')
 
     except Exception:
         print('Exception caught:')
