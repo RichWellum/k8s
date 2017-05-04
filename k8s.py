@@ -447,13 +447,13 @@ def kolla_install_repos():
 
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('kolla-ansible'):
-        run(['sudo', 'rm', '-rf', 'kolla-ansible'])
-        run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
+        run(['sudo', 'rm', '-rf', './kolla-ansible'])
+    run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
 
     print('Kolla - Clone or update kolla-kubernetes')
     if os.path.exists('kolla-kubernetes'):
-        run(['sudo', 'rm', '-rf', 'kolla-kubernetes'])
-        run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
+        run(['sudo', 'rm', '-rf', './kolla-kubernetes'])
+    run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
 
     print('Kolla - Install kolla-ansible and kolla-kubernetes')
     run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
