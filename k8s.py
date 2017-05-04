@@ -429,7 +429,7 @@ def k8s_kolla_install_deploy_helm():
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
     if int(out) == 2:
-        print('Helm is happy')
+        print('Kolla - Helm version matches')
     else:
         print('Helm is NOT happy - versions did not match')
         sys.exit(1)
@@ -505,7 +505,7 @@ def main():
         print('T4')
 
         # Copy default Kolla configuration to /etc:
-        run(['sudo', 'cp', '-aR' '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
+        run(['sudo', 'cp', '-aR', '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
         print('T5')
 
         # Copy default kolla-kubernetes configuration to /etc:
