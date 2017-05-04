@@ -487,6 +487,36 @@ def main():
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
 
+        # Install repos need for kolla packaging
+        run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
+        print('T1')
+
+        # Install kolla repos
+        # Clone kolla-ansible:
+        run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
+
+        # Clone kolla-kubernetes:
+        run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
+
+        # Install kolla-ansible and kolla-kubernetes:
+        run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
+
+        # Copy default Kolla configuration to /etc:
+        run(['sudo', 'cp', '-aR' '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
+
+        # Copy default kolla-kubernetes configuration to /etc:
+        run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
+
+        # Generate default passwords via SPRNG:
+        run(['sudo', 'kolla-kubernetes-genpwd'])
+
+        # Create a Kubernetes namespace to isolate this Kolla deployment:
+        run(['kubectl', 'create', 'namespace', 'kolla'])
+
+        # Label the AIO node as the compute and controller node:
+        subprocess.call('kubectl label node $(hostname) kolla_compute=true', shell=True)
+        subprocess.call('kubectl label node $(hostname) kolla_controller=true', shell=True)
+
     except Exception:
         print('Exception caught:')
         print(sys.exc_info())
