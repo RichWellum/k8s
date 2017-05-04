@@ -47,6 +47,7 @@ import logging
 import psutil
 import re
 import tarfile
+import fileinput
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
@@ -390,7 +391,7 @@ def k8s_schedule_master_node():
          'node-role.kubernetes.io/master:NoSchedule-'])
 
 
-def k8s_kolla_update_rbac():
+def kolla_update_rbac():
     """..."""
     print('Kolla - Overide default RBAC settings')
     name = '/tmp/rbac'
@@ -416,7 +417,7 @@ subjects:
     run(['kubectl', 'update', '-f', '/tmp/rbac'])
 
 
-def k8s_kolla_install_deploy_helm():
+def kolla_install_deploy_helm():
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION
@@ -461,7 +462,7 @@ def kolla_install_repos():
     print('Kolla - Copy default Kolla configuration to /etc')
     run(['sudo', 'cp', '-aR', '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
 
-    print('Copy default kolla-kubernetes configuration to /etc')
+    print('Kolla - Copy default kolla-kubernetes configuration to /etc')
     run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
 
 
@@ -481,6 +482,24 @@ def k8s_label_nodes(node_list):
         subprocess.call('kubectl label node $(hostname) %s=true' % node, shell=True)
 
 
+def k8s_check_exit(k8s_only):
+    if k8s_only is True:
+        print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
+        sys.exit(1)
+
+
+def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
+    with fileinput.FileInput('/etc/kolla/globals.yml', inplace=True,
+                             backup='.bak') as file:
+        for line in file:
+            print(line.replace
+                  ('#network_interface: "eth0"',
+                   'network_interface: "%s"' % MGMT_INT), end='')
+            print(line.replace
+                  ('#neutron_external_interface: "eth1"',
+                   'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -495,6 +514,7 @@ def main():
     k8s_cleanup(args.cleanup)
 
     try:
+        # Bring up Kubernetes
         k8s_turn_things_off()
         k8s_create_repo()
         k8s_setup_dns()
@@ -503,29 +523,17 @@ def main():
         k8_fix_iptables()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
-
-        # Wait for all pods to be launched and running
-        # 5 because dns is not running yet
         k8s_wait_for_pods()
         k8s_wait_for_running(5)
-
-        # Wait for pods to includ running canal sdn
-        # 7 because dns comes up and canal pod runs
         k8s_deploy_canal_sdn()
         k8s_wait_for_running(7)
-
-        # Set this up as an AIO
         k8s_schedule_master_node()
-
         # todo: nslookup check
-
-        if args.kubernetes is True:
-            print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
-            sys.exit(1)
+        k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
-        k8s_kolla_update_rbac()
-        k8s_kolla_install_deploy_helm()
+        kolla_update_rbac()
+        kolla_install_deploy_helm()
         kolla_install_repos()
         kolla_gen_passwords()
         kolla_create_namespace()
@@ -533,6 +541,8 @@ def main():
         # Label AOI as Compute and Controller nodes
         node_list = ['kolla_compute', 'kolla_controller']
         k8s_label_nodes(node_list)
+
+        kolla_modify_globals(args.MGMT_INT, args.NEUTRON_INT)
 
     except Exception:
         print('Exception caught:')
