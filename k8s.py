@@ -431,7 +431,7 @@ def k8s_kolla_install_deploy_helm():
     if int(out) == 2:
         print('Kolla - Helm version matches')
     else:
-        print('Helm is NOT happy - versions did not match')
+        print('Kolla - Helm versions did not match')
         sys.exit(1)
 
 
@@ -493,10 +493,14 @@ def main():
 
         # Install kolla repos
         # Clone kolla-ansible:
+        if os.path.exists('kolla-ansible'):
+            run(['sudo', 'rm', '-rf', 'kolla-ansible'])
         run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
         print('T2')
 
         # Clone kolla-kubernetes:
+        if os.path.exists('kolla-kubernetes'):
+            run(['sudo', 'rm', '-rf', 'kolla-kubernetes'])
         run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
         print('T3')
 
