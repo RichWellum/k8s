@@ -204,12 +204,12 @@ def k8s_wait_for_pods():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
-    print('\nKubernetes - waiting for basic Kubernetes infrastructure')
+    print('\nKubernetes - Waiting for basic Kubernetes infrastructure')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print('Kubernetes - all pods %s/6 are started, continuing' % (nlines - 1))
+            print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
             p = subprocess.Popen('kubectl get pods --all-namespaces',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
@@ -428,10 +428,10 @@ def k8s_kolla_install_deploy_helm():
     # Check for helm version
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
-    if out == 2:
+    if int(out) == 2:
         print('Helm is happy')
     else:
-        print('Helm is NOT happy - versions did not macthout=%s')
+        print('Helm is NOT happy - versions did not match')
         sys.exit(1)
 
 
