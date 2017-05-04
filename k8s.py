@@ -543,11 +543,11 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-    run(['sudo', 'mv', new, add_to])
+    run(['cat', new, '|', 'sudo', 'tee', '-a', add_to])
 
 
 def kolla_enable_qemu():
-    print('Kolla - enable qemu')
+    print('Kolla - Enable qemu')
     run(['sudo', 'mkdir', '-p', '/etc/kolla/config'])
     # dir = '/etc/kolla/config'
     # if not os.path.exists(dir):
