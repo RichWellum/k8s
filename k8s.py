@@ -481,7 +481,7 @@ def main():
 
         # Check for helm version
         out = subprocess.check_output(
-            ['helm', 'version', '|', 'grep', HELM_VERSION, '|', 'wc', '-l'])
+            'helm version | grep %s | wc -l' % HELM_VERSION, shell=True)
         if out is 2:
             print('Helm is happy')
         else:
