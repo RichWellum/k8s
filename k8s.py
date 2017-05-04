@@ -489,19 +489,24 @@ def k8s_check_exit(k8s_only):
 
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
-    run(['sudo', 'cp', '/etc/kolla/globals.yml', '/tmp'])
+    # run(['sudo', 'cp', '/etc/kolla/globals.yml', '/tmp'])
+    run(['sudo', 'sed', '-i', 's/#network_interface: "eth0"/network_interface: "%s"/g',
+         '/etc/kolla/globals.yml' % MGMT_INT])
+    run(['sudo', 'sed', '-i', 's/#neutron_external_interface: "eth1"/neutron_external_interface: "%s"/g',
+         '/etc/kolla/globals.yml' % NEUTRON_INT])
+
     # with fileinput.FileInput('/tmp/globals.yml', inplace=True,
     #                          backup='.bak') as file:
-    file = fileinput.input('/tmp/globals.yml')
-    for line in file:
-        print(line.replace
-              ('#network_interface: "eth0"',
-               'network_interface: "%s"' % MGMT_INT), end='')
-        print(line.replace
-              ('#neutron_external_interface: "eth1"',
-               'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
-    run(['sudo', 'mv', '/tmp/globals.yml', '/etc/kolla/globals.yml'])
-    file.close()
+    # file = fileinput.input('/tmp/globals.yml')
+    # for line in file:
+    #     print(line.replace
+    #           ('#network_interface: "eth0"',
+    #            'network_interface: "%s"' % MGMT_INT), end='')
+    #     print(line.replace
+    #           ('#neutron_external_interface: "eth1"',
+    #            'neutron_external_interface: "%s"' % NEUTRON_INT), end='')
+    # run(['sudo', 'mv', '/tmp/globals.yml', '/etc/kolla/globals.yml'])
+    # file.close()
 
 
 def main():
