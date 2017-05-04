@@ -418,7 +418,7 @@ subjects:
 
 def kolla_install_deploy_helm():
     '''Deploy helm binary'''
-    print('Kolla - Install and deploy Helm')
+    print('Kolla - Install and deploy Helm - Tiller pod')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
@@ -445,12 +445,12 @@ def kolla_install_repos():
     print('Kolla - Install repos need for kolla packaging')
     run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
 
-    print('Kolla - clone or update kolla-ansible')
+    print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('kolla-ansible'):
         run(['sudo', 'rm', '-rf', 'kolla-ansible'])
         run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
 
-    print('Kolla - clone or update kolla-kubernetes')
+    print('Kolla - Clone or update kolla-kubernetes')
     if os.path.exists('kolla-kubernetes'):
         run(['sudo', 'rm', '-rf', 'kolla-kubernetes'])
         run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
@@ -488,6 +488,8 @@ def k8s_check_exit(k8s_only):
 
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
+    print('Kolla - Modify globals')
+
     # Not pythonic but nothing seems to beat sed for quick word replacement
     run(['sudo', 'sed', '-i', 's/#network_interface: "eth0"/network_interface: "%s"/g' % MGMT_INT,
          '/etc/kolla/globals.yml'])
@@ -497,8 +499,11 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
 
 
 def kolla_add_to_globals():
+    print('Kolla - Add to globals')
+
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
+
     with open(new, "w") as w:
         w.write("""\
 kolla_install_type: "source"
@@ -542,9 +547,11 @@ nova_backend_ceph: "no"
 
 
 def kolla_enable_qemu():
-    dir = '/etc/kolla/config'
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+    print('Kolla - enable qemu')
+    run(['sudo', 'mkdir', '-p', '/etc/kolla/config'])
+    # dir = '/etc/kolla/config'
+    # if not os.path.exists(dir):
+    #     os.makedirs(dir)
 
     new = '/tmp/add'
     add_to = '/etc/kolla/config/nova.conf'
@@ -603,6 +610,7 @@ def kolla_verify_helm_images():
 
 
 def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
+    print('Kolla - Create and run cloud')
     cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
         w.write("""\
@@ -674,6 +682,7 @@ def helm_install_chart(chart_list):
         final_number_of_running = start_number_of_running + 1
 
     for chart in chart_list:
+        print('Kolla - install chart: %s' % chart)
         run(['helm', 'install', '--debug', 'kolla-kubernetes/helm/service/%s' % chart,
              '--namespace', 'kolla', '--name', '%s' % chart, '--values', './cloud.yaml'])
 
