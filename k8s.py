@@ -369,6 +369,8 @@ def k8_fix_iptables():
 
 def k8s_fix_bridging():
     reload_sysctl = False
+    run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp/sysctl.conf'])
+
     with open('/tmp/sysctl.conf', 'a') as myfile:
         contents = myfile.read()
         if not re.search('net.bridge.bridge-nf-call-ip6tables=1', contents):
@@ -434,7 +436,6 @@ def main():
     if args.cleanup is True:
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
-        k8s_wait_for_running(0)
 
     print('Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
