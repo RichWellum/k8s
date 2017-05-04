@@ -423,7 +423,7 @@ def kolla_install_deploy_helm():
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
-    run(['helm', 'init', '--debug'])
+    run(['helm', 'init'])
     k8s_wait_for_running(8)
     # Check for helm version
     out = subprocess.check_output(
