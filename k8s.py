@@ -208,7 +208,7 @@ def k8s_wait_for_pods():
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
-            print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
+            print('Kubernetes - all pods %s/6 are started, continuing' % (nlines - 1))
             p = subprocess.Popen('kubectl get pods --all-namespaces',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
@@ -477,7 +477,9 @@ def main():
         out = run(['helm', 'version'])
         o = out.split('\n')  # --> ['Line 1', 'Line 2', 'Line 3']
         if o[0] == o[1]:
-            print('Helm is happy')
+            print('Helm is happy %s=%s' % (o[0], o[1]))
+        else:
+            print('Helm is NOT happy %s=%s' % (o[0], o[1]))
 
     except Exception:
         print('Exception caught:')
