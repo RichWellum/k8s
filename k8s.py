@@ -202,8 +202,8 @@ def k8s_wait_for_pods():
 
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
-
     elapsed_time = 0
+    print('\nKubernetes - wait for basic k8s pods')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
         nlines = len(pod_status.splitlines())
@@ -243,7 +243,7 @@ def k8s_wait_for_running(number):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
 
-    print('Waiting for %s pods to be in Running state:' % number)
+    print('Kubernetes - waiting for %s pods to be in Running state:' % number)
     elapsed_time = 0
     while True:
         p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
@@ -279,42 +279,6 @@ def k8s_wait_for_running(number):
 #                                  stdout=subprocess.PIPE, shell=True)
 #             (output, err) = p.communicate()
 #             print('%s' % output)
-
-def k8s_kolla_update_rbac():
-    """..."""
-    print('Kolla - Overide default RBAC settings')
-    name = '/tmp/rbac'
-    with open(name, "w") as w:
-        w.write("""\
-apiVersion: rbac.authorization.k8s.io/v1alpha1
-kind: ClusterRoleBinding
-metadata:
-  name: cluster-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: Group
-  name: system:masters
-- kind: Group
-  name: system:authenticated
-- kind: Group
-  name: system:unauthenticated
-""")
-
-    run(['kubectl', 'update', '-f', '/tmp/rbac'])
-
-
-def k8s_kolla_install_deploy_helm():
-    '''Deploy helm binary'''
-    print('Kolla - Install and deploy Helm')
-    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.2.3-linux-amd64.tar.gz'
-    curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
-    untar('/tmp/helm-v2.2.3-linux-amd64.tar.gz')
-    run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
-    pause_to_debug()
-    run(['helm', 'init', '--debug'])
 
 
 def k8s_turn_things_off():
@@ -425,6 +389,42 @@ def k8s_schedule_master_node():
          'node-role.kubernetes.io/master:NoSchedule-'])
 
 
+def k8s_kolla_update_rbac():
+    """..."""
+    print('Kolla - Overide default RBAC settings')
+    name = '/tmp/rbac'
+    with open(name, "w") as w:
+        w.write("""\
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: Group
+  name: system:masters
+- kind: Group
+  name: system:authenticated
+- kind: Group
+  name: system:unauthenticated
+""")
+
+    run(['kubectl', 'update', '-f', '/tmp/rbac'])
+
+
+def k8s_kolla_install_deploy_helm():
+    '''Deploy helm binary'''
+    print('Kolla - Install and deploy Helm')
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v2.2.3-linux-amd64.tar.gz'
+    curl('-sSL', url, '-o', '/tmp/helm-v2.2.3-linux-amd64.tar.gz')
+    untar('/tmp/helm-v2.2.3-linux-amd64.tar.gz')
+    run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
+    run(['helm', 'init', '--debug'])
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -433,7 +433,7 @@ def main():
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
 
-    print('Management Int:%s, Management IP:%s, Neutron Int:%s' %
+    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
 
     set_logging()
@@ -472,6 +472,12 @@ def main():
         k8s_kolla_update_rbac()
         k8s_kolla_install_deploy_helm()
         k8s_wait_for_running(8)
+
+        # Check for helm version
+        out = run(['helm', 'version'])
+        o = out.split('\n')  # --> ['Line 1', 'Line 2', 'Line 3']
+        if o[0] == o[1]:
+            print('Helm is happy')
 
     except Exception:
         print('Exception caught:')
