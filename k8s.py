@@ -559,11 +559,17 @@ cpu_mode=none
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
+    pause_to_debug()
     # output = run(['sudo', 'kolla-ansible', 'genconfig'])
     # ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e
     # @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e
     # CONFIG_DIR=/etc/kolla ansible/site.yml
-    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
+    # Standard jinja2 in Centos7(2.9.6) is broken
+    run(['sudo', 'install', 'Jinja2==2.8.1'])
+    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
+                         'ansible_python_interpreter=/usr/bin/python -e ' +
+                         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
+                         ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
     print('%s' % output)
