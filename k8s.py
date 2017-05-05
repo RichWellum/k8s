@@ -561,22 +561,22 @@ def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
     run(['sudo', 'install', 'Jinja2==2.8.1'])
-    subprocess.Popen('sudo ansible-playbook -e ' +
+    subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
                      'ansible_python_interpreter=/usr/bin/python -e ' +
                      '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-                     ' -e CONFIG_DIR=/etc/kolla kolla-kubernetes/ansible/site.yml',
+                     ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
                      stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    subprocess.Popen('kolla-kubernetes/tools/secret-generator.py create',
+    pause_to_debug()
+    subprocess.Popen('./kolla-kubernetes/tools/secret-generator.py create',
                      stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-
     subprocess.call('kollakube res create configmap mariadb keystone horizon ' +
                     'rabbitmq memcached nova-api nova-conductor nova-scheduler ' +
                     'glance-api-haproxy glance-registry-haproxy glance-api ' +
