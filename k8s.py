@@ -570,28 +570,28 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    pause_to_debug()
     subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
                      stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    subprocess.call('kollakube res create configmap mariadb keystone horizon ' +
-                    'rabbitmq memcached nova-api nova-conductor nova-scheduler ' +
-                    'glance-api-haproxy glance-registry-haproxy glance-api ' +
-                    'glance-registry neutron-server neutron-dhcp-agent ' +
-                    'neutron-l3-agent neutron-metadata-agent neutron-openvswitch-agent ' +
-                    'openvswitch-db-server openvswitch-vswitchd nova-libvirt ' +
-                    'nova-compute nova-consoleauth nova-novncproxy nova-novncproxy-haproxy ' +
-                    'neutron-server-haproxy nova-api-haproxy cinder-api cinder-api-haproxy ' +
-                    'cinder-backup cinder-scheduler cinder-volume iscsid tgtd keepalived ' +
-                    'placement-api placement-api-haproxy')
+    pause_to_debug()
+    subprocess.call('kollakube res create configmap \
+    mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
+    nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
+    glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
+    neutron-metadata-agent neutron-openvswitch-agent openvswitch-db-server \
+    openvswitch-vswitchd nova-libvirt nova-compute nova-consoleauth \
+    nova-novncproxy nova-novncproxy-haproxy neutron-server-haproxy \
+    nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
+    cinder-scheduler cinder-volume iscsid tgtd keepalived \
+    placement-api placement-api-haproxy')
 
 
 def kolla_resolve_workaround():
     print('Kolla - Enable resolv.conf workaround')
-    run(['kolla-kubernetes/tools/setup-resolv-conf.sh', 'kolla'])
+    run(['./kolla-kubernetes/tools/setup-resolv-conf.sh', 'kolla'])
 
 
 def kolla_build_micro_charts():
