@@ -55,12 +55,6 @@ __version__ = '1.0.0'
 __maintainer__ = 'Rich Wellum'
 __email__ = 'rwellum@gmail.com'
 
-HELM_VERSION = '2.2.3'
-
-# Telnet ports used to access IOS XR via socat
-CONSOLE_PORT = 65000
-AUX_PORT = 65001
-
 # General-purpose retry interval and timeout value (10 minutes)
 RETRY_INTERVAL = 5
 TIMEOUT = 600
@@ -93,6 +87,8 @@ def parse_args():
                         help='Management Interface IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.2.3',
+                        help='Specify a different helm version to the default(2.2.3')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
@@ -416,18 +412,19 @@ subjects:
     run(['kubectl', 'update', '-f', '/tmp/rbac'])
 
 
-def kolla_install_deploy_helm():
+def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
-    print('Kolla - Install and deploy Helm - Tiller pod')
-    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION
-    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
-    untar('/tmp/helm-v%s-linux-amd64.tar.gz' % HELM_VERSION)
+
+    print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
+    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init'])
     k8s_wait_for_running(8)
     # Check for helm version
     out = subprocess.check_output(
-        'helm version | grep "%s" | wc -l' % HELM_VERSION, shell=True)
+        'helm version | grep "%s" | wc -l' % version, shell=True)
     if int(out) == 2:
         print('Kolla - Helm version matches')
     else:
@@ -693,7 +690,7 @@ def main():
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
-    print('Helm version %s' % HELM_VERSION)
+    print('Helm version %s' % args.helm_version)
 
     set_logging()
     logger.setLevel(level=args.verbose)
@@ -720,7 +717,7 @@ def main():
 
         # Start Kolla deployment
         kolla_update_rbac()
-        kolla_install_deploy_helm()
+        kolla_install_deploy_helm(args.helm_version)
         kolla_install_repos()
         kolla_gen_passwords()
         kolla_create_namespace()
