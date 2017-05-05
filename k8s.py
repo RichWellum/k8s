@@ -95,9 +95,9 @@ def parse_args():
                         help='Stop after bringing up kubernetes.')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
-    parser.add_argument('-v', '--verbose',
-                        action='store_const', const=logging.DEBUG,
-                        default=logging.INFO, help='turn on verbose messages')
+    parser.add_argument('-v', '--verbose', action='store_const',
+                        const=logging.DEBUG, default=logging.INFO,
+                        help='turn on verbose messages')
 
     return parser.parse_args()
 
@@ -560,8 +560,9 @@ cpu_mode=none
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
-    output = run(['sudo', 'kolla-ansible', 'genconfig'])
-    print(output)
+    # output = run(['sudo', 'kolla-ansible', 'genconfig'])
+    run(['cd kolla-kubernetes', 'sudo', 'ansible-playbook', '-e', 'ansible_python_interpreter=/usr/bin/python', '-e',
+         '@/etc/kolla/globals.yml', '-e', '@/etc/kolla/passwords.yml', '-e', 'CONFIG_DIR=/etc/kolla ansible/site.yml', 'cd ..'])
 
 
 def kolla_gen_secrets():
