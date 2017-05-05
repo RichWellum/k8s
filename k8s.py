@@ -408,7 +408,6 @@ subjects:
 - kind: Group
   name: system:unauthenticated
 """)
-
     run(['kubectl', 'update', '-f', '/tmp/rbac'])
 
 
@@ -439,7 +438,7 @@ def k8s_cleanup(doit):
 
 
 def kolla_install_repos():
-    print('Kolla - Install repos need for kolla packaging')
+    print('Kolla - Install repos needed for kolla packaging')
     run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
 
     print('Kolla - Clone or update kolla-ansible')
@@ -564,6 +563,10 @@ def kolla_gen_configs():
     # ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e
     # @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e
     # CONFIG_DIR=/etc/kolla ansible/site.yml
+    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
+                         stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    print('%s' % output)
     current_dir = os.getcwd()
     os.chdir('kolla-kubernetes')
     run(['cd kolla-kubernetes', 'sudo', 'ansible-playbook', '-e', 'ansible_python_interpreter=/usr/bin/python', '-e',
