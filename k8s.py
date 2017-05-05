@@ -586,7 +586,8 @@ def kolla_create_config_maps():
     nova-novncproxy nova-novncproxy-haproxy neutron-server-haproxy \
     nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
-    placement-api placement-api-haproxy')
+    placement-api placement-api-haproxy',
+                    stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_resolve_workaround():
