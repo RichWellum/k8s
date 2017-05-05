@@ -563,7 +563,8 @@ cpu_mode=none
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
-    run(['sudo', 'kolla-ansible', 'genconfig'])
+    output = run(['sudo', 'kolla-ansible', 'genconfig'])
+    print(output)
 
 
 def kolla_gen_secrets():
