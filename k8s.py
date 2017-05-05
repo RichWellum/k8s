@@ -559,30 +559,19 @@ cpu_mode=none
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
-    pause_to_debug()
-    # output = run(['sudo', 'kolla-ansible', 'genconfig'])
-    # ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e
-    # @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e
-    # CONFIG_DIR=/etc/kolla ansible/site.yml
     # Standard jinja2 in Centos7(2.9.6) is broken
     run(['sudo', 'install', 'Jinja2==2.8.1'])
-    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
-                         'ansible_python_interpreter=/usr/bin/python -e ' +
-                         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-                         ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
-                         stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-    print('%s' % output)
-    current_dir = os.getcwd()
-    os.chdir('kolla-kubernetes')
-    run(['cd kolla-kubernetes', 'sudo', 'ansible-playbook', '-e', 'ansible_python_interpreter=/usr/bin/python', '-e',
-         '@/etc/kolla/globals.yml', '-e', '@/etc/kolla/passwords.yml', '-e', 'CONFIG_DIR=/etc/kolla ansible/site.yml', 'cd ..'])
-    os.chdir(current_dir)
+    subprocess.Popen('sudo ansible-playbook -e ' +
+                     'ansible_python_interpreter=/usr/bin/python -e ' +
+                     '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
+                     ' -e CONFIG_DIR=/etc/kolla kolla-kubernetes/ansible/site.yml',
+                     stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    run(['kolla-kubernetes/tools/secret-generator.py', 'create'])
+    subprocess.Popen('kolla-kubernetes/tools/secret-generator.py create',
+                     stdout=subprocess.PIPE, shell=True)
 
 
 def kolla_create_config_maps():
