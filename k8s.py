@@ -102,7 +102,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def run(cmd, hide_error=False, cont_on_error=False):
+def run(cmd, hide_error=False, cont_on_error=True):
     '''
     Run command to execute CLI and catch errors and display them whether
     in verbose mode or not.
@@ -561,8 +561,14 @@ cpu_mode=none
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # output = run(['sudo', 'kolla-ansible', 'genconfig'])
+    # ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e
+    # @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e
+    # CONFIG_DIR=/etc/kolla ansible/site.yml
+    current_dir = os.getcwd()
+    os.chdir('kolla-kubernetes')
     run(['cd kolla-kubernetes', 'sudo', 'ansible-playbook', '-e', 'ansible_python_interpreter=/usr/bin/python', '-e',
          '@/etc/kolla/globals.yml', '-e', '@/etc/kolla/passwords.yml', '-e', 'CONFIG_DIR=/etc/kolla ansible/site.yml', 'cd ..'])
+    os.chdir(current_dir)
 
 
 def kolla_gen_secrets():
