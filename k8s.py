@@ -237,7 +237,7 @@ def k8s_wait_for_running(number):
 
     number is the minimum number of 'Running' pods expected"""
 
-    TIMEOUT = 350  # Give k8s 350s to come up
+    TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 10
 
     print('Kubernetes - Wait for %s pods to be in Running state:' % number)
@@ -425,7 +425,7 @@ def kolla_install_deploy_helm(version):
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % version, shell=True)
     if int(out) == 2:
-        print('Kolla - Helm version matches')
+        print('Kolla - Helm successfully installed')
     else:
         print('Kolla - Helm versions did not match')
         sys.exit(1)
@@ -678,17 +678,19 @@ global:
     run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
 
 
-def helm_install_chart(chart_list):
-    start_number_of_running = 8
-    for chart in chart_list:
-        final_number_of_running = start_number_of_running + 1
+def helm_install_chart(chart_list, running):
+    # Todo - pass in number of charts to check -don't calculate
+    # start_number_of_running = 8
+    # for chart in chart_list:
+    #     final_number_of_running = start_number_of_running + 1
 
+    total_run = running + 8
     for chart in chart_list:
         print('Kolla - install chart: %s' % chart)
         run(['helm', 'install', 'kolla-kubernetes/helm/service/%s' % chart,
              '--namespace', 'kolla', '--name', '%s' % chart, '--values', '/tmp/cloud.yaml'])
 
-    k8s_wait_for_running(final_number_of_running)
+    k8s_wait_for_running(total_run)
 
 
 def main():
@@ -746,7 +748,12 @@ def main():
 
         # Install Helm charts
         chart_list = ['mariadb']
-        helm_install_chart(chart_list)
+        helm_install_chart(chart_list, 9)
+
+        # Install remaining service level charts
+        chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance', 'cinder-control',
+                      'horizon', 'openvswitch', 'neutron', 'nova-control', 'nova-compute']
+        helm_install_chart(chart_list, 40)
 
     except Exception:
         print('Exception caught:')
