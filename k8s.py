@@ -244,7 +244,7 @@ def k8s_wait_for_running(number, namespace):
           % (number, namespace))
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods -n kolla | grep "Running" | grep "%s" | wc -l' % namespace,
+        p = subprocess.Popen('kubectl get pods --namespace-all | grep "Running" | grep "%s" | wc -l' % namespace,
                              stdout=subprocess.PIPE, shell=True)
         (running, err) = p.communicate()
         p.wait()
