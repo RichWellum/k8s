@@ -682,8 +682,14 @@ global:
 def helm_install_chart(chart_list, running):
     for chart in chart_list:
         print('Kolla - Install chart: %s' % chart)
-        run(['helm', 'install', 'kolla-kubernetes/helm/service/%s' % chart,
-             '--namespace', 'kolla', '--name', '%s' % chart, '--values', '/tmp/cloud.yaml'])
+        # run(['helm', 'install', '--debug', 'kolla-kubernetes/helm/service/%s' % chart,
+        #      '--namespace', 'kolla', '--name', '%s' % chart, '--values', '/tmp/cloud.yaml'])
+
+        p = subprocess.Popen('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart),
+                             stdout=subprocess.PIPE, shell=True)
+        (output, err) = p.communicate()
+        p.wait()
+        print(output)
 
     k8s_wait_for_running(running, 'kolla')
 
