@@ -240,11 +240,11 @@ def k8s_wait_for_running(number, namespace):
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 10
 
-    print('Kubernetes - Wait for %s pods (-n %s) to be in Running state:'
+    print("Kubernetes - Wait for %s '%s' pods to be in Running state:"
           % (number, namespace))
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods -n kolla | grep "Running" | grep %s | wc -l' % namespace,
+        p = subprocess.Popen('kubectl get pods -n kolla | grep "Running" | grep "%s" | wc -l' % namespace,
                              stdout=subprocess.PIPE, shell=True)
         (running, err) = p.communicate()
         p.wait()
