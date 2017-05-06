@@ -202,7 +202,7 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes infrastructure')
     while True:
-        pod_status = run(['kubectl', 'get', 'pods', '--all-namespaces'])
+        pod_status = run(['kubectl', 'get', 'pods', '-n', 'kube-system'])
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
@@ -251,7 +251,7 @@ def k8s_wait_for_running(number, namespace):
 
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
-            p = subprocess.Popen('kubectl get pods --all-namespaces',
+            p = subprocess.Popen('kubectl get pods -n %s' % namespace,
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
             print('%s' % output)
