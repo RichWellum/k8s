@@ -194,7 +194,7 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     run(['sudo', 'mv', './kubernetes.repo', repo])
 
 
-def k8s_wait_for_pods():
+def k8s_wait_for_kube_system():
     """Wait for basic k8s to come up"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
@@ -206,7 +206,7 @@ def k8s_wait_for_pods():
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
-            p = subprocess.Popen('kubectl get pods --all-namespaces',
+            p = subprocess.Popen('kubectl get pods -n kube-system',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
             print('%s' % output)
@@ -232,7 +232,7 @@ def k8s_wait_for_pods():
                 .format(elapsed_time))
 
 
-def k8s_wait_for_running(number):
+def k8s_wait_for_running(number, namespace):
     """Wait for k8s pods to be in running status
 
     number is the minimum number of 'Running' pods expected"""
@@ -243,7 +243,7 @@ def k8s_wait_for_running(number):
     print('Kubernetes - Wait for %s pods to be in Running state:' % number)
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods --all-namespaces | grep "Running" | wc -l',
+        p = subprocess.Popen('kubectl get pods -n kolla | grep "Running" | grep %s | wc -l' % namespace,
                              stdout=subprocess.PIPE, shell=True)
         (running, err) = p.communicate()
         p.wait()
@@ -420,7 +420,7 @@ def kolla_install_deploy_helm(version):
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init'])
-    k8s_wait_for_running(8)
+    k8s_wait_for_running(8, 'kube-system')
     # Check for helm version
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % version, shell=True)
@@ -679,18 +679,12 @@ global:
 
 
 def helm_install_chart(chart_list, running):
-    # Todo - pass in number of charts to check -don't calculate
-    # start_number_of_running = 8
-    # for chart in chart_list:
-    #     final_number_of_running = start_number_of_running + 1
-
-    total_run = running + 8
     for chart in chart_list:
-        print('Kolla - install chart: %s' % chart)
+        print('Kolla - Install chart: %s' % chart)
         run(['helm', 'install', 'kolla-kubernetes/helm/service/%s' % chart,
              '--namespace', 'kolla', '--name', '%s' % chart, '--values', '/tmp/cloud.yaml'])
 
-    k8s_wait_for_running(total_run)
+    k8s_wait_for_running(running, 'kolla')
 
 
 def main():
@@ -716,10 +710,10 @@ def main():
         k8_fix_iptables()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
-        k8s_wait_for_pods()
-        k8s_wait_for_running(5)
+        k8s_wait_for_kube_system()
+        k8s_wait_for_running(5, 'kube-system')
         k8s_deploy_canal_sdn()
-        k8s_wait_for_running(7)
+        k8s_wait_for_running(7, 'kube-system')
         k8s_schedule_master_node()
         # todo: nslookup check
         k8s_check_exit(args.kubernetes)
@@ -748,7 +742,7 @@ def main():
 
         # Install Helm charts
         chart_list = ['mariadb']
-        helm_install_chart(chart_list, 9)
+        helm_install_chart(chart_list, 2)
 
         # Install remaining service level charts
         chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance', 'cinder-control',
