@@ -579,6 +579,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
+    pause_to_debug()
     subprocess.call('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -590,6 +591,7 @@ def kolla_create_config_maps():
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
     placement-api placement-api-haproxy',
                     stdout=subprocess.PIPE, shell=True)
+    pause_to_debug()
 
 
 def kolla_resolve_workaround():
