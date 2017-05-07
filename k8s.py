@@ -688,9 +688,12 @@ global:
        all:
          port_external: true
 """)
-    run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
+    debug = run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
+    print(debug)
+    pause_to_debug()
     run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
     run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
+    pause_to_debug()
 
 
 def helm_install_chart(chart_list, running):
