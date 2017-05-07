@@ -356,7 +356,7 @@ def k8s_load_kubeadm_creds():
 
     if not os.path.exists(kube):
         os.makedirs(kube)
-    run(['sudo', 'cp', '/etc/kubernetes/admin.conf', config])
+    run(['sudo', '-H', 'cp', '/etc/kubernetes/admin.conf', config])
     run(['sudo', 'chmod', '777', kube])
     subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
                     shell=True)
@@ -443,12 +443,12 @@ def kolla_install_repos():
     run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
 
     print('Kolla - Clone or update kolla-ansible')
-    if os.path.exists('kolla-ansible'):
+    if os.path.exists('./kolla-ansible'):
         run(['sudo', 'rm', '-rf', './kolla-ansible'])
     run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
 
     print('Kolla - Clone or update kolla-kubernetes')
-    if os.path.exists('kolla-kubernetes'):
+    if os.path.exists('./kolla-kubernetes'):
         run(['sudo', 'rm', '-rf', './kolla-kubernetes'])
     run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
 
