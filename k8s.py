@@ -772,7 +772,7 @@ def main():
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
-        k8s_wait_for_running_negate()
+        # k8s_wait_for_running_negate()
         # k8s_wait_for_running(5, 'kube-system')
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
