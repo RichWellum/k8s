@@ -158,9 +158,10 @@ def start_process(args):
     time.sleep(2)
 
 
-def pause_to_debug():
+def pause_to_debug(str):
     """Pause the script for manual debugging of the VM before continuing."""
     print('Pause before debug')
+    print('DEBUG: %s' % str)
     raw_input('Press Enter to continue')
 
 
@@ -286,7 +287,7 @@ def k8s_wait_for_running_negate():
         p.wait()
 
         if int(not_running) != 0:
-            print('Kubernetes - Waitng for %s pods to be Running' % int(not_running))
+            print('Kubernetes - Waitng for %s pods to be in Running state' % int(not_running))
             # p = subprocess.Popen('kubectl get pods --all-namespaces',
             #                      stdout=subprocess.PIPE, shell=True)
             # (output, err) = p.communicate()
@@ -626,7 +627,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    pause_to_debug()
+    pause_to_debug('before creating config maps')
     subprocess.call('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -640,7 +641,7 @@ def kolla_create_config_maps():
     ironic-inspector ironic-inspector-haproxy ironic-pxe \
     placement-api placement-api-haproxy',
                     stdout=subprocess.PIPE, shell=True)
-    pause_to_debug()
+    pause_to_debug('After create config maps')
 
 
 def kolla_resolve_workaround():
@@ -725,11 +726,10 @@ global:
          port_external: true
 """)
     debug = run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
-    print(debug)
-    pause_to_debug()
+    pause_to_debug(debug)
     run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
     run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
-    pause_to_debug()
+    pause_to_debug('after sed on cloud')
 
 
 def helm_install_chart(chart_list, running):
