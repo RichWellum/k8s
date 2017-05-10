@@ -464,9 +464,7 @@ def kolla_install_deploy_helm(version):
     if int(out) == 2:
         print('Kolla - Helm successfully installed')
     else:
-        print('Kolla - Helm versions did not match')
-        pause_to_debug()
-        sys.exit(1)
+        print('Kolla - Warning Helm versions did not match %s' % int(out))
 
 
 def k8s_cleanup(doit):
