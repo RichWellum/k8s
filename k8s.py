@@ -271,6 +271,38 @@ def k8s_wait_for_running(number, namespace):
                 .format(elapsed_time))
 
 
+def k8s_wait_for_running_negate():
+    """Query get pods until only state is Running"""
+
+    TIMEOUT = 1000  # Give k8s 1000s to come up
+    RETRY_INTERVAL = 3
+
+    print("Kubernetes - Wait for only running pods to be seen:")
+    elapsed_time = 0
+    while True:
+        p = subprocess.Popen('kubectl get pods -n %s | grep -v "Running" | wc -l',
+                             stdout=subprocess.PIPE, shell=True)
+        (not_running, err) = p.communicate()
+        p.wait()
+
+        if int(not_running) != 0:
+            print('Kubernetes - Waitng for %s pods to be Running' % int(not_running))
+            p = subprocess.Popen('kubectl get pods --all-namespaces',
+                                 stdout=subprocess.PIPE, shell=True)
+            (output, err) = p.communicate()
+            print('%s' % output)
+            time.sleep(RETRY_INTERVAL)
+            elapsed_time = elapsed_time + RETRY_INTERVAL
+        if elapsed_time > TIMEOUT:
+            # Dump verbose output in case it helps...
+            print(int(not_running))
+            raise AbortScriptException(
+                "Kubernetes did not come up after {0} 1econds!"
+                .format(elapsed_time))
+        else:
+            break
+
+
 # def k8s_check_dns():
 #     kubectl run - i - t $(uuidgen) - -image = busybox - -restart = Never
 #     p = subprocess.Popen('kubectl get pods --all-namespaces',
@@ -393,21 +425,21 @@ def kolla_update_rbac():
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
-apiVersion: rbac.authorization.k8s.io/v1alpha1
+apiVersion: rbac.authorization.k8s.io / v1alpha1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster-admin
+  name: cluster - admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: cluster - admin
 subjects:
 - kind: Group
-  name: system:masters
+  name: system: masters
 - kind: Group
-  name: system:authenticated
+  name: system: authenticated
 - kind: Group
-  name: system:unauthenticated
+  name: system: unauthenticated
 """)
     run(['kubectl', 'update', '-f', '/tmp/rbac'])
 
@@ -421,7 +453,8 @@ def kolla_install_deploy_helm(version):
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
     run(['helm', 'init'])
-    k8s_wait_for_running(8, 'kube-system')
+    k8s_wait_for_running_negate()
+    # k8s_wait_for_running(8, 'kube-system')
     # Check for helm version
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % version, shell=True)
@@ -552,8 +585,8 @@ def kolla_enable_qemu():
     with open(new, "w") as w:
         w.write("""\
 [libvirt]
-virt_type=qemu
-cpu_mode=none
+virt_type = qemu
+cpu_mode = none
 """)
     run(['sudo', 'mv', new, add_to])
 
@@ -662,7 +695,7 @@ global:
            port_external: "true"
        volume_lvm:
          all:
-           element_name: cinder-volume
+           element_name: cinder - volume
          daemonset:
            lvm_backends:
            - '192.168.7.105': 'cinder-volumes'
@@ -681,7 +714,7 @@ global:
      openvwswitch:
        all:
          add_port: true
-         ext_bridge_name: br-ex
+         ext_bridge_name: br - ex
          ext_interface_name: enp1s0f1
          setup_bridge: true
      horizon:
@@ -708,7 +741,8 @@ def helm_install_chart(chart_list, running):
         p.wait()
         print(output)
 
-    k8s_wait_for_running(running, 'kolla')
+    k8s_wait_for_running_negate()
+    # k8s_wait_for_running(running, 'kolla')
 
 
 def main():
@@ -735,9 +769,11 @@ def main():
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
-        k8s_wait_for_running(5, 'kube-system')
+        k8s_wait_for_running_negate()
+        # k8s_wait_for_running(5, 'kube-system')
         k8s_deploy_canal_sdn()
-        k8s_wait_for_running(7, 'kube-system')
+        k8s_wait_for_running_negate()
+        # k8s_wait_for_running(7, 'kube-system')
         k8s_schedule_master_node()
         # todo: nslookup check
         k8s_check_exit(args.kubernetes)
