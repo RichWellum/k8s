@@ -608,6 +608,7 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
+    pause_to_debug('before gen secrets')
     subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
                      stdout=subprocess.PIPE, shell=True)
 
