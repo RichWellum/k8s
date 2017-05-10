@@ -465,6 +465,7 @@ def kolla_install_deploy_helm(version):
         print('Kolla - Helm successfully installed')
     else:
         print('Kolla - Helm versions did not match')
+        pause_to_debug()
         sys.exit(1)
 
 
