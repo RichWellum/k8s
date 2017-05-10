@@ -200,7 +200,7 @@ def k8s_wait_for_kube_system():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
-    print('\nKubernetes - Wait for basic Kubernetes infrastructure')
+    print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
         pod_status = run(['kubectl', 'get', 'pods', '-n', 'kube-system'])
         nlines = len(pod_status.splitlines())
@@ -428,21 +428,21 @@ def kolla_update_rbac():
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
-apiVersion: rbac.authorization.k8s.io / v1alpha1
+apiVersion: rbac.authorization.k8s.io/v1alpha1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster - admin
+  name: cluster-admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster - admin
+  name: cluster-admin
 subjects:
 - kind: Group
-  name: system: masters
+  name: system:masters
 - kind: Group
-  name: system: authenticated
+  name: system:authenticated
 - kind: Group
-  name: system: unauthenticated
+  name: system:unauthenticated
 """)
     run(['kubectl', 'update', '-f', '/tmp/rbac'])
 
@@ -540,42 +540,42 @@ def kolla_add_to_globals():
 
     with open(new, "w") as w:
         w.write("""\
-kolla_install_type: "source"
-tempest_image_alt_id: "{{ tempest_image_id }}"
-tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
+ kolla_install_type: "source"
+ tempest_image_alt_id: "{{ tempest_image_id }}"
+ tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
 
-neutron_plugin_agent: "openvswitch"
-api_interface_address: 0.0.0.0
-tunnel_interface_address: 0.0.0.0
-orchestration_engine: KUBERNETES
-memcached_servers: "memcached"
-keystone_admin_url: "http://keystone-admin:35357/v3"
-keystone_internal_url: "http://keystone-internal:5000/v3"
-keystone_public_url: "http://keystone-public:5000/v3"
-glance_registry_host: "glance-registry"
-neutron_host: "neutron"
-keystone_database_address: "mariadb"
-glance_database_address: "mariadb"
-nova_database_address: "mariadb"
-nova_api_database_address: "mariadb"
-neutron_database_address: "mariadb"
-cinder_database_address: "mariadb"
-ironic_database_address: "mariadb"
-placement_database_address: "mariadb"
-rabbitmq_servers: "rabbitmq"
-openstack_logging_debug: "True"
-enable_haproxy: "no"
-enable_heat: "no"
-enable_cinder: "yes"
-enable_cinder_backend_lvm: "yes"
-enable_cinder_backend_iscsi: "yes"
-enable_cinder_backend_rbd: "no"
-enable_ceph: "no"
-enable_elasticsearch: "no"
-enable_kibana: "no"
-glance_backend_ceph: "no"
-cinder_backend_ceph: "no"
-nova_backend_ceph: "no"
+ neutron_plugin_agent: "openvswitch"
+ api_interface_address: 0.0.0.0
+ tunnel_interface_address: 0.0.0.0
+ orchestration_engine: KUBERNETES
+ memcached_servers: "memcached"
+ keystone_admin_url: "http://keystone-admin:35357/v3"
+ keystone_internal_url: "http://keystone-internal:5000/v3"
+ keystone_public_url: "http://keystone-public:5000/v3"
+ glance_registry_host: "glance-registry"
+ neutron_host: "neutron"
+ keystone_database_address: "mariadb"
+ glance_database_address: "mariadb"
+ nova_database_address: "mariadb"
+ nova_api_database_address: "mariadb"
+ neutron_database_address: "mariadb"
+ cinder_database_address: "mariadb"
+ ironic_database_address: "mariadb"
+ placement_database_address: "mariadb"
+ rabbitmq_servers: "rabbitmq"
+ openstack_logging_debug: "True"
+ enable_haproxy: "no"
+ enable_heat: "no"
+ enable_cinder: "yes"
+ enable_cinder_backend_lvm: "yes"
+ enable_cinder_backend_iscsi: "yes"
+ enable_cinder_backend_rbd: "no"
+ enable_ceph: "no"
+ enable_elasticsearch: "no"
+ enable_kibana: "no"
+ glance_backend_ceph: "no"
+ cinder_backend_ceph: "no"
+ nova_backend_ceph: "no"
 """)
     subprocess.call('cat %s | sudo tee -a %s' % (new, add_to), shell=True)
 
