@@ -209,6 +209,7 @@ def k8s_wait_for_kube_system():
             p = subprocess.Popen('kubectl get pods -n kube-system',
                                  stdout=subprocess.PIPE, shell=True)
             (output, err) = p.communicate()
+            p.wait()
             print('%s' % output)
             break
         elif elapsed_time < TIMEOUT:
@@ -599,30 +600,22 @@ def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
     # run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
-    subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
-                     'ansible_python_interpreter=/usr/bin/python -e ' +
-                     '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-                     ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
-                     stdout=subprocess.PIPE, shell=True)
+    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
+                         'ansible_python_interpreter=/usr/bin/python -e ' +
+                         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
+                         ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
+                         stdout=subprocess.PIPE, shell=True)
+    p.wait()
 
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     pause_to_debug('before gen secrets')
-    subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
-                     stdout=subprocess.PIPE, shell=True)
+    p = subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
+                         stdout=subprocess.PIPE, shell=True)
+    p.wait()
 
-# todo - change Popens to .call and retest
-
-    # mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
-    # nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
-    # glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
-    # neutron-metadata-agent neutron-openvswitch-agent openvswitch-db-server \
-    # openvswitch-vswitchd nova-libvirt nova-compute nova-consoleauth \
-    # nova-novncproxy nova-novncproxy-haproxy neutron-server-haproxy \
-    # nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
-    # cinder-scheduler cinder-volume iscsid tgtd keepalived \
-    # placement-api placement-api-haproxy',
+    # todo - change Popens to .call and retest
 
 
 def kolla_create_config_maps():
