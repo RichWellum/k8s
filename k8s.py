@@ -160,8 +160,7 @@ def start_process(args):
 
 def pause_to_debug(str):
     """Pause the script for manual debugging of the VM before continuing."""
-    print('Pause before debug')
-    print('DEBUG: %s' % str)
+    print('Pause: "%s"' % str)
     raw_input('Press Enter to continue')
 
 
