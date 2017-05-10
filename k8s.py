@@ -669,7 +669,6 @@ def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
 global:
    kolla:
      all:
-       docker_registry: docker.io
        image_tag: "4.0.0"
        kube_logger: false
        external_vip: "192.168.7.105"
@@ -697,7 +696,7 @@ global:
            port_external: "true"
        volume_lvm:
          all:
-           element_name: cinder - volume
+           element_name: cinder-volume
          daemonset:
            lvm_backends:
            - '192.168.7.105': 'cinder-volumes'
@@ -716,7 +715,7 @@ global:
      openvwswitch:
        all:
          add_port: true
-         ext_bridge_name: br - ex
+         ext_bridge_name: br-ex
          ext_interface_name: enp1s0f1
          setup_bridge: true
      horizon:
