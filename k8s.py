@@ -287,20 +287,23 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             print('Kubernetes - Waitng for %s pods to be Running' % int(not_running))
-            p = subprocess.Popen('kubectl get pods --all-namespaces',
-                                 stdout=subprocess.PIPE, shell=True)
-            (output, err) = p.communicate()
-            print('%s' % output)
+            # p = subprocess.Popen('kubectl get pods --all-namespaces',
+            #                      stdout=subprocess.PIPE, shell=True)
+            # (output, err) = p.communicate()
+            # print('%s' % output)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
+            continue
+        else:
+            print('All pods Running')
+            break
         if elapsed_time > TIMEOUT:
             # Dump verbose output in case it helps...
             print(int(not_running))
             raise AbortScriptException(
                 "Kubernetes did not come up after {0} 1econds!"
                 .format(elapsed_time))
-        else:
-            break
+            sys.exit(1)
 
 
 # def k8s_check_dns():
