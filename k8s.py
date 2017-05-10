@@ -459,6 +459,8 @@ def kolla_install_deploy_helm(version):
     k8s_wait_for_running_negate()
     # k8s_wait_for_running(8, 'kube-system')
     # Check for helm version
+    # Todo - replace this to using json path to check for that field
+    time.sleep(3)
     out = subprocess.check_output(
         'helm version | grep "%s" | wc -l' % version, shell=True)
     if int(out) == 2:
@@ -596,7 +598,7 @@ cpu_mode = none
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
+    # run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
     subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
                      'ansible_python_interpreter=/usr/bin/python -e ' +
                      '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
