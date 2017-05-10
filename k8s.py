@@ -280,7 +280,7 @@ def k8s_wait_for_running_negate():
     print("Kubernetes - Wait for only running pods to be seen:")
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods -n %s | grep -v "Running" | wc -l',
+        p = subprocess.Popen('kubectl get pods --all-namespaces | grep -v "Running" | wc -l',
                              stdout=subprocess.PIPE, shell=True)
         (not_running, err) = p.communicate()
         p.wait()
