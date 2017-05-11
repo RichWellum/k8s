@@ -608,7 +608,9 @@ def kolla_gen_configs():
                          '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
                          ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
     p.wait()
+    print('%s' % output)
 
 
 def kolla_gen_secrets():
@@ -616,9 +618,9 @@ def kolla_gen_secrets():
     pause_to_debug('before gen secrets')
     p = subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
                          stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
     p.wait()
-
-    # todo - change Popens to .call and retest
+    print('%s' % output)
 
 
 def kolla_create_config_maps():
