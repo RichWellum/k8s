@@ -609,6 +609,7 @@ def kolla_gen_configs():
     #                      ' -e CONFIG_DIR=/etc/kolla ' +
     #                      './kolla-kubernetes/ansible/site.yml; cd ..',
     #                      stdout=subprocess.PIPE, shell=True)
+    pause_to_debug('before kolla_gen_config')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
@@ -642,7 +643,6 @@ def kolla_create_config_maps():
     ironic-inspector ironic-inspector-haproxy ironic-pxe \
     placement-api placement-api-haproxy',
                     stdout=subprocess.PIPE, shell=True)
-    pause_to_debug('After create config maps')
 
 
 def kolla_resolve_workaround():
@@ -658,7 +658,7 @@ def kolla_build_micro_charts():
 def kolla_verify_helm_images():
     out = subprocess.check_output(
         'ls | grep ".tgz" | wc -l', shell=True)
-    if int(out) > 150:
+    if int(out) > 180:
         print('Kolla - %s Helm images created' % out)
     else:
         print('Kolla - Error: only %s Helm images created' % out)
@@ -726,11 +726,9 @@ global:
        all:
          port_external: true
 """)
-    debug = run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
-    pause_to_debug(debug)
+    run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
     run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
     run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
-    pause_to_debug('after sed on cloud')
 
 
 def helm_install_chart(chart_list, running):
