@@ -474,6 +474,9 @@ def k8s_cleanup(doit):
     if doit is True:
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run(['sudo', 'kubeadm', 'reset'])
+        run(['sudo', 'rm', '-rf', '/etc/kolla'])
+        run(['sudo', 'rm', '-rf', '/etc/kubernetes'])
+        run(['sudo', 'rm', '-rf', '/etc/kolla-kubernetes'])
 
 
 def kolla_install_repos():
