@@ -462,7 +462,7 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        p = subprocess.check_output(
+        p = subprocess.Popen(
             'helm version | grep "%s" | wc -l' % version, shell=True)
         (out, error) = p.communicate()
         p.wait()
