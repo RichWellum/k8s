@@ -464,9 +464,9 @@ def kolla_install_deploy_helm(version):
     while True:
         p = subprocess.check_output(
             'helm version | grep "%s" | wc -l' % version, shell=True)
-        p.communicate()
+        (out, error) = p.communicate()
         p.wait()
-        if int(p) == 2:
+        if int(out) == 2:
             print('Kolla - Helm successfully installed')
             break
         else:
