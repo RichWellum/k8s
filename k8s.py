@@ -608,7 +608,7 @@ def kolla_gen_configs():
     #                      '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
     #                      ' -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
     #                      stdout=subprocess.PIPE, shell=True)
-    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ansible/site.yml; cd ..',
+    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ./kolla-kubernetes/ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
     p.wait()
