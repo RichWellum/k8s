@@ -461,13 +461,17 @@ def kolla_install_deploy_helm(version):
     # k8s_wait_for_running(8, 'kube-system')
     # Check for helm version
     # Todo - replace this to using json path to check for that field
-    time.sleep(3)
-    out = subprocess.check_output(
-        'helm version | grep "%s" | wc -l' % version, shell=True)
-    if int(out) == 2:
-        print('Kolla - Helm successfully installed')
-    else:
-        print('Kolla - Warning Helm versions did not match %s' % int(out))
+    while True:
+        p = subprocess.check_output(
+            'helm version | grep "%s" | wc -l' % version, shell=True)
+        p.communicate()
+        p.wait()
+        if int(p) == 2:
+            print('Kolla - Helm successfully installed')
+            break
+        else:
+            time.sleep(3)
+            continue
 
 
 def k8s_cleanup(doit):
