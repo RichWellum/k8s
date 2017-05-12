@@ -287,7 +287,7 @@ def k8s_wait_for_running_negate():
         p.wait()
 
         if int(not_running) != 0:
-            print('Kubernetes - Waitng for %s pods to be in Running state' % int(not_running))
+            print('Kubernetes - Waiting for %s pods to be in Running state' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
