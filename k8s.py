@@ -609,15 +609,19 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
     run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
-    # p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
-    #                      'ansible_python_interpreter=/usr/bin/python -e ' +
-    #                      '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-    #                      ' -e CONFIG_DIR=/etc/kolla ' +
-    #                      './kolla-kubernetes/ansible/site.yml; cd ..',
-    #                      stdout=subprocess.PIPE, shell=True)
     pause_to_debug('before kolla_gen_config')
-    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..',
+    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
+                         'ansible_python_interpreter=/usr/bin/python -e ' +
+                         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
+                         '-e CONFIG_DIR=/etc/kolla ' +
+                         './ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
+
+    # p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e
+    # ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e
+    # @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ./ansible/site.yml;
+    # cd ..',
+    # stdout = subprocess.PIPE, shell = True)
     (output, err) = p.communicate()
     p.wait()
     print('%s' % output)
