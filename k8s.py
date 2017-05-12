@@ -198,7 +198,7 @@ def k8s_wait_for_kube_system():
     """Wait for basic k8s to come up"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
-    RETRY_INTERVAL = 10
+    RETRY_INTERVAL = 5
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
@@ -288,10 +288,6 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             print('Kubernetes - Waitng for %s pods to be in Running state' % int(not_running))
-            # p = subprocess.Popen('kubectl get pods --all-namespaces',
-            #                      stdout=subprocess.PIPE, shell=True)
-            # (output, err) = p.communicate()
-            # print('%s' % output)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -609,19 +605,12 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
     run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
-    # pause_to_debug('before kolla_gen_config')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
                          'ansible_python_interpreter=/usr/bin/python -e ' +
                          '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
                          '-e CONFIG_DIR=/etc/kolla ' +
                          './ansible/site.yml; cd ..',
                          stdout=subprocess.PIPE, shell=True)
-
-    # p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e
-    # ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e
-    # @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ./ansible/site.yml;
-    # cd ..',
-    # stdout = subprocess.PIPE, shell = True)
     (output, err) = p.communicate()
     p.wait()
     print('%s' % output)
@@ -629,7 +618,6 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    # pause_to_debug('before gen secrets')
     p = subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
                          stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
@@ -639,7 +627,6 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    # pause_to_debug('before creating config maps')
     subprocess.call('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -782,11 +769,8 @@ def main():
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
-        # k8s_wait_for_running_negate()
-        # k8s_wait_for_running(5, 'kube-system')
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
-        # k8s_wait_for_running(7, 'kube-system')
         k8s_schedule_master_node()
         # todo: nslookup check
         k8s_check_exit(args.kubernetes)
