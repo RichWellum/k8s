@@ -549,42 +549,43 @@ def kolla_add_to_globals():
 
     with open(new, "w") as w:
         w.write("""\
- kolla_install_type: "source"
- tempest_image_alt_id: "{{ tempest_image_id }}"
- tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
+kolla_install_type: "source"
+tempest_image_alt_id: "{{ tempest_image_id }}"
+tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
 
- neutron_plugin_agent: "openvswitch"
- api_interface_address: 0.0.0.0
- tunnel_interface_address: 0.0.0.0
- orchestration_engine: KUBERNETES
- memcached_servers: "memcached"
- keystone_admin_url: "http://keystone-admin:35357/v3"
- keystone_internal_url: "http://keystone-internal:5000/v3"
- keystone_public_url: "http://keystone-public:5000/v3"
- glance_registry_host: "glance-registry"
- neutron_host: "neutron"
- keystone_database_address: "mariadb"
- glance_database_address: "mariadb"
- nova_database_address: "mariadb"
- nova_api_database_address: "mariadb"
- neutron_database_address: "mariadb"
- cinder_database_address: "mariadb"
- ironic_database_address: "mariadb"
- placement_database_address: "mariadb"
- rabbitmq_servers: "rabbitmq"
- openstack_logging_debug: "True"
- enable_haproxy: "no"
- enable_heat: "no"
- enable_cinder: "yes"
- enable_cinder_backend_lvm: "yes"
- enable_cinder_backend_iscsi: "yes"
- enable_cinder_backend_rbd: "no"
- enable_ceph: "no"
- enable_elasticsearch: "no"
- enable_kibana: "no"
- glance_backend_ceph: "no"
- cinder_backend_ceph: "no"
- nova_backend_ceph: "no"
+neutron_plugin_agent: "openvswitch"
+api_interface_address: 0.0.0.0
+tunnel_interface_address: 0.0.0.0
+orchestration_engine: KUBERNETES
+memcached_servers: "memcached"
+keystone_admin_url: "http://keystone-admin:35357/v3"
+keystone_internal_url: "http://keystone-internal:5000/v3"
+keystone_public_url: "http://keystone-public:5000/v3"
+glance_registry_host: "glance-registry"
+neutron_host: "neutron"
+keystone_database_address: "mariadb"
+glance_database_address: "mariadb"
+nova_database_address: "mariadb"
+nova_api_database_address: "mariadb"
+neutron_database_address: "mariadb"
+cinder_database_address: "mariadb"
+ironic_database_address: "mariadb"
+placement_database_address: "mariadb"
+rabbitmq_servers: "rabbitmq"
+openstack_logging_debug: "True"
+enable_haproxy: "no"
+enable_heat: "no"
+enable_cinder: "yes"
+enable_cinder_backend_lvm: "yes"
+enable_cinder_backend_iscsi: "yes"
+enable_cinder_backend_rbd: "no"
+enable_ceph: "no"
+enable_elasticsearch: "no"
+enable_kibana: "no"
+glance_backend_ceph: "no"
+cinder_backend_ceph: "no"
+nova_backend_ceph: "no"
+enable_haproxy: "no"
 """)
     subprocess.call('cat %s | sudo tee -a %s' % (new, add_to), shell=True)
 
@@ -607,7 +608,7 @@ cpu_mode = none
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
+    run(['sudo', 'pip', 'install', 'Jinja2==2.7.2'])
     run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
     pause_to_debug('before kolla_gen_config')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
@@ -736,6 +737,7 @@ global:
        all:
          port_external: true
 """)
+    # Note - external_vip should be an unused ip on your network
     run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
     run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
     run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
