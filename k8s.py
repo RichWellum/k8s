@@ -585,7 +585,6 @@ enable_kibana: "no"
 glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
-enable_haproxy: "no"
 """)
     subprocess.call('cat %s | sudo tee -a %s' % (new, add_to), shell=True)
 
@@ -608,7 +607,7 @@ cpu_mode = none
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run(['sudo', 'pip', 'install', 'Jinja2==2.7.2'])
+    run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
     run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
     pause_to_debug('before kolla_gen_config')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
