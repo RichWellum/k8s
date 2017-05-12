@@ -627,7 +627,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    subprocess.call('kollakube res create configmap \
+    p = subprocess.Popen('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
     glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
@@ -639,7 +639,11 @@ def kolla_create_config_maps():
     ironic-api ironic-api-haproxy ironic-conductor ironic-dnsmasq \
     ironic-inspector ironic-inspector-haproxy ironic-pxe \
     placement-api placement-api-haproxy',
-                    stdout=subprocess.PIPE, shell=True)
+                         stdout=subprocess.PIPE, shell=True)
+
+    (output, err) = p.communicate()
+    p.wait()
+    print(output)
 
 
 def kolla_resolve_workaround():
