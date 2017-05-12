@@ -334,9 +334,7 @@ def k8s_create_repo():
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
     subprocess.check_output(
-        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes git gcc', shell=True)
-    # subprocess.check_output(
-    # 'curl -sSL https://dl.k8s.io/v1.6.2/kubernetes-server-linux-amd64.tar.gz | tar -zxv --strip-components=1 && mv /tmp/server/bin/kubelet /usr/bin/kubelet  && chmod +x /usr/bin/kubelet', shell=True)
+        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc', shell=True)
 
 
 def k8s_setup_dns():
