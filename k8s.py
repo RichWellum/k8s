@@ -627,18 +627,23 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    p = subprocess.Popen('kollakube res create configmap \
-    mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
-    nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
-    glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
-    neutron-metadata-agent neutron-openvswitch-agent openvswitch-db-server \
-    openvswitch-vswitchd nova-libvirt nova-compute nova-consoleauth \
-    nova-novncproxy nova-novncproxy-haproxy neutron-server-haproxy \
-    nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
-    cinder-scheduler cinder-volume keepalived nova-compute-ironic\
-    ironic-api ironic-api-haproxy ironic-conductor ironic-dnsmasq \
-    ironic-inspector ironic-inspector-haproxy ironic-pxe \
-    placement-api placement-api-haproxy',
+    p = subprocess.Popen('kollakube res create configmap ' +
+                         'mariadb keystone horizon rabbitmq memcached ' +
+                         'nova-api nova-conductor ' +
+                         'nova-scheduler glance-api-haproxy ' +
+                         'glance-registry-haproxy glance-api ' +
+                         'glance-registry neutron-server neutron-dhcp-agent ' +
+                         'neutron-l3-agent neutron-metadata-agent ' +
+                         'neutron-openvswitch-agent openvswitch-db-server ' +
+                         'openvswitch-vswitchd nova-libvirt nova-compute ' +
+                         'nova-consoleauth nova-novncproxy ' +
+                         'nova-novncproxy-haproxy neutron-server-haproxy ' +
+                         'nova-api-haproxy cinder-api cinder-api-haproxy ' +
+                         'cinder-backup cinder-scheduler cinder-volume ' +
+                         'keepalived nova-compute-ironic ironic-api ' +
+                         'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' +
+                         'ironic-inspector ironic-inspector-haproxy ' +
+                         'ironic-pxe placement-api placement-api-haproxy',
                          stdout=subprocess.PIPE, shell=True)
 
     (output, err) = p.communicate()
