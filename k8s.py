@@ -334,7 +334,9 @@ def k8s_create_repo():
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
     subprocess.check_output(
-        'sudo yum install -y docker ebtables kubeadm kubectl kubelet kubernetes-cni git gcc', shell=True)
+        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes git gcc', shell=True)
+    # subprocess.check_output(
+    # 'curl -sSL https://dl.k8s.io/v1.6.2/kubernetes-server-linux-amd64.tar.gz | tar -zxv --strip-components=1 && mv /tmp/server/bin/kubelet /usr/bin/kubelet  && chmod +x /usr/bin/kubelet', shell=True)
 
 
 def k8s_setup_dns():
@@ -609,7 +611,7 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
     run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
-    pause_to_debug('before kolla_gen_config')
+    # pause_to_debug('before kolla_gen_config')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
                          'ansible_python_interpreter=/usr/bin/python -e ' +
                          '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
@@ -629,7 +631,7 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    pause_to_debug('before gen secrets')
+    # pause_to_debug('before gen secrets')
     p = subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
                          stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
@@ -639,7 +641,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    pause_to_debug('before creating config maps')
+    # pause_to_debug('before creating config maps')
     subprocess.call('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
