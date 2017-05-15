@@ -113,7 +113,7 @@ def run_shell(cmd, print=False):
 
 def run_shell_co(cmd):
     """Run a shell command and return the output"""
-    p = subprocess.get_output(cmd, shell=True)
+    p = subprocess.getoutput(cmd, shell=True)
     return(p)
 
 
