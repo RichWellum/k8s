@@ -105,18 +105,21 @@ def parse_args():
 def run_shell(cmd, print=False):
     """Run a shell command and wait for the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-    p.wait()
+    out = p.stdout.read()
+
+    # (output, err) = p.communicate()
+    # p.wait()
     if print:
-        print(output)
-
-
-def run_shell_co(cmd):
-    """Run a shell command and return the output"""
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    out = proc.stdout.read()
-    # p = subprocess.getoutput(cmd, shell=True)
+        print(out)
     return(out)
+
+
+# def run_shell_co(cmd):
+#     """Run a shell command and return the output"""
+#     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+#     out = proc.stdout.read()
+#     # p = subprocess.getoutput(cmd, shell=True)
+#     return(out)
 
 
 def untar(fname):
@@ -176,11 +179,11 @@ def k8s_wait_for_kube_system():
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
         # pod_status = run('kubectl', 'get', 'pods', '-n', 'kube-system')
-        pod_status = run_shell_co('kubectl get pods -n kube-system')
+        pod_status = run_shell('kubectl get pods -n kube-system')
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
-            run_shell_co('kubectl get pods -n kube-system')
+            run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
             if (nlines - 1) < 0:
@@ -215,7 +218,7 @@ def k8s_wait_for_running(number, namespace):
           % (number, namespace))
     elapsed_time = 0
     while True:
-        running = run_shell_co('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
+        running = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
 
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
@@ -247,7 +250,7 @@ def k8s_wait_for_running_negate():
     while True:
         # p = subprocess.Popen('kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l',
         # stdout=subprocess.PIPE, shell=True)
-        not_running = run_shell_co(
+        not_running = run_shell(
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
@@ -297,7 +300,7 @@ def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
-    run_shell_co(
+    run_shell(
         'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
 
 
@@ -429,7 +432,7 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell_co('helm version | grep "%s" | wc -l' % version)
+        out = run_shell('helm version | grep "%s" | wc -l' % version)
 
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
@@ -615,7 +618,7 @@ def kolla_build_micro_charts():
 
 
 def kolla_verify_helm_images():
-    out = run_shell_co('ls | grep ".tgz" | wc -l')
+    out = run_shell('ls | grep ".tgz" | wc -l')
     if int(out) > 180:
         print('Kolla - %s Helm images created' % out)
     else:
