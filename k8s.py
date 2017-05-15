@@ -114,14 +114,6 @@ def run_shell(cmd, print=False):
     return(out)
 
 
-# def run_shell_co(cmd):
-#     """Run a shell command and return the output"""
-#     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-#     out = proc.stdout.read()
-#     # p = subprocess.getoutput(cmd, shell=True)
-#     return(out)
-
-
 def untar(fname):
     if (fname.endswith("tar.gz")):
         tar = tarfile.open(fname, "r:gz")
@@ -603,7 +595,7 @@ def kolla_create_config_maps():
               'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' +
               'ironic-inspector ironic-inspector-haproxy ' +
               'ironic-pxe placement-api placement-api-haproxy',
-              print=True)
+              True)
 
 
 def kolla_resolve_workaround():
