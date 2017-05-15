@@ -111,7 +111,7 @@ def run_shell(cmd, print=False):
 
 
 def run_shell_co(cmd):
-    p = subprocess.check_output(cmd, stdout=subprocess.PIPE, shell=True)
+    p = subprocess.check_output(cmd, shell=True)
     (output, err) = p.communicate()
     p.wait()
     return(output)
