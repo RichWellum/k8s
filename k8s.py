@@ -404,8 +404,7 @@ def k8_fix_iptables():
 
 def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
-    run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16',
-              '--service-cidr=10.3.3.0/24 --skip-preflight-checks')
+    run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
