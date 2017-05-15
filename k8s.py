@@ -102,15 +102,10 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_shell(cmd, print=False):
+def run_shell(cmd):
     """Run a shell command and wait for the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-
-    # (output, err) = p.communicate()
-    # p.wait()
-    if print:
-        print(out)
     return(out)
 
 
@@ -476,7 +471,7 @@ def kolla_create_namespace():
 
 
 def k8s_label_nodes(node_list):
-    print('Kubernetes - Label the AIO nodes')
+    print('Kolla - Label the AIO nodes')
     for node in node_list:
         run_shell('kubectl label node $(hostname) %s=true' % node)
 
@@ -594,8 +589,7 @@ def kolla_create_config_maps():
               'keepalived nova-compute-ironic ironic-api ' +
               'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' +
               'ironic-inspector ironic-inspector-haproxy ' +
-              'ironic-pxe placement-api placement-api-haproxy',
-              True)
+              'ironic-pxe placement-api placement-api-haproxy')
 
 
 def kolla_resolve_workaround():
