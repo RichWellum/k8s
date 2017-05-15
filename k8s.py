@@ -502,12 +502,10 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
     #     run('sudo sed -i s/192.168.7.105/%s/g' % MGMT_IP, cloud)
     file = '/etc/kolla/globals.yml'
     run_shell('sudo sed -i s/eth0/%s/g %s' % (MGMT_INT, file))
-    run_shell('sudo sed -i s/#network_interface/network_interface/g %s' %
-              (MGMT_INT, file))
+    run_shell('sudo sed -i s/#network_interface/network_interface/g %s' % (MGMT_INT, file))
 
     run_shell('sudo sed -i s/eth1/%s/g %s' % (NEUTRON_INT, file))
-    run_shell('sudo sed -i s/#neutron_external_interface/neutron_external_interface/g %s' %
-              (NEUTRON_INT, file))
+    run_shell('sudo sed -i s/#neutron_external_interface/neutron_external_interface/g %s /etc/kolla/globals.yml' % NEUTRON_INT)
 
 
 def kolla_add_to_globals():
