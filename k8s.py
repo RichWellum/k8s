@@ -102,17 +102,17 @@ def parse_args():
     return parser.parse_args()
 
 
-def run(cmd, hide_error=False, cont_on_error=True):
+def run(s_cmd, hide_error=False, cont_on_error=True):
     '''
     Run command to execute CLI and catch errors and display them whether
     in verbose mode or not.
 
     Allow the ability to hide errors and also to continue on errors.
     '''
-    s_cmd = ' '.join(cmd)
+    # s_cmd = ' '.join(cmd)
     logger.debug("Command: '%s'\n", s_cmd)
 
-    output = subprocess.Popen(cmd,
+    output = subprocess.Popen(s_cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
     tup_output = output.communicate()
@@ -191,7 +191,8 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    run(['sudo', 'mv', './kubernetes.repo', repo])
+    # run(['sudo', 'mv', './kubernetes.repo', repo)
+    run('sudo mv ./kubernetes.repo %s' % repo)
 
 
 def k8s_wait_for_kube_system():
@@ -202,7 +203,8 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
-        pod_status = run(['kubectl', 'get', 'pods', '-n', 'kube-system'])
+        # pod_status = run('kubectl', 'get', 'pods', '-n', 'kube-system')
+        pod_status = run('kubectl get pods -n kube-system')
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
@@ -313,16 +315,20 @@ def k8s_wait_for_running_negate():
 
 def k8s_turn_things_off():
     print('Kubernetes - Turn off SELinux')
-    run(['sudo', 'setenforce', '0'])
-    run(['sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config'])
+    # run('sudo', 'setenforce', '0')
+    # run('sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config')
+    run('sudo setenforce 0')
+    run('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
     print('Kubernetes - Turn off Firewalld if running')
     PROCNAME = 'firewalld'
     for proc in psutil.process_iter():
         if PROCNAME in proc.name():
             print('Found %s, Stopping and Disabling firewalld' % proc.name())
-            run(['sudo', 'systemctl', 'stop', 'firewalld'])
-            run(['sudo', 'systemctl', 'disable', 'firewalld'])
+            # run('sudo', 'systemctl', 'stop', 'firewalld')
+            # run('sudo', 'systemctl', 'disable', 'firewalld')
+            run('sudo systemctl stop firewalld')
+            run('sudo systemctl disable firewalld')
 
 
 def k8s_create_repo():
@@ -335,31 +341,38 @@ def k8s_create_repo():
 
 def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
-    run(['sudo', 'systemctl', 'enable', 'docker'])
-    run(['sudo', 'systemctl', 'start', 'docker'])
-    run(['sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp'])
-    run(['sudo', 'chmod', '777', '/tmp/10-kubeadm.conf'])
-    run(['sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf'])
-    run(['sudo', 'mv', '/tmp/10-kubeadm.conf',
-         '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'])
+    # run('sudo', 'systemctl', 'enable', 'docker')
+    # run('sudo', 'systemctl', 'start', 'docker')
+    # run('sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp')
+    # run('sudo', 'chmod', '777', '/tmp/10-kubeadm.conf')
+    # run('sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf')
+    # run('sudo', 'mv', '/tmp/10-kubeadm.conf',
+    #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
+
+    run('sudo systemctl enable docker')
+    run('sudo systemctl start docker')
+    run('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
+    run('sudo chmod 777 /tmp/10-kubeadm.conf')
+    run('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
+    run('sudo mv /tmp/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
 
 
 def k8s_reload_service_files():
     print('Kubernetes - Reload the hand-modified service files')
-    run(['sudo', 'systemctl', 'daemon-reload'])
+    run('sudo systemctl daemon-reload')
 
 
 def k8s_start_kubelet():
     print('Kubernetes - Enable and start kubelet')
-    run(['sudo', 'systemctl', 'enable', 'kubelet'])
-    run(['sudo', 'systemctl', 'start', 'kubelet'])
+    run('sudo systemctl enable kubelet')
+    run('sudo systemctl start kubelet')
 
 
 def k8_fix_iptables():
     reload_sysctl = False
     print('Kubernetes - Fix iptables')
-    run(['sudo', 'cp', '/etc/sysctl.conf', '/tmp'])
-    run(['sudo', 'chmod', '777', '/tmp/sysctl.conf'])
+    run('sudo cp /etc/sysctl.conf /tmp')
+    run('sudo chmod 777 /tmp/sysctl.conf')
 
     with open('/tmp/sysctl.conf', 'r+') as myfile:
         contents = myfile.read()
@@ -370,14 +383,14 @@ def k8_fix_iptables():
             myfile.write('net.bridge.bridge-nf-call-iptables=1' + '\n')
             reload_sysctl = True
     if reload_sysctl is True:
-        run(['sudo', 'mv', '/tmp/sysctl.conf', '/etc/sysctl.conf'])
-        run(['sudo', 'sysctl', '-p'])
+        run('sudo mv /tmp/sysctl.conf /etc/sysctl.conf')
+        run('sudo sysctl -p')
 
 
 def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
-    run(['sudo', 'kubeadm', 'init', '--pod-network-cidr=10.1.0.0/16',
-         '--service-cidr=10.3.3.0/24', '--skip-preflight-checks'])
+    run('sudo kubeadm init --pod-network-cidr=10.1.0.0/16',
+        '--service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
@@ -388,8 +401,8 @@ def k8s_load_kubeadm_creds():
 
     if not os.path.exists(kube):
         os.makedirs(kube)
-    run(['sudo', '-H', 'cp', '/etc/kubernetes/admin.conf', config])
-    run(['sudo', 'chmod', '777', kube])
+    run('sudo -H cp /etc/kubernetes/admin.conf', config)
+    run('sudo chmod 777', kube)
     subprocess.call('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config',
                     shell=True)
 
@@ -400,23 +413,23 @@ def k8s_deploy_canal_sdn():
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
-    run(['kubectl', 'create', '-f', '/tmp/rbac.yaml'])
+    run('kubectl create -f /tmp/rbac.yaml')
 
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
         '-o', '/tmp/canal.yaml')
     print(answer)
-    run(['sudo', 'chmod', '777', '/tmp/canal.yaml'])
-    run(['sudo', 'sed', '-i', 's@192.168.0.0/16@10.1.0.0/16@', '/tmp/canal.yaml'])
-    run(['sudo', 'sed', '-i', 's@10.96.232.136@10.3.3.100@', '/tmp/canal.yaml'])
-    run(['kubectl', 'create', '-f', '/tmp/canal.yaml'])
+    run('sudo chmod 777 /tmp/canal.yaml')
+    run('sudo sed -i s@192.168.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+    run('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
+    run('kubectl create -f /tmp/canal.yaml')
 
 
 def k8s_schedule_master_node():
     print('Kolla - Mark master node as schedulable')
-    run(['kubectl', 'taint', 'nodes', '--all=true',
-         'node-role.kubernetes.io/master:NoSchedule-'])
+    run('kubectl taint nodes --all=true',
+        'node-role.kubernetes.io/master:NoSchedule-')
 
 
 def kolla_update_rbac():
@@ -441,7 +454,7 @@ subjects:
 - kind: Group
   name: system:unauthenticated
 """)
-    run(['kubectl', 'update', '-f', '/tmp/rbac'])
+    run('kubectl update -f /tmp/rbac')
 
 
 def kolla_install_deploy_helm(version):
@@ -451,8 +464,8 @@ def kolla_install_deploy_helm(version):
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
-    run(['sudo', 'mv', '-f', 'linux-amd64/helm', '/usr/local/bin/helm'])
-    run(['helm', 'init'])
+    run('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
+    run('helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
     # Todo - replace this to using json path to check for that field
@@ -474,44 +487,44 @@ def kolla_install_deploy_helm(version):
 def k8s_cleanup(doit):
     if doit is True:
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
-        run(['sudo', 'kubeadm', 'reset'])
-        run(['sudo', 'rm', '-rf', '/etc/kolla'])
-        run(['sudo', 'rm', '-rf', '/etc/kubernetes'])
-        run(['sudo', 'rm', '-rf', '/etc/kolla-kubernetes'])
+        run('sudo kubeadm reset')
+        run('sudo rm -rf /etc/kolla')
+        run('sudo rm -rf /etc/kubernetes')
+        run('sudo rm -rf /etc/kolla-kubernetes')
 
 
 def kolla_install_repos():
     print('Kolla - Install repos needed for kolla packaging')
-    run(['sudo', 'yum', 'install', '-y', 'epel-release', 'ansible', 'python-pip', 'python-devel'])
+    run('sudo yum install -y epel-release ansible python-pip python-devel')
 
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
-        run(['sudo', 'rm', '-rf', './kolla-ansible'])
-    run(['git', 'clone', 'http://github.com/openstack/kolla-ansible'])
+        run('sudo rm -rf ./kolla-ansible')
+    run('git clone http://github.com/openstack/kolla-ansible')
 
     print('Kolla - Clone or update kolla-kubernetes')
     if os.path.exists('./kolla-kubernetes'):
-        run(['sudo', 'rm', '-rf', './kolla-kubernetes'])
-    run(['git', 'clone', 'http://github.com/openstack/kolla-kubernetes'])
+        run('sudo rm -rf ./kolla-kubernetes')
+    run('git clone http://github.com/openstack/kolla-kubernetes')
 
     print('Kolla - Install kolla-ansible and kolla-kubernetes')
-    run(['sudo', 'pip', 'install', '-U', 'kolla-ansible/', 'kolla-kubernetes/'])
+    run('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
 
     print('Kolla - Copy default Kolla configuration to /etc')
-    run(['sudo', 'cp', '-aR', '/usr/share/kolla-ansible/etc_examples/kolla', '/etc'])
+    run('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
 
     print('Kolla - Copy default kolla-kubernetes configuration to /etc')
-    run(['sudo', 'cp', '-aR', 'kolla-kubernetes/etc/kolla-kubernetes', '/etc'])
+    run('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
 def kolla_gen_passwords():
     print('Kolla - Generate default passwords via SPRNG')
-    run(['sudo', 'kolla-kubernetes-genpwd'])
+    run('sudo kolla-kubernetes-genpwd')
 
 
 def kolla_create_namespace():
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
-    run(['kubectl', 'create', 'namespace', 'kolla'])
+    run('kubectl create namespace kolla')
 
 
 def k8s_label_nodes(node_list):
@@ -530,11 +543,11 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
     print('Kolla - Modify globals')
 
     # Not pythonic but nothing seems to beat sed for quick word replacement
-    run(['sudo', 'sed', '-i', 's/#network_interface: "eth0"/network_interface: "%s"/g' % MGMT_INT,
-         '/etc/kolla/globals.yml'])
-    run(['sudo', 'sed', '-i',
-         's/#neutron_external_interface: "eth1"/neutron_external_interface: "%s"/g' % NEUTRON_INT,
-         '/etc/kolla/globals.yml'])
+    run('sudo sed -i s/#network_interface: "eth0"/network_interface: "%s"/g' % MGMT_INT,
+        '/etc/kolla/globals.yml')
+    run('sudo sed -i',
+        's/#neutron_external_interface: "eth1"/neutron_external_interface: "%s"/g' % NEUTRON_INT,
+        '/etc/kolla/globals.yml')
 
 
 def kolla_add_to_globals():
@@ -587,7 +600,7 @@ nova_backend_ceph: "no"
 
 def kolla_enable_qemu():
     print('Kolla - Enable qemu')
-    run(['sudo', 'mkdir', '-p', '/etc/kolla/config'])
+    run('sudo mkdir -p /etc/kolla/config')
 
     new = '/tmp/add'
     add_to = '/etc/kolla/config/nova.conf'
@@ -597,14 +610,14 @@ def kolla_enable_qemu():
 virt_type = qemu
 cpu_mode = none
 """)
-    run(['sudo', 'mv', new, add_to])
+    run('sudo mv', new, add_to)
 
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run(['sudo', 'pip', 'install', 'Jinja2==2.8.1'])
-    run(['sudo', 'pip', 'install', 'ansible==2.2.0.0'])
+    run('sudo pip install Jinja2==2.8.1')
+    run('sudo pip install ansible==2.2.0.0')
     p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
                          'ansible_python_interpreter=/usr/bin/python -e ' +
                          '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
@@ -653,12 +666,12 @@ def kolla_create_config_maps():
 
 def kolla_resolve_workaround():
     print('Kolla - Enable resolv.conf workaround')
-    run(['./kolla-kubernetes/tools/setup-resolv-conf.sh', 'kolla'])
+    run('./kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
 
 
 def kolla_build_micro_charts():
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run(['kolla-kubernetes/tools/helm_build_all.sh', '.'])
+    run('kolla-kubernetes/tools/helm_build_all.sh .')
 
 
 def kolla_verify_helm_images():
@@ -733,16 +746,16 @@ global:
          port_external: true
 """)
     # Note - external_vip should be an unused ip on your network
-    run(['sudo', 'sed', '-i', 's/192.168.7.105/%s/g' % MGMT_IP, cloud])
-    run(['sudo', 'sed', '-i', 's/enp1s0f1/%s/g' % NEUTRON_INT, cloud])
-    run(['sudo', 'sed', '-i', 's/docker0/%s/g' % MGMT_INT, cloud])
+    run('sudo sed -i s/192.168.7.105/%s/g' % MGMT_IP, cloud)
+    run('sudo sed -i s/enp1s0f1/%s/g' % NEUTRON_INT, cloud)
+    run('sudo sed -i s/docker0/%s/g' % MGMT_INT, cloud)
 
 
 def helm_install_chart(chart_list, running):
     for chart in chart_list:
         print('Kolla - Install chart: %s' % chart)
-        # run(['helm', 'install', '--debug', 'kolla-kubernetes/helm/service/%s' % chart,
-        #      '--namespace', 'kolla', '--name', '%s' % chart, '--values', '/tmp/cloud.yaml'])
+        # run('helm install --debug kolla-kubernetes/helm/service/%s' % chart,
+        #      '--namespace kolla --name %s' % chart, '--values /tmp/cloud.yaml')
 
         p = subprocess.Popen('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart),
                              stdout=subprocess.PIPE, shell=True)
