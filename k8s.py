@@ -113,7 +113,7 @@ def run_shell(cmd, print=False):
 
 def run_shell_co(cmd):
     """Run a shell command and return the output"""
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = proc.stdout.read()
     # p = subprocess.getoutput(cmd, shell=True)
     return(out)
