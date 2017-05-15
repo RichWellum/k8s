@@ -103,51 +103,19 @@ def parse_args():
 
 
 def run_shell(cmd, print=False):
+    """Run a shell command and wait for the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
     p.wait()
     if print:
         print(output)
-
-
-def run_shell_co(cmd):
-    p = subprocess.check_output(cmd, shell=True)
     return(p)
 
 
-# def run(s_cmd, hide_error=False, cont_on_error=True):
-#     '''
-#     Run command to execute CLI and catch errors and display them whether
-#     in verbose mode or not.
-
-#     Allow the ability to hide errors and also to continue on errors.
-#     '''
-#     # s_cmd = ' '.join(cmd)
-#     logger.debug("Command: '%s'\n", s_cmd)
-
-#     output = subprocess.Popen(s_cmd,
-#                               stdout=subprocess.PIPE,
-#                               stderr=subprocess.PIPE)
-#     tup_output = output.communicate()
-
-#     if output.returncode != 0:
-#         logger.debug('Command failed with code %d:', output.returncode)
-#     else:
-#         logger.debug('Command succeeded with code %d:', output.returncode)
-
-#     logger.debug('Output for: ' + s_cmd)
-#     logger.debug(tup_output[0])
-
-#     if not hide_error and 0 != output.returncode:
-#         logger.error('Error output for: ' + s_cmd)
-#         logger.error(tup_output[1])
-#         if not cont_on_error:
-#             raise AbortScriptException(
-#                 "Command '{0}' failed with return code {1}".format(
-#                     s_cmd, output.returncode))
-#         logger.debug('Continuing despite error %d', output.returncode)
-
-#     return tup_output[0]
+def run_shell_co(cmd):
+    """Run a shell command and retunr the output"""
+    p = subprocess.check_output(cmd, shell=True)
+    return(p)
 
 
 def untar(fname):
@@ -159,16 +127,6 @@ def untar(fname):
         tar = tarfile.open(fname, "r:")
         tar.extractall()
         tar.close()
-
-
-def start_process(args):
-    '''
-    Start vboxheadless process
-    '''
-    logger.debug('args: %s', args)
-    with open(os.devnull, 'w') as fp:
-        subprocess.Popen((args), stdout=fp)
-    time.sleep(2)
 
 
 def pause_to_debug(str):
@@ -221,11 +179,7 @@ def k8s_wait_for_kube_system():
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
-            p = subprocess.Popen('kubectl get pods -n kube-system',
-                                 stdout=subprocess.PIPE, shell=True)
-            (output, err) = p.communicate()
-            p.wait()
-            print('%s' % output)
+            run_shell_co('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
             if (nlines - 1) < 0:
@@ -260,18 +214,12 @@ def k8s_wait_for_running(number, namespace):
           % (number, namespace))
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods -n %s | grep "Running" | wc -l' % namespace,
-                             stdout=subprocess.PIPE, shell=True)
-        (running, err) = p.communicate()
-        p.wait()
+        running = run_shell_co('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
 
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
-            p = subprocess.Popen('kubectl get pods -n %s' % namespace,
-                                 stdout=subprocess.PIPE, shell=True)
-            (output, err) = p.communicate()
-            print('%s' % output)
-
+            run_shell('kubectl get pods -n %s' % namespace)
+            # TODO NEED output
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
@@ -296,10 +244,10 @@ def k8s_wait_for_running_negate():
     print("Kubernetes - Wait for only running pods to be seen:")
     elapsed_time = 0
     while True:
-        p = subprocess.Popen('kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l',
-                             stdout=subprocess.PIPE, shell=True)
-        (not_running, err) = p.communicate()
-        p.wait()
+        # p = subprocess.Popen('kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l',
+        # stdout=subprocess.PIPE, shell=True)
+        not_running = run_shell(
+            'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
             print('Kubernetes - Waiting for %s pods to be in Running state' % int(not_running))
@@ -348,8 +296,8 @@ def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
-    subprocess.check_output(
-        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc', shell=True)
+    run_shell_co(
+        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
 
 
 def k8s_setup_dns():
@@ -480,12 +428,8 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        p = subprocess.Popen(
-            'helm version | grep "%s" | wc -l' % version,
-            stdout=subprocess.PIPE, shell=True)
+        out = run_shell('helm version | grep "%s" | wc -l' % version)
 
-        (out, error) = p.communicate()
-        p.wait()
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
             break
@@ -540,7 +484,7 @@ def kolla_create_namespace():
 def k8s_label_nodes(node_list):
     print('Kubernetes - Label the AIO nodes')
     for node in node_list:
-        subprocess.call('kubectl label node $(hostname) %s=true' % node, shell=True)
+        run_shell('kubectl label node $(hostname) %s=true' % node)
 
 
 def k8s_check_exit(k8s_only):
@@ -602,7 +546,7 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-    subprocess.call('cat %s | sudo tee -a %s' % (new, add_to), shell=True)
+        run_shell('cat %s | sudo tee -a %s' % (new, add_to))
 
 
 def kolla_enable_qemu():
@@ -625,24 +569,16 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
     run_shell('sudo pip install ansible==2.2.0.0')
-    p = subprocess.Popen('cd kolla-kubernetes; sudo ansible-playbook -e ' +
-                         'ansible_python_interpreter=/usr/bin/python -e ' +
-                         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-                         '-e CONFIG_DIR=/etc/kolla ' +
-                         './ansible/site.yml; cd ..',
-                         stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-    p.wait()
-    print('%s' % output)
+    run_shell('cd kolla-kubernetes; sudo ansible-playbook -e ' +
+              'ansible_python_interpreter=/usr/bin/python -e ' +
+              '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
+              '-e CONFIG_DIR=/etc/kolla ' +
+              './ansible/site.yml; cd ..')
 
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    p = subprocess.Popen('python ./kolla-kubernetes/tools/secret-generator.py create',
-                         stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-    p.wait()
-    print('%s' % output)
+    run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
 
 def kolla_create_config_maps():
@@ -678,8 +614,7 @@ def kolla_build_micro_charts():
 
 
 def kolla_verify_helm_images():
-    out = subprocess.check_output(
-        'ls | grep ".tgz" | wc -l', shell=True)
+    out = run_shell_co('ls | grep ".tgz" | wc -l')
     if int(out) > 180:
         print('Kolla - %s Helm images created' % out)
     else:
@@ -760,11 +695,7 @@ def helm_install_chart(chart_list, running):
         # run('helm install --debug kolla-kubernetes/helm/service/%s' % chart,
         #      '--namespace kolla --name %s' % chart, '--values /tmp/cloud.yaml')
 
-        p = subprocess.Popen('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart),
-                             stdout=subprocess.PIPE, shell=True)
-        (output, err) = p.communicate()
-        p.wait()
-        print(output)
+        run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
 
     k8s_wait_for_running_negate()
 
