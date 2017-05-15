@@ -110,6 +110,7 @@ def run_shell(cmd):
 
 
 def untar(fname):
+    """Untar a tarred and compressed file"""
     if (fname.endswith("tar.gz")):
         tar = tarfile.open(fname, "r:gz")
         tar.extractall()
@@ -127,6 +128,7 @@ def pause_to_debug(str):
 
 
 def curl(*args):
+    """Use curl to retrieve a file from a URI"""
     curl_path = '/usr/bin/curl'
     curl_list = [curl_path]
     for arg in args:
@@ -153,7 +155,6 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    # run(['sudo', 'mv', './kubernetes.repo', repo)
     run_shell('sudo mv ./kubernetes.repo %s' % repo)
 
 
@@ -165,7 +166,6 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
-        # pod_status = run('kubectl', 'get', 'pods', '-n', 'kube-system')
         pod_status = run_shell('kubectl get pods -n kube-system')
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
@@ -195,7 +195,6 @@ def k8s_wait_for_kube_system():
 
 def k8s_wait_for_running(number, namespace):
     """Wait for k8s pods to be in running status
-
     number is the minimum number of 'Running' pods expected"""
 
     TIMEOUT = 1000  # Give k8s 1000s to come up
@@ -265,8 +264,6 @@ def k8s_wait_for_running_negate():
 
 def k8s_turn_things_off():
     print('Kubernetes - Turn off SELinux')
-    # run('sudo', 'setenforce', '0')
-    # run('sudo', 'sed', '-i', 's/enforcing/permissive/g', '/etc/selinux/config')
     run_shell('sudo setenforce 0')
     run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
@@ -678,12 +675,9 @@ global:
     run_shell('sudo sed -i s/docker0/%s/g %s' % (MGMT_INT, cloud))
 
 
-def helm_install_chart(chart_list, running):
+def helm_install_chart(chart_list):
     for chart in chart_list:
         print('Kolla - Install chart: %s' % chart)
-        # run('helm install --debug kolla-kubernetes/helm/service/%s' % chart,
-        #      '--namespace kolla --name %s' % chart, '--values /tmp/cloud.yaml')
-
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
 
     k8s_wait_for_running_negate()
@@ -716,6 +710,7 @@ def main():
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
+        pause_to_debug('Check nslookup now')
         # todo: nslookup check
         k8s_check_exit(args.kubernetes)
 
@@ -743,12 +738,12 @@ def main():
 
         # Install Helm charts
         chart_list = ['mariadb']
-        helm_install_chart(chart_list, 2)
+        helm_install_chart(chart_list)
 
         # Install remaining service level charts
         chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance', 'cinder-control',
                       'horizon', 'openvswitch', 'neutron', 'nova-control', 'nova-compute']
-        helm_install_chart(chart_list, 40)
+        helm_install_chart(chart_list)
 
     except Exception:
         print('Exception caught:')
