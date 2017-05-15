@@ -107,7 +107,7 @@ def run_shell(cmd, print=False):
     (output, err) = p.communicate()
     p.wait()
     if print:
-        print('%self' % output)
+        print(output)
 
 
 def run_shell_co(cmd):
@@ -117,39 +117,39 @@ def run_shell_co(cmd):
     return(output)
 
 
-def run(s_cmd, hide_error=False, cont_on_error=True):
-    '''
-    Run command to execute CLI and catch errors and display them whether
-    in verbose mode or not.
+# def run(s_cmd, hide_error=False, cont_on_error=True):
+#     '''
+#     Run command to execute CLI and catch errors and display them whether
+#     in verbose mode or not.
 
-    Allow the ability to hide errors and also to continue on errors.
-    '''
-    # s_cmd = ' '.join(cmd)
-    logger.debug("Command: '%s'\n", s_cmd)
+#     Allow the ability to hide errors and also to continue on errors.
+#     '''
+#     # s_cmd = ' '.join(cmd)
+#     logger.debug("Command: '%s'\n", s_cmd)
 
-    output = subprocess.Popen(s_cmd,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-    tup_output = output.communicate()
+#     output = subprocess.Popen(s_cmd,
+#                               stdout=subprocess.PIPE,
+#                               stderr=subprocess.PIPE)
+#     tup_output = output.communicate()
 
-    if output.returncode != 0:
-        logger.debug('Command failed with code %d:', output.returncode)
-    else:
-        logger.debug('Command succeeded with code %d:', output.returncode)
+#     if output.returncode != 0:
+#         logger.debug('Command failed with code %d:', output.returncode)
+#     else:
+#         logger.debug('Command succeeded with code %d:', output.returncode)
 
-    logger.debug('Output for: ' + s_cmd)
-    logger.debug(tup_output[0])
+#     logger.debug('Output for: ' + s_cmd)
+#     logger.debug(tup_output[0])
 
-    if not hide_error and 0 != output.returncode:
-        logger.error('Error output for: ' + s_cmd)
-        logger.error(tup_output[1])
-        if not cont_on_error:
-            raise AbortScriptException(
-                "Command '{0}' failed with return code {1}".format(
-                    s_cmd, output.returncode))
-        logger.debug('Continuing despite error %d', output.returncode)
+#     if not hide_error and 0 != output.returncode:
+#         logger.error('Error output for: ' + s_cmd)
+#         logger.error(tup_output[1])
+#         if not cont_on_error:
+#             raise AbortScriptException(
+#                 "Command '{0}' failed with return code {1}".format(
+#                     s_cmd, output.returncode))
+#         logger.debug('Continuing despite error %d', output.returncode)
 
-    return tup_output[0]
+#     return tup_output[0]
 
 
 def untar(fname):
