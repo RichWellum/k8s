@@ -245,7 +245,7 @@ def k8s_wait_for_running_negate():
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 3
 
-    print("Kubernetes - Wait for only running pods to be seen:")
+    print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
     while True:
         not_running = run_shell(
@@ -501,7 +501,7 @@ def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
 
     run_shell("sudo sed -i 's/eth1/%s/g' /etc/kolla/globals.yml" % NEUTRON_INT)
-    run_shell("sudo sed -i 's/#neutron_external_interface/neutron_external_interface/g' /etc/kolla/globals.yml" % NEUTRON_INT)
+    run_shell("sudo sed -i 's/#neutron_external_interface/neutron_external_interface/g' /etc/kolla/globals.yml")
 
 
 def kolla_add_to_globals():
