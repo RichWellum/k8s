@@ -113,8 +113,10 @@ def run_shell(cmd, print=False):
 
 def run_shell_co(cmd):
     """Run a shell command and return the output"""
-    p = subprocess.getoutput(cmd, shell=True)
-    return(p)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    out = proc.stdout.read()
+    # p = subprocess.getoutput(cmd, shell=True)
+    return(out)
 
 
 def untar(fname):
