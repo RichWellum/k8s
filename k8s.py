@@ -751,7 +751,6 @@ def helm_install_chart(chart_list, running):
         print(output)
 
     k8s_wait_for_running_negate()
-    # k8s_wait_for_running(running, 'kolla')
 
 
 def main():
