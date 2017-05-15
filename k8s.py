@@ -109,12 +109,11 @@ def run_shell(cmd, print=False):
     p.wait()
     if print:
         print(output)
-    return(p)
 
 
 def run_shell_co(cmd):
-    """Run a shell command and retunr the output"""
-    p = subprocess.check_output(cmd, shell=True)
+    """Run a shell command and return the output"""
+    p = subprocess.get_output(cmd, shell=True)
     return(p)
 
 
@@ -428,7 +427,7 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell('helm version | grep "%s" | wc -l' % version)
+        out = run_shell_co('helm version | grep "%s" | wc -l' % version)
 
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
