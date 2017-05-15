@@ -252,7 +252,7 @@ def k8s_wait_for_running_negate():
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
-            print('Kubernetes - %s pods are not in Running state' % int(not_running))
+            print('Kubernetes - %s pod(s) are not in Running state' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -497,11 +497,11 @@ def k8s_check_exit(k8s_only):
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
     print('Kolla - Modify globals')
-    run_shell('sudo sed -i s/eth0/%s/g /etc/kolla/globals.yml' % MGMT_INT)
-    run_shell('sudo sed -i s/#network_interface/network_interface/g /etc/kolla/globals.yml')
+    run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
+    run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
 
-    run_shell('sudo sed -i s/eth1/%s/g /etc/kolla/globals.yml' % NEUTRON_INT)
-    run_shell('sudo sed -i s/#neutron_external_interface/neutron_external_interface/g /etc/kolla/globals.yml' % NEUTRON_INT)
+    run_shell("sudo sed -i 's/eth1/%s/g' /etc/kolla/globals.yml" % NEUTRON_INT)
+    run_shell("sudo sed -i 's/#neutron_external_interface/neutron_external_interface/g' /etc/kolla/globals.yml" % NEUTRON_INT)
 
 
 def kolla_add_to_globals():
