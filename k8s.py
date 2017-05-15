@@ -499,10 +499,15 @@ def k8s_check_exit(k8s_only):
 
 def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
     print('Kolla - Modify globals')
+    #     run('sudo sed -i s/192.168.7.105/%s/g' % MGMT_IP, cloud)
+    file = '/etc/kolla/globals.yml'
+    run_shell('sudo sed -i s/eth0/%s/g %s' % (MGMT_INT, file))
+    run_shell('sudo sed -i s/#network_interface/network_interface/g %s' %
+              (MGMT_INT, file))
 
-    # Not pythonic but nothing seems to beat sed for quick word replacement
-    run_shell('sudo sed -i s/#network_interface: "eth0"/network_interface: "%s"/g /etc/kolla/globals.yml' % MGMT_INT)
-    run_shell('sudo sed -i s/#neutron_external_interface: "eth1"/neutron_external_interface: "%s"/g /etc/kolla/globals.yml' % NEUTRON_INT)
+    run_shell('sudo sed -i s/eth1/%s/g %s' % (NEUTRON_INT, file))
+    run_shell('sudo sed -i s/#neutron_external_interface/neutron_external_interface/g %s' %
+              (NEUTRON_INT, file))
 
 
 def kolla_add_to_globals():
@@ -550,7 +555,7 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-        run_shell('cat %s | sudo tee -a %s' % (new, add_to))
+    run_shell('cat %s | sudo tee -a %s' % (new, add_to))
 
 
 def kolla_enable_qemu():
