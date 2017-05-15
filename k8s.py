@@ -246,7 +246,7 @@ def k8s_wait_for_running_negate():
     while True:
         # p = subprocess.Popen('kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l',
         # stdout=subprocess.PIPE, shell=True)
-        not_running = run_shell(
+        not_running = run_shell_co(
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
