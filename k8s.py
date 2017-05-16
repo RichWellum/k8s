@@ -106,7 +106,7 @@ def run_shell(cmd):
     """Run a shell command and wait for the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    return(out)
+    return(p, out)
 
 
 def untar(fname):
@@ -564,8 +564,9 @@ def kolla_gen_configs():
         '-e CONFIG_DIR=/etc/kolla ' \
         './ansible/site.yml; cd ..'
     pause_to_debug(cmd)
-    out = run_shell(cmd)
-    print(out)
+    (p, out) = run_shell(cmd)
+    print('DEBUG1: "%s"' % p)
+    print('DEBUG2: "%s"' % out)
 
 
 def kolla_gen_secrets():
@@ -594,8 +595,9 @@ def kolla_create_config_maps():
         'ironic-pxe placement-api placement-api-haproxy'
 
     pause_to_debug(configmaps)
-    out = run_shell('kollakube res create configmap %s' % configmaps)
-    print(out)
+    (p, out) = run_shell('kollakube res create configmap %s' % configmaps)
+    print('DEBUG1: "%s"' % p)
+    print('DEBUG2: "%s"' % out)
     run_shell('kubectl get configmap -n kolla')
 
 
