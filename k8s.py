@@ -33,7 +33,7 @@ sudo python get-pip.py
 
 psutil (sudo yum install gcc python-devel
         sudo pip install psutil)
-docker (sudopip install docker)
+docker (sudo pip install docker)
 '''
 
 from __future__ import print_function
@@ -153,7 +153,7 @@ enabled=1
 gpgcheck=0
 repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
     run_shell('sudo mv ./kubernetes.repo %s' % repo)
 
@@ -272,8 +272,6 @@ def k8s_turn_things_off():
     for proc in psutil.process_iter():
         if PROCNAME in proc.name():
             print('Found %s, Stopping and Disabling firewalld' % proc.name())
-            # run('sudo', 'systemctl', 'stop', 'firewalld')
-            # run('sudo', 'systemctl', 'disable', 'firewalld')
             run_shell('sudo systemctl stop firewalld')
             run_shell('sudo systemctl disable firewalld')
 
@@ -282,20 +280,17 @@ def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
+    # run_shell(
+    #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
-        'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
+        'sudo yum install -y docker ebtables kubeadm kubectl kubernetes git gcc')
+
+    run_shell('curl -L  https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz | gzip -d > /usr/bin/kubelet')
+    run_shell('chmod +x /usr/bin/kubelet')
 
 
 def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
-    # run('sudo', 'systemctl', 'enable', 'docker')
-    # run('sudo', 'systemctl', 'start', 'docker')
-    # run('sudo', 'cp', '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf', '/tmp')
-    # run('sudo', 'chmod', '777', '/tmp/10-kubeadm.conf')
-    # run('sudo', 'sed', '-i', 's/10.96.0.10/10.3.3.10/g', '/tmp/10-kubeadm.conf')
-    # run('sudo', 'mv', '/tmp/10-kubeadm.conf',
-    #      '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
-
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
@@ -377,7 +372,7 @@ def k8s_schedule_master_node():
 
 
 def kolla_update_rbac():
-    """..."""
+    """Override the default RBAC settings"""
     print('Kolla - Overide default RBAC settings')
     name = '/tmp/rbac'
     with open(name, "w") as w:
@@ -710,7 +705,8 @@ def main():
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
-        pause_to_debug('Check nslookup now')
+        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+        pause_to_debug('Check "nslookup kubernetes" now')
         # todo: nslookup check
         k8s_check_exit(args.kubernetes)
 
