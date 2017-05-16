@@ -343,6 +343,7 @@ def k8s_deploy_k8s():
 
 def k8s_load_kubeadm_creds():
     print('Kubernetes - Load kubeadm credentials into the system')
+    print('Kubernetes - note "kubectl get pods --all-namespaces" should work now')
     home = os.environ['HOME']
     kube = os.path.join(home, '.kube')
     config = os.path.join(kube, 'config')
@@ -576,23 +577,22 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    configmaps = 'kollakube res create configmap ' \
-        'mariadb keystone horizon rabbitmq memcached ' \
-        'nova-api nova-conductor ' \
-        'nova-scheduler glance-api-haproxy ' \
-        'glance-registry-haproxy glance-api ' \
-        'glance-registry neutron-server neutron-dhcp-agent ' \
-        'neutron-l3-agent neutron-metadata-agent ' \
-        'neutron-openvswitch-agent openvswitch-db-server ' \
-        'openvswitch-vswitchd nova-libvirt nova-compute ' \
-        'nova-consoleauth nova-novncproxy ' \
-        'nova-novncproxy-haproxy neutron-server-haproxy ' \
-        'nova-api-haproxy cinder-api cinder-api-haproxy ' \
-        'cinder-backup cinder-scheduler cinder-volume ' \
-        'keepalived nova-compute-ironic ironic-api ' \
-        'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' \
-        'ironic-inspector ironic-inspector-haproxy ' \
-        'ironic-pxe placement-api placement-api-haproxy'
+    configmaps = 'mariadb keystone horizon rabbitmq memcached ' \
+                 'nova-api nova-conductor ' \
+                 'nova-scheduler glance-api-haproxy ' \
+                 'glance-registry-haproxy glance-api ' \
+                 'glance-registry neutron-server neutron-dhcp-agent ' \
+                 'neutron-l3-agent neutron-metadata-agent ' \
+                 'neutron-openvswitch-agent openvswitch-db-server ' \
+                 'openvswitch-vswitchd nova-libvirt nova-compute ' \
+                 'nova-consoleauth nova-novncproxy ' \
+                 'nova-novncproxy-haproxy neutron-server-haproxy ' \
+                 'nova-api-haproxy cinder-api cinder-api-haproxy ' \
+                 'cinder-backup cinder-scheduler cinder-volume ' \
+                 'keepalived nova-compute-ironic ironic-api ' \
+                 'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' \
+                 'ironic-inspector ironic-inspector-haproxy ' \
+                 'ironic-pxe placement-api placement-api-haproxy'
 
     pause_to_debug(configmaps)
     (p, out) = run_shell('kollakube res create configmap %s' % configmaps)
