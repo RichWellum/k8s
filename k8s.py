@@ -278,6 +278,7 @@ def k8s_turn_things_off():
 
 def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
+    run_shell('sudo pip install --upgrade pip')
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
     # run_shell(
@@ -563,7 +564,8 @@ def kolla_gen_configs():
         '-e CONFIG_DIR=/etc/kolla ' \
         './ansible/site.yml; cd ..'
     pause_to_debug(cmd)
-    run_shell(cmd)
+    out = run_shell(cmd)
+    print(out)
 
 
 def kolla_gen_secrets():
@@ -592,7 +594,8 @@ def kolla_create_config_maps():
         'ironic-pxe placement-api placement-api-haproxy'
 
     pause_to_debug(configmaps)
-    run_shell('kollakube res create configmap %s' % configmaps)
+    out = run_shell('kollakube res create configmap %s' % configmaps)
+    print(out)
 
 
 def kolla_resolve_workaround():
