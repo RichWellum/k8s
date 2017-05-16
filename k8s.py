@@ -16,14 +16,16 @@ https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
 
 Inputs:
 
-1. build_vm   : Build a centos 7 VM to run k8s on
-2. mgmt_int   : Name of the interface to be used for management operations
-3. mgmt_ip    : IP Address of management interface
-4. neutron_int: Name of the interface to be used for Neutron operations
+1. mgmt_int   : Name of the interface to be used for management operations
+2. mgmt_ip    : IP Address of management interface
+3. neutron_int: Name of the interface to be used for Neutron operations
 
 TODO:
 
 1. Will need a blueprint if adding this to community
+2. Make it work on a Ubuntu host or vm
+3. Pythonify some of these run_shells
+4. Potentially build a docker container or VM to run this on
 
 Dependencies:
 
