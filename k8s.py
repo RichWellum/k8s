@@ -27,13 +27,16 @@ TODO:
 
 Dependencies:
 
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+Install pip:
+  curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+  sudo python get-pip.py
 
-sudo python get-pip.py
+Install psutil:
+  sudo yum install gcc python-devel
+  sudo pip install psutil
 
-psutil (sudo yum install gcc python-devel
-        sudo pip install psutil)
-docker (sudo pip install docker)
+Install docker:
+  sudo pip install docker
 '''
 
 from __future__ import print_function
@@ -103,7 +106,7 @@ def parse_args():
 
 
 def run_shell(cmd):
-    """Run a shell command and wait for the output"""
+    """Run a shell command and return the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     return(out)
@@ -557,13 +560,14 @@ def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
+    # Seems to be the recommended ansible version
     run_shell('sudo pip install ansible==2.2.0.0')
     # globals.yml is used when we run ansible to generate configs
     out = run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
     @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
     -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
-    print('DEBUG2: "%s"' % out)
+    print(out)
 
 
 def kolla_gen_secrets():
@@ -586,7 +590,7 @@ def kolla_create_config_maps():
     nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
     placement-api placement-api-haproxy')
-    print('DEBUG2: "%s"' % out)
+    print(out)
     run_shell('kubectl get configmap -n kolla')
 
 
@@ -680,7 +684,6 @@ def helm_install_chart(chart_list):
     for chart in chart_list:
         print('Kolla - Install chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
-
     k8s_wait_for_running_negate()
 
 
@@ -743,8 +746,9 @@ def main():
         helm_install_chart(chart_list)
 
         # Install remaining service level charts
-        chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance', 'cinder-control',
-                      'horizon', 'openvswitch', 'neutron', 'nova-control', 'nova-compute']
+        chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
+                      'cinder-control', 'horizon', 'openvswitch', 'neutron',
+                      'nova-control', 'nova-compute']
         helm_install_chart(chart_list)
 
     except Exception:
