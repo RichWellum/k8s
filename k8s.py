@@ -480,11 +480,11 @@ def k8s_check_exit(k8s_only):
         sys.exit(1)
 
 
-def kolla_modify_globals(MGMT_INT, NEUTRON_INT):
+def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     print('Kolla - Modify globals')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
-
+    run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
     run_shell("sudo sed -i 's/eth1/%s/g' /etc/kolla/globals.yml" % NEUTRON_INT)
     run_shell("sudo sed -i 's/#neutron_external_interface/neutron_external_interface/g' /etc/kolla/globals.yml")
 
@@ -578,6 +578,9 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
+    # kubectl create configmap mariadb --from-file=/etc/kolla/config.json
+    # --from-file=/etc/kolla/galera.cnf
+    # --from-file=/etc/kolla/wsrep-notify.sh -n kolla
     out = run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -729,7 +732,7 @@ def main():
         node_list = ['kolla_compute', 'kolla_controller']
         k8s_label_nodes(node_list)
 
-        kolla_modify_globals(args.MGMT_INT, args.NEUTRON_INT)
+        kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
         kolla_add_to_globals()
         kolla_enable_qemu()
         kolla_gen_configs()
