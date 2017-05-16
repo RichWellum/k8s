@@ -166,7 +166,7 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
-        pod_status = run_shell('kubectl get pods -n kube-system')
+        (p, pod_status) = run_shell('kubectl get pods -n kube-system')
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
@@ -204,7 +204,7 @@ def k8s_wait_for_running(number, namespace):
           % (number, namespace))
     elapsed_time = 0
     while True:
-        running = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
+        (p, running) = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
 
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
@@ -234,7 +234,7 @@ def k8s_wait_for_running_negate():
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
     while True:
-        not_running = run_shell(
+        (p, not_running) = run_shell(
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
@@ -416,7 +416,7 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell('helm version | grep "%s" | wc -l' % version)
+        (p, out) = run_shell('helm version | grep "%s" | wc -l' % version)
 
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
