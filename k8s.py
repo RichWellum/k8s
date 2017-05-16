@@ -286,7 +286,7 @@ def k8s_create_repo():
         'sudo yum install -y docker ebtables kubeadm kubectl kubernetes git gcc')
     # Workaround until kubectl 1.6.4 is available
     run_shell('sudo yum remove kubectl -y')
-    run_shell('sudo curl -L  https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz | gzip -d > /usr/bin/kubelet')
+    run_shell('sudo curl -L  https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz | sudo gzip -d > /usr/bin/kubelet')
     run_shell('sudo chmod +x /usr/bin/kubelet')
 
 
