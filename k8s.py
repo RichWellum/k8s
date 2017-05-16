@@ -557,11 +557,13 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
     run_shell('sudo pip install ansible==2.2.0.0')
-    run_shell('cd kolla-kubernetes; sudo ansible-playbook -e ' +
-              'ansible_python_interpreter=/usr/bin/python -e ' +
-              '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' +
-              '-e CONFIG_DIR=/etc/kolla ' +
-              './ansible/site.yml; cd ..')
+    cmd = 'cd kolla-kubernetes; sudo ansible-playbook -e ' \
+        'ansible_python_interpreter=/usr/bin/python -e ' \
+        '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' \
+        '-e CONFIG_DIR=/etc/kolla ' \
+        './ansible/site.yml; cd ..'
+    pause_to_debug(cmd)
+    run_shell(cmd)
 
 
 def kolla_gen_secrets():
@@ -571,23 +573,6 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    # run_shell('kollakube res create configmap ' +
-    #           'mariadb keystone horizon rabbitmq memcached ' +
-    #           'nova-api nova-conductor ' +
-    #           'nova-scheduler glance-api-haproxy ' +
-    #           'glance-registry-haproxy glance-api ' +
-    #           'glance-registry neutron-server neutron-dhcp-agent ' +
-    #           'neutron-l3-agent neutron-metadata-agent ' +
-    #           'neutron-openvswitch-agent openvswitch-db-server ' +
-    #           'openvswitch-vswitchd nova-libvirt nova-compute ' +
-    #           'nova-consoleauth nova-novncproxy ' +
-    #           'nova-novncproxy-haproxy neutron-server-haproxy ' +
-    #           'nova-api-haproxy cinder-api cinder-api-haproxy ' +
-    #           'cinder-backup cinder-scheduler cinder-volume ' +
-    #           'keepalived nova-compute-ironic ironic-api ' +
-    #           'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' +
-    #           'ironic-inspector ironic-inspector-haproxy ' +
-    #           'ironic-pxe placement-api placement-api-haproxy')
     configmaps = 'kollakube res create configmap ' \
         'mariadb keystone horizon rabbitmq memcached ' \
         'nova-api nova-conductor ' \
