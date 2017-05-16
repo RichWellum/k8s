@@ -432,6 +432,7 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kolla')
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
+        run_shell('sudo rm -rf /var/lib/kolla*')
 
 
 def kolla_install_repos():
