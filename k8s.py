@@ -557,13 +557,17 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
     run_shell('sudo pip install ansible==2.2.0.0')
-    cmd = 'cd kolla-kubernetes; sudo ansible-playbook -e ' \
-        'ansible_python_interpreter=/usr/bin/python -e ' \
-        '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' \
-        '-e CONFIG_DIR=/etc/kolla ' \
-        './ansible/site.yml; cd ..'
-    pause_to_debug(cmd)
-    out = run_shell(cmd)
+    # cmd = 'cd kolla-kubernetes; sudo ansible-playbook -e ' \
+    #     'ansible_python_interpreter=/usr/bin/python -e ' \
+    #     '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' \
+    #     '-e CONFIG_DIR=/etc/kolla ' \
+    #     './ansible/site.yml; cd ..'
+    # pause_to_debug(cmd)
+    # out = run_shell(cmd)
+    out = run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
+    ansible_python_interpreter=/usr/bin/python -e \
+    @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
+    -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
     print('DEBUG2: "%s"' % out)
 
 
