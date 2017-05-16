@@ -439,23 +439,21 @@ def kolla_install_repos():
     print('Kolla - Install repos needed for kolla packaging')
     run_shell('sudo yum install -y epel-release ansible python-pip python-devel')
 
-    # print('Kolla - Clone or update kolla-ansible')
-    # if os.path.exists('./kolla-ansible'):
-    #     run_shell('sudo rm -rf ./kolla-ansible')
-    # run_shell('git clone http://github.com/openstack/kolla-ansible')
+    print('Kolla - Clone or update kolla-ansible')
+    if os.path.exists('./kolla-ansible'):
+        run_shell('sudo rm -rf ./kolla-ansible')
+    run_shell('git clone http://github.com/openstack/kolla-ansible')
 
     print('Kolla - Clone or update kolla-kubernetes')
     if os.path.exists('./kolla-kubernetes'):
         run_shell('sudo rm -rf ./kolla-kubernetes')
     run_shell('git clone http://github.com/openstack/kolla-kubernetes')
 
-    # print('Kolla - Install kolla-ansible and kolla-kubernetes')
-    # run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
-    print('Kolla - Install kolla-kubernetes')
-    run_shell('sudo pip install -U kolla-kubernetes/')
+    print('Kolla - Install kolla-ansible and kolla-kubernetes')
+    run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
 
-    # print('Kolla - Copy default Kolla configuration to /etc')
-    # run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
+    print('Kolla - Copy default Kolla configuration to /etc')
+    run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
 
     print('Kolla - Copy default kolla-kubernetes configuration to /etc')
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
