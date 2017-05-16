@@ -709,6 +709,38 @@ def reset_sudo_timeout():
     run_shell('sudo -v')
 
 
+def kolla_create_keystone():
+    '''   Using OpenStack
+
+   If you were able to successfully reach the end of this guide and demo1 was
+   successfully deployed, here is a fun list of things you can do
+   with your new cluster.
+
+   Access Horizon GUI¶
+
+   1 Determine Horizon EXTERNAL IP Address:
+
+   $ kubectl get svc horizon --namespace=kolla
+   NAME      CLUSTER-IP   EXTERNAL-IP     PORT(S)   AGE
+   horizon   10.3.3.237   10.240.43.175   80/TCP    1d
+
+   2 Determine username and password from keystone:
+
+   $ cat ~/keystonerc_admin | grep OS_USERNAME
+   export OS_USERNAME=admin
+
+   $ cat ~/keystonerc_admin | grep OS_PASSWORD
+   export OS_PASSWORD=Sr6XMFXvbvxQCJ3Cib1xb0gZ3lOtBOD8FCxOcodU
+
+   3 Run a browser that has access to your network, and access Horizon GUI with
+   the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
+    run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
+    address = run_shell('kubectl get svc horizon --namespace=kolla --no-headers | cut -d' ' -f7')
+    username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | cut -f 2 -d '='")
+    password = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD| cut -f 2 -d '='")
+    print('Point your browser to "%s", username="%s", password="%s"' % (address, username, password))
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -774,6 +806,7 @@ def main():
                       'nova-control', 'nova-compute']
         helm_install_chart(chart_list)
 
+        kolla_create_keystone()
         # todo: horizon is up, nova vm boots and ping google with good L3?
 
     except Exception:
