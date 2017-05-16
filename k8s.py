@@ -106,7 +106,7 @@ def run_shell(cmd):
     """Run a shell command and wait for the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    return(p, out)
+    return(out)
 
 
 def untar(fname):
@@ -166,7 +166,7 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
-        (p, pod_status) = run_shell('kubectl get pods -n kube-system')
+        pod_status = run_shell('kubectl get pods -n kube-system')
         nlines = len(pod_status.splitlines())
         if nlines - 1 == 6:
             print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
@@ -204,7 +204,7 @@ def k8s_wait_for_running(number, namespace):
           % (number, namespace))
     elapsed_time = 0
     while True:
-        (p, running) = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
+        running = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
 
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
@@ -234,7 +234,7 @@ def k8s_wait_for_running_negate():
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
     while True:
-        (p, not_running) = run_shell(
+        not_running = run_shell(
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
@@ -286,7 +286,6 @@ def k8s_create_repo():
     run_shell(
         'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.4 git gcc')
     # Workaround until kubectl 1.6.4 is available
-    # run_shell('sudo yum remove kubelet -y')
     curl(
         '-L',
         'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
@@ -417,8 +416,7 @@ def kolla_install_deploy_helm(version):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        (p, out) = run_shell('helm version | grep "%s" | wc -l' % version)
-
+        out = run_shell('helm version | grep "%s" | wc -l' % version)
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
             break
@@ -565,8 +563,7 @@ def kolla_gen_configs():
         '-e CONFIG_DIR=/etc/kolla ' \
         './ansible/site.yml; cd ..'
     pause_to_debug(cmd)
-    (p, out) = run_shell(cmd)
-    print('DEBUG1: "%s"' % p)
+    out = run_shell(cmd)
     print('DEBUG2: "%s"' % out)
 
 
@@ -577,26 +574,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    configmaps = 'mariadb keystone horizon rabbitmq memcached ' \
-                 'nova-api nova-conductor ' \
-                 'nova-scheduler glance-api-haproxy ' \
-                 'glance-registry-haproxy glance-api ' \
-                 'glance-registry neutron-server neutron-dhcp-agent ' \
-                 'neutron-l3-agent neutron-metadata-agent ' \
-                 'neutron-openvswitch-agent openvswitch-db-server ' \
-                 'openvswitch-vswitchd nova-libvirt nova-compute ' \
-                 'nova-consoleauth nova-novncproxy ' \
-                 'nova-novncproxy-haproxy neutron-server-haproxy ' \
-                 'nova-api-haproxy cinder-api cinder-api-haproxy ' \
-                 'cinder-backup cinder-scheduler cinder-volume ' \
-                 'keepalived nova-compute-ironic ironic-api ' \
-                 'ironic-api-haproxy ironic-conductor ironic-dnsmasq ' \
-                 'ironic-inspector ironic-inspector-haproxy ' \
-                 'ironic-pxe placement-api placement-api-haproxy'
-
-    # pause_to_debug(configmaps)
-    # (p, out) = run_shell('kollakube res create configmap %s' % configmaps)
-    (p, out) = run_shell('kollakube res create configmap \
+    out = run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
     glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
@@ -606,7 +584,6 @@ def kolla_create_config_maps():
     nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
     placement-api placement-api-haproxy')
-    print('DEBUG1: "%s"' % p)
     print('DEBUG2: "%s"' % out)
     run_shell('kubectl get configmap -n kolla')
 
