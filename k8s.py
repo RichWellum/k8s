@@ -215,7 +215,6 @@ def k8s_wait_for_running(number, namespace):
         if int(running) >= number:
             print('Kubernetes - All Running pods %s:%s' % (int(running), number))
             run_shell('kubectl get pods -n %s' % namespace)
-            # TODO NEED output
             break
         elif elapsed_time < TIMEOUT:
             print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
@@ -720,7 +719,7 @@ def kolla_create_keystone_admin():
     $ cat ~/keystonerc_admin | grep OS_PASSWORD
     export OS_PASSWORD=Sr6XMFXvbvxQCJ3Cib1xb0gZ3lOtBOD8FCxOcodU
 
-    3 Run a browser # TODO: hat has access to your network, and access Horizon GUI with
+    3 Run a browser that has access to your network, and access Horizon GUI with
     the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
 
     run_shell('sudo rm ~/keystonerc_admin')
