@@ -438,21 +438,23 @@ def kolla_install_repos():
     print('Kolla - Install repos needed for kolla packaging')
     run_shell('sudo yum install -y epel-release ansible python-pip python-devel')
 
-    print('Kolla - Clone or update kolla-ansible')
-    if os.path.exists('./kolla-ansible'):
-        run_shell('sudo rm -rf ./kolla-ansible')
-    run_shell('git clone http://github.com/openstack/kolla-ansible')
+    # print('Kolla - Clone or update kolla-ansible')
+    # if os.path.exists('./kolla-ansible'):
+    #     run_shell('sudo rm -rf ./kolla-ansible')
+    # run_shell('git clone http://github.com/openstack/kolla-ansible')
 
     print('Kolla - Clone or update kolla-kubernetes')
     if os.path.exists('./kolla-kubernetes'):
         run_shell('sudo rm -rf ./kolla-kubernetes')
     run_shell('git clone http://github.com/openstack/kolla-kubernetes')
 
-    print('Kolla - Install kolla-ansible and kolla-kubernetes')
-    run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
+    # print('Kolla - Install kolla-ansible and kolla-kubernetes')
+    # run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
+    print('Kolla - Install kolla-kubernetes')
+    run_shell('sudo pip install -U kolla-kubernetes/')
 
-    print('Kolla - Copy default Kolla configuration to /etc')
-    run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
+    # print('Kolla - Copy default Kolla configuration to /etc')
+    # run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
 
     print('Kolla - Copy default kolla-kubernetes configuration to /etc')
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
@@ -557,13 +559,7 @@ def kolla_gen_configs():
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
     run_shell('sudo pip install ansible==2.2.0.0')
-    # cmd = 'cd kolla-kubernetes; sudo ansible-playbook -e ' \
-    #     'ansible_python_interpreter=/usr/bin/python -e ' \
-    #     '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml ' \
-    #     '-e CONFIG_DIR=/etc/kolla ' \
-    #     './ansible/site.yml; cd ..'
-    # pause_to_debug(cmd)
-    # out = run_shell(cmd)
+    # globals.yml is used when we run ansible to generate configs
     out = run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
     @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
