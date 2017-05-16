@@ -290,7 +290,7 @@ def k8s_create_repo():
         '-L',
         'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
         '-o', '/tmp/kubelet.gz')
-    untar('/tmp/kubelet.gz')
+    run_shell('sudo gunzip -d /tmp/kubelet.gz')
     run_shell('sudo mv -f /tmp/kubelet /usr/bin/kubelet')
     run_shell('sudo chmod +x /usr/bin/kubelet')
 
