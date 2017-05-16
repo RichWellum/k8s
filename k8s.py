@@ -596,6 +596,7 @@ def kolla_create_config_maps():
     pause_to_debug(configmaps)
     out = run_shell('kollakube res create configmap %s' % configmaps)
     print(out)
+    run_shell('kubectl get configmap -n kolla')
 
 
 def kolla_resolve_workaround():
