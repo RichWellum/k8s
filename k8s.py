@@ -285,7 +285,7 @@ def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
     run_shell('sudo pip install --upgrade pip')
     create_k8s_repo()
-    print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
+    print('Kubernetes - Installing kubernetes packages - please wait')
     # run_shell(
     #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
@@ -724,9 +724,9 @@ def kolla_create_keystone_admin():
 
     run_shell('sudo rm ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
-    address = run_shell('kubectl get svc horizon --namespace=kolla --no-headers | cut -d' ' -f7')
+    address = run_shell('kubectl get svc horizon --namespace=kolla --no-headers | cut -d ' ' -f7')
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | cut -f 2 -d '='")
-    password = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD| cut -f 2 -d '='")
+    password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | cut -f 2 -d '='")
     print('Point your browser to "%s", username="%s", password="%s"' % (address, username, password))
 
 
