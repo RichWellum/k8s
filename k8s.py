@@ -695,7 +695,7 @@ def sudo_timeout_off(state):
         run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
 
 
-def kolla_create_keystone():
+def kolla_create_keystone_admin():
     '''Using OpenStack
 
     If you were able to successfully reach the end of this guide and demo1 was
@@ -795,7 +795,7 @@ def main():
         helm_install_chart(chart_list)
 
         # todo: horizon is up, nova vm boots and ping google with good L3?
-        kolla_create_keystone()
+        kolla_create_keystone_admin()
         sudo_timeout_off('False')
 
     except Exception:
