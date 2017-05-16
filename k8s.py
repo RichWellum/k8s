@@ -734,6 +734,7 @@ def kolla_create_keystone():
 
    3 Run a browser that has access to your network, and access Horizon GUI with
    the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
+    run_shell('sudo rm ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
     address = run_shell('kubectl get svc horizon --namespace=kolla --no-headers | cut -d' ' -f7')
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | cut -f 2 -d '='")
