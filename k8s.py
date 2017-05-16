@@ -167,7 +167,6 @@ def k8s_wait_for_kube_system():
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 5
     elapsed_time = 0
-    reset_sudo_timeout()
 
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
@@ -205,7 +204,6 @@ def k8s_wait_for_running(number, namespace):
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 10
 
-    reset_sudo_timeout()
     print("Kubernetes - Wait for %s '%s' pods to be in Running state:"
           % (number, namespace))
     elapsed_time = 0
@@ -237,7 +235,6 @@ def k8s_wait_for_running_negate():
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 3
 
-    reset_sudo_timeout()
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
     while True:
@@ -271,7 +268,6 @@ def k8s_wait_for_running_negate():
 
 def k8s_turn_things_off():
     print('Kubernetes - Turn off SELinux')
-    reset_sudo_timeout()
     run_shell('sudo setenforce 0')
     run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
@@ -286,7 +282,6 @@ def k8s_turn_things_off():
 
 def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
-    reset_sudo_timeout()
     run_shell('sudo pip install --upgrade pip')
     create_k8s_repo()
     print('Kubernetes - Installing k8s 1.6.1 or later - please wait')
@@ -306,7 +301,6 @@ def k8s_create_repo():
 
 def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
-    reset_sudo_timeout()
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
@@ -347,7 +341,6 @@ def k8_fix_iptables():
 
 def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
-    reset_sudo_timeout()
     run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
@@ -367,7 +360,6 @@ def k8s_load_kubeadm_creds():
 
 def k8s_deploy_canal_sdn():
     print('Kubernetes - Deploy the Canal CNI driver')
-    reset_sudo_timeout()
     curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
@@ -418,7 +410,6 @@ subjects:
 def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
-    reset_sudo_timeout()
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
@@ -449,7 +440,6 @@ def k8s_cleanup(doit):
 
 def kolla_install_repos():
     print('Kolla - Install repos needed for kolla packaging')
-    reset_sudo_timeout()
     run_shell('sudo yum install -y epel-release ansible python-pip python-devel')
 
     print('Kolla - Clone or update kolla-ansible')
@@ -474,13 +464,11 @@ def kolla_install_repos():
 
 def kolla_gen_passwords():
     print('Kolla - Generate default passwords via SPRNG')
-    reset_sudo_timeout()
     run_shell('sudo kolla-kubernetes-genpwd')
 
 
 def kolla_create_namespace():
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
-    reset_sudo_timeout()
     run_shell('kubectl create namespace kolla')
 
 
@@ -498,7 +486,6 @@ def k8s_check_exit(k8s_only):
 
 def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     print('Kolla - Modify globals')
-    reset_sudo_timeout()
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
     run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
@@ -571,7 +558,6 @@ cpu_mode = none
 
 def kolla_gen_configs():
     print('Kolla - Generate the default configuration')
-    reset_sudo_timeout()
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
     # Seems to be the recommended ansible version
@@ -586,13 +572,11 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    reset_sudo_timeout()
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
 
 def kolla_create_config_maps():
     print('Kolla - Create and register the Kolla config maps')
-    reset_sudo_timeout()
     # kubectl create configmap mariadb --from-file=/etc/kolla/config.json
     # --from-file=/etc/kolla/galera.cnf
     # --from-file=/etc/kolla/wsrep-notify.sh -n kolla
@@ -617,7 +601,6 @@ def kolla_resolve_workaround():
 
 def kolla_build_micro_charts():
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    reset_sudo_timeout()
     run_shell('kolla-kubernetes/tools/helm_build_all.sh .')
 
 
@@ -698,15 +681,18 @@ global:
 
 
 def helm_install_chart(chart_list):
-    reset_sudo_timeout()
     for chart in chart_list:
         print('Kolla - Install chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
-def reset_sudo_timeout():
-    run_shell('sudo -v')
+def sudo_timeout_off(state):
+    '''Turn sudo timeout off or on'''
+    if state is True:
+        run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+    else:
+        run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
 
 
 def kolla_create_keystone():
@@ -757,7 +743,7 @@ def main():
     k8s_cleanup(args.cleanup)
 
     try:
-        reset_sudo_timeout()
+        sudo_timeout_off('True')
         # Bring up Kubernetes
         k8s_turn_things_off()
         k8s_create_repo()
@@ -810,6 +796,7 @@ def main():
 
         # todo: horizon is up, nova vm boots and ping google with good L3?
         kolla_create_keystone()
+        sudo_timeout_off('False')
 
     except Exception:
         print('Exception caught:')
