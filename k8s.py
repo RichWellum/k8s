@@ -806,8 +806,8 @@ def main():
                       'nova-control', 'nova-compute']
         helm_install_chart(chart_list)
 
-        kolla_create_keystone()
         # todo: horizon is up, nova vm boots and ping google with good L3?
+        kolla_create_keystone()
 
     except Exception:
         print('Exception caught:')
