@@ -716,7 +716,7 @@ def kolla_create_keystone():
    successfully deployed, here is a fun list of things you can do
    with your new cluster.
 
-   Access Horizon GUI¶
+   Access Horizon GUI
 
    1 Determine Horizon EXTERNAL IP Address:
 
