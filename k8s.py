@@ -817,7 +817,7 @@ def main():
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
-    print('Helm version %s' % args.helm_version)
+    print('Helm version %s, Kubernetes version %s' % (args.helm_version, args.k8s_version))
 
     set_logging()
     logger.setLevel(level=args.verbose)
