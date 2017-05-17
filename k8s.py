@@ -817,12 +817,14 @@ spec:
     - sleep
     - "1000000"
 """)
-    run_shell('kubectl create -f %s --namespace=kube-system' % name)
+    run_shell('kubectl create -f %s' % name)
     time.sleep(5)
-    out = run_shell('kubectl exec busybox-sleep -- nslookup kubernetes | grep -i address | wc -l')
-    print('Exec output %s' % out)
+    out = run_shell(
+        'kubectl exec busybox-sleep -- nslookup kubernetes | grep -i address | wc -l')
+    print('Exec output==%s' % out)
     if int(out) != 2:
         print('Ooops nslookup is broken - exiting')
+        # run_shell('kubectl delete busybox-sleep -n kube-system')
         sys.exit(1)
     else:
         print('nslookup worked - continuing')
