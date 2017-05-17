@@ -26,7 +26,7 @@ TODO:
 2. Make it work on a Ubuntu host or vm
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
-5. Add print(out) to debug output
+5. Fix dns check
 
 Dependencies:
 
