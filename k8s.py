@@ -86,7 +86,7 @@ def parse_args():
         formatter_class=RawDescriptionHelpFormatter,
         description='A tool to create a working Kubernetes Cluster \n' +
         'on Bare Metal or a VM.',
-        epilog='E.g.: k8s.py eth0 10.240.43.175 eth1 -hv 2.4.1 -c\n')
+        epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 -c -v -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
                         help='Management Interface, E.g: eth0')
     parser.add_argument('MGMT_IP',
