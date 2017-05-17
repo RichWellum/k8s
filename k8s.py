@@ -734,6 +734,7 @@ def kolla_create_keystone_admin():
 
 def main():
     """Main function."""
+    sudo_timeout_off('True')
     args = parse_args()
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
@@ -746,7 +747,6 @@ def main():
     k8s_cleanup(args.cleanup)
 
     try:
-        sudo_timeout_off('True')
         # Bring up Kubernetes
         k8s_turn_things_off()
         k8s_create_repo()
