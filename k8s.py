@@ -726,10 +726,10 @@ def kolla_create_keystone_admin():
 
     run_shell('sudo rm ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
-    address = run_shell('kubectl get svc horizon --namespace=kolla --no-headers | cut -d ' ' -f7')
-    username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | cut -f 2 -d '='")
-    password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | cut -f 2 -d '='")
-    print('Point your browser to "%s", username="%s", password="%s"' % (address, username, password))
+    address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}")
+    username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}")
+    password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}")
+    print('Point your browser to "%s", "%s", "%s"' % (address, username, password))
 
 
 def main():
