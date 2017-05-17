@@ -311,7 +311,8 @@ def k8s_create_repo():
     # run_shell(
     #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
-        'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.7')
+        # 'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.7')
+        'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-cni-1.5.7')
     # Workaround until kubectl 1.6.4 is available
     curl(
         '-L',
