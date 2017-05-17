@@ -692,7 +692,7 @@ def sudo_timeout_off(state):
     '''Turn sudo timeout off or on'''
     if state is True:
         # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
-        d = run_shell("sudo sh -c 'echo 'Defaults timestamp_timeout=-1' >> /etc/sudoers'")
+        # sudo sh -c 'echo "Defaults timestamp_timeout=-1" >> /etc/sudoers'
         print(d)
     else:
         d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
@@ -725,17 +725,16 @@ def kolla_create_keystone_admin():
     3 Run a browser that has access to your network, and access Horizon GUI with
     the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
 
-    run_shell('sudo rm ~/keystonerc_admin')
+    run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
-    address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}")
-    username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}")
-    password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}")
+    address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
+    username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
+    password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
     print('Point your browser to "%s", "%s", "%s"' % (address, username, password))
 
 
 def main():
     """Main function."""
-    sudo_timeout_off('True')
     args = parse_args()
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
@@ -800,7 +799,6 @@ def main():
 
         # todo: horizon is up, nova vm boots and ping google with good L3?
         kolla_create_keystone_admin()
-        sudo_timeout_off('False')
 
     except Exception:
         print('Exception caught:')
