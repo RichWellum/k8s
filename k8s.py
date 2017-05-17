@@ -688,7 +688,7 @@ global:
 
 def helm_install_chart(chart_list):
     for chart in chart_list:
-        print('Kolla - Install chart: %s' % chart)
+        print('Helm - Install chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
