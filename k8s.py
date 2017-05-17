@@ -94,11 +94,13 @@ def parse_args():
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
-                        help='Specify a different helm version to the default(2.2.3')
+                        help='Specify a different helm version to the default(2.4.1')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes.')
+    parser.add_argument('-n', '--nslookup', action='store_true',
+                        help='Pause for the user to test nslookup in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose', action='store_const',
@@ -349,7 +351,7 @@ def k8s_start_kubelet():
     run_shell('sudo systemctl start kubelet')
 
 
-def k8_fix_iptables():
+def k8s_fix_iptables():
     '''Maybe Centos only but this needs to be changed to proceed'''
     reload_sysctl = False
     print('Kubernetes - Fix iptables')
@@ -782,11 +784,13 @@ def kolla_create_keystone_admin():
     address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
-    print("To verify Horizon, point your browser to: %s, %s %s" %
-          (address, username, password))
+    print('To verify Horizon:')
+    print('  Point your browser to: %s' % address)
+    print('  %s' % username)
+    print('  %s' % password)
 
 
-def kubernetes_get_pods(namespace):
+def k8s_get_pods(namespace):
     '''Display all pods per namespace list'''
     for name in namespace:
         final = run_shell('kubectl get pods -n %s' % name)
@@ -794,8 +798,17 @@ def kubernetes_get_pods(namespace):
         print(final)
 
 
+def k8s_pause_to_check_nslookup(doit):
+    '''ToDo: Make this automatic'''
+    if doit:
+        print('Run the following to create a pod to test kubernetes nslookup')
+        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+        pause_to_debug('Check "nslookup kubernetes" now')
+        # todo: nslookup check
+
+
 def main():
-    """Main function."""
+    '''Main function.'''
     args = parse_args()
 
     global DEBUG
@@ -819,7 +832,7 @@ def main():
         k8s_setup_dns()
         k8s_reload_service_files()
         k8s_start_kubelet()
-        k8_fix_iptables()
+        k8s_fix_iptables()
         # k8s_reload_service_files()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
@@ -827,9 +840,7 @@ def main():
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
-        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
-        pause_to_debug('Check "nslookup kubernetes" now')
-        # todo: nslookup check
+        k8s_pause_to_check_nslookup(args.kubernetes)
         k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
@@ -865,7 +876,7 @@ def main():
         helm_install_chart(chart_list)
 
         namespace_list = ['kube-system', 'kolla']
-        kubernetes_get_pods(namespace_list)
+        k8s_get_pods(namespace_list)
 
         # todo: horizon is up, nova vm boots and ping google with good L3?
         kolla_create_keystone_admin()
