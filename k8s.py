@@ -62,7 +62,7 @@ __maintainer__ = 'Rich Wellum'
 __email__ = 'rwellum@gmail.com'
 
 # General-purpose retry interval and timeout value (10 minutes)
-RETRY_INTERVAL = 5
+# RETRY_INTERVAL = 5
 TIMEOUT = 600
 
 logger = logging.getLogger(__name__)
@@ -171,7 +171,7 @@ def k8s_wait_for_kube_system():
     """Wait for basic k8s to come up"""
 
     TIMEOUT = 350  # Give k8s 350s to come up
-    RETRY_INTERVAL = 5
+    RETRY_INTERVAL = 10
     elapsed_time = 0
 
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
@@ -280,7 +280,7 @@ def k8s_install_tools():
 
 
 def k8s_setup_ntp():
-    '''Setup NTP'''
+    '''Setup NTP - this caused issues when doing it on a VM'''
     run_shell('sudo yum install -y ntp')
     run_shell('sudo systemctl enable ntpd.service')
     run_shell('sudo systemctl start ntpd.service')
