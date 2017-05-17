@@ -739,6 +739,13 @@ def kolla_create_keystone_admin():
           (address, username, password))
 
 
+def kubernetes_get_pods(namespace):
+    for name in namespace:
+        final = run_shell('kubectl get pods -n %s' % name)
+        print('Kolla - Final Kolla Kubernetes Openstack pods for namespace %s:' % name)
+        print(final)
+
+
 def main():
     """Main function."""
     args = parse_args()
@@ -805,6 +812,9 @@ def main():
                       'cinder-control', 'horizon', 'openvswitch', 'neutron',
                       'nova-control', 'nova-compute']
         helm_install_chart(chart_list)
+
+        namespace_list = ['kube-system', 'kolla']
+        kubernetes_get_pods(namespace_list)
 
         # todo: horizon is up, nova vm boots and ping google with good L3?
         kolla_create_keystone_admin()
