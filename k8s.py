@@ -313,7 +313,7 @@ def k8s_install_k8s(version):
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
     run_shell(
-        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' % (version, version, version))
+        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' % (version, version, version))  # todo - cni version should be?
     if version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
         # Workaround until kubectl 1.6.4 is available
@@ -802,7 +802,7 @@ def k8s_get_pods(namespace):
 def k8s_pause_to_check_nslookup(doit):
     '''ToDo: Make this automatic, remove doit option'''
 
-    name = 'self./busybox.yaml'
+    name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""\
 apiVersion: v1
