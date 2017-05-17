@@ -307,7 +307,7 @@ def k8s_create_repo():
     print('Kubernetes - Creating kubernetes repo')
     run_shell('sudo pip install --upgrade pip')
     create_k8s_repo()
-    print('Kubernetes - Installing kubernetes packages - please wait')
+    print('Kubernetes - Installing kubernetes packages')
     # run_shell(
     #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
