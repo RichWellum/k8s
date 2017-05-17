@@ -270,6 +270,19 @@ def k8s_wait_for_running_negate():
 #             (output, err) = p.communicate()
 #             print('%s' % output)
 
+def k8s_install_tools():
+    print('Kolla - Install repos needed for kolla packaging')
+    run_shell('sudo yum install -y epel-release')
+    run_shell('sudo yum install -y python-pip')
+    run_shell('sudo pip install -U pip')
+    run_shell('sudo yum install -y ansible python-devel git gcc')
+
+
+def k8s_setup_ntp():
+    run_shell('sudo yum install -y ntp')
+    run_shell('sudo systemctl enable ntpd.service')
+    run_shell('sudo systemctl start ntpd.service')
+
 
 def k8s_turn_things_off():
     print('Kubernetes - Turn off SELinux')
@@ -307,7 +320,7 @@ def k8s_create_repo():
 def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
-    run_shell('sudo systemctl start docker')
+    # run_shell('sudo systemctl start docker') #todo - test order
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
@@ -317,6 +330,8 @@ def k8s_setup_dns():
 def k8s_reload_service_files():
     print('Kubernetes - Reload the hand-modified service files')
     run_shell('sudo systemctl daemon-reload')
+    run_shell('sudo systemctl start docker')
+    run_shell('sudo systemctl restart kubelet')
 
 
 def k8s_start_kubelet():
@@ -444,9 +459,6 @@ def k8s_cleanup(doit):
 
 
 def kolla_install_repos():
-    print('Kolla - Install repos needed for kolla packaging')
-    run_shell('sudo yum install -y epel-release ansible python-pip python-devel git gcc')
-
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
@@ -763,13 +775,17 @@ def main():
     k8s_cleanup(args.cleanup)
 
     try:
+        k8s_install_tools()
+        k8s_setup_ntp()
+
         # Bring up Kubernetes
         k8s_turn_things_off()
         k8s_create_repo()
         k8s_setup_dns()
-        k8s_reload_service_files()
+        # k8s_reload_service_files() - moved to below
         k8s_start_kubelet()
         k8_fix_iptables()
+        k8s_reload_service_files()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
