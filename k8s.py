@@ -26,6 +26,7 @@ TODO:
 2. Make it work on a Ubuntu host or vm
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
+5. Add print(out) to debug output
 
 Dependencies:
 
@@ -111,6 +112,8 @@ def run_shell(cmd):
     """Run a shell command and return the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
+    if DEBUG:
+        print(out)
     return(out)
 
 
@@ -474,8 +477,9 @@ def kolla_create_namespace():
 
 
 def k8s_label_nodes(node_list):
-    print('Kolla - Label the AIO nodes')
+    # print('Kolla - Label the AIO node')
     for node in node_list:
+        print('Kolla - Label the AIO node as %s' % node)
         run_shell('kubectl label node $(hostname) %s=true' % node)
 
 
@@ -486,7 +490,7 @@ def k8s_check_exit(k8s_only):
 
 
 def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
-    print('Kolla - Modify globals')
+    print('Kolla - Modify globals to setup network_interface and neutron_interface')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
     run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
@@ -495,7 +499,7 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
 
 
 def kolla_add_to_globals():
-    print('Kolla - Add to globals')
+    print('Kolla - Add defauly config to globals.yml')
 
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
@@ -564,11 +568,11 @@ def kolla_gen_configs():
     # Seems to be the recommended ansible version
     run_shell('sudo pip install ansible==2.2.0.0')
     # globals.yml is used when we run ansible to generate configs
-    out = run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
+    run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
     @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
     -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
-    print(out)
+    # print(out)
 
 
 def kolla_gen_secrets():
@@ -581,7 +585,7 @@ def kolla_create_config_maps():
     # kubectl create configmap mariadb --from-file=/etc/kolla/config.json
     # --from-file=/etc/kolla/galera.cnf
     # --from-file=/etc/kolla/wsrep-notify.sh -n kolla
-    out = run_shell('kollakube res create configmap \
+    run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
     glance-registry neutron-server neutron-dhcp-agent neutron-l3-agent \
@@ -591,8 +595,8 @@ def kolla_create_config_maps():
     nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
     placement-api placement-api-haproxy')
-    print(out)
-    run_shell('kubectl get configmap -n kolla')
+    # print(out)
+    # run_shell('kubectl get configmap -n kolla')
 
 
 def kolla_resolve_workaround():
@@ -690,13 +694,13 @@ def helm_install_chart(chart_list):
 
 def sudo_timeout_off(state):
     '''Turn sudo timeout off or on'''
-    if state is True:
-        # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
-        # sudo sh -c 'echo "Defaults timestamp_timeout=-1" >> /etc/sudoers'
-        print(d)
-    else:
-        d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
-        print(d)
+    # if state is True:
+    # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+    # sudo sh -c 'echo "Defaults timestamp_timeout=-1" >> /etc/sudoers'
+    # print(d)
+    # else:
+    # d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
+    # print(d)
 
 
 def kolla_create_keystone_admin():
@@ -736,6 +740,11 @@ def kolla_create_keystone_admin():
 def main():
     """Main function."""
     args = parse_args()
+    DEBUG = args.verbose
+    print(DEBUG)
+    sys.exit(1)
+
+    global DEBUG
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
