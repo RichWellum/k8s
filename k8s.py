@@ -112,7 +112,7 @@ def run_shell(cmd):
     """Run a shell command and return the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    if DEBUG == 10:
+    if DEBUG == 10:  # Hack - debug enabled
         print(out)
     return(out)
 
@@ -175,17 +175,17 @@ def k8s_wait_for_kube_system():
 
     print('\nKubernetes - Wait for basic Kubernetes (6 pods) infrastructure')
     while True:
-        pod_status = run_shell('kubectl get pods -n kube-system')
+        pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
-        if nlines - 1 == 6:
-            print('Kubernetes - All pods %s/6 are started, continuing' % (nlines - 1))
+        if nlines == 6:
+            print('Kubernetes - All pods %s/6 are started, continuing' % nlines)
             run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
-            if (nlines - 1) < 0:
+            if nlines < 0:
                 cnt = 0
             else:
-                cnt = nlines - 1
+                cnt = nlines
 
             if elapsed_time is not 0:
                 print('Kubernetes - Pod status after %d seconds, pods up %s:6 - '
