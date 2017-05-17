@@ -112,7 +112,7 @@ def run_shell(cmd):
     """Run a shell command and return the output"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    if DEBUG:
+    if DEBUG == 10:
         print(out)
     return(out)
 
@@ -745,7 +745,6 @@ def main():
 
     DEBUG = args.verbose
     print(DEBUG)
-    sys.exit(1)
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
