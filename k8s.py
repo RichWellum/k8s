@@ -471,7 +471,7 @@ def kolla_install_deploy_helm(version):
 def k8s_cleanup(doit):
     '''Cleanup on Isle 9'''
     if doit is True:
-        print('Cleaning up existing Kubernetes Cluster. YMMV.')
+        print('Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
         run_shell('sudo rm -rf /etc/kolla')
         run_shell('sudo rm -rf /etc/kubernetes')
@@ -799,9 +799,12 @@ def k8s_get_pods(namespace):
         print(final)
 
 
-def k8s_pause_to_check_nslookup(doit):
-    '''ToDo: Make this automatic, remove doit option'''
+def k8s_pause_to_check_nslookup(manual_check):
+    '''Create a tes pod and query dnslookup against kubernetes
+    Only seems to work in the default namespace
 
+    Also handles the option to create a test pod manually like
+    the deployment guide advises.'''
     name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""\
@@ -824,13 +827,13 @@ spec:
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     print('Exec output==%s' % out)
     if int(out) != 2:
-        print('Ooops nslookup is broken - exiting')
+        print('Ooops nslookup is broken. YMMV continuing')
         # run_shell('kubectl delete busybox-sleep -n kube-system')
         # sys.exit(1)
     else:
         print('nslookup worked - continuing')
 
-    if doit:
+    if manual_check:
         print('Run the following to create a pod to test kubernetes nslookup')
         print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
         pause_to_debug('Check "nslookup kubernetes" now')
