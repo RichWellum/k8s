@@ -271,6 +271,7 @@ def k8s_wait_for_running_negate():
 #             print('%s' % output)
 
 def k8s_install_tools():
+    '''Basic tools needed for first pass'''
     print('Kolla - Install repos needed for kolla packaging')
     run_shell('sudo yum install -y epel-release')
     run_shell('sudo yum install -y python-pip')
@@ -279,12 +280,14 @@ def k8s_install_tools():
 
 
 def k8s_setup_ntp():
+    '''Setup NTP'''
     run_shell('sudo yum install -y ntp')
     run_shell('sudo systemctl enable ntpd.service')
     run_shell('sudo systemctl start ntpd.service')
 
 
 def k8s_turn_things_off():
+    '''Currently turn off SELinux and Firewall'''
     print('Kubernetes - Turn off SELinux')
     run_shell('sudo setenforce 0')
     run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
@@ -299,6 +302,8 @@ def k8s_turn_things_off():
 
 
 def k8s_create_repo():
+    '''Necessary repo to install kubernetes and tools
+    This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
     run_shell('sudo pip install --upgrade pip')
     create_k8s_repo()
@@ -318,6 +323,7 @@ def k8s_create_repo():
 
 
 def k8s_setup_dns():
+    '''DNS services'''
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
     # run_shell('sudo systemctl start docker') #todo - test order
@@ -328,6 +334,7 @@ def k8s_setup_dns():
 
 
 def k8s_reload_service_files():
+    '''Service files where modified so bring them up again'''
     print('Kubernetes - Reload the hand-modified service files')
     run_shell('sudo systemctl daemon-reload')
     run_shell('sudo systemctl start docker')
@@ -335,12 +342,14 @@ def k8s_reload_service_files():
 
 
 def k8s_start_kubelet():
+    '''Start kubectl'''
     print('Kubernetes - Enable and start kubelet')
     run_shell('sudo systemctl enable kubelet')
     run_shell('sudo systemctl start kubelet')
 
 
 def k8_fix_iptables():
+    '''Maybe Centos only but this needs to be changed to proceed'''
     reload_sysctl = False
     print('Kubernetes - Fix iptables')
     run_shell('sudo cp /etc/sysctl.conf /tmp')
@@ -360,11 +369,13 @@ def k8_fix_iptables():
 
 
 def k8s_deploy_k8s():
+    '''Start the kubernetes master'''
     print('Kubernetes - Deploying Kubernetes with kubeadm')
     run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
+    '''This ensures the user gets output from 'kubectl get pods'''
     print('Kubernetes - Load kubeadm credentials into the system')
     print('Kubernetes - Note "kubectl get pods --all-namespaces" should work now')
     home = os.environ['HOME']
@@ -379,6 +390,7 @@ def k8s_load_kubeadm_creds():
 
 
 def k8s_deploy_canal_sdn():
+    '''SDN/CNI Driver of choice is Canal'''
     print('Kubernetes - Deploy the Canal CNI driver')
     curl(
         '-L',
@@ -398,6 +410,10 @@ def k8s_deploy_canal_sdn():
 
 
 def k8s_schedule_master_node():
+    '''Normally master node won't be happy - unless you do this step to
+    make it an AOI deployment
+
+    While the command says "taint" the "-" at the end is an "untaint"'''
     print('Kolla - Mark master node as schedulable')
     run_shell('kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-')
 
@@ -449,6 +465,7 @@ def kolla_install_deploy_helm(version):
 
 
 def k8s_cleanup(doit):
+    '''Cleanup on Isle 9'''
     if doit is True:
         print('Cleaning up existing Kubernetes Cluster. YMMV.')
         run_shell('sudo kubeadm reset')
@@ -459,6 +476,8 @@ def k8s_cleanup(doit):
 
 
 def kolla_install_repos():
+    '''Installing the kolla repos
+    For sanity I just delete a repo if found before'''
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
@@ -480,29 +499,34 @@ def kolla_install_repos():
 
 
 def kolla_gen_passwords():
+    '''Generate the Kolla Passwords'''
     print('Kolla - Generate default passwords via SPRNG')
     run_shell('sudo kolla-kubernetes-genpwd')
 
 
 def kolla_create_namespace():
+    '''Create a kolla namespace'''
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
     run_shell('kubectl create namespace kolla')
 
 
 def k8s_label_nodes(node_list):
-    # print('Kolla - Label the AIO node')
+    '''Label the nodes according to the list passed in'''
     for node in node_list:
         print('Kolla - Label the AIO node as %s' % node)
         run_shell('kubectl label node $(hostname) %s=true' % node)
 
 
 def k8s_check_exit(k8s_only):
+    '''If the user only wants kubernetes and not kolla - stop here'''
     if k8s_only is True:
         print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
         sys.exit(1)
 
 
 def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
+    '''Necessary additions and changes to the global.yml - which is based on
+    the users inputs'''
     print('Kolla - Modify globals to setup network_interface and neutron_interface')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
@@ -512,7 +536,8 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
 
 
 def kolla_add_to_globals():
-    print('Kolla - Add defauly config to globals.yml')
+    '''Default section needed'''
+    print('Kolla - Add default config to globals.yml')
 
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
@@ -560,6 +585,7 @@ nova_backend_ceph: "no"
 
 
 def kolla_enable_qemu():
+    '''Some configurations need qemu'''
     print('Kolla - Enable qemu')
     run_shell('sudo mkdir -p /etc/kolla/config')
 
@@ -575,6 +601,8 @@ cpu_mode = none
 
 
 def kolla_gen_configs():
+    '''Generate the configs using Jinja2
+    Some version meddling here until things are more stable'''
     print('Kolla - Generate the default configuration')
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell('sudo pip install Jinja2==2.8.1')
@@ -585,15 +613,16 @@ def kolla_gen_configs():
     ansible_python_interpreter=/usr/bin/python -e \
     @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
     -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
-    # print(out)
 
 
 def kolla_gen_secrets():
+    '''Generate Kubernetes secrets'''
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
 
 def kolla_create_config_maps():
+    '''Generate the Kolla config map'''
     print('Kolla - Create and register the Kolla config maps')
     # kubectl create configmap mariadb --from-file=/etc/kolla/config.json
     # --from-file=/etc/kolla/galera.cnf
@@ -608,21 +637,23 @@ def kolla_create_config_maps():
     nova-api-haproxy cinder-api cinder-api-haproxy cinder-backup \
     cinder-scheduler cinder-volume iscsid tgtd keepalived \
     placement-api placement-api-haproxy')
-    # print(out)
-    # run_shell('kubectl get configmap -n kolla')
 
 
 def kolla_resolve_workaround():
+    '''Resolve.Conf workaround'''
     print('Kolla - Enable resolv.conf workaround')
     run_shell('./kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
 
 
 def kolla_build_micro_charts():
+    '''Build all helm micro charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
     run_shell('kolla-kubernetes/tools/helm_build_all.sh .')
 
 
 def kolla_verify_helm_images():
+    '''Subjective but a useful check to see if enough helm charts were
+    generated'''
     out = run_shell('ls | grep ".tgz" | wc -l')
     if int(out) > 180:
         print('Kolla - %s Helm images created' % out)
@@ -632,6 +663,8 @@ def kolla_verify_helm_images():
 
 
 def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
+    '''Generate the cloud.yml file which works with the globals.yml
+    file to define your cluster networking'''
     print('Kolla - Create and run cloud')
     cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
@@ -699,6 +732,7 @@ global:
 
 
 def helm_install_chart(chart_list):
+    '''helm install a list of charts'''
     for chart in chart_list:
         print('Helm - Install chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
@@ -752,6 +786,7 @@ def kolla_create_keystone_admin():
 
 
 def kubernetes_get_pods(namespace):
+    '''Display all pods per namespace list'''
     for name in namespace:
         final = run_shell('kubectl get pods -n %s' % name)
         print('Kolla - Final Kolla Kubernetes Openstack pods for namespace %s:' % name)
@@ -776,7 +811,7 @@ def main():
 
     try:
         k8s_install_tools()
-        k8s_setup_ntp()
+        # k8s_setup_ntp()
 
         # Bring up Kubernetes
         k8s_turn_things_off()
