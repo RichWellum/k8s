@@ -95,6 +95,8 @@ def parse_args():
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.3',
+                        help='Specify a different k8s version to the default(1.6.3')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
@@ -151,7 +153,7 @@ def curl(*args):
     return curl_result
 
 
-def create_k8s_repo():
+def k8s_create_repo():
     """Create a k8s repository file"""
     name = './kubernetes.repo'
     repo = '/etc/yum.repos.d/kubernetes.repo'
@@ -303,26 +305,25 @@ def k8s_turn_things_off():
             run_shell('sudo systemctl disable firewalld')
 
 
-def k8s_create_repo():
+def k8s_install_k8s(version):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
     run_shell('sudo pip install --upgrade pip')
-    create_k8s_repo()
+    k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
-    # run_shell(
-    #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
-        # 'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.7')
-        'sudo yum install -y docker ebtables kubelet kubeadm kubectl kubernetes-cni')
-    # Workaround until kubectl 1.6.4 is available
-    curl(
-        '-L',
-        'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
-        '-o', '/tmp/kubelet.gz')
-    run_shell('sudo gunzip -d /tmp/kubelet.gz')
-    run_shell('sudo mv -f /tmp/kubelet /usr/bin/kubelet')
-    run_shell('sudo chmod +x /usr/bin/kubelet')
+        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' % (version, version, version))
+    if version == '1.6.3':
+        print('Kubernetes - 1.6.3 workaround')
+        # Workaround until kubectl 1.6.4 is available
+        curl(
+            '-L',
+            'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
+            '-o', '/tmp/kubelet.gz')
+        run_shell('sudo gunzip -d /tmp/kubelet.gz')
+        run_shell('sudo mv -f /tmp/kubelet /usr/bin/kubelet')
+        run_shell('sudo chmod +x /usr/bin/kubelet')
 
 
 def k8s_setup_dns():
@@ -828,7 +829,7 @@ def main():
 
         # Bring up Kubernetes
         k8s_turn_things_off()
-        k8s_create_repo()
+        k8s_install_k8s(args.k8s_version)
         k8s_setup_dns()
         k8s_reload_service_files()
         k8s_start_kubelet()
