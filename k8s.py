@@ -109,7 +109,8 @@ def parse_args():
 
 
 def run_shell(cmd):
-    """Run a shell command and return the output"""
+    """Run a shell command and return the output
+    Print the output if debug is enabled"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     if DEBUG == 10:  # Hack - debug enabled
