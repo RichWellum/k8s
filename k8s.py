@@ -807,10 +807,9 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    k8s_cleanup(args.cleanup)
-
     try:
         k8s_install_tools()
+        k8s_cleanup(args.cleanup)
         # k8s_setup_ntp()
 
         # Bring up Kubernetes
