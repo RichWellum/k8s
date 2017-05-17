@@ -742,10 +742,9 @@ def kolla_create_keystone_admin():
 def main():
     """Main function."""
     args = parse_args()
-    global DEBUG
 
+    global DEBUG
     DEBUG = args.verbose
-    print(DEBUG)
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
