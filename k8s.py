@@ -92,7 +92,7 @@ def parse_args():
                         help='Management Interface IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.2.3',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.2.3')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
