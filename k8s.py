@@ -691,9 +691,11 @@ def helm_install_chart(chart_list):
 def sudo_timeout_off(state):
     '''Turn sudo timeout off or on'''
     if state is True:
-        run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+        d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+        print(d)
     else:
-        run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
+        d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
+        print(d)
 
 
 def kolla_create_keystone_admin():
