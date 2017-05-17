@@ -818,7 +818,7 @@ spec:
     - "1000000"
 """)
     run_shell('kubectl create -f %s -n kube-system' % name)
-    time.sleep(5)
+    k8s_wait_for_running_negate()
     out = run_shell(
         'kubectl exec kolla-dns-test -n kube-system -- nslookup kubernetes | grep -i address | wc -l')
     print('Exec output==%s' % out)
@@ -868,7 +868,7 @@ def main():
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
-        k8s_pause_to_check_nslookup(args.kubernetes)
+        k8s_pause_to_check_nslookup(args.nslookup)
         k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
