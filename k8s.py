@@ -800,12 +800,39 @@ def k8s_get_pods(namespace):
 
 
 def k8s_pause_to_check_nslookup(doit):
-    '''ToDo: Make this automatic'''
-    if doit:
-        print('Run the following to create a pod to test kubernetes nslookup')
-        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
-        pause_to_debug('Check "nslookup kubernetes" now')
-        # todo: nslookup check
+    '''ToDo: Make this automatic, remove doit option'''
+
+    name = 'self./busybox.yaml'
+    with open(name, "w") as w:
+        w.write("""\
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-sleep
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    args:
+    - sleep
+    - "1000000"
+""")
+    run_shell('kubectl create -f %s' % name)
+    out = run_shell('kubectl exec busybox-sleep -- nslookup kubernetes | grep -i address | wc -l')
+    print(out)
+    if int(out) != 2:
+        print('Ooops nslookup is broken - exiting')
+        sys.exit(1)
+    else:
+        print('nslookup worked - continuing')
+
+    # if doit:
+    # print('Run the following to create a pod to test kubernetes nslookup')
+    # print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+    # pause_to_debug('Check "nslookup kubernetes" now')
+    # # todo: nslookup check
+    # out = run_shell('kubectl exec busybox-4153010557-prg1g -- nslookup kubernete')
+    # print(out)
 
 
 def main():
