@@ -9,7 +9,7 @@ Initial supported state is a Centos 7 VM.
 
 Configuration is done with kubeadm.
 
-This relies heavily on my work on OpenStack kolla-kubernetes project and in
+This relies heavily on the OpenStack kolla-kubernetes project and in
 particular the Bare Metal Deployment Guide:
 
 https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
