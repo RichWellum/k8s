@@ -691,7 +691,8 @@ def helm_install_chart(chart_list):
 def sudo_timeout_off(state):
     '''Turn sudo timeout off or on'''
     if state is True:
-        d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+        # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
+        d = run_shell("sudo sh -c 'echo 'Defaults timestamp_timeout=-1' >> /etc/sudoers'")
         print(d)
     else:
         d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
