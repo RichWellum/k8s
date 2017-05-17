@@ -289,7 +289,7 @@ def k8s_create_repo():
     # run_shell(
     #     'sudo yum install -y docker ebtables kubeadm-1.6.2 kubectl-1.6.2 kubelet-1.6.2 kubernetes-1.5.2-0.2 git gcc')
     run_shell(
-        'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.4 git gcc')
+        'sudo yum install -y docker ebtables kubelet-1.6.3 kubeadm-1.6.3 kubectl-1.6.3 kubernetes-1.5.4')
     # Workaround until kubectl 1.6.4 is available
     curl(
         '-L',
@@ -441,7 +441,7 @@ def k8s_cleanup(doit):
 
 def kolla_install_repos():
     print('Kolla - Install repos needed for kolla packaging')
-    run_shell('sudo yum install -y epel-release ansible python-pip python-devel')
+    run_shell('sudo yum install -y epel-release ansible python-pip python-devel git gcc')
 
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
