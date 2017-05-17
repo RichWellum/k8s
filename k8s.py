@@ -817,10 +817,11 @@ spec:
     - sleep
     - "1000000"
 """)
-    run_shell('kubectl create -f %s -n kube-system' % name)
+    run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
+    print('kubernetes - run dnslookup against a test pod')
     out = run_shell(
-        'kubectl exec kolla-dns-test -n kube-system -- nslookup kubernetes | grep -i address | wc -l')
+        'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     print('Exec output==%s' % out)
     if int(out) != 2:
         print('Ooops nslookup is broken - exiting')
