@@ -808,7 +808,7 @@ def k8s_pause_to_check_nslookup(doit):
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-sleep
+  name: kolla-dns-test
 spec:
   containers:
   - name: busybox
@@ -817,25 +817,22 @@ spec:
     - sleep
     - "1000000"
 """)
-    run_shell('kubectl create -f %s' % name)
+    run_shell('kubectl create -f %s -n kube-system' % name)
     time.sleep(5)
     out = run_shell(
-        'kubectl exec busybox-sleep -- nslookup kubernetes | grep -i address | wc -l')
+        'kubectl exec kolla-dns-test -n kube-system -- nslookup kubernetes | grep -i address | wc -l')
     print('Exec output==%s' % out)
     if int(out) != 2:
         print('Ooops nslookup is broken - exiting')
         # run_shell('kubectl delete busybox-sleep -n kube-system')
-        sys.exit(1)
+        # sys.exit(1)
     else:
         print('nslookup worked - continuing')
 
-    # if doit:
-    # print('Run the following to create a pod to test kubernetes nslookup')
-    # print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
-    # pause_to_debug('Check "nslookup kubernetes" now')
-    # # todo: nslookup check
-    # out = run_shell('kubectl exec busybox-4153010557-prg1g -- nslookup kubernete')
-    # print(out)
+    if doit:
+        print('Run the following to create a pod to test kubernetes nslookup')
+        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+        pause_to_debug('Check "nslookup kubernetes" now')
 
 
 def main():
