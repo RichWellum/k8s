@@ -398,9 +398,7 @@ def k8s_deploy_canal_sdn():
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
-
     # run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
-    # return
     print('Kubernetes - Create RBAC')
     answer = curl(
         '-L',
@@ -419,6 +417,12 @@ def k8s_deploy_canal_sdn():
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     # run_shell('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
+
+
+def k8s_add_api_server(ip):
+    print('Kolla - Add API Server')
+    run_shell('sudo mkdir -p /etc/nodepool/')
+    run_shell('echo %s > /etc/nodepool/primary_node_private' % MGMT_IP)
 
 
 def k8s_schedule_master_node():
@@ -927,9 +931,7 @@ def main():
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
-        # Add apiserver?
-        # mkdir -p /etc/nodepool/
-        # echo $1 > /etc/nodepool/primary_node_private
+        k8s_add_api_server(args.MGMT_IP)
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
