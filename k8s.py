@@ -729,11 +729,20 @@ global:
     run_shell('sudo sed -i s/docker0/%s/g %s' % (MGMT_INT, cloud))
 
 
-def helm_install_chart(chart_list):
-    '''helm install a list of charts'''
+def helm_install_service_chart(chart_list):
+    '''helm install a list of service charts'''
     for chart in chart_list:
-        print('Helm - Install chart: %s' % chart)
+        print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+    k8s_wait_for_running_negate()
+
+
+def helm_install_micro_service_chart(chart_list):
+    '''helm install a list of micro service charts'''
+    for chart in chart_list:
+        print('Helm - Install service chart: %s' % chart)
+        run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
@@ -899,19 +908,19 @@ def main():
 
         # Install Helm charts
         chart_list = ['mariadb']
-        helm_install_chart(chart_list)
+        helm_install_service_chart(chart_list)
 
         # Install remaining service level charts
         chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
                       'cinder-control', 'horizon', 'openvswitch', 'neutron']
-        helm_install_chart(chart_list)
+        helm_install_service_chart(chart_list)
 
         chart_list = ['nova-control', 'nova-compute']
-        helm_install_chart(chart_list)
+        helm_install_service_chart(chart_list)
 
         chart_list = ['nova-cell0-create-db-job',
                       'nova-api-create-simple-cell-job']
-        helm_install_chart(chart_list)
+        helm_install_service_chart(chart_list)
 
         namespace_list = ['kube-system', 'kolla']
         k8s_get_pods(namespace_list)
