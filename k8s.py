@@ -465,7 +465,7 @@ def kolla_install_deploy_helm(version):
 def k8s_cleanup(doit):
     '''Cleanup on Isle 9'''
     if doit is True:
-        print('Cleaning up existing Kubernetes Cluster')
+        print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
         run_shell('sudo rm -rf /etc/kolla')
         run_shell('sudo rm -rf /etc/kubernetes')
