@@ -71,11 +71,11 @@ def set_logging():
 
 
 class AbortScriptException(Exception):
-    """Abort the script and clean up before exiting."""
+    '''Abort the script and clean up before exiting.'''
 
 
 def parse_args():
-    """Parse sys.argv and return args"""
+    '''Parse sys.argv and return args'''
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description='A tool to create a working Kubernetes Cluster on Bare Metal or a VM.',
@@ -110,18 +110,19 @@ def parse_args():
 
 
 def run_shell(cmd):
-    """Run a shell command and return the output
-    Print the output if debug is enabled"""
+    '''Run a shell command and return the output
+    Print the output if debug is enabled
+    Not using logger.debug as a bit noisy for this info'''
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    logger.debug(out)
-    # if DEBUG == 10:  # Hack - debug enabled
-    #     print(out)
+    # logger.debug(out)
+    if DEBUG == 10:  # Hack - debug enabled
+        print(out)
     return(out)
 
 
 def untar(fname):
-    """Untar a tarred and compressed file"""
+    '''Untar a tarred and compressed file'''
     if (fname.endswith("tar.gz")):
         tar = tarfile.open(fname, "r:gz")
         tar.extractall()
@@ -133,13 +134,13 @@ def untar(fname):
 
 
 def pause_to_debug(str):
-    """Pause the script for manual debugging of the VM before continuing."""
+    '''Pause the script for manual debugging of the VM before continuing.'''
     print('Pause: "%s"' % str)
     raw_input('Press Enter to continue')
 
 
 def curl(*args):
-    """Use curl to retrieve a file from a URI"""
+    '''Use curl to retrieve a file from a URI'''
     curl_path = '/usr/bin/curl'
     curl_list = [curl_path]
     for arg in args:
@@ -152,7 +153,7 @@ def curl(*args):
 
 
 def k8s_create_repo():
-    """Create a k8s repository file"""
+    '''Create a k8s repository file'''
     name = './kubernetes.repo'
     repo = '/etc/yum.repos.d/kubernetes.repo'
     with open(name, "w") as w:
@@ -170,7 +171,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 
 def k8s_wait_for_kube_system():
-    """Wait for basic k8s to come up"""
+    '''Wait for basic k8s to come up'''
 
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
@@ -237,7 +238,7 @@ def k8s_wait_for_running(number, namespace):
 
 
 def k8s_wait_for_running_negate():
-    """Query get pods until only state is Running"""
+    '''Query get pods until only state is Running'''
 
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 2
@@ -422,7 +423,7 @@ def k8s_schedule_master_node():
 
 
 def kolla_update_rbac():
-    """Override the default RBAC settings"""
+    '''Override the default RBAC settings'''
     print('Kolla - Overide default RBAC settings')
     name = '/tmp/rbac'
     with open(name, "w") as w:
