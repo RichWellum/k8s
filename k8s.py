@@ -399,7 +399,9 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
 
-    run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
+    out = run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
+    print(out)
+    sys.exit(1)
     return
     print('Kubernetes - Create RBAC')
     answer = curl(
@@ -504,7 +506,7 @@ def kolla_install_repos():
     print('Kolla - Install kolla-ansible and kolla-kubernetes')
     run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
 
-    print('Kolla - Copy default Kolla configuration to /etc')
+    print('Kolla - Copy default kolla-ansible configuration to /etc')
     run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
 
     print('Kolla - Copy default kolla-kubernetes configuration to /etc')
@@ -661,7 +663,7 @@ def kolla_resolve_workaround():
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run_shell('kolla-kubernetes/tools/helm_build_all.sh .')
+    run_shell('./kolla-kubernetes/tools/helm_build_all.sh .')
 
 
 def kolla_verify_helm_images():
