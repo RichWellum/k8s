@@ -26,7 +26,6 @@ TODO:
 2. Make it work on a Ubuntu host or vm
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
-5. Fix dns check
 
 Dependencies:
 
@@ -37,9 +36,6 @@ Install pip:
 Install psutil:
   sudo yum install gcc python-devel
   sudo pip install psutil
-
-Install docker:
-  sudo pip install docker
 '''
 
 from __future__ import print_function
@@ -61,8 +57,6 @@ __version__ = '1.0.0'
 __maintainer__ = 'Rich Wellum'
 __email__ = 'rwellum@gmail.com'
 
-# General-purpose retry interval and timeout value (10 minutes)
-# RETRY_INTERVAL = 5
 TIMEOUT = 600
 
 logger = logging.getLogger(__name__)
@@ -270,13 +264,6 @@ def k8s_wait_for_running_negate():
             sys.exit(1)
 
 
-# def k8s_check_dns():
-#     kubectl run - i - t $(uuidgen) - -image = busybox - -restart = Never
-#     p = subprocess.Popen('kubectl get pods --all-namespaces',
-#                                  stdout=subprocess.PIPE, shell=True)
-#             (output, err) = p.communicate()
-#             print('%s' % output)
-
 def k8s_install_tools():
     '''Basic tools needed for first pass'''
     print('Kolla - Install repos needed for kolla packaging')
@@ -316,7 +303,8 @@ def k8s_install_k8s(version):
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
     run_shell(
-        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' % (version, version, version))  # todo - cni version should be?
+        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
+        kubernetes-cni-%s' % (version, version, version))  # todo - cni version should be?
     if version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
         # Workaround until kubectl 1.6.4 is available
@@ -378,7 +366,8 @@ def k8s_fix_iptables():
 def k8s_deploy_k8s():
     '''Start the kubernetes master'''
     print('Kubernetes - Deploying Kubernetes with kubeadm')
-    run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+    run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
+    --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
@@ -398,18 +387,20 @@ def k8s_load_kubeadm_creds():
 
 def k8s_deploy_canal_sdn():
     '''SDN/CNI Driver of choice is Canal'''
-    print('Kubernetes - Deploy the Canal CNI driver')
-    curl(
+    print('Kubernetes - Create RBAC')
+    answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
+    logger.debug(answer)
     run_shell('kubectl create -f /tmp/rbac.yaml')
 
+    print('Kubernetes - Deploy the Canal CNI driver')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
         '-o', '/tmp/canal.yaml')
-    print(answer)
+    logger.debug(answer)
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@192.168.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
@@ -484,7 +475,7 @@ def k8s_cleanup(doit):
 
 def kolla_install_repos():
     '''Installing the kolla repos
-    For sanity I just delete a repo if found before'''
+    For sanity I just delete a repo if already exists'''
     print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
@@ -742,7 +733,8 @@ def helm_install_chart(chart_list):
     '''helm install a list of charts'''
     for chart in chart_list:
         print('Helm - Install chart: %s' % chart)
-        run_shell('helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -828,13 +820,14 @@ spec:
     print('kubernetes - run dnslookup against a test pod')
     out = run_shell(
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
-    print('Exec output==%s' % out)
+    logger.debug('Kolla DNS test output==%s' % out)
     if int(out) != 2:
         print('Ooops nslookup is broken. YMMV continuing')
-        # run_shell('kubectl delete busybox-sleep -n kube-system')
         # sys.exit(1)
     else:
-        print('nslookup worked - continuing')
+        print("'nslookup kubernetes' worked - continuing")
+
+    run_shell('kubectl delete kolla-dns-test -n kube-system')
 
     if manual_check:
         print('Run the following to create a pod to test kubernetes nslookup')
