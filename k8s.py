@@ -399,8 +399,8 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
 
-    run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
-    return
+    # run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
+    # return
     print('Kubernetes - Create RBAC')
     answer = curl(
         '-L',
@@ -416,8 +416,8 @@ def k8s_deploy_canal_sdn():
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
     run_shell('sudo chmod 777 /tmp/canal.yaml')
-    run_shell('sudo sed -i s@192.168.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
-    run_shell('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
+    run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+    # run_shell('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
 
 
@@ -491,7 +491,7 @@ def k8s_cleanup(doit):
 def kolla_install_repos():
     '''Installing the kolla repos
     For sanity I just delete a repo if already exists'''
-    print('Kolla - Clone or update koll1a-ansible')
+    print('Kolla - Clone or update kolla-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
     run_shell('git clone http://github.com/openstack/kolla-ansible')
@@ -890,8 +890,6 @@ def main():
         k8s_reload_service_files()
         k8s_start_kubelet()
         k8s_fix_iptables()
-        kolla_install_repos()  # Do this early as using some tools
-        # k8s_reload_service_files()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         # k8s_wait_for_kube_system()
@@ -903,6 +901,7 @@ def main():
         k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
+        kolla_install_repos()
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
         kolla_gen_passwords()
