@@ -96,7 +96,11 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.3',
-                        help='Specify a different k8s version to the default(1.6.3')
+                        help='Specify a different ansible version to the default(1.6.3')
+    parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
+                        help='Specify a different k8s version to the default(2.2.0.0')
+    parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
+                        help='Specify a different jinja2 version to the default(2.8.1')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
@@ -604,14 +608,14 @@ cpu_mode = none
     run_shell('sudo mv %s %s' % (new, add_to))
 
 
-def kolla_gen_configs():
+def kolla_gen_configs(a_ver, j_ver):
     '''Generate the configs using Jinja2
     Some version meddling here until things are more stable'''
     print('Kolla - Generate the default configuration')
-    # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo pip install Jinja2==2.8.1')
     # Seems to be the recommended ansible version
-    run_shell('sudo pip install ansible==2.2.0.0')
+    run_shell('sudo pip install ansible==%s' % a_ver)
+    # Standard jinja2 in Centos7(2.9.6) is broken
+    run_shell('sudo pip install Jinja2==%s' % j_ver)
     # globals.yml is used when we run ansible to generate configs
     run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
@@ -889,7 +893,7 @@ def main():
         kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
         kolla_add_to_globals()
         kolla_enable_qemu()
-        kolla_gen_configs()
+        kolla_gen_configs(args.ansible_version, args.jinja2_version)
         kolla_gen_secrets()
         kolla_create_config_maps()
         kolla_resolve_workaround()
