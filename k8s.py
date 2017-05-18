@@ -395,6 +395,10 @@ def k8s_load_kubeadm_creds():
 def k8s_deploy_canal_sdn():
     '''SDN/CNI Driver of choice is Canal'''
     # Code changes a lot so use the gate
+    # The ip range in canal.yaml,
+    # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
+    # init command must match
+
     run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
     return
     print('Kubernetes - Create RBAC')
@@ -886,6 +890,7 @@ def main():
         k8s_reload_service_files()
         k8s_start_kubelet()
         k8s_fix_iptables()
+        kolla_install_repos()  # Do this early as using some tools
         # k8s_reload_service_files()
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
@@ -900,7 +905,6 @@ def main():
         # Start Kolla deployment
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
-        kolla_install_repos()
         kolla_gen_passwords()
         kolla_create_namespace()
 
