@@ -399,9 +399,7 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
 
-    out = run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
-    print(out)
-    sys.exit(1)
+    run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
     return
     print('Kubernetes - Create RBAC')
     answer = curl(
