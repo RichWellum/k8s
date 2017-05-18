@@ -422,7 +422,9 @@ def k8s_deploy_canal_sdn():
 def k8s_add_api_server(ip):
     print('Kolla - Add API Server')
     run_shell('sudo mkdir -p /etc/nodepool/')
-    run_shell('sudo echo %s > /etc/nodepool/primary_node_private' % ip)
+    run_shell('sudo echo %s > /tmp/primary_node_private' % ip)
+    # todo - has a permissions error
+    run_shell('sudo mv -f /tmp/primary_node_private /etc/nodepool')
 
 
 def k8s_schedule_master_node():
@@ -521,17 +523,17 @@ def kolla_setup_loopback_lvm():
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
-mkdir -p /data/kolla
-df -h
-dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
-LOOP=$(losetup -f)
-losetup $LOOP /data/kolla/cinder-volumes.img
-parted -s $LOOP mklabel gpt
-parted -s $LOOP mkpart 1 0% 100%
-parted -s $LOOP set 1 lvm on
-partprobe $LOOP
-pvcreate -y $LOOP
-vgcreate -y cinder-volumes $LOOP
+sudo mkdir -p /data/kolla
+sudo df -h
+sudo dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
+sudo LOOP=$(losetup -f)
+sudo losetup $LOOP /data/kolla/cinder-volumes.img
+sudo parted -s $LOOP mklabel gpt
+sudo parted -s $LOOP mkpart 1 0% 100%
+sudo parted -s $LOOP set 1 lvm on
+sudo partprobe $LOOP
+sudo pvcreate -y $LOOP
+sudo vgcreate -y cinder-volumes $LOOP
 """)
     run_shell('bash %s' % new)
 
