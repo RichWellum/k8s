@@ -422,7 +422,7 @@ def k8s_deploy_canal_sdn():
 def k8s_add_api_server(ip):
     print('Kolla - Add API Server')
     run_shell('sudo mkdir -p /etc/nodepool/')
-    run_shell('echo %s > /etc/nodepool/primary_node_private' % ip)
+    run_shell('sudo echo %s > /etc/nodepool/primary_node_private' % ip)
 
 
 def k8s_schedule_master_node():
@@ -521,7 +521,7 @@ def kolla_setup_loopback_lvm():
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
-mkdir -print() /data/kolla
+mkdir -p /data/kolla
 df -h
 dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
 LOOP=$(losetup -f)
