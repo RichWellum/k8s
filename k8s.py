@@ -256,7 +256,7 @@ def k8s_wait_for_running_negate():
             prev_not_running = not_running
             continue
         else:
-            print('All pods Running')
+            print('All pods are in Running state')
             break
 
         if elapsed_time > TIMEOUT:
@@ -808,11 +808,12 @@ def k8s_get_pods(namespace):
 
 
 def k8s_pause_to_check_nslookup(manual_check):
-    '''Create a tes pod and query dnslookup against kubernetes
+    '''Create a test pod and query nslookup against kubernetes
     Only seems to work in the default namespace
 
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
+    print("Kubernetes - Test 'nslookup kubernetes'")
     name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""\
@@ -830,21 +831,21 @@ spec:
 """)
     run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
-    print('kubernetes - run dnslookup against a test pod')
+    print('Kubernetes - run dnslookup against a test pod')
     out = run_shell(
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     logger.debug('Kolla DNS test output==%s' % out)
     if int(out) != 2:
-        print('Ooops nslookup is broken. YMMV continuing')
+        print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
         # sys.exit(1)
     else:
-        print("'nslookup kubernetes' worked - continuing")
+        print("'Kubernetes - nslookup kubernetes' worked - continuing")
 
-    run_shell('kubectl delete kolla-dns-test -n kube-system')
+    run_shell('Kubectl delete kolla-dns-test -n kube-system')
 
     if manual_check:
-        print('Run the following to create a pod to test kubernetes nslookup')
-        print('kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+        print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
+        print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
         pause_to_debug('Check "nslookup kubernetes" now')
 
 
