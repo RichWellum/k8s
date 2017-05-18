@@ -3,207 +3,168 @@
 ## Compilation of Instructions from Kolla Kubernetes Gate
 ## This is meant to set up Kolla Kubernetes All-In-One for CentOS-7
 ## Cinder iSCSI backend is used here
-## Note that $1 will be the kube proxy IP, $2 will be the tunnel_interface and $3 will be the ext_interface_name
+## Note that $1 will be the kube proxy IP, $2 will be the tunnel_interface, $3 will be the ext_interface_name,
+## $4 will be the keepalived VIP, $5 will be the subnet size of the keepalived VIP network
+## Lastly, $6 will take the value of master or minion (note that it will always be master for AIO)
+## Note that keepalive runs on the same subnet as the "management" subnet, i.e. tunnel_interface
+## The keepalived VIP should be an unused IP in the "management" subnet
 ## Run the script as root user
 
-
 ## Ensure that the required parameters are passed in
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 6 ]
 then
-  echo "Please provide the following Information to the script: \$1 for kube proxy IP, \$2 for tunnel_interface, \$3 for ext interface"
+  echo "Please provide the following Information to the script:
+       \$1 for kube proxy IP,
+       \$2 for tunnel_interface,
+       \$3 for ext interface,
+       \$4 for keepalived VIP,
+       \$5 for subnet size of management network,
+       \$6 for node type, i.e. master/minion"
   exit 1
 fi
 
 
+## Define Variables
+kube_proxy_ip = $1
+tunnel_interface = $2
+ext_interface = $3
+keepalived_vip = $4
+mgmt_subnet_size = $5
+node_type = $6
+
+
+## Ensure that the specified interface exist and are UP on the system
+function check_ifup {
+    set -o pipefail # optional.
+    /usr/sbin/ip address | grep $kube_proxy_ip | grep -q "state UP"
+}
+
+function check_eth {
+    if check_ifup $kube_proxy_ip;
+    then
+      echo "Interface $kube_proxy_ip validated as UP."
+    else
+      echo "Please make sure interface $kube_proxy_ip is present and UP before running the script."
+      exit 1
+fi
+}
+
+check_eth $tunnel_interface
+check_eth $ext_interface
+
+
 ## Setup Host
-yum install -y net-tools wget telnet
-
-
-## Setup Pip
-yum install -y epel-release
-yum install -y python-pip
-pip install -U pip
-
-
-## Turn off SELinux
-setenforce 0
-sed -i 's/enforcing/permissive/g' /etc/selinux/config
+echo "Setup Host"
+sudo sed -i 's/enforcing/permissive/g' /etc/selinux/config
+sudo yum install -y net-tools wget telnet
+sudo yum install -y epel-release
+sudo yum install -y python-pip
+sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq
+sudo pip install -U pip
 
 
 ## Turn off firewalld
-systemctl stop firewalld
-systemctl disable firewalld
-
-
-## Setup Kubernetes Repository
-cat <<"EOEF" > /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=0
-repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-EOEF
-
-
-## Install Kubernetes 1.6.2 and other dependencies
-kubelet_version=1.6.2-0
-yum install -y docker ebtables kubeadm-$kubelet_version kubectl-$kubelet_version kubelet-$kubelet_version kubernetes-cni-$kubelet_version git gcc python-devel libffi-devel openssl-devel crudini
-yum install -y python-docker-py
-sudo systemctl enable docker
-sudo systemctl enable kubelet
+echo "Turn off firewalld"
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
 
 
 ## Install Ansible
-yum install -y ansible
+echo "Install Ansible"
+sudo yum install -y ansible
 
 
 ## Setup NTP
-yum install -y ntp
-systemctl enable ntpd.service
-systemctl start ntpd.service
-
-
-## Kubeadm
-sed -i 's/10.96.0.10/172.16.128.10/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-
-modprobe br_netfilter || true
-echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
-systemctl daemon-reload
-systemctl start docker
-systemctl restart kubelet
-
-kubeadm init --skip-preflight-checks --service-cidr 172.16.128.0/24 --pod-network-cidr 172.16.132.0/22
-
-mkdir -p ~/.kube
-cp /etc/kubernetes/admin.conf ~/.kube/config
-chown $(id -u):$(id -g) ~/.kube/config
-
-kubectl update -f <(cat <<EOF
-apiVersion: rbac.authorization.k8s.io/v1alpha1
-kind: ClusterRoleBinding
-metadata:
-  name: cluster-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: Group
-  name: system:masters
-- kind: Group
-  name: system:authenticated
-- kind: Group
-  name: system:unauthenticated
-EOF
-)
-
-
-## Setup Canal
-url="https://raw.githubusercontent.com/projectcalico/canal/master"
-url="$url/k8s-install/1.6/canal.yaml"
-
-curl "$url" -o /tmp/canal.yaml
-
-url="https://raw.githubusercontent.com/projectcalico/canal/master"
-url="$url/k8s-install/1.6/rbac.yaml"
-
-curl "$url" -o /tmp/rbac.yaml
-
-kubectl create -f /tmp/rbac.yaml
-
-cluster_cidr=$(sudo grep cluster-cidr /etc/kubernetes/manifests/kube-controller-manager.yaml || true)
-cluster_cidr=${cluster_cidr##*=}
-
-network_conf=$(grep net-conf.json /tmp/canal.yaml || true)
-if [ "x$network_conf" == "x" ]; then
-   sed -i '/masquerade:/a\
-  net-conf.json: |\
-    {\
-      "Network": "'$cluster_cidr'",\
-      "Backend": {\
-        "Type": "vxlan"\
-      }\
-    }' /tmp/canal.yaml
-else
-   sed -i 's@"Network":.*"@"Network": "'$cluster_cidr'"@' /tmp/canal.yaml
-fi
-
-kubectl create -f /tmp/canal.yaml
-
-
-## Untaint Master
-kubectl taint nodes --all=true  node-role.kubernetes.io/master:NoSchedule-
-
-
-## Setup Helm
-HELM_VERSION="2.3.0"
-HELM_TEMPLATE_URL="https://github.com/technosophos/helm-template/releases/download/2.2.2%2B1/helm-template-linux-2.2.2.1.tgz"
-
-HELM_URL="http://storage.googleapis.com/kubernetes-helm/helm-v$HELM_VERSION-linux-amd64.tar.gz"
-
-curl "$HELM_URL" | sudo tar --strip-components 1 -C /usr/bin linux-amd64/helm -zxf -
-helm init
-
-
-
-## Setup Loopback LVM for Cinder
-mkdir -p /data/kolla
-df -h
-dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
-LOOP=$(losetup -f)
-losetup $LOOP /data/kolla/cinder-volumes.img
-parted -s $LOOP mklabel gpt
-parted -s $LOOP mkpart 1 0% 100%
-parted -s $LOOP set 1 lvm on
-partprobe $LOOP
-pvcreate -y $LOOP
-vgcreate -y cinder-volumes $LOOP
-echo "Finished prepping lvm storage on $LOOP"
-
-
-## Pip Install OpenStack Client
-pip install python-openstackclient
-pip install python-neutronclient
-pip install python-cinderclient
+echo "Setup NTP"
+sudo yum install -y ntp
+sudo systemctl enable ntpd.service
+sudo systemctl start ntpd.service
 
 
 ## Git Clone Kolla Ansible
+echo "Git Clone Kolla Ansible"
 cd /opt && git clone http://github.com/openstack/kolla-ansible
 
 
 ## Git Clone Kolla Kubernetes
+echo "Git Clone Kolla Kubernetes"
 cd /opt && git clone http://github.com/openstack/kolla-kubernetes
 
 
 ## Install kolla-ansible and kolla-kubernetes
-pip install -U /opt/kolla-ansible/ /opt/kolla-kubernetes/
+echo "Install kolla-ansible and kolla-kubernetes"
+sudo pip install -U /opt/kolla-ansible/ /opt/kolla-kubernetes/
 
 
 ## Copy default Kolla configuration to /etc
+echo "Copy default Kolla configuration to /etc"
 cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc
 
 
 ## Copy default kolla-kubernetes configuration to /etc
+echo "Copy default kolla-kubernetes configuration to /etc"
 cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc
 
 
+## Set Up Kubernetes
+echo "Set Up Kubernetes"
+
+# Assign apiserver-advertise-address
+mkdir -p /etc/nodepool/
+echo $1 > /etc/nodepool/primary_node_private
+
+cd /opt/kolla-kubernetes && tools/setup_kubernetes.sh $node_type
+
+sudo yum install -y python-docker-py
+sudo systemctl enable docker
+sudo systemctl enable kubelet
+
+
+## Setup Canal
+echo "Setup Canal"
+cd /opt/kolla-kubernetes && tests/bin/setup_canal.sh
+
+
+## Untaint Master
+echo "Untaint Master"
+kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-
+
+
+## Setup Helm
+echo "Setup Helm"
+cd /opt/kolla-kubernetes && tools/setup_helm.sh
+
+
+## Setup Loopback LVM for Cinder
+echo "Setup Loopback LVM for Cinder"
+/opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh
+
+
+## Pip Install OpenStack Client
+echo "Pip Install OpenStack Client"
+sudo pip install python-openstackclient
+sudo pip install python-neutronclient
+sudo pip install python-cinderclient
+
+
 ## Generate Default Passwords
+echo "Generate Default Passwords"
 kolla-kubernetes-genpwd
 
 
 ## Create Kolla Namespace
+echo "Create Kolla Namespace"
 kubectl create namespace kolla
 
 
 ## Label the AIO node as the compute and controller node
+echo "Label the AIO node as the compute and controller node"
 kubectl label node $(hostname) kolla_compute=true
 kubectl label node $(hostname) kolla_controller=true
 
 
 ## Add required Kolla Kubernetes configuration to the end of /etc/kolla/globals.yml
+echo "Add required Kolla Kubernetes configuration to the end of /etc/kolla/globals.yml"
 cat <<EOF > add-to-globals.yml
 kolla_install_type: "source"
 tempest_image_alt_id: "{{ tempest_image_id }}"
@@ -246,20 +207,24 @@ cat ./add-to-globals.yml | sudo tee -a /etc/kolla/globals.yml
 
 
 ## Generate the Kubernetes secrets and register them with Kubernetes
+echo "Generate the Kubernetes secrets and register them with Kubernetes"
 /opt/kolla-kubernetes/tools/secret-generator.py create
 
 
 ## Generate Default Configurations
+echo "Generate Default Configurations"
 cd /opt/kolla-kubernetes && ansible-playbook -e ansible_python_interpreter=/usr/bin/python -e @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml -e CONFIG_DIR=/etc/kolla ansible/site.yml
 
 
 ## Set libvirt type to QEMU
-crudini --set /etc/kolla/nova-compute/nova.conf libvirt virt_type qemu
-crudini --set /etc/kolla/nova-compute/nova.conf libvirt cpu_mode none
-crudini --set /etc/kolla/keystone/keystone.conf cache enabled False
+echo "Set libvirt type to QEMU"
+sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt virt_type qemu
+sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt cpu_mode none
+sudo crudini --set /etc/kolla/keystone/keystone.conf cache enabled False
 
 
 ## Create and register Kolla config maps
+echo "Create and register Kolla config maps"
 kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -273,14 +238,17 @@ kollakube res create configmap \
 
 
 ## Enable resolv.conf workaround
+echo "Enable resolv.conf workaround"
 /opt/kolla-kubernetes/tools/setup-resolv-conf.sh kolla
 
 
 ## Build all Helm microcharts, service charts, and metacharts
+echo "Build all Helm microcharts, service charts, and metacharts"
 /opt/kolla-kubernetes/tools/helm_build_all.sh /tmp/
 
 
 ## Create cloud.yml file for the deployment of the charts
+echo "Create cloud.yml file for the deployment of the charts"
 cat <<EOF > /opt/cloud.yaml
 global:
    kolla:
@@ -288,15 +256,21 @@ global:
        docker_registry: docker.io
        image_tag: "4.0.0"
        kube_logger: false
-       external_vip: $1
+       external_vip: $kube_proxy_ip
        base_distro: "centos"
        install_type: "source"
-       tunnel_interface: $2
+       tunnel_interface: $tunnel_interface
        resolve_conf_net_host_workaround: true
+       kolla_kubernetes_external_subnet: $mgmt_subnet_size
+       kolla_kubernetes_external_vip: $keepalived_vip
+       kube_logger: false
+     keepalived:
+       all:
+         api_interface: br-ex
      keystone:
        all:
          admin_port_external: "true"
-         dns_name: $1
+         dns_name: $kube_proxy_ip
        public:
          all:
            port_external: "true"
@@ -316,7 +290,7 @@ global:
            element_name: cinder-volume
          daemonset:
            lvm_backends:
-           - $1: 'cinder-volumes'
+           - $kube_proxy_ip: 'cinder-volumes'
      ironic:
        conductor:
          daemonset:
@@ -327,13 +301,14 @@ global:
            port_external: true
        novncproxy:
          all:
+           host: $kube_proxy_ip
            port: 6080
            port_external: true
-     openvwswitch:
+     openvswitch:
        all:
          add_port: true
          ext_bridge_name: br-ex
-         ext_interface_name: $3
+         ext_interface_name: $ext_interface
          setup_bridge: true
      horizon:
        all:
@@ -341,7 +316,31 @@ global:
 EOF
 
 
-## Execute Helm Charts in Phases
+## Set up OVS for the Infrastructure
+echo "Set up OVS for the Infrastructure"
+helm install --debug /opt/kolla-kubernetes/helm/service/openvswitch --namespace kolla --name openvswitch --values /opt/cloud.yaml
+
+while [ `kubectl get pods -n kolla -o wide | grep openvswitch-vswitchd | awk '{print $3}'` != 'Running' ]
+do
+  sleep 10
+done
+
+
+## Bring up br-ex for keepalived to bind VIP to it
+echo "Bring up br-ex for keepalived to bind VIP to it"
+sudo ifconfig br-ex up
+
+helm install --debug /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace kolla --name keepalived-daemonset --values /opt/cloud.yaml
+
+
+while [ `kubectl get pods -n kolla -o wide | grep keepalived | awk '{print $3}'` != 'Running' ]
+do
+  sleep 10
+done
+
+
+## Execute OpenStack Helm Charts in Phases
+echo "Execute OpenStack Helm Charts in Phases"
 helm install --debug /opt/kolla-kubernetes/helm/service/mariadb --namespace kolla --name mariadb --values /opt/cloud.yaml
 
 while [ `kubectl get pods -n kolla -o wide | grep mariadb-0 | awk '{print $3}'` != 'Running' ]
@@ -356,7 +355,6 @@ helm install --debug /opt/kolla-kubernetes/helm/service/glance --namespace kolla
 helm install --debug /opt/kolla-kubernetes/helm/service/cinder-control --namespace kolla --name cinder-control --values /opt/cloud.yaml
 helm install --debug /opt/kolla-kubernetes/helm/service/cinder-volume-lvm --namespace kolla --name cinder-volume-lvm --values /opt/cloud.yaml
 helm install --debug /opt/kolla-kubernetes/helm/service/horizon --namespace kolla --name horizon --values /opt/cloud.yaml
-helm install --debug /opt/kolla-kubernetes/helm/service/openvswitch --namespace kolla --name openvswitch --values /opt/cloud.yaml
 helm install --debug /opt/kolla-kubernetes/helm/service/neutron --namespace kolla --name neutron --values /opt/cloud.yaml
 
 while [ `kubectl get pods -n kolla -o wide | grep neutron-server | awk '{print $3}'` != 'Running' ]
@@ -375,3 +373,14 @@ done
 
 helm install --debug /opt/kolla-kubernetes/helm/microservice/nova-cell0-create-db-job --namespace kolla --name nova-cell0-create-db-job --values /opt/cloud.yaml
 helm install --debug /opt/kolla-kubernetes/helm/microservice/nova-api-create-simple-cell-job --namespace kolla --name nova-api-create-simple-cell --values /opt/cloud.yaml
+
+
+## Post Deployment
+while [ `kubectl get job -n kolla | grep nova-api-create-cell | awk '{print $3}'` != 1 ]
+do
+  sleep 10
+done
+
+echo "Deployment is Completed"
+echo "Generate openrc file"
+/opt/kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext

@@ -118,7 +118,7 @@ def run_shell(cmd):
     # logger.debug(out)
     if DEBUG == 10:  # Hack - debug enabled
         if out:
-            print('Shell output:\n %s' % out)
+            print('Shell output: %s' % out)
     return(out)
 
 
@@ -394,6 +394,9 @@ def k8s_load_kubeadm_creds():
 
 def k8s_deploy_canal_sdn():
     '''SDN/CNI Driver of choice is Canal'''
+    # Code changes a lot so use the gate
+    run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
+    return
     print('Kubernetes - Create RBAC')
     answer = curl(
         '-L',
@@ -478,12 +481,13 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
+        run_shell('sudo rm -rf /tmp/*')
 
 
 def kolla_install_repos():
     '''Installing the kolla repos
     For sanity I just delete a repo if already exists'''
-    print('Kolla - Clone or update kolla-ansible')
+    print('Kolla - Clone or update koll1a-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
     run_shell('git clone http://github.com/openstack/kolla-ansible')
