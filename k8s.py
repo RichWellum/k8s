@@ -103,9 +103,9 @@ def parse_args():
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
-                        help='Stop after bringing up kubernetes.')
+                        help='Stop after bringing up kubernetes, do not install OpenStack')
     parser.add_argument('-n', '--nslookup', action='store_true',
-                        help='Pause for the user to test nslookup in kubernetes cluster')
+                        help='Pause for the user to manually test nslookup in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose', action='store_const',
