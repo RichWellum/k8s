@@ -422,7 +422,7 @@ def k8s_deploy_canal_sdn():
 def k8s_add_api_server(ip):
     print('Kolla - Add API Server')
     run_shell('sudo mkdir -p /etc/nodepool/')
-    run_shell('echo %s > /etc/nodepool/primary_node_private' % MGMT_IP)
+    run_shell('echo %s > /etc/nodepool/primary_node_private' % ip)
 
 
 def k8s_schedule_master_node():
