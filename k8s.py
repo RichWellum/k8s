@@ -93,13 +93,13 @@ def parse_args():
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
-                        help='Specify a different helm version to the default(2.4.1')
+                        help='Specify a different helm version to the default(2.4.1)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.3',
-                        help='Specify a different ansible version to the default(1.6.3')
+                        help='Specify a different ansible version to the default(1.6.3)')
     parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
-                        help='Specify a different k8s version to the default(2.2.0.0')
+                        help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
-                        help='Specify a different jinja2 version to the default(2.8.1')
+                        help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
