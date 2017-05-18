@@ -243,18 +243,22 @@ def k8s_wait_for_running_negate():
 
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
+    prev_not_running = 0
     while True:
         not_running = run_shell(
             'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
-            print('Kubernetes - %s pod(s) are not in Running state' % int(not_running))
+            if prev_not_running != not_running:
+                print('Kubernetes - %s pod(s) are not in Running state' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
+            prev_not_running = not_running
             continue
         else:
             print('All pods Running')
             break
+
         if elapsed_time > TIMEOUT:
             # Dump verbose output in case it helps...
             print(int(not_running))
@@ -789,7 +793,7 @@ def kolla_create_keystone_admin():
     address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
-    print('To verify Horizon:')
+    print('To Access Horizon:')
     print('  Point your browser to: %s' % address)
     print('  %s' % username)
     print('  %s' % password)
