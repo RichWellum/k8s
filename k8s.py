@@ -668,7 +668,7 @@ def kolla_verify_helm_images():
 def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Generate the cloud.yml file which works with the globals.yml
     file to define your cluster networking'''
-    print('Kolla - Create and run cloud.yamly')
+    print('Kolla - Create and run cloud.yaml')
     cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
         w.write("""\
