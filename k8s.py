@@ -920,7 +920,7 @@ def main():
 
         chart_list = ['nova-cell0-create-db-job',
                       'nova-api-create-simple-cell-job']
-        helm_install_service_chart(chart_list)
+        helm_install_micro_service_chart(chart_list)
 
         namespace_list = ['kube-system', 'kolla']
         k8s_get_pods(namespace_list)
