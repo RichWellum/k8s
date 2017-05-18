@@ -511,6 +511,35 @@ def kolla_install_repos():
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
+def kolla_setup_loopback_lvm():
+    print('Kolla - Setup Loopback LVM for Cinder')
+    # /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh
+    new = '/tmp/setup_lvm'
+    with open(new, "w") as w:
+        w.write("""\
+mkdir -print() /data/kolla
+df -h
+dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
+LOOP=$(losetup -f)
+losetup $LOOP /data/kolla/cinder-volumes.img
+parted -s $LOOP mklabel gpt
+parted -s $LOOP mkpart 1 0% 100%
+parted -s $LOOP set 1 lvm on
+partprobe $LOOP
+pvcreate -y $LOOP
+vgcreate -y cinder-volumes $LOOP
+""")
+    run_shell('bash %s' % new)
+
+
+def kolla_install_os_client():
+    '''Install Openstack Client'''
+    print('Kolla - Install Openstack Client')
+    run_shell('sudo pip install python-openstackclient')
+    run_shell('sudo pip install python-neutronclient')
+    run_shell('sudo pip install python-cinderclient')
+
+
 def kolla_gen_passwords():
     '''Generate the Kolla Passwords'''
     print('Kolla - Generate default passwords via SPRNG')
@@ -600,6 +629,11 @@ nova_backend_ceph: "no"
 def kolla_enable_qemu():
     '''Some configurations need qemu'''
     print('Kolla - Enable qemu')
+    # todo - as per gate:
+    # sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt virt_type qemu
+    # sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt cpu_mode none
+    # sudo crudini --set /etc/kolla/keystone/keystone.conf cache enabled False
+
     run_shell('sudo mkdir -p /etc/kolla/config')
 
     new = '/tmp/add'
@@ -881,7 +915,7 @@ def main():
     try:
         k8s_install_tools()
         k8s_cleanup(args.cleanup)
-        # k8s_setup_ntp()
+        k8s_setup_ntp()  # Experiment
 
         # Bring up Kubernetes
         k8s_turn_things_off()
@@ -893,7 +927,9 @@ def main():
         k8s_deploy_k8s()
         k8s_load_kubeadm_creds()
         k8s_wait_for_kube_system()
-        # k8s_wait_for_running_negate()
+        # Add apiserver?
+        # mkdir -p /etc/nodepool/
+        # echo $1 > /etc/nodepool/primary_node_private
         k8s_deploy_canal_sdn()
         k8s_wait_for_running_negate()
         k8s_schedule_master_node()
@@ -904,6 +940,8 @@ def main():
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
         kolla_install_repos()
+        kolla_setup_loopback_lvm()
+        kolla_install_os_client()
         kolla_gen_passwords()
         kolla_create_namespace()
 
@@ -921,6 +959,13 @@ def main():
         kolla_build_micro_charts()
         kolla_verify_helm_images()
         kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+
+        # todo bring up br-ex for keepalive
+        # echo "Bring up br-ex for keepalived to bind VIP to it"
+        # sudo ifconfig br-ex up
+        # helm install --debug
+        # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
+        # kolla --name keepalived-daemonset --values /opt/cloud.yaml
 
         # Install Helm charts
         chart_list = ['mariadb']
