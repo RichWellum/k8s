@@ -654,9 +654,9 @@ def kolla_verify_helm_images():
     generated'''
     out = run_shell('ls | grep ".tgz" | wc -l')
     if int(out) > 180:
-        print('Kolla - %s Helm images created' % out)
+        print('Kolla - %s Helm images created' % int(out))
     else:
-        print('Kolla - Error: only %s Helm images created' % out)
+        print('Kolla - Error: only %s Helm images created' % int(out))
         sys.exit(1)
 
 
@@ -903,8 +903,14 @@ def main():
 
         # Install remaining service level charts
         chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
-                      'cinder-control', 'horizon', 'openvswitch', 'neutron',
-                      'nova-control', 'nova-compute']
+                      'cinder-control', 'horizon', 'openvswitch', 'neutron']
+        helm_install_chart(chart_list)
+
+        chart_list = ['nova-control', 'nova-compute']
+        helm_install_chart(chart_list)
+
+        chart_list = ['nova-cell0-create-db-job',
+                      'nova-api-create-simple-cell-job']
         helm_install_chart(chart_list)
 
         namespace_list = ['kube-system', 'kolla']
