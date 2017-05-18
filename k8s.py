@@ -114,8 +114,9 @@ def run_shell(cmd):
     Print the output if debug is enabled"""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    if DEBUG == 10:  # Hack - debug enabled
-        print(out)
+    logger.debug(out)
+    # if DEBUG == 10:  # Hack - debug enabled
+    #     print(out)
     return(out)
 
 
@@ -239,7 +240,7 @@ def k8s_wait_for_running_negate():
     """Query get pods until only state is Running"""
 
     TIMEOUT = 1000  # Give k8s 1000s to come up
-    RETRY_INTERVAL = 3
+    RETRY_INTERVAL = 2
 
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
@@ -256,7 +257,7 @@ def k8s_wait_for_running_negate():
             prev_not_running = not_running
             continue
         else:
-            print('All pods are in Running state')
+            print('Kubernetes - All pods are in Running state')
             break
 
         if elapsed_time > TIMEOUT:
