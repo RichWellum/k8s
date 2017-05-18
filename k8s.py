@@ -901,9 +901,9 @@ def main():
         k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
-        kolla_install_repos()
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
+        kolla_install_repos()
         kolla_gen_passwords()
         kolla_create_namespace()
 
