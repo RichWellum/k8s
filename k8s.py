@@ -34,7 +34,7 @@ Install pip:
   sudo python get-pip.py
 
 Install psutil:
-  sudo yum install gcc python-devel
+  sudo yum install gcc python-devel -y
   sudo pip install psutil
 '''
 
@@ -852,7 +852,7 @@ spec:
     else:
         print("'Kubernetes - nslookup kubernetes' worked - continuing")
 
-    run_shell('Kubectl delete kolla-dns-test -n kube-system')
+    run_shell('kubectl delete kolla-dns-test -n kube-system')
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
