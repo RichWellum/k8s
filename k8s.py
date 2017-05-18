@@ -117,7 +117,7 @@ def run_shell(cmd):
     out = p.stdout.read()
     # logger.debug(out)
     if DEBUG == 10:  # Hack - debug enabled
-        print(out)
+        print('Shell output:\n %s' % out)
     return(out)
 
 
