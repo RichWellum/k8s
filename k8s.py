@@ -276,8 +276,8 @@ def k8s_install_tools():
     print('Kolla - Install repos needed for kolla packaging')
     run_shell('sudo yum install -y epel-release')
     run_shell('sudo yum install -y python-pip')
+    run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
     run_shell('sudo pip install -U pip')
-    run_shell('sudo yum install -y ansible python-devel git gcc')
 
 
 def k8s_setup_ntp():
