@@ -896,7 +896,6 @@ spec:
 """)
     run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
-    print('Kubernetes - run dnslookup against a test pod')
     out = run_shell(
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     logger.debug('Kolla DNS test output==%s' % out)
@@ -904,7 +903,7 @@ spec:
         print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
         # sys.exit(1)
     else:
-        print("'Kubernetes - nslookup kubernetes' worked - continuing")
+        print("Kubernetes - 'nslookup kubernetes' worked - continuing")
 
     run_shell('kubectl delete kolla-dns-test -n kube-system')
 
@@ -970,6 +969,7 @@ def kolla_bring_up_openstack(args):
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
     # Bring up br-ex for keepalived to bind VIP to it
+    # todo create a br-ex
     run_shell('sudo ifconfig br-ex up')
 
     # Set up OVS for the Infrastructure
