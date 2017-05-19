@@ -88,6 +88,8 @@ def parse_args():
                         help='Management Interface IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
                         help='Neutron Interface, E.g: eth1')
+    parser.add_argument('VIP_IP',
+                        help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.3',
@@ -726,7 +728,7 @@ def kolla_verify_helm_images():
         sys.exit(1)
 
 
-def kolla_create_and_run_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT):
+def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
     '''Generate the cloud.yml file which works with the globals.yml
     file to define your cluster networking'''
     print('Kolla - Create and run cloud.yaml')
@@ -743,6 +745,12 @@ global:
        install_type: "source"
        tunnel_interface: "%s"
        resolve_conf_net_host_workaround: true
+       kolla_kubernetes_external_subnet: 24
+       kolla_kubernetes_external_vip: %s
+       kube_logger: false
+     keepalived:
+       all:
+         api_interface: br-ex
      keystone:
        all:
          admin_port_external: "true"
@@ -788,7 +796,7 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (MGMT_IP, MGMT_INT, MGMT_IP, MGMT_IP, NEUTRON_INT))
+        """ % (MGMT_IP, MGMT_INT, VIP_IP, MGMT_IP, MGMT_IP, NEUTRON_INT))
     # Note - external_vip should be an unused ip on your network
     # Todo - change these to more normal defaults not random crap
     # run_shell('sudo sed -i s/192.168.7.105/%s/g %s' % (MGMT_IP, cloud))
@@ -965,7 +973,7 @@ def kolla_bring_up_openstack(args):
     kolla_resolve_workaround()
     kolla_build_micro_charts()
     kolla_verify_helm_images()
-    kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+    kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
     # todo bring up br-ex for keepalive
     # echo "Bring up br-ex for keepalived to bind VIP to it"
@@ -974,13 +982,23 @@ def kolla_bring_up_openstack(args):
     # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
     # kolla --name keepalived-daemonset --values /opt/cloud.yaml
 
+    # Bring up br-ex for keepalived to bind VIP to it
+    run_shell('sudo ifconfig br-ex up')
+
+    # Set up OVS for the Infrastructure
+    chart_list = ['openvswitch']
+    helm_install_service_chart(chart_list)
+
+    chart_list = ['keepalived-daemonset']
+    helm_install_micro_service_chart(chart_list)
+
     # Install Helm charts
     chart_list = ['mariadb']
     helm_install_service_chart(chart_list)
 
     # Install remaining service level charts
     chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
-                  'cinder-control', 'horizon', 'openvswitch', 'neutron']
+                  'cinder-control', 'cinder-volume-lvm', 'horizon', 'neutron']
     helm_install_service_chart(chart_list)
 
     chart_list = ['nova-control', 'nova-compute']
