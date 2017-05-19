@@ -98,6 +98,7 @@ def parse_args():
                         help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
+    # Todo: Complete cleanup - needs to work with no other parameters
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster then exit')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
@@ -421,7 +422,6 @@ def k8s_deploy_canal_sdn():
     logger.debug(answer)
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
-    # run_shell('sudo sed -i s@10.96.232.136@10.3.3.100@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
 
 
@@ -738,15 +738,15 @@ global:
      all:
        image_tag: "4.0.0"
        kube_logger: false
-       external_vip: "192.168.7.105"
+       external_vip: "%s"
        base_distro: "centos"
        install_type: "source"
-       tunnel_interface: "docker0"
+       tunnel_interface: "%s"
        resolve_conf_net_host_workaround: true
      keystone:
        all:
          admin_port_external: "true"
-         dns_name: "192.168.7.105"
+         dns_name: "%s"
        public:
          all:
            port_external: "true"
@@ -766,7 +766,7 @@ global:
            element_name: cinder-volume
          daemonset:
            lvm_backends:
-           - '192.168.7.105': 'cinder-volumes'
+           - '%s': 'cinder-volumes'
      ironic:
        conductor:
          daemonset:
@@ -783,16 +783,17 @@ global:
        all:
          add_port: true
          ext_bridge_name: br-ex
-         ext_interface_name: enp1s0f1
+         ext_interface_name: %s
          setup_bridge: true
      horizon:
        all:
          port_external: true
-""")
+        """ % (MGMT_IP, MGMT_INT, MGMT_IP, MGMT_IP, NEUTRON_INT))
     # Note - external_vip should be an unused ip on your network
-    run_shell('sudo sed -i s/192.168.7.105/%s/g %s' % (MGMT_IP, cloud))
-    run_shell('sudo sed -i s/enp1s0f1/%s/g %s' % (NEUTRON_INT, cloud))
-    run_shell('sudo sed -i s/docker0/%s/g %s' % (MGMT_INT, cloud))
+    # Todo - change these to more normal defaults not random crap
+    # run_shell('sudo sed -i s/192.168.7.105/%s/g %s' % (MGMT_IP, cloud))
+    # run_shell('sudo sed -i s/enp1s0f1/%s/g %s' % (NEUTRON_INT, cloud))
+    # run_shell('sudo sed -i s/docker0/%s/g %s' % (MGMT_INT, cloud))
 
 
 def helm_install_service_chart(chart_list):
@@ -1020,79 +1021,12 @@ def main():
 
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        # k8s_install_tools()
-        # k8s_cleanup(args.cleanup)
-        # k8s_setup_ntp()  # Experiment
-
-        # # Bring up Kubernetes
-        # k8s_turn_things_off()
-        # k8s_install_k8s(args.k8s_version)
-        # k8s_setup_dns()
-        # k8s_reload_service_files()
-        # k8s_start_kubelet()
-        # k8s_fix_iptables()
-        # k8s_deploy_k8s()
-        # k8s_load_kubeadm_creds()
-        # k8s_wait_for_kube_system()
-        # k8s_add_api_server(args.MGMT_IP)
-        # k8s_deploy_canal_sdn()
-        # k8s_wait_for_running_negate()
-        # k8s_schedule_master_node()
-        # k8s_pause_to_check_nslookup(args.nslookup)
-        # k8s_check_exit(args.kubernetes)
-
-        # Start Kolla deployment
-        # kolla_update_rbac()
-        # kolla_install_deploy_helm(args.helm_version)
-        # kolla_install_repos()
-        # kolla_setup_loopback_lvm()
-        # kolla_install_os_client()
-        # kolla_gen_passwords()
-        # kolla_create_namespace()
-
-        # # Label AOI as Compute and Controller nodes
-        # node_list = ['kolla_compute', 'kolla_controller']
-        # k8s_label_nodes(node_list)
-
-        # kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
-        # kolla_add_to_globals()
-        # kolla_enable_qemu()
-        # kolla_gen_configs(args.ansible_version, args.jinja2_version)
-        # kolla_gen_secrets()
-        # kolla_create_config_maps()
-        # kolla_resolve_workaround()
-        # kolla_build_micro_charts()
-        # kolla_verify_helm_images()
-        # kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
-
         # # todo bring up br-ex for keepalive
         # # echo "Bring up br-ex for keepalived to bind VIP to it"
         # # sudo ifconfig br-ex up
         # # helm install --debug
         # # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
         # # kolla --name keepalived-daemonset --values /opt/cloud.yaml
-
-        # # Install Helm charts
-        # chart_list = ['mariadb']
-        # helm_install_service_chart(chart_list)
-
-        # # Install remaining service level charts
-        # chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
-        #               'cinder-control', 'horizon', 'openvswitch', 'neutron']
-        # helm_install_service_chart(chart_list)
-
-        # chart_list = ['nova-control', 'nova-compute']
-        # helm_install_service_chart(chart_list)
-
-        # chart_list = ['nova-cell0-create-db-job',
-        #               'nova-api-create-simple-cell-job']
-        # helm_install_micro_service_chart(chart_list)
-
-        # namespace_list = ['kube-system', 'kolla']
-        # k8s_get_pods(namespace_list)
-
-        # # todo: horizon is up, nova vm boots and ping google with good L3?
-        # kolla_create_keystone_admin()
 
     except Exception:
         print('Exception caught:')
