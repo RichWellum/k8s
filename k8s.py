@@ -503,6 +503,8 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /tmp/*')
         run_shell('sudo rm -rf /data')
         run_shell('sudo vgremove cinder-volumes')  # todo test this
+        # todo - experiment with cleaning docker volumes to keep vm from
+        # growing
 
 
 def kolla_install_repos():
