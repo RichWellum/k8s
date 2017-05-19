@@ -498,12 +498,12 @@ def k8s_cleanup(doit):
 def kolla_install_repos():
     '''Installing the kolla repos
     For sanity I just delete a repo if already exists'''
-    print('Kolla - Clone or update kolla-ansible')
+    print('Kolla - Clone kolla-ansible')
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
     run_shell('git clone http://github.com/openstack/kolla-ansible')
 
-    print('Kolla - Clone or update kolla-kubernetes')
+    print('Kolla - Clone kolla-kubernetes')
     if os.path.exists('./kolla-kubernetes'):
         run_shell('sudo rm -rf ./kolla-kubernetes')
     run_shell('git clone http://github.com/openstack/kolla-kubernetes')
