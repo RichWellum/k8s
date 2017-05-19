@@ -283,7 +283,7 @@ def k8s_wait_for_running_negate():
 def k8s_install_tools():
     '''Basic tools needed for first pass'''
     print('Kolla - Install repos needed for kolla packaging')
-    run_shell('sudo yum install -y epel-release')
+    run_shell('sudo yum install -y epel-release bridge-utils')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
     run_shell('sudo pip install -U pip')
@@ -970,6 +970,8 @@ def kolla_bring_up_openstack(args):
 
     # Bring up br-ex for keepalived to bind VIP to it
     # todo create a br-ex
+    run_shell('sudo brctl addbr br-ex')
+    run_shell('sudo brctl addif br-ex eth1')
     run_shell('sudo ifconfig br-ex up')
 
     # Set up OVS for the Infrastructure
