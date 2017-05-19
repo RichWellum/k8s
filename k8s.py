@@ -518,15 +518,17 @@ def kolla_install_repos():
 
 
 def kolla_setup_loopback_lvm():
+    '''Setup a loopback LVM for Cinder'''
     print('Kolla - Setup Loopback LVM for Cinder')
     # /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh
+    # todo broken
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
 sudo mkdir -p /data/kolla
 sudo df -h
 sudo dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
-sudo LOOP=$(losetup -f)
+LOOP=$(losetup -f)
 sudo losetup $LOOP /data/kolla/cinder-volumes.img
 sudo parted -s $LOOP mklabel gpt
 sudo parted -s $LOOP mkpart 1 0% 100%
@@ -944,7 +946,7 @@ def main():
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
         kolla_install_repos()
-        kolla_setup_loopback_lvm()
+        # kolla_setup_loopback_lvm()
         kolla_install_os_client()
         kolla_gen_passwords()
         kolla_create_namespace()
