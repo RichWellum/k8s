@@ -100,6 +100,8 @@ def parse_args():
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
+    parser.add_argument('-os', '--openstack', action='store_true',
+                        help='Build OpenStack on an existing Kubernetes Cluster')
     parser.add_argument('-n', '--nslookup', action='store_true',
                         help='Pause for the user to manually test nslookup in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
@@ -489,12 +491,14 @@ def k8s_cleanup(doit):
     if doit is True:
         print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
+        print('Kubernetes - Cleaning up old directories and files')
         run_shell('sudo rm -rf /etc/kolla*')
         run_shell('sudo rm -rf /etc/kubernetes*')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
         run_shell('sudo rm -rf /data')
+        run_shell('sudo vgremove cinder-volumes')  # todo test this
 
 
 def kolla_install_repos():
@@ -905,6 +909,91 @@ spec:
         pause_to_debug('Check "nslookup kubernetes" now')
 
 
+def k8s_bringup_kubernetes_cluster(args):
+    '''Bring up a working Kubernetes Cluster
+    Explicitly using the Canal CNI for now'''
+    if args.openstack:
+        print('Kolla - Building OpenStack on existing Kubernetes cluster')
+        return
+
+    print('Kubernetes - Bring up a Kubernetes Cluster')
+    k8s_install_tools()
+    k8s_cleanup(args.cleanup)
+    k8s_setup_ntp()  # todo Experiment
+    k8s_turn_things_off()
+    k8s_install_k8s(args.k8s_version)
+    k8s_setup_dns()
+    k8s_reload_service_files()
+    k8s_start_kubelet()
+    k8s_fix_iptables()
+    k8s_deploy_k8s()
+    k8s_load_kubeadm_creds()
+    k8s_wait_for_kube_system()
+    k8s_add_api_server(args.MGMT_IP)
+    k8s_deploy_canal_sdn()
+    k8s_wait_for_running_negate()
+    k8s_schedule_master_node()
+    k8s_pause_to_check_nslookup(args.nslookup)
+    k8s_check_exit(args.kubernetes)
+
+
+def kolla_bring_up_openstack(args):
+    '''Install OpenStack with Kolla'''
+    print('Kolla - install OpenStack')
+    # Start Kolla deployment
+    kolla_update_rbac()
+    kolla_install_deploy_helm(args.helm_version)
+    kolla_install_repos()
+    kolla_setup_loopback_lvm()
+    kolla_install_os_client()
+    kolla_gen_passwords()
+    kolla_create_namespace()
+
+    # Label AOI as Compute and Controller nodes
+    node_list = ['kolla_compute', 'kolla_controller']
+    k8s_label_nodes(node_list)
+
+    kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+    kolla_add_to_globals()
+    kolla_enable_qemu()
+    kolla_gen_configs(args.ansible_version, args.jinja2_version)
+    kolla_gen_secrets()
+    kolla_create_config_maps()
+    kolla_resolve_workaround()
+    kolla_build_micro_charts()
+    kolla_verify_helm_images()
+    kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+
+    # todo bring up br-ex for keepalive
+    # echo "Bring up br-ex for keepalived to bind VIP to it"
+    # sudo ifconfig br-ex up
+    # helm install --debug
+    # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
+    # kolla --name keepalived-daemonset --values /opt/cloud.yaml
+
+    # Install Helm charts
+    chart_list = ['mariadb']
+    helm_install_service_chart(chart_list)
+
+    # Install remaining service level charts
+    chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
+                  'cinder-control', 'horizon', 'openvswitch', 'neutron']
+    helm_install_service_chart(chart_list)
+
+    chart_list = ['nova-control', 'nova-compute']
+    helm_install_service_chart(chart_list)
+
+    chart_list = ['nova-cell0-create-db-job',
+                  'nova-api-create-simple-cell-job']
+    helm_install_micro_service_chart(chart_list)
+
+    namespace_list = ['kube-system', 'kolla']
+    k8s_get_pods(namespace_list)
+
+    # todo: horizon is up, nova vm boots and ping google with good L3?
+    kolla_create_keystone_admin()
+
+
 def main():
     '''Main function.'''
     args = parse_args()
@@ -923,79 +1012,81 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
-        k8s_install_tools()
-        k8s_cleanup(args.cleanup)
-        k8s_setup_ntp()  # Experiment
+        k8s_bringup_kubernetes_cluster(args)
+        kolla_bring_up_openstack(args)
+        # k8s_install_tools()
+        # k8s_cleanup(args.cleanup)
+        # k8s_setup_ntp()  # Experiment
 
-        # Bring up Kubernetes
-        k8s_turn_things_off()
-        k8s_install_k8s(args.k8s_version)
-        k8s_setup_dns()
-        k8s_reload_service_files()
-        k8s_start_kubelet()
-        k8s_fix_iptables()
-        k8s_deploy_k8s()
-        k8s_load_kubeadm_creds()
-        k8s_wait_for_kube_system()
-        k8s_add_api_server(args.MGMT_IP)
-        k8s_deploy_canal_sdn()
-        k8s_wait_for_running_negate()
-        k8s_schedule_master_node()
-        k8s_pause_to_check_nslookup(args.nslookup)
-        k8s_check_exit(args.kubernetes)
+        # # Bring up Kubernetes
+        # k8s_turn_things_off()
+        # k8s_install_k8s(args.k8s_version)
+        # k8s_setup_dns()
+        # k8s_reload_service_files()
+        # k8s_start_kubelet()
+        # k8s_fix_iptables()
+        # k8s_deploy_k8s()
+        # k8s_load_kubeadm_creds()
+        # k8s_wait_for_kube_system()
+        # k8s_add_api_server(args.MGMT_IP)
+        # k8s_deploy_canal_sdn()
+        # k8s_wait_for_running_negate()
+        # k8s_schedule_master_node()
+        # k8s_pause_to_check_nslookup(args.nslookup)
+        # k8s_check_exit(args.kubernetes)
 
         # Start Kolla deployment
-        kolla_update_rbac()
-        kolla_install_deploy_helm(args.helm_version)
-        kolla_install_repos()
-        kolla_setup_loopback_lvm()
-        kolla_install_os_client()
-        kolla_gen_passwords()
-        kolla_create_namespace()
+        # kolla_update_rbac()
+        # kolla_install_deploy_helm(args.helm_version)
+        # kolla_install_repos()
+        # kolla_setup_loopback_lvm()
+        # kolla_install_os_client()
+        # kolla_gen_passwords()
+        # kolla_create_namespace()
 
-        # Label AOI as Compute and Controller nodes
-        node_list = ['kolla_compute', 'kolla_controller']
-        k8s_label_nodes(node_list)
+        # # Label AOI as Compute and Controller nodes
+        # node_list = ['kolla_compute', 'kolla_controller']
+        # k8s_label_nodes(node_list)
 
-        kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
-        kolla_add_to_globals()
-        kolla_enable_qemu()
-        kolla_gen_configs(args.ansible_version, args.jinja2_version)
-        kolla_gen_secrets()
-        kolla_create_config_maps()
-        kolla_resolve_workaround()
-        kolla_build_micro_charts()
-        kolla_verify_helm_images()
-        kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+        # kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+        # kolla_add_to_globals()
+        # kolla_enable_qemu()
+        # kolla_gen_configs(args.ansible_version, args.jinja2_version)
+        # kolla_gen_secrets()
+        # kolla_create_config_maps()
+        # kolla_resolve_workaround()
+        # kolla_build_micro_charts()
+        # kolla_verify_helm_images()
+        # kolla_create_and_run_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
 
-        # todo bring up br-ex for keepalive
-        # echo "Bring up br-ex for keepalived to bind VIP to it"
-        # sudo ifconfig br-ex up
-        # helm install --debug
-        # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
-        # kolla --name keepalived-daemonset --values /opt/cloud.yaml
+        # # todo bring up br-ex for keepalive
+        # # echo "Bring up br-ex for keepalived to bind VIP to it"
+        # # sudo ifconfig br-ex up
+        # # helm install --debug
+        # # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
+        # # kolla --name keepalived-daemonset --values /opt/cloud.yaml
 
-        # Install Helm charts
-        chart_list = ['mariadb']
-        helm_install_service_chart(chart_list)
+        # # Install Helm charts
+        # chart_list = ['mariadb']
+        # helm_install_service_chart(chart_list)
 
-        # Install remaining service level charts
-        chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
-                      'cinder-control', 'horizon', 'openvswitch', 'neutron']
-        helm_install_service_chart(chart_list)
+        # # Install remaining service level charts
+        # chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
+        #               'cinder-control', 'horizon', 'openvswitch', 'neutron']
+        # helm_install_service_chart(chart_list)
 
-        chart_list = ['nova-control', 'nova-compute']
-        helm_install_service_chart(chart_list)
+        # chart_list = ['nova-control', 'nova-compute']
+        # helm_install_service_chart(chart_list)
 
-        chart_list = ['nova-cell0-create-db-job',
-                      'nova-api-create-simple-cell-job']
-        helm_install_micro_service_chart(chart_list)
+        # chart_list = ['nova-cell0-create-db-job',
+        #               'nova-api-create-simple-cell-job']
+        # helm_install_micro_service_chart(chart_list)
 
-        namespace_list = ['kube-system', 'kolla']
-        k8s_get_pods(namespace_list)
+        # namespace_list = ['kube-system', 'kolla']
+        # k8s_get_pods(namespace_list)
 
-        # todo: horizon is up, nova vm boots and ping google with good L3?
-        kolla_create_keystone_admin()
+        # # todo: horizon is up, nova vm boots and ping google with good L3?
+        # kolla_create_keystone_admin()
 
     except Exception:
         print('Exception caught:')
