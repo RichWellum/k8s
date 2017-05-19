@@ -26,6 +26,8 @@ TODO:
 2. Make it work on a Ubuntu host or vm
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
+5. Use optional other CNI to canal
+6. Continue if k8's already running
 
 Dependencies:
 
@@ -916,7 +918,6 @@ def main():
           (args.helm_version, args.k8s_version))
     print('Ansible version %s, Jinja2 version %s' %
           (args.ansible_version, args.jinja2_version))
-    time.sleep(5)
 
     set_logging()
     logger.setLevel(level=args.verbose)
@@ -947,7 +948,7 @@ def main():
         kolla_update_rbac()
         kolla_install_deploy_helm(args.helm_version)
         kolla_install_repos()
-        # kolla_setup_loopback_lvm()
+        kolla_setup_loopback_lvm()
         kolla_install_os_client()
         kolla_gen_passwords()
         kolla_create_namespace()
