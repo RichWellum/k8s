@@ -1011,9 +1011,6 @@ def kolla_bring_up_openstack(args):
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(namespace_list)
 
-    # todo: horizon is up, nova vm boots and ping google with good L3?
-    kolla_create_keystone_admin()
-
 
 def main():
     '''Main function.'''
@@ -1039,12 +1036,8 @@ def main():
 
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        # # todo bring up br-ex for keepalive
-        # # echo "Bring up br-ex for keepalived to bind VIP to it"
-        # # sudo ifconfig br-ex up
-        # # helm install --debug
-        # # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
-        # # kolla --name keepalived-daemonset --values /opt/cloud.yaml
+        # todo: horizon is up, nova vm boots and ping google with good L3?
+        kolla_create_keystone_admin()
 
     except Exception:
         print('Exception caught:')
