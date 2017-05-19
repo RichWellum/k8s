@@ -1034,7 +1034,7 @@ def main():
 
     try:
         if args.complete_cleanup:
-            k8s_cleanup(args.cleanup)
+            k8s_cleanup(args.complete_cleanup)
             sys.exit(1)
 
         k8s_bringup_kubernetes_cluster(args)
