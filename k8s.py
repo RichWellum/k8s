@@ -337,7 +337,7 @@ def k8s_setup_dns():
     '''DNS services'''
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
-    run_shell('sudo systemctl start docker')  # todo - test order
+    run_shell('sudo systemctl start docker')
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
@@ -532,7 +532,6 @@ def kolla_setup_loopback_lvm():
     '''Setup a loopback LVM for Cinder'''
     print('Kolla - Setup Loopback LVM for Cinder')
     # /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh
-    # todo broken
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
@@ -797,11 +796,6 @@ global:
        all:
          port_external: true
         """ % (MGMT_IP, MGMT_INT, VIP_IP, MGMT_IP, MGMT_IP, NEUTRON_INT))
-    # Note - external_vip should be an unused ip on your network
-    # Todo - change these to more normal defaults not random crap
-    # run_shell('sudo sed -i s/192.168.7.105/%s/g %s' % (MGMT_IP, cloud))
-    # run_shell('sudo sed -i s/enp1s0f1/%s/g %s' % (NEUTRON_INT, cloud))
-    # run_shell('sudo sed -i s/docker0/%s/g %s' % (MGMT_INT, cloud))
 
 
 def helm_install_service_chart(chart_list):
@@ -930,7 +924,7 @@ def k8s_bringup_kubernetes_cluster(args):
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_install_tools()
     k8s_cleanup(args.cleanup)
-    k8s_setup_ntp()  # todo Experiment
+    k8s_setup_ntp()
     k8s_turn_things_off()
     k8s_install_k8s(args.k8s_version)
     k8s_setup_dns()
@@ -974,13 +968,6 @@ def kolla_bring_up_openstack(args):
     kolla_build_micro_charts()
     kolla_verify_helm_images()
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
-
-    # todo bring up br-ex for keepalive
-    # echo "Bring up br-ex for keepalived to bind VIP to it"
-    # sudo ifconfig br-ex up
-    # helm install --debug
-    # /opt/kolla-kubernetes/helm/microservice/keepalived-daemonset --namespace
-    # kolla --name keepalived-daemonset --values /opt/cloud.yaml
 
     # Bring up br-ex for keepalived to bind VIP to it
     run_shell('sudo ifconfig br-ex up')
