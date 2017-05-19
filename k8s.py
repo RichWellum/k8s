@@ -98,6 +98,8 @@ def parse_args():
                         help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
+    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
+                        help='Cleanup existing Kubernetes cluster then exit')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
     parser.add_argument('-os', '--openstack', action='store_true',
@@ -1012,6 +1014,10 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
+        if args.complete_cleanup:
+            k8s_cleanup(args.cleanup)
+            sys.exit(1)
+
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         # k8s_install_tools()
