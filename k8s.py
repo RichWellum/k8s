@@ -523,21 +523,6 @@ def k8s_cleanup(doit):
         run_shell('sudo service docker stop')
         run_shell('sudo rm -rf /var/lib/docker')
         run_shell('sudo service docker start')
-        print('Kubernetes - Delete bridge br-ex')
-        run_shell('sudo ifconfig br-ex down')
-        run_shell('sudo brctl delif br-ex eth1')
-        run_shell('sudo brctl delbr br-ex')
-        # print('Kubernetes - Remove installed pip packages')
-        # run_shell('sudo pip uninstall python-openstackclient')
-        # run_shell('sudo pip uninstall python-neutronclient')
-        # run_shell('sudo pip uninstall python-cinderclient')
-        # run_shell('sudo pip uninstall ansible')
-        # run_shell('sudo pip uninstall Jinja2')
-        print('Kubernetes - Remove installed Linux tools')
-        run_shell('sudo yum remove -y docker ebtables kubelet kubeadm kubectl')
-        run_shell('sudo yum remove -y epel-release bridge-utils')
-        run_shell('sudo yum remove -y ntp')
-        run_shell('sudo yum remove -y openssl-devel crudini jq ansible')
 
 
 def kolla_install_repos():
