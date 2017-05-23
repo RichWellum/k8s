@@ -535,7 +535,7 @@ def k8s_cleanup(doit):
         # run_shell('sudo pip uninstall Jinja2')
         print('Kubernetes - Remove installed Linux tools')
         run_shell('sudo yum remove -y docker ebtables kubelet kubeadm kubectl')
-        run_shell('sudo yum remove -y epel-release bridge-utils kubernetes-cni')
+        run_shell('sudo yum remove -y epel-release bridge-utils')
         run_shell('sudo yum remove -y ntp')
         run_shell('sudo yum remove -y openssl-devel crudini jq ansible')
 
