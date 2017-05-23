@@ -883,7 +883,7 @@ def k8s_get_pods(namespace):
         print(final)
 
 
-def k8s_pause_to_check_nslookup():
+def k8s_pause_to_check_nslookup(manual_check):
     '''Create a test pod and query nslookup against kubernetes
     Only seems to work in the default namespace
 
@@ -917,6 +917,11 @@ spec:
         print("Kubernetes - 'nslookup kubernetes' worked - continuing")
 
     # run_shell('kubectl delete kolla-dns-test -n default') # todo - doesn't delete
+
+    if manual_check:
+        print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
+        print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
+        pause_to_debug('Check "nslookup kubernetes" now')
 
 
 def k8s_bringup_kubernetes_cluster(args):
