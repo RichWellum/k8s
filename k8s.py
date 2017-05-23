@@ -23,11 +23,10 @@ Inputs:
 TODO:
 
 1. Will need a blueprint if adding this to community
-2. Make it work on a Ubuntu host or vm
+2. Make it work on a baremetal host and Ubuntu VM
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
 5. Use optional other CNI to canal
-6. Continue if k8's already running
 
 Dependencies:
 
@@ -48,6 +47,10 @@ import subprocess
 import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
+try:
+    __import__('psutil')
+except ImportError:
+    print('Install psutil failed')
 import psutil
 import re
 import tarfile
@@ -92,12 +95,14 @@ def parse_args():
                         help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.3',
-                        help='Specify a different ansible version to the default(1.6.3)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.4',
+                        help='Specify a different ansible version to the default(1.6.4)')
     parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
                         help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
                         help='Specify a different jinja2 version to the default(2.8.1)')
+    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
+                        help='Specify a different kubernetes-cni version to the default(0.5.2)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster before creating a new one')
     # Todo: Complete cleanup - needs to work with no other parameters
@@ -280,13 +285,22 @@ def k8s_wait_for_running_negate():
             sys.exit(1)
 
 
-def k8s_install_tools():
+def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install repos needed for kolla packaging')
     run_shell('sudo yum install -y epel-release bridge-utils')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
-    run_shell('sudo pip install -U pip')
+    curl(
+        '-L',
+        'https://bootstrap.pypa.io/get-pip.py',
+        '-o', '/tmp/get-pip.py')
+    run_shell('sudo python /tmp/get-pip.py')
+    run_shell('sudo pip install psutil')
+    # Seems to be the recommended ansible version
+    run_shell('sudo pip install ansible==%s' % a_ver)
+    # Standard jinja2 in Centos7(2.9.6) is broken
+    run_shell('sudo pip install Jinja2==%s' % j_ver)
 
 
 def k8s_setup_ntp():
@@ -311,7 +325,7 @@ def k8s_turn_things_off():
             run_shell('sudo systemctl disable firewalld')
 
 
-def k8s_install_k8s(version):
+def k8s_install_k8s(k8s_version, cni_version):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
@@ -320,10 +334,10 @@ def k8s_install_k8s(version):
     print('Kubernetes - Installing kubernetes packages')
     run_shell(
         'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
-        kubernetes-cni-%s' % (version, version, version))  # todo - cni version should be?
-    if version == '1.6.3':
+        kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
+    if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
-        # Workaround until kubectl 1.6.4 is available
+        # 1.6.3 is broken so if user chooses it - use special image
         curl(
             '-L',
             'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
@@ -501,21 +515,24 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
+        run_shell('sudo vgremove cinder-volumes')
         run_shell('sudo rm -rf /data')
-        run_shell('sudo vgremove cinder-volumes')  # todo test this
-        # todo - experiment with cleaning docker volumes to keep vm from
-        # growing - use similar to setup_lvm method
-
-        # remove exited containers:
-# docker ps --filter status=dead --filter status=exited -aq | xargs -r docker rm -v
-
-# # remove unused images:
-# docker images --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r docker rmi
-
-# # remove unused volumes:
-# find '/var/lib/docker/volumes/' -mindepth 1 -maxdepth 1 -type d | grep -vFf <(
-#   docker ps -aq | xargs docker inspect | jq -r '.[] | .Mounts | .[] | .Name | select(.)'
-# ) | xargs -r rm -fr
+        run_shell('sudo service docker stop')
+        run_shell('sudo rm -rf /var/lib/docker')
+        run_shell('sudo service docker start')
+        run_shell('sudo yum remove -y docker ebtables kubelet kubeadm kubectl')
+        run_shell('sudo yum remove -y epel-release bridge-utils kubernetes-cni')
+        run_shell('sudo yum remove -y python-pip ntp')
+        run_shell('sudo yum remove -y git gcc python-devel libffi-devel')
+        run_shell('openssl-devel crudini jq ansible')
+        run_shell('sudo pip uninstall python-openstackclient')
+        run_shell('sudo pip uninstall python-neutronclient')
+        run_shell('sudo pip uninstall python-cinderclient')
+        run_shell('sudo pip uninstall psutil')
+        run_shell('sudo pip uninstall ansible')
+        run_shell('sudo pip uninstall Jinja2')
+        run_shell('sudo brctl delbr br-ex')
+        run_shell('sudo brctl delif br-ex eth1')
 
 
 def kolla_install_repos():
@@ -678,14 +695,10 @@ cpu_mode = none
     run_shell('sudo mv %s %s' % (new, add_to))
 
 
-def kolla_gen_configs(a_ver, j_ver):
+def kolla_gen_configs():
     '''Generate the configs using Jinja2
     Some version meddling here until things are more stable'''
     print('Kolla - Generate the default configuration')
-    # Seems to be the recommended ansible version
-    run_shell('sudo pip install ansible==%s' % a_ver)
-    # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo pip install Jinja2==%s' % j_ver)
     # globals.yml is used when we run ansible to generate configs
     run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
@@ -867,7 +880,7 @@ def kolla_create_keystone_admin():
     the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
 
     run_shell('sudo rm -f ~/keystonerc_admin')
-    run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh')
+    run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')  # todo ext or not?
     address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
@@ -934,11 +947,11 @@ def k8s_bringup_kubernetes_cluster(args):
         return
 
     print('Kubernetes - Bring up a Kubernetes Cluster')
-    k8s_install_tools()
+    k8s_install_tools(args.ansible_version, args.jinja2_version)
     k8s_cleanup(args.cleanup)
     k8s_setup_ntp()
     k8s_turn_things_off()
-    k8s_install_k8s(args.k8s_version)
+    k8s_install_k8s(args.k8s_version, args.cni_version)
     k8s_setup_dns()
     k8s_reload_service_files()
     k8s_start_kubelet()
@@ -973,7 +986,7 @@ def kolla_bring_up_openstack(args):
     kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
     kolla_add_to_globals()
     kolla_enable_qemu()
-    kolla_gen_configs(args.ansible_version, args.jinja2_version)
+    kolla_gen_configs()
     kolla_gen_secrets()
     kolla_create_config_maps()
     kolla_resolve_workaround()
@@ -982,7 +995,6 @@ def kolla_bring_up_openstack(args):
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
     # Bring up br-ex for keepalived to bind VIP to it
-    # todo create a br-ex
     run_shell('sudo brctl addbr br-ex')
     run_shell('sudo brctl addif br-ex eth1')
     run_shell('sudo ifconfig br-ex up')
