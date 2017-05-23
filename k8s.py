@@ -398,6 +398,7 @@ def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
     run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
     --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+    pause_to_debug('kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_load_kubeadm_creds():
@@ -854,7 +855,7 @@ def kolla_create_demo_vm():
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
     out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     print(out)
-
+    # todo
     # Create a floating IP address and add to the VM::
     # openstack server add floating ip demo1 $(openstack floating ip create
     # public1 -f value -c floating_ip_address)
