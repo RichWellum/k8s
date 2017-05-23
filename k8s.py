@@ -518,10 +518,10 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
-        if os.path.exists('/data'):
-            print('Kubernetes - Remove cinder volumes and data')
-            run_shell('sudo vgremove cinder-volumes')
-            run_shell('sudo rm -rf /data')
+        # if os.path.exists('/data'):
+        print('Kubernetes - Remove cinder volumes and data')
+        run_shell('sudo vgremove cinder-volumes')
+        run_shell('sudo rm -rf /data')
         print('Kubernetes - Delete docker images')
         run_shell('sudo service docker stop')
         run_shell('sudo rm -rf /var/lib/docker')
