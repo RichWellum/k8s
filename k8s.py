@@ -512,20 +512,25 @@ def k8s_cleanup(doit):
     if doit is True:
         print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
-        print('Kubernetes - Cleaning up old directories and files')
+        print('Kubernetes - Cleaning up old directories and files and docker images')
+        run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
+        run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
         run_shell('sudo rm -rf /etc/kolla*')
-        run_shell('sudo rm -rf /etc/kubernetes*')
+        run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
-        # if os.path.exists('/data'):
-        print('Kubernetes - Remove cinder volumes and data')
-        run_shell('sudo vgremove cinder-volumes')
-        run_shell('sudo rm -rf /data')
-        print('Kubernetes - Delete docker images')
-        run_shell('sudo service docker stop')
-        run_shell('sudo rm -rf /var/lib/docker')
-        run_shell('sudo service docker start')
+        run_shell('sudo rm -rf /var/etcd')
+        run_shell('sudo rm -rf /var/run/kubernetes/*')
+        run_shell('sudo rm -rf /var/lib/kubelet/*')
+        run_shell('sudo rm -rf /var/run/lock/kubelet.lock')
+        run_shell('sudo rm -rf /var/run/lock/api-server.lock')
+        run_shell('sudo rm -rf /var/run/lock/etcd.lock')
+        run_shell('sudo rm -rf /var/run/lock/kubelet.lock')
+        if os.path.exists('/data'):
+            print('Kubernetes - Remove cinder volumes and data')
+            run_shell('sudo vgremove cinder-volumes')
+            run_shell('sudo rm -rf /data')
 
 
 def kolla_install_repos():
