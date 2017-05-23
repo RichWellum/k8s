@@ -442,7 +442,7 @@ def k8s_deploy_canal_sdn():
 
 
 def k8s_add_api_server(ip):
-    print('Kolla - Add API Server')
+    print('Kubernetes - Add API Server')
     run_shell('sudo mkdir -p /etc/nodepool/')
     run_shell('sudo echo %s > /tmp/primary_node_private' % ip)
     # todo - has a permissions error
@@ -454,7 +454,7 @@ def k8s_schedule_master_node():
     make it an AOI deployment
 
     While the command says "taint" the "-" at the end is an "untaint"'''
-    print('Kolla - Mark master node as schedulable')
+    print('Kubernetes - Mark master node as schedulable')
     run_shell('kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-')
 
 
