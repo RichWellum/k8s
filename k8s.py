@@ -844,33 +844,24 @@ def sudo_timeout_off(state):
 
 
 def kolla_create_keystone_admin():
-    '''Using OpenStack
+    '''Final steps now that a working cluster is up.
 
-    If you were able to successfully reach the end of this guide and demo1 was
-    successfully deployed, here is a fun list of things you can do
-    with your new cluster.
-
-    Access Horizon GUI
-
-    1 Determine Horizon EXTERNAL IP Address:
-
-    $ kubectl get svc horizon --namespace=kolla
-    NAME      CLUSTER-IP   EXTERNAL-IP     PORT(S)   AGE
-    horizon   10.3.3.237   10.240.43.175   80/TCP    1d
-
-    2 Determine username and password from keystone:
-
-    $ cat ~/keystonerc_admin | grep OS_USERNAME
-    export OS_USERNAME=admin
-
-    $ cat ~/keystonerc_admin | grep OS_PASSWORD
-    export OS_PASSWORD=Sr6XMFXvbvxQCJ3Cib1xb0gZ3lOtBOD8FCxOcodU
-
-    3 Run a browser that has access to your network, and access Horizon GUI with
-    the EXTERNAL IP from Step 1, using the credentials from Step 2.'''
+    Create a keystone admin user.
+    Run "runonce" to set everything up and then install a demo image.
+    Attech a floating ip'''
 
     run_shell('sudo rm -f ~/keystonerc_admin')
-    run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')  # todo ext or not?
+    run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
+    run_shell('source ~/keystonerc_admin')
+
+    # Use this script to create a demo image
+    out = run_shell('kolla-ansible/tools/init-runonce')
+    print(out)
+
+    # Create a floating IP address and add to the VM::
+    # openstack server add floating ip demo1 $(openstack floating ip create
+    # public1 -f value -c floating_ip_address)
+
     address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
