@@ -398,7 +398,6 @@ def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
     run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
     --service-cidr=10.3.3.0/24 --skip-preflight-checks')
-    pause_to_debug('kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_load_kubeadm_creds():
@@ -414,7 +413,7 @@ def k8s_load_kubeadm_creds():
     run_shell('sudo -H cp /etc/kubernetes/admin.conf %s' % config)
     run_shell('sudo chmod 777 %s' % kube)
     run_shell('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
-    pause_to_debug('kubectl get nodes and kubectl describe node kolla-k8s')
+    pause_to_debug('Test1: kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_deploy_canal_sdn():
@@ -441,7 +440,7 @@ def k8s_deploy_canal_sdn():
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
-    pause_to_debug('kubectl get nodes and kubectl describe node kolla-k8s')
+    pause_to_debug('Test2: kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_add_api_server(ip):
@@ -513,8 +512,8 @@ def k8s_cleanup(doit):
         print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
         print('Kubernetes - Cleaning up old directories and files and docker images')
-        run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
-        run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
+        # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
+        # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
         run_shell('sudo rm -rf /etc/kolla*')
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
@@ -884,7 +883,7 @@ def k8s_get_pods(namespace):
         print(final)
 
 
-def k8s_pause_to_check_nslookup(manual_check):
+def k8s_pause_to_check_nslookup():
     '''Create a test pod and query nslookup against kubernetes
     Only seems to work in the default namespace
 
@@ -918,11 +917,6 @@ spec:
         print("Kubernetes - 'nslookup kubernetes' worked - continuing")
 
     # run_shell('kubectl delete kolla-dns-test -n default') # todo - doesn't delete
-
-    if manual_check:
-        print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
-        print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
-        pause_to_debug('Check "nslookup kubernetes" now')
 
 
 def k8s_bringup_kubernetes_cluster(args):
