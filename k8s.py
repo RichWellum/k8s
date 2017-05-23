@@ -515,9 +515,10 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
-        print('Kubernetes - Remove cinder volumes and data')
-        run_shell('sudo vgremove cinder-volumes')
-        run_shell('sudo rm -rf /data')
+        if os.path.exists('/data'):
+            print('Kubernetes - Remove cinder volumes and data')
+            run_shell('sudo vgremove cinder-volumes')
+            run_shell('sudo rm -rf /data')
         print('Kubernetes - Delete docker images')
         run_shell('sudo service docker stop')
         run_shell('sudo rm -rf /var/lib/docker')
@@ -949,9 +950,9 @@ def k8s_bringup_kubernetes_cluster(args):
         print('Kolla - Building OpenStack on existing Kubernetes cluster')
         return
 
-    print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_install_tools(args.ansible_version, args.jinja2_version)
     k8s_cleanup(args.cleanup)
+    print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
     k8s_install_k8s(args.k8s_version, args.cni_version)
