@@ -843,19 +843,16 @@ def sudo_timeout_off(state):
     # print(d)
 
 
-def kolla_create_keystone_admin():
+def kolla_create_demo_vm():
     '''Final steps now that a working cluster is up.
 
     Create a keystone admin user.
     Run "runonce" to set everything up and then install a demo image.
     Attech a floating ip'''
-
+    print('Kolla - Create a keystone admin account and source in to it')
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
-    run_shell('source ~/keystonerc_admin')
-
-    # Use this script to create a demo image
-    out = run_shell('kolla-ansible/tools/init-runonce')
+    out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     print(out)
 
     # Create a floating IP address and add to the VM::
@@ -1034,7 +1031,7 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         # todo: horizon is up, nova vm boots and ping google with good L3?
-        kolla_create_keystone_admin()
+        kolla_create_demo_vm()
 
     except Exception:
         print('Exception caught:')
