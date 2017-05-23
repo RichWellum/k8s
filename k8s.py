@@ -523,6 +523,9 @@ def k8s_cleanup(doit):
         run_shell('sudo service docker stop')
         run_shell('sudo rm -rf /var/lib/docker')
         run_shell('sudo service docker start')
+        print('Kubernetes - Delete bridge br-ex')
+        run_shell('sudo brctl delif br-ex eth1')
+        run_shell('sudo brctl delbr br-ex')
         # print('Kubernetes - Remove installed pip packages')
         # run_shell('sudo pip uninstall python-openstackclient')
         # run_shell('sudo pip uninstall python-neutronclient')
@@ -534,9 +537,6 @@ def k8s_cleanup(doit):
         run_shell('sudo yum remove -y epel-release bridge-utils kubernetes-cni')
         run_shell('sudo yum remove -y ntp')
         run_shell('sudo yum remove -y openssl-devel crudini jq ansible')
-        print('Kubernetes - Delete bridge br-ex')
-        run_shell('sudo brctl delif br-ex eth1')
-        run_shell('sudo brctl delbr br-ex')
 
 
 def kolla_install_repos():
@@ -1037,8 +1037,8 @@ def main():
     global DEBUG
     DEBUG = args.verbose
 
-    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s' %
-          (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT))
+    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP%s' %
+          (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
     print('Helm version %s, Kubernetes version %s' %
           (args.helm_version, args.k8s_version))
     print('Ansible version %s, Jinja2 version %s' %
