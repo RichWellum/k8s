@@ -985,7 +985,9 @@ def kolla_bring_up_openstack(args):
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
     # Bring up br-ex for keepalived to bind VIP to it
-    run_shell('sudo brctl addbr br-ex')
+    out = run_shell('sudo brctl show br-ex')
+    if re.search('No such device', out):
+        run_shell('sudo brctl addbr br-ex')
     run_shell('sudo brctl addif br-ex eth1')
     run_shell('sudo ifconfig br-ex up')
 
