@@ -287,7 +287,7 @@ def k8s_wait_for_running_negate():
 
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
-    print('Kolla - Install tools needed to bring up kolla-kubernetes')
+    print('Kolla - Install necessary tools')
     run_shell('sudo yum install -y epel-release bridge-utils')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
@@ -524,6 +524,7 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /var/lib/docker')
         run_shell('sudo service docker start')
         print('Kubernetes - Delete bridge br-ex')
+        run_shell('sudo ifconfig br-ex down')
         run_shell('sudo brctl delif br-ex eth1')
         run_shell('sudo brctl delbr br-ex')
         # print('Kubernetes - Remove installed pip packages')
