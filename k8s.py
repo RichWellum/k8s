@@ -912,7 +912,7 @@ spec:
     else:
         print("Kubernetes - 'nslookup kubernetes' worked - continuing")
 
-    run_shell('kubectl delete kolla-dns-test -n kube-system')
+    # run_shell('kubectl delete kolla-dns-test -n default') # todo - doesn't delete
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
