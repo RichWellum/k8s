@@ -1018,7 +1018,7 @@ def main():
     global DEBUG
     DEBUG = args.verbose
 
-    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP%s' %
+    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
     print('Helm version %s, Kubernetes version %s' %
           (args.helm_version, args.k8s_version))
