@@ -413,7 +413,6 @@ def k8s_load_kubeadm_creds():
     run_shell('sudo -H cp /etc/kubernetes/admin.conf %s' % config)
     run_shell('sudo chmod 777 %s' % kube)
     run_shell('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
-    pause_to_debug('Test1: kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_deploy_canal_sdn():
@@ -440,7 +439,6 @@ def k8s_deploy_canal_sdn():
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
-    pause_to_debug('Test2: kubectl get nodes and kubectl describe node kolla-k8s')
 
 
 def k8s_add_api_server(ip):
