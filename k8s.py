@@ -896,7 +896,7 @@ openstack security group list -f value -c ID | while read SG_ID; do
         --direction ingress $SG_ID
 done
 """)
-    run_shell('bash %s' % new)
+    run_shell('chmod 766 %s; bash %s' % (new, new))
 
     # todo: ssh execute to ip address and ping google
 
