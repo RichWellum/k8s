@@ -853,17 +853,49 @@ def kolla_create_demo_vm():
 
     Create a keystone admin user.
     Run "runonce" to set everything up and then install a demo image.
-    Attech a floating ip'''
+    Attach a floating ip'''
+
     print('Kolla - Create a keystone admin account and source in to it')
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
     out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     print(out)
-    # todo
-    # Create a floating IP address and add to the VM::
-    # openstack server add floating ip demo1 $(openstack floating ip create
-    # public1 -f value -c floating_ip_address)
 
+    # Become keystone admin
+    run_shell('source ~/keystonerc_admin')
+    demo_net_id = run_shell("$(openstack network list | awk '/ demo-net / {print $2}')")
+
+    # Create a demo image
+    run_shell('openstack server create \
+    --image cirros \
+    --flavor m1.tiny \
+    --key-name mykey \
+    --nic net-id=%s \
+    demo1' % demo_net_id)
+
+    # Create a floating ip
+    run_shell("openstack server add floating ip demo1 $(openstack floating ip create public1 -f value -c floating_ip_address)")
+
+    # Display nova list
+    run_shell('nova list')
+
+    # Open up ingress rules to access VM
+    new = '/tmp/neutron_rules.sh'
+    with open(new, "w") as w:
+        w.write("""\
+openstack security group list -f value -c ID | while read SG_ID; do
+    neutron security-group-rule-create --protocol icmp \
+        --direction ingress $SG_ID
+    neutron security-group-rule-create --protocol tcp \
+        --port-range-min 22 --port-range-max 22 \
+        --direction ingress $SG_ID
+done
+""")
+    run_shell('bash %s' % new)
+
+    # todo: ssh execute to ip address and ping google
+
+    # Suggest Horizon logon info
     address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
@@ -910,7 +942,6 @@ spec:
     logger.debug('Kolla DNS test output==%s' % out)
     if int(out) != 2:
         print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
-        # sys.exit(1)
     else:
         print("Kubernetes - 'nslookup kubernetes' worked - continuing")
 
