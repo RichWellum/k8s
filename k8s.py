@@ -981,7 +981,7 @@ def kolla_bring_up_openstack(args):
     out = run_shell('sudo brctl show br-ex')
     if re.search('No such device', out):
         run_shell('sudo brctl addbr br-ex')
-    run_shell('sudo brctl addif br-ex eth1')
+    run_shell('sudo brctl addif br-ex %s' % args.NEUTRON_INT)
     run_shell('sudo ifconfig br-ex up')
 
     # Set up OVS for the Infrastructure
