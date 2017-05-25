@@ -1074,7 +1074,7 @@ def main():
             k8s_cleanup(args.complete_cleanup)
             sys.exit(1)
 
-        k8s_test_neutron_int(args.NEUTRON_INT)
+        k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         # todo: horizon is up, nova vm boots and ping google with good L3?
