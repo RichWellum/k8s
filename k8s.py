@@ -911,6 +911,8 @@ def k8s_test_neutron_int(ip):
     if re.search('Host is up', truth):
         print('Kubernetes - Neutron Interface %s is in use, choose another')
         sys.exit(1)
+    else:
+        print('Kubernetes - Neutron Interface %s is valid')
 
 
 def k8s_get_pods(namespace):
