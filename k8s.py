@@ -859,13 +859,16 @@ def kolla_create_demo_vm():
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
     out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
-    print(out)
+    logger.debug(out)
 
     # Become keystone admin
     run_shell('source ~/keystonerc_admin')
+    pause_to_debug('Check if correctly sourced here')
     demo_net_id = run_shell("$(openstack network list | awk '/ demo-net / {print $2}')")
+    print(demo_net_id)
 
     # Create a demo image
+    pause_to_debug('Before creating image')
     run_shell('openstack server create \
     --image cirros \
     --flavor m1.tiny \
@@ -874,12 +877,14 @@ def kolla_create_demo_vm():
     demo1' % demo_net_id)
 
     # Create a floating ip
+    pause_to_debug('Before creating floating ip')
     run_shell("openstack server add floating ip demo1 $(openstack floating ip create public1 -f value -c floating_ip_address)")
 
     # Display nova list
     run_shell('nova list')
 
     # Open up ingress rules to access VM
+    pause_to_debug('Before changing neutron rules')
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""\
@@ -1018,7 +1023,7 @@ def kolla_bring_up_openstack(args):
     kolla_verify_helm_images()
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
-    # Bring up br-ex for keepalived to bind VIP to it
+    # Bring up br-ex for keepalived to bind VIP to it # todo broken
     out = run_shell('sudo brctl show br-ex')
     if re.search('No such device', out):
         run_shell('sudo brctl addbr br-ex')
@@ -1044,6 +1049,7 @@ def kolla_bring_up_openstack(args):
     chart_list = ['nova-control', 'nova-compute']
     helm_install_service_chart(chart_list)
 
+    pause_to_debug('Check nova-cell and nova-api now')
     chart_list = ['nova-cell0-create-db-job',
                   'nova-api-create-simple-cell-job']
     helm_install_micro_service_chart(chart_list)
