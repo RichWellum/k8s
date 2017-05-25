@@ -909,10 +909,10 @@ def k8s_test_neutron_int(ip):
     '''Test that the neutron interface is not used'''
     truth = run_shell('sudo nmap -sP -PR %s | grep Host' % ip)
     if re.search('Host is up', truth):
-        print('Kubernetes - Neutron Interface %s is in use, choose another')
+        print('Kubernetes - Neutron Interface %s is in use, choose another' % ip)
         sys.exit(1)
     else:
-        print('Kubernetes - Neutron Interface %s is valid')
+        print('Kubernetes - Neutron Interface %s is valid' % ip)
 
 
 def k8s_get_pods(namespace):
