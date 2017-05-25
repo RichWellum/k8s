@@ -288,7 +288,7 @@ def k8s_wait_for_running_negate():
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
-    run_shell('sudo yum install -y epel-release bridge-utils')
+    run_shell('sudo yum install -y epel-release bridge-utils nmap')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
     curl(
@@ -905,6 +905,14 @@ done
     print('  %s' % password)
 
 
+def k8s_test_neutron_int(ip):
+    '''Test that the neutron interface is not used'''
+    truth = run_shell('sudo nmap -sP -PR %s | grep Host' % ip)
+    if re.search('Host is up', truth):
+        print('Kubernetes - Neutron Interface %s is in use, choose another')
+        sys.exit(1)
+
+
 def k8s_get_pods(namespace):
     '''Display all pods per namespace list'''
     for name in namespace:
@@ -1064,6 +1072,7 @@ def main():
             k8s_cleanup(args.complete_cleanup)
             sys.exit(1)
 
+        k8s_test_neutron_int(args.NEUTRON_INT)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         # todo: horizon is up, nova vm boots and ping google with good L3?
