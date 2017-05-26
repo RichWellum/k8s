@@ -511,7 +511,8 @@ def k8s_cleanup(doit):
         run_shell('sudo kubeadm reset')
         print('Kubernetes - Cleaning up old directories and files and docker images')
         # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
-        # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
+        # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20
+        # | xargs sudo docker stop)')
         run_shell('sudo rm -rf /etc/kolla*')
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
@@ -863,20 +864,15 @@ def kolla_create_demo_vm():
 
     # Become keystone admin
     run_shell('source ~/keystonerc_admin')
-    pause_to_debug('Check if correctly sourced here')
     demo_net_id = run_shell("source ~/keystonerc_admin; \
     echo $(openstack network list | awk '/ demo-net / {print $2}')")
     print(demo_net_id)
 
     # Create a demo image
     pause_to_debug('Before creating image')
-    run_shell('source ~/keystonerc_admin; \
-    openstack server create \
-    --image cirros \
-    --flavor m1.tiny \
-    --key-name mykey \
-    --nic net-id=%s \
-    demo1' % demo_net_id)
+    create_demo1 = 'openstack server create --image cirros \
+    --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id
+    run_shell('source ~/keystonerc_admin; %s' % create_demo1)
 
     # Create a floating ip
     pause_to_debug('Before creating floating ip')
