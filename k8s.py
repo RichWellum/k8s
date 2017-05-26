@@ -872,6 +872,7 @@ def kolla_create_demo_vm():
     pause_to_debug('Before creating image')
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id
+    print('DEBUG: "%s"' % create_demo1)
     run_shell('source ~/keystonerc_admin; %s' % create_demo1)
 
     # Create a floating ip
