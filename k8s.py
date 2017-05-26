@@ -220,37 +220,6 @@ def k8s_wait_for_kube_system():
                 .format(elapsed_time))
 
 
-def k8s_wait_for_running(number, namespace):
-    """Wait for k8s pods to be in running status
-    number is the minimum number of 'Running' pods expected"""
-
-    TIMEOUT = 1000  # Give k8s 1000s to come up
-    RETRY_INTERVAL = 10
-
-    print("Kubernetes - Wait for %s '%s' pods to be in Running state:"
-          % (number, namespace))
-    elapsed_time = 0
-    while True:
-        running = run_shell('kubectl get pods -n %s | grep "Running" | wc -l' % namespace)
-
-        if int(running) >= number:
-            print('Kubernetes - All Running pods %s:%s' % (int(running), number))
-            run_shell('kubectl get pods -n %s' % namespace)
-            break
-        elif elapsed_time < TIMEOUT:
-            print('Kubernetes - Running pods %s:%s - sleep %d seconds and retry'
-                  % (int(running), number, RETRY_INTERVAL))
-            time.sleep(RETRY_INTERVAL)
-            elapsed_time = elapsed_time + RETRY_INTERVAL
-            continue
-        else:
-            # Dump verbose output in case it helps...
-            print(int(running))
-            raise AbortScriptException(
-                "Kubernetes did not come up after {0} seconds!"
-                .format(elapsed_time))
-
-
 def k8s_wait_for_running_negate():
     '''Query get pods until only state is Running'''
 
@@ -280,6 +249,36 @@ def k8s_wait_for_running_negate():
             print(int(not_running))
             raise AbortScriptException(
                 "Kubernetes did not come up after {0} 1econds!"
+                .format(elapsed_time))
+            sys.exit(1)
+
+
+def k8s_wait_for_vm(vm):
+    """Wait for a vm to be listed as running in nova list"""
+
+    TIMEOUT = 100
+    RETRY_INTERVAL = 5
+
+    print("Kubernetes - Wait for VM %s to be in running state:" % vm)
+    elapsed_time = 0
+
+    while True:
+        nova_out = run_shell(
+            'source ~/keystonerc_admin; nova list | grep %s' % vm)
+        if not re.search('Running', nova_out):
+            print('Kubernetes - VM %s is not Running yet' % vm)
+            time.sleep(RETRY_INTERVAL)
+            elapsed_time = elapsed_time + RETRY_INTERVAL
+            continue
+        else:
+            print('Kubernetes - VM %s is Running' % vm)
+            break
+
+        if elapsed_time > TIMEOUT:
+            # Dump verbose output in case it helps...
+            print(nova_out)
+            raise AbortScriptException(
+                "VM did not come up after {0} 1econds!"
                 .format(elapsed_time))
             sys.exit(1)
 
@@ -871,6 +870,7 @@ def kolla_create_demo_vm():
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
     out = run_shell('source ~/keystonerc_admin; %s' % create_demo1)
     print(out)
+    k8s_wait_for_vm('demo1')
 
     # Create a floating ip
     print('Kolla - Create floating ip')
