@@ -419,7 +419,6 @@ def k8s_deploy_canal_sdn():
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
-    # run_shell('./kolla-kubernetes/tests/bin/setup_canal.sh')
     print('Kubernetes - Create RBAC')
     answer = curl(
         '-L',
@@ -553,9 +552,10 @@ def kolla_install_repos():
 
 
 def kolla_setup_loopback_lvm():
-    '''Setup a loopback LVM for Cinder'''
+    '''Setup a loopback LVM for Cinder
+
+    /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh'''
     print('Kolla - Setup Loopback LVM for Cinder')
-    # /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
@@ -691,6 +691,7 @@ cpu_mode = none
 
 def kolla_gen_configs():
     '''Generate the configs using Jinja2
+
     Some version meddling here until things are more stable'''
     print('Kolla - Generate the default configuration')
     # globals.yml is used when we run ansible to generate configs
@@ -701,7 +702,7 @@ def kolla_gen_configs():
 
 
 def kolla_gen_secrets():
-    '''Generate Kubernetes secrets'''
+    '''Generate Kubernetes secrets'''y
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
@@ -709,9 +710,6 @@ def kolla_gen_secrets():
 def kolla_create_config_maps():
     '''Generate the Kolla config map'''
     print('Kolla - Create and register the Kolla config maps')
-    # kubectl create configmap mariadb --from-file=/etc/kolla/config.json
-    # --from-file=/etc/kolla/galera.cnf
-    # --from-file=/etc/kolla/wsrep-notify.sh -n kolla
     run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -740,7 +738,7 @@ def kolla_verify_helm_images():
     '''Subjective but a useful check to see if enough helm charts were
     generated'''
     out = run_shell('ls | grep ".tgz" | wc -l')
-    if int(out) > 180:
+    if int(out) > 190:
         print('Kolla - %s Helm images created' % int(out))
     else:
         print('Kolla - Error: only %s Helm images created' % int(out))
@@ -1024,13 +1022,6 @@ def kolla_bring_up_openstack(args):
     kolla_verify_helm_images()
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
-    # Bring up br-ex for keepalived to bind VIP to it # todo broken
-    # out = run_shell('sudo brctl show br-ex')
-    # if re.search('No such device', out):
-    #     run_shell('sudo brctl addbr br-ex')
-    # run_shell('sudo brctl addif br-ex %s' % args.NEUTRON_INT)
-    # run_shell('sudo ifconfig br-ex up')
-
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
     helm_install_service_chart(chart_list)
@@ -1049,12 +1040,6 @@ def kolla_bring_up_openstack(args):
 
     chart_list = ['nova-control', 'nova-compute']
     helm_install_service_chart(chart_list)
-
-    # Added to a Service Chart
-    # pause_to_debug('Check nova-cell and nova-api now')
-    # chart_list = ['nova-cell0-create-db-job',
-    #               'nova-api-create-simple-cell-job']
-    # helm_install_micro_service_chart(chart_list)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(namespace_list)
@@ -1085,7 +1070,6 @@ def main():
         k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        # todo: horizon is up, nova vm boots and ping google with good L3?
         kolla_create_demo_vm()
 
     except Exception:
