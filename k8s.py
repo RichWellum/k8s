@@ -104,8 +104,7 @@ def parse_args():
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
                         help='Specify a different kubernetes-cni version to the default(0.5.2)')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster before creating a new one')
-    # Todo: Complete cleanup - needs to work with no other parameters
+                        help='YMMV: Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster then exit')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
@@ -871,18 +870,17 @@ def kolla_create_demo_vm():
     # Create a demo image
     pause_to_debug('Before creating image')
     create_demo1 = 'openstack server create --image cirros \
-    --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id
+    --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
     print('DEBUG: "%s"' % create_demo1)
     run_shell('source ~/keystonerc_admin; %s' % create_demo1)
 
     # Create a floating ip
     pause_to_debug('Before creating floating ip')
-    run_shell("source ~/keystonerc_admin; \
+    cmd = "source ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
-    create public1 -f value -c floating_ip_address)")
-
-    # Display nova list
-    run_shell('nova list')
+    create public1 -f value -c floating_ip_address)"
+    out = run_shell(cmd)
+    print(out)
 
     # Open up ingress rules to access VM
     pause_to_debug('Before changing neutron rules')
@@ -898,6 +896,10 @@ openstack security group list -f value -c ID | while read SG_ID; do
 done
 """)
     run_shell('source ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
+
+    # Display nova list
+    print('Kolla - nova list')
+    run_shell('nova list')
 
     # todo: ssh execute to ip address and ping google
 
