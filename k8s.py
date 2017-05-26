@@ -921,7 +921,7 @@ def k8s_test_neutron_int(ip):
         print('Kubernetes - Neutron Interface %s is in use, choose another' % ip)
         sys.exit(1)
     else:
-        print('Kubernetes - Neutron Interface %s is valid' % ip)
+        print('Kubernetes - VIP Keepalive Interface %s is valid' % ip)
 
 
 def k8s_get_pods(namespace):
@@ -1053,10 +1053,11 @@ def kolla_bring_up_openstack(args):
     chart_list = ['nova-control', 'nova-compute']
     helm_install_service_chart(chart_list)
 
-    pause_to_debug('Check nova-cell and nova-api now')
-    chart_list = ['nova-cell0-create-db-job',
-                  'nova-api-create-simple-cell-job']
-    helm_install_micro_service_chart(chart_list)
+    # Added to a Service Chart
+    # pause_to_debug('Check nova-cell and nova-api now')
+    # chart_list = ['nova-cell0-create-db-job',
+    #               'nova-api-create-simple-cell-job']
+    # helm_install_micro_service_chart(chart_list)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(namespace_list)
