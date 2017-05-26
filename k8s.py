@@ -864,12 +864,14 @@ def kolla_create_demo_vm():
     # Become keystone admin
     run_shell('source ~/keystonerc_admin')
     pause_to_debug('Check if correctly sourced here')
-    demo_net_id = run_shell("$(openstack network list | awk '/ demo-net / {print $2}')")
+    demo_net_id = run_shell("source ~/keystonerc_admin; \
+    $(openstack network list | awk '/ demo-net / {print $2}')")
     print(demo_net_id)
 
     # Create a demo image
     pause_to_debug('Before creating image')
-    run_shell('openstack server create \
+    run_shell('source ~/keystonerc_admin; \
+    openstack server create \
     --image cirros \
     --flavor m1.tiny \
     --key-name mykey \
@@ -878,7 +880,9 @@ def kolla_create_demo_vm():
 
     # Create a floating ip
     pause_to_debug('Before creating floating ip')
-    run_shell("openstack server add floating ip demo1 $(openstack floating ip create public1 -f value -c floating_ip_address)")
+    run_shell("source ~/keystonerc_admin; \
+    openstack server add floating ip demo1 $(openstack floating ip \
+    create public1 -f value -c floating_ip_address)")
 
     # Display nova list
     run_shell('nova list')
@@ -896,7 +900,7 @@ openstack security group list -f value -c ID | while read SG_ID; do
         --direction ingress $SG_ID
 done
 """)
-    run_shell('chmod 766 %s; bash %s' % (new, new))
+    run_shell('source ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
 
     # todo: ssh execute to ip address and ping google
 
