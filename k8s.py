@@ -895,8 +895,8 @@ done
 
     # Display nova list
     print('Kolla - nova list')
-    run_shell('source ~/keystonerc_admin; nova list')
-
+    out = run_shell('source ~/keystonerc_admin; nova list')
+    print(out)
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
