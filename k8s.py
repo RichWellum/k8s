@@ -861,21 +861,19 @@ def kolla_create_demo_vm():
     out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     logger.debug(out)
 
-    # Become keystone admin
-    run_shell('source ~/keystonerc_admin')
     demo_net_id = run_shell("source ~/keystonerc_admin; \
     echo $(openstack network list | awk '/ demo-net / {print $2}')")
-    print(demo_net_id)
+    logger.debug(demo_net_id)
 
     # Create a demo image
-    pause_to_debug('Before creating image')
+    print('Kolla - Create a demo vm in our OpenStack cluster')
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    print('DEBUG: "%s"' % create_demo1)
-    run_shell('source ~/keystonerc_admin; %s' % create_demo1)
+    out = run_shell('source ~/keystonerc_admin; %s' % create_demo1)
+    print(out)
 
     # Create a floating ip
-    pause_to_debug('Before creating floating ip')
+    print('Kolla - Create floating ip')
     cmd = "source ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
@@ -883,7 +881,7 @@ def kolla_create_demo_vm():
     print(out)
 
     # Open up ingress rules to access VM
-    pause_to_debug('Before changing neutron rules')
+    print('Kolla - Allow Ingress by changing neutron rules')
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""\
@@ -899,7 +897,7 @@ done
 
     # Display nova list
     print('Kolla - nova list')
-    run_shell('nova list')
+    run_shell('source ~/keystonerc_admin; nova list')
 
     # todo: ssh execute to ip address and ping google
 
