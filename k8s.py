@@ -865,7 +865,7 @@ def kolla_create_demo_vm():
     run_shell('source ~/keystonerc_admin')
     pause_to_debug('Check if correctly sourced here')
     demo_net_id = run_shell("source ~/keystonerc_admin; \
-    $(openstack network list | awk '/ demo-net / {print $2}')")
+    echo $(openstack network list | awk '/ demo-net / {print $2}')")
     print(demo_net_id)
 
     # Create a demo image
