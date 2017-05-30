@@ -126,9 +126,9 @@ def run_shell(cmd):
     '''Run a shell command and return the output
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
-
-    pre = "cd " + WD + ";"
-    cmd = pre + cmd
+    os.chdir(WD)
+    # pre = "cd " + WD + ";"
+    # cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     # logger.debug(out)
@@ -509,12 +509,13 @@ def kolla_install_deploy_helm(version):
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
 
     output = os.path.join(WD, 'helm-v%s-linux-amd64.tar.gz' % version)
-    # helm = os.path.join(WD, 'helm-v%s-linux-amd64' % version) todo
+    cwd = os.getcwd()
+    helm = os.path.join(cwd, 'linux-amd64' % version)
 
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', output)
     untar(output)
-    run_shell('sudo mv -f ./linux-amd64 /usr/local/bin/helm')
+    run_shell('sudo mv -f %s /usr/local/bin/helm' % helm)
     run_shell('helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
