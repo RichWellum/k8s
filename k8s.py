@@ -181,7 +181,7 @@ def k8s_create_wd():
 
     # Start by cleaning the Working Directory
     # run_shell('sudo rm -rf %s; cd' % WD)
-    os.rmdir(WD)
+    # os.rmdir(WD)
     # run_shell('sudo mkdir -p %s; sudo chmod 766 %s' % (WD, WD))
     os.makedirs(WD)
     os.chdir(WD)
