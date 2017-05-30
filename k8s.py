@@ -530,9 +530,9 @@ def kolla_install_deploy_helm(version):
             continue
 
 
-def k8s_cleanup(doit):
+def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
-    if doit is True:
+    if args.cleanup is True:
         print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
         print('Kubernetes - Cleaning up old directories and files and docker images')
@@ -556,6 +556,8 @@ def k8s_cleanup(doit):
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
         run_shell('sudo rm -rf %s; cd' % WD)
+    if args.complete_cleanup:
+        sys.exit(1)
 
 
 def kolla_install_repos():
@@ -1011,7 +1013,7 @@ def k8s_bringup_kubernetes_cluster(args):
         return
 
     k8s_install_tools(args.ansible_version, args.jinja2_version)
-    k8s_cleanup(args.cleanup)
+    # k8s_cleanup(args.cleanup)
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
@@ -1101,13 +1103,11 @@ def main():
 
     set_logging()
     logger.setLevel(level=args.verbose)
+
+    k8s_cleanup(args)
     k8s_create_wd(WD)
 
     try:
-        if args.complete_cleanup:
-            k8s_cleanup(args.complete_cleanup)
-            sys.exit(1)
-
         k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
