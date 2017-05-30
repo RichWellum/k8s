@@ -1086,7 +1086,7 @@ def main():
     global WD
 
     DEBUG = args.verbose
-    WD = '/opt/kolla'
+    WD = '/tmp/kolla'
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
