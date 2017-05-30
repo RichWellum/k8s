@@ -1099,13 +1099,13 @@ def main():
 
     set_logging()
     logger.setLevel(level=args.verbose)
+    k8s_create_wd(WD)
 
     try:
         if args.complete_cleanup:
             k8s_cleanup(args.complete_cleanup)
             sys.exit(1)
 
-        k8s_create_wd(WD)
         k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
