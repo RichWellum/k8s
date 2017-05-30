@@ -169,7 +169,7 @@ def curl(*args):
     return curl_result
 
 
-def k8s_create_wd(directory):
+def k8s_create_wd():
     euid = os.geteuid()
     if euid != 0:
         print('Script not started as root. Running sudo..')
@@ -179,10 +179,9 @@ def k8s_create_wd(directory):
 
         print('Running. Your euid is %s' % euid)
 
-    if not os.path.exists(directory):
-        print('DEBUG: Creating %s' % directory)
-        os.makedirs(directory)
-        pause_to_debug('Check dir now')
+    # Start by cleaning the Working Directory
+    run_shell('sudo rm -rf %s; cd' % WD)
+    os.makedirs(WD)
 
 
 def k8s_create_repo():
@@ -510,12 +509,12 @@ def kolla_install_deploy_helm(version):
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
 
     output = os.path.join(WD, 'helm-v%s-linux-amd64.tar.gz' % version)
-    helm = os.path.join(WD, 'helm-v%s-linux-amd64' % version)
+    # helm = os.path.join(WD, 'helm-v%s-linux-amd64' % version) todo
 
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', output)
     untar(output)
-    run_shell('sudo mv -f %s /usr/local/bin/helm' % helm)
+    run_shell('sudo mv -f ./linux-amd64 /usr/local/bin/helm')
     run_shell('helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
@@ -555,7 +554,6 @@ def k8s_cleanup(args):
             print('Kubernetes - Remove cinder volumes and data')
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
-        run_shell('sudo rm -rf %s; cd' % WD)
     if args.complete_cleanup:
         sys.exit(1)
 
@@ -1105,7 +1103,7 @@ def main():
     logger.setLevel(level=args.verbose)
 
     k8s_cleanup(args)
-    k8s_create_wd(WD)
+    k8s_create_wd()
 
     try:
         k8s_test_neutron_int(args.VIP_IP)
