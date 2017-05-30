@@ -510,7 +510,7 @@ def kolla_install_deploy_helm(version):
 
     output = os.path.join(WD, 'helm-v%s-linux-amd64.tar.gz' % version)
     cwd = os.getcwd()
-    helm = os.path.join(cwd, 'linux-amd64')
+    helm = os.path.join(cwd, 'linux-amd64/helm')
 
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', output)
