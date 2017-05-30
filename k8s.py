@@ -1101,8 +1101,8 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    k8s_cleanup(args)
     k8s_create_wd()
+    k8s_cleanup(args)
 
     try:
         k8s_test_neutron_int(args.VIP_IP)
