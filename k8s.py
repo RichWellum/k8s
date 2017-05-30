@@ -507,21 +507,16 @@ subjects:
 def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
-
-    output = os.path.join(WD, 'helm-v%s-linux-amd64.tar.gz' % version)
-    cwd = os.getcwd()
-    helm = os.path.join(cwd, 'linux-amd64/helm')
-
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
-    curl('-sSL', url, '-o', output)
-    untar(output)
-    run_shell('sudo mv -f %s /usr/local/bin/helm' % helm)
-    run_shell('/usr/local/bin/helm init')
+    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    run_shell('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
+    run_shell('helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell('/usr/local/bin/helm version | grep "%s" | wc -l' % version)
+        out = run_shell('helm version | grep "%s" | wc -l' % version)
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
             break
