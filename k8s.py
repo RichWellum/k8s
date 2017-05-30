@@ -516,12 +516,12 @@ def kolla_install_deploy_helm(version):
     curl('-sSL', url, '-o', output)
     untar(output)
     run_shell('sudo mv -f %s /usr/local/bin/helm' % helm)
-    run_shell('helm init')
+    run_shell('/usr/local/bin/helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell('helm version | grep "%s" | wc -l' % version)
+        out = run_shell('/usr/local/bin/helm version | grep "%s" | wc -l' % version)
         if int(out) == 2:
             print('Kolla - Helm successfully installed')
             break
@@ -762,7 +762,7 @@ def kolla_resolve_workaround():
 def kolla_build_helm_charts():
     '''Build all helm charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run_shell('./kolla-kubernetes/tools/helm_build_all.sh .')
+    run_shell('kolla-kubernetes/tools/helm_build_all.sh .')
 
 
 def kolla_verify_helm_images():
@@ -853,7 +853,7 @@ def helm_install_service_chart(chart_list):
 
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
-        run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
+        run_shell('/usr/local/bin/helm install --debug kolla-kubernetes/helm/service/%s \
         --namespace kolla --name %s --values %s' % (chart, chart, cloud))
     k8s_wait_for_running_negate()
 
@@ -864,7 +864,7 @@ def helm_install_micro_service_chart(chart_list):
 
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
-        run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
+        run_shell('/usr/local/bin/helm install --debug kolla-kubernetes/helm/microservice/%s \
         --namespace kolla --name %s --values %s' % (chart, chart, cloud))
     k8s_wait_for_running_negate()
 
