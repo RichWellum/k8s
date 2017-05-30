@@ -182,7 +182,7 @@ def k8s_create_wd():
     # Start by cleaning the Working Directory
     run_shell('sudo rm -rf %s; cd' % WD)
     run_shell('sudo mkdir -p %s; sudo chmod 766 %s' % (WD, WD))
-    # os.makedirs(WD)
+    os.makedirs(WD)
 
 
 def k8s_create_repo():
@@ -1087,7 +1087,7 @@ def main():
     global WD
 
     DEBUG = args.verbose
-    WD = '/opt/kolla'
+    WD = './kolla'
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
