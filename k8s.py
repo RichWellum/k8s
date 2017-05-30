@@ -127,8 +127,8 @@ def run_shell(cmd):
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
     # os.chdir(WD)
-    pre = "cd " + WD + ";"
-    cmd = pre + cmd
+    # pre = "cd " + WD + ";"
+    # cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     # logger.debug(out)
