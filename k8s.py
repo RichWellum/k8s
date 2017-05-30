@@ -127,7 +127,7 @@ def run_shell(cmd):
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
     # os.chdir(WD)
-    pre = "cd " + WD + ";" + "sudo env 'PATH=$PATH' "
+    pre = "cd " + WD + ";"
     cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
@@ -170,14 +170,14 @@ def curl(*args):
 
 
 def k8s_create_wd():
-    euid = os.geteuid()
-    if euid != 0:
-        print('Script not started as root. Running sudo..')
-        args = ['sudo', sys.executable] + sys.argv + [os.environ]
-        # the next line replaces the currently-running process with the sudo
-        os.execlpe('sudo', *args)
+    # euid = os.geteuid()
+    # if euid != 0:
+    #     print('Script not started as root. Running sudo..')
+    #     args = ['sudo', sys.executable] + sys.argv + [os.environ]
+    #     # the next line replaces the currently-running process with the sudo
+    #     os.execlpe('sudo', *args)
 
-        print('Running. Your euid is %s' % euid)
+    #     print('Running. Your euid is %s' % euid)
 
     # Start by cleaning the Working Directory
     run_shell('sudo rm -rf %s; cd' % WD)
