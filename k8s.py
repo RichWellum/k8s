@@ -180,7 +180,9 @@ def k8s_create_wd(directory):
         print('Running. Your euid is %s' % euid)
 
     if not os.path.exists(directory):
+        print('DEBUG: Creating %s' % directory)
         os.makedirs(directory)
+        pause_to_debug('Check dir now')
 
 
 def k8s_create_repo():
