@@ -54,6 +54,7 @@ except ImportError:
 import psutil
 import re
 import tarfile
+import yum
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
@@ -127,8 +128,8 @@ def run_shell(cmd):
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
     # os.chdir(WD)
-    pre = "cd " + WD + ";"
-    cmd = pre + cmd
+    # pre = "cd " + WD + ";"
+    # cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     # logger.debug(out)
@@ -1102,7 +1103,7 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    k8s_create_wd()
+    # k8s_create_wd()
     k8s_cleanup(args)
 
     try:
