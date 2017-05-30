@@ -54,9 +54,8 @@ except ImportError:
 import psutil
 import re
 import tarfile
-import yum
-# print(yum.getframeinfo(yum.getouterframes(yum.currentframe())[1][0])[0])
-print("%s: I was imported from %s" % (__name__, yum.__file__))
+# import yum
+# print("%s: I was imported from %s" % (__name__, yum.__file__))
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
