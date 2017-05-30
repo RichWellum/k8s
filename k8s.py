@@ -55,6 +55,7 @@ import psutil
 import re
 import tarfile
 import yum
+print(yum.getframeinfo(yum.getouterframes(yum.currentframe())[1][0])[0])
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
