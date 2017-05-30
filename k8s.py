@@ -126,6 +126,9 @@ def run_shell(cmd):
     '''Run a shell command and return the output
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
+
+    pre = "cd " + WD + ";"
+    cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     # logger.debug(out)
@@ -164,6 +167,11 @@ def curl(*args):
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE).communicate()[0]
     return curl_result
+
+
+def k8s_create_wd(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 
 def k8s_create_repo():
@@ -526,6 +534,7 @@ def k8s_cleanup(doit):
             print('Kubernetes - Remove cinder volumes and data')
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
+        run_shell('sudo rm -rf %s; cd' % WD)
 
 
 def kolla_install_repos():
@@ -702,7 +711,7 @@ def kolla_gen_configs():
 
 
 def kolla_gen_secrets():
-    '''Generate Kubernetes secrets'''y
+    '''Generate Kubernetes secrets'''
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
@@ -728,8 +737,8 @@ def kolla_resolve_workaround():
     run_shell('./kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
 
 
-def kolla_build_micro_charts():
-    '''Build all helm micro charts'''
+def kolla_build_helm_charts():
+    '''Build all helm charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
     run_shell('./kolla-kubernetes/tools/helm_build_all.sh .')
 
@@ -1018,7 +1027,7 @@ def kolla_bring_up_openstack(args):
     kolla_gen_secrets()
     kolla_create_config_maps()
     kolla_resolve_workaround()
-    kolla_build_micro_charts()
+    kolla_build_helm_charts()
     kolla_verify_helm_images()
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
@@ -1049,8 +1058,12 @@ def main():
     '''Main function.'''
     args = parse_args()
 
+    # Try to avoid globals
     global DEBUG
+    global WD
+
     DEBUG = args.verbose
+    WD = '/opt/kolla'
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
@@ -1067,6 +1080,7 @@ def main():
             k8s_cleanup(args.complete_cleanup)
             sys.exit(1)
 
+        k8s_create_wd(WD)
         k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
