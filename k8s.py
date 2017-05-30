@@ -848,7 +848,7 @@ def helm_install_service_chart(chart_list):
 
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
-        run_shell('/usr/local/bin/helm install --debug kolla-kubernetes/helm/service/%s \
+        run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
         --namespace kolla --name %s --values %s' % (chart, chart, cloud))
     k8s_wait_for_running_negate()
 
@@ -859,7 +859,7 @@ def helm_install_micro_service_chart(chart_list):
 
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
-        run_shell('/usr/local/bin/helm install --debug kolla-kubernetes/helm/microservice/%s \
+        run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
         --namespace kolla --name %s --values %s' % (chart, chart, cloud))
     k8s_wait_for_running_negate()
 
