@@ -702,7 +702,7 @@ def kolla_gen_configs():
 
 
 def kolla_gen_secrets():
-    '''Generate Kubernetes secrets'''y
+    '''Generate Kubernetes secrets'''
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
