@@ -54,8 +54,6 @@ except ImportError:
 import psutil
 import re
 import tarfile
-# import yum
-# print("%s: I was imported from %s" % (__name__, yum.__file__))
 
 __author__ = 'Rich Wellum'
 __copyright__ = 'Copyright 2017, Rich Wellum'
@@ -128,9 +126,6 @@ def run_shell(cmd):
     '''Run a shell command and return the output
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
-    # os.chdir(WD)
-    # pre = "cd " + WD + ";"
-    # cmd = pre + cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     # logger.debug(out)
@@ -171,30 +166,10 @@ def curl(*args):
     return curl_result
 
 
-def k8s_create_wd():
-    # euid = os.geteuid()
-    # if euid != 0:
-    #     print('Script not started as root. Running sudo..')
-    #     args = ['sudo', sys.executable] + sys.argv + [os.environ]
-    #     # the next line replaces the currently-running process with the sudo
-    #     os.execlpe('sudo', *args)
-
-    #     print('Running. Your euid is %s' % euid)
-
-    # Start by cleaning the Working Directory
-    # run_shell('sudo rm -rf %s; cd' % WD)
-    # os.rmdir(WD)
-    # run_shell('sudo mkdir -p %s; sudo chmod 766 %s' % (WD, WD))
-    if not os.path.exists(WD):
-        os.makedirs(WD)
-    os.chdir(WD)
-
-
 def k8s_create_repo():
     '''Create a k8s repository file'''
-    name = os.path.join(WD, 'kubernetes.repo')
+    name = './kubernetes.repo'
     repo = '/etc/yum.repos.d/kubernetes.repo'
-
     with open(name, "w") as w:
         w.write("""\
 [kubernetes]
@@ -206,7 +181,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    run_shell('sudo mv %s %s' % (name, repo))
+    run_shell('sudo mv ./kubernetes.repo %s' % repo)
 
 
 def k8s_wait_for_kube_system():
@@ -311,16 +286,14 @@ def k8s_wait_for_vm(vm):
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
-    tool = os.path.join(WD, 'get-pip.py')
-
     run_shell('sudo yum install -y epel-release bridge-utils nmap')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
     curl(
         '-L',
         'https://bootstrap.pypa.io/get-pip.py',
-        '-o', tool)
-    run_shell('sudo python %s' % tool)
+        '-o', '/tmp/get-pip.py')
+    run_shell('sudo python /tmp/get-pip.py')
     run_shell('sudo pip install psutil')
     # Seems to be the recommended ansible version
     run_shell('sudo pip install ansible==%s' % a_ver)
@@ -447,24 +420,22 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
     print('Kubernetes - Create RBAC')
-    rbac_yaml = os.path.join(WD, 'rbac.yaml')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
-        '-o', rbac_yaml)
+        '-o', '/tmp/rbac.yaml')
     logger.debug(answer)
-    run_shell('kubectl create -f %s' % rbac_yaml)
+    run_shell('kubectl create -f /tmp/rbac.yaml')
 
     print('Kubernetes - Deploy the Canal CNI driver')
-    canal_yaml = os.path.join(WD, 'canal.yaml')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
-        '-o', canal_yaml)
+        '-o', '/tmp/canal.yaml')
     logger.debug(answer)
-    run_shell('sudo chmod 777 %s' % canal_yaml)
-    run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ %s' % canal_yaml)
-    run_shell('kubectl create -f %s' % canal_yaml)
+    run_shell('sudo chmod 777 /tmp/canal.yaml')
+    run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+    run_shell('kubectl create -f /tmp/canal.yaml')
 
 
 def k8s_add_api_server(ip):
@@ -487,8 +458,7 @@ def k8s_schedule_master_node():
 def kolla_update_rbac():
     '''Override the default RBAC settings'''
     print('Kolla - Overide default RBAC settings')
-    name = os.path.join(WD, 'rbac')
-
+    name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
 apiVersion: rbac.authorization.k8s.io/v1alpha1
@@ -507,7 +477,7 @@ subjects:
 - kind: Group
   name: system:unauthenticated
 """)
-    run_shell('kubectl update -f %s' % name)
+    run_shell('kubectl update -f /tmp/rbac')
 
 
 def kolla_install_deploy_helm(version):
@@ -531,9 +501,9 @@ def kolla_install_deploy_helm(version):
             continue
 
 
-def k8s_cleanup(args):
+def k8s_cleanup(doit):
     '''Cleanup on Isle 9'''
-    if args.cleanup is True:
+    if doit is True:
         print('Kubernetes - Cleaning up existing Kubernetes Cluster')
         run_shell('sudo kubeadm reset')
         print('Kubernetes - Cleaning up old directories and files and docker images')
@@ -556,8 +526,6 @@ def k8s_cleanup(args):
             print('Kubernetes - Remove cinder volumes and data')
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
-    if args.complete_cleanup:
-        sys.exit(1)
 
 
 def kolla_install_repos():
@@ -588,8 +556,8 @@ def kolla_setup_loopback_lvm():
 
     /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh'''
     print('Kolla - Setup Loopback LVM for Cinder')
-    lvm = os.path.join(WD, 'setup_lvm')
-    with open(lvm, "w") as w:
+    new = '/tmp/setup_lvm'
+    with open(new, "w") as w:
         w.write("""\
 sudo mkdir -p /data/kolla
 sudo df -h
@@ -603,7 +571,7 @@ sudo partprobe $LOOP
 sudo pvcreate -y $LOOP
 sudo vgcreate -y cinder-volumes $LOOP
 """)
-    run_shell('bash %s' % lvm)
+    run_shell('bash %s' % new)
 
 
 def kolla_install_os_client():
@@ -734,7 +702,7 @@ def kolla_gen_configs():
 
 
 def kolla_gen_secrets():
-    '''Generate Kubernetes secrets'''
+    '''Generate Kubernetes secrets'''y
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
@@ -760,10 +728,10 @@ def kolla_resolve_workaround():
     run_shell('./kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
 
 
-def kolla_build_helm_charts():
-    '''Build all helm charts'''
+def kolla_build_micro_charts():
+    '''Build all helm micro charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run_shell('kolla-kubernetes/tools/helm_build_all.sh .')
+    run_shell('./kolla-kubernetes/tools/helm_build_all.sh .')
 
 
 def kolla_verify_helm_images():
@@ -781,7 +749,7 @@ def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
     '''Generate the cloud.yml file which works with the globals.yml
     file to define your cluster networking'''
     print('Kolla - Create and run cloud.yaml')
-    cloud = os.path.join(WD, 'cloud.yaml')
+    cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
         w.write("""\
 global:
@@ -850,23 +818,19 @@ global:
 
 def helm_install_service_chart(chart_list):
     '''helm install a list of service charts'''
-    cloud = os.path.join(WD, 'cloud.yaml')
-
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
-        --namespace kolla --name %s --values %s' % (chart, chart, cloud))
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
 def helm_install_micro_service_chart(chart_list):
     '''helm install a list of micro service charts'''
-    cloud = os.path.join(WD, 'cloud.yaml')
-
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
-        --namespace kolla --name %s --values %s' % (chart, chart, cloud))
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -916,8 +880,7 @@ def kolla_create_demo_vm():
 
     # Open up ingress rules to access VM
     print('Kolla - Allow Ingress by changing neutron rules')
-    new = os.path.join(WD, 'neutron_rules.sh')
-
+    new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""\
 openstack security group list -f value -c ID | while read SG_ID; do
@@ -971,8 +934,7 @@ def k8s_pause_to_check_nslookup(manual_check):
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
     print("Kubernetes - Test 'nslookup kubernetes'")
-    name = os.path.join(WD, 'busybox.yaml')
-
+    name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""\
 apiVersion: v1
@@ -1013,7 +975,7 @@ def k8s_bringup_kubernetes_cluster(args):
         return
 
     k8s_install_tools(args.ansible_version, args.jinja2_version)
-    # k8s_cleanup(args.cleanup)
+    k8s_cleanup(args.cleanup)
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
@@ -1056,7 +1018,7 @@ def kolla_bring_up_openstack(args):
     kolla_gen_secrets()
     kolla_create_config_maps()
     kolla_resolve_workaround()
-    kolla_build_helm_charts()
+    kolla_build_micro_charts()
     kolla_verify_helm_images()
     kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
 
@@ -1087,12 +1049,8 @@ def main():
     '''Main function.'''
     args = parse_args()
 
-    # Try to avoid globals
     global DEBUG
-    global WD
-
     DEBUG = args.verbose
-    WD = './kolla'
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
@@ -1104,10 +1062,11 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    # k8s_create_wd()
-    k8s_cleanup(args)
-
     try:
+        if args.complete_cleanup:
+            k8s_cleanup(args.complete_cleanup)
+            sys.exit(1)
+
         k8s_test_neutron_int(args.VIP_IP)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
