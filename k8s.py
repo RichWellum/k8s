@@ -34,8 +34,8 @@ Install pip:
   curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
   sudo python get-pip.py
 
-Install psutil:
-  sudo yum install gcc python-devel -y
+Install tools:
+  sudo yum install gcc python-devel nmap -y
   sudo pip install psutil
 '''
 
@@ -731,13 +731,13 @@ def kolla_resolve_workaround():
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run_shell('./kolla-kubernetes/tools/helm_build_all.sh .')
+    run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp')
 
 
 def kolla_verify_helm_images():
     '''Subjective but a useful check to see if enough helm charts were
     generated'''
-    out = run_shell('ls | grep ".tgz" | wc -l')
+    out = run_shell('ls /tmp | grep ".tgz" | wc -l')
     if int(out) > 190:
         print('Kolla - %s Helm images created' % int(out))
     else:
