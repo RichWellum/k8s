@@ -512,7 +512,7 @@ def k8s_cleanup(doit):
         # | xargs sudo docker stop)')
         run_shell('sudo rm -rf /etc/kolla*')
         run_shell('sudo rm -rf /etc/kubernetes')
-        run_shell('sudo rm -rf /etc/kolla-kubernetes')
+        # run_shell('sudo rm -rf /etc/kolla-kubernetes') #remove
         run_shell('sudo rm -rf /var/lib/kolla*')
         run_shell('sudo rm -rf /tmp/*')
         run_shell('sudo rm -rf /var/etcd')
@@ -537,9 +537,9 @@ def kolla_install_repos():
     run_shell('git clone http://github.com/openstack/kolla-ansible')
 
     print('Kolla - Clone kolla-kubernetes')
-    if os.path.exists('./kolla-kubernetes'):
-        run_shell('sudo rm -rf ./kolla-kubernetes')
-    run_shell('git clone http://github.com/openstack/kolla-kubernetes')
+    # if os.path.exists('./kolla-kubernetes'): #remove
+    #     run_shell('sudo rm -rf ./kolla-kubernetes')
+    # run_shell('git clone http://github.com/openstack/kolla-kubernetes')
 
     print('Kolla - Install kolla-ansible and kolla-kubernetes')
     run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
