@@ -772,7 +772,6 @@ global:
        all:
          admin_port_external: "true"
          dns_name: "%s"
-         port: 5000"
        public:
          all:
            port_external: "true"
