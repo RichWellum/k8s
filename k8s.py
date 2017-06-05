@@ -167,10 +167,10 @@ def demo(title, description):
         print('*', end='')
     print('\n* %s *' % title)
     print('* %s *' % description)
+    print('*', end='')
+    print('*', end='')
     for c in description:
         print('*', end='')
-    print('*', end='')
-    print('*', end='')
     print('\n')
 
     raw_input('Press Enter to continue with demo')
