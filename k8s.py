@@ -319,7 +319,6 @@ def k8s_wait_for_vm(vm):
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
-    demo('Installing tools', 'Installing a bunch of tools to make me very happy and I say what')
     run_shell('sudo yum install -y epel-release bridge-utils nmap')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
@@ -364,6 +363,9 @@ def k8s_install_k8s(k8s_version, cni_version):
     run_shell('sudo pip install --upgrade pip')
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
+    demo('Installing Kubernetes', 'Installing docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' %
+         (k8s_version, k8s_version, cni_version))
+
     run_shell(
         'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
         kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
@@ -394,13 +396,13 @@ def k8s_reload_service_files():
     '''Service files where modified so bring them up again'''
     print('Kubernetes - Reload the hand-modified service files')
     run_shell('sudo systemctl daemon-reload')
-    # run_shell('sudo systemctl start docker')
-    # run_shell('sudo systemctl restart kubelet')
 
 
 def k8s_start_kubelet():
     '''Start kubectl'''
     print('Kubernetes - Enable and start kubelet')
+    demo('Enable and start kubectl', 'kubectl is a command line interface for ' +
+         'running commands against Kubernetes clusters')
     run_shell('sudo systemctl enable kubelet')
     run_shell('sudo systemctl start kubelet')
 
@@ -409,6 +411,10 @@ def k8s_fix_iptables():
     '''Maybe Centos only but this needs to be changed to proceed'''
     reload_sysctl = False
     print('Kubernetes - Fix iptables')
+    demo('Centos fix bridging',
+         'Setting net.bridge.bridge-nf-call-iptables=1 ' +
+         'in /etc/sysctl.conf')
+
     run_shell('sudo cp /etc/sysctl.conf /tmp')
     run_shell('sudo chmod 777 /tmp/sysctl.conf')
 
@@ -428,8 +434,44 @@ def k8s_fix_iptables():
 def k8s_deploy_k8s():
     '''Start the kubernetes master'''
     print('Kubernetes - Deploying Kubernetes with kubeadm')
-    run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
-    --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+    demo('Initializes your Kubernetes Master',
+         'One of the most frequent criticisms of Kubernetes is that it is ' +
+         'hard to install. ' +
+         'Kubeadm is a new tool that is part of the Kubernetes distribution ' +
+         'that makes this easier')
+    demo('The Kubernetes Control Plane',
+         'The Kubernetes control plane consists of the Kubernetes API server ' +
+         '(kube-apiserver), controller manager (kube-controller-manager), ' +
+         'and scheduler (kube-scheduler). The API server depends on etcd so ' +
+         'an etcd cluster is also required. ' +
+         'https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master')
+    demo('kubeadm and the kubelet',
+         'Kubernetes has a component called the Kubelet which manages containers ' +
+         'running on a single host. It allows us to use Kubelet to manage the ' +
+         'control plane components. This is exactly what kubeadm sets us up to do.' +
+         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 ' +
+         '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output')
+    if DEMO:
+        out = run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
+        --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+        print(out)
+        demo('What happened?',
+             'We can see that kubeadm created the necessary certificates for ' +
+             'the API, started the control plane components, and installed the ' +
+             'essential addons. kubeadm does not mention anything about the Kubelet ' +
+             'but we can verify that it is running:')
+        out = run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep')
+        print(out)
+        demo('Kubelet was started. But how? ',
+             'The Kubelet will monitor the control plane components but what' +
+             'monitors Kubelet and make sure it is always running? This is ' +
+             'where we use systemd. Systemd is started as PID 1 so the OS will ' +
+             'make sure it is always running, systemd makes sure the Kubelet is ' +
+             'running, and the Kubelet makes sure our containers with the ' +
+             'control plane components are running.')
+    else:
+        run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
+        --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
@@ -445,6 +487,59 @@ def k8s_load_kubeadm_creds():
     run_shell('sudo -H cp /etc/kubernetes/admin.conf %s' % config)
     run_shell('sudo chmod 777 %s' % kube)
     run_shell('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
+    demo('Verify Kubelet',
+         'Kubelete should be running our control plane components and be ' +
+         'connected to the API server (like any other Kubelet node.' +
+         'kubectl get nodes')
+    if DEMO:
+        out = run_shell('sudo kubectl get nodes')
+        print(out)
+        out = run_shell('kubectl get pods --all-namespaces')
+        print(out)
+    demo('Verifying the Control Plane Components',
+         'We can see that kubeadm created a /etc/kubernetes/ directory so check out what is there.')
+    if DEMO:
+        out = run_shell('ls -lh /etc/kubernetes/')
+        print(out)
+        demo('Files',
+             'The admin.conf and kubelet.conf are yaml files that mostly ' +
+             'contain certs used for authentication with the API. The pki ' +
+             'directory contains the certificate authority certs, API server ' +
+             'certs, and tokens.')
+        out = run_shell('ls -lh /etc/kubernetes/pki')
+        print(out)
+        demo('The manifests directory ',
+             'The manifests directory is where things get interesting. In the ' +
+             'manifests directory we have a number of json files for our ' +
+             'control plane components.')
+        out = run_shell('ls -lh /etc/kubernetes/manifests/')
+        print(out)
+        demo('Pod Manifests',
+             'If you noticed earlier the Kubelet was passed the ' +
+             '--pod-manifest-path=/etc/kubernetes/manifests flag which tells ' +
+             'it to monitor the files in the /etc/kubernetes/manifests directory ' +
+             'and makes sure the components defined therein are always running. ' +
+             'We can see that they are running my checking with the local Docker ' +
+             'to list the running containers.')
+        out = run_shell('docker ps --format="table {{.ID}}\t{{.Image}}"')
+        print(out)
+        demo('Note Containers', 'we can see that etcd, kube-apiserver, ' +
+             'kube-controller-manager, and kube-scheduler are running.')
+        demo('How can we connect to containers?', 'If we look at each of the ' +
+             'json files in the /etc/kubernetes/manifests directory we can see ' +
+             'that they each use the hostNetwork: true option which allows the ' +
+             'applications to bind to ports on the host just as if they were ' +
+             'running outside of a container.')
+        demo('Connect to the API', 'So we can connect to the API servers' +
+             'insecure local port. curl http://127.0.0.1:8080/version')
+        out = run_shell('curl http://127.0.0.1:8080/version')
+        print(out)
+        demo('Secure port?', 'The API server also binds a secure port 443 which ' +
+             'requires a client cert and authentication. Be careful to use the ' +
+             'public IP for your master here. ' +
+             'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
+        out = run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
+        print(out)
 
 
 def k8s_deploy_canal_sdn():
