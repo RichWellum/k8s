@@ -169,7 +169,7 @@ def demo(title, description):
 
     # Add DEMO string
     # print('\n* DEMO'.rjust(banner - len('DEMO') + 2), end='')
-    just = len(banner) / 2
+    just = banner / 2
     print('\n* %s'.rjust(just) % 'DEMO', end='')
     print('*')
 
