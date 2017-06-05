@@ -166,7 +166,7 @@ def demo(title, description):
     print('*', end='')
     for c in description:
         print('*', end='')
-    print('\n* %s'.ljust(len(just)) % title, end='')
+    print('\n* %s'.ljust(just) % title, end='')
     print('*')
     print('* %s' % description, end='')
     print('*')
