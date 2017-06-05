@@ -161,6 +161,8 @@ def demo(title, description):
     if not DEMO:
         return
     banner = len(description) + 4
+    if banner > 80:
+        banner = 80
 
     # First banner
     print('\n')
