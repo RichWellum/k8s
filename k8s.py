@@ -162,7 +162,7 @@ def demo(title, description):
         return
     print('\n')
     for c in description:
-        print('*', end='', flush=True)
+        print('*',)
     print('"%s"' % title)
     print('"%s"' % description)
     print('\n')
