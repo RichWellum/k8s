@@ -176,10 +176,9 @@ def demo(title, description):
 
     # Add description plus 5
     print('* %s *' % description, end='')
-    print('*')
 
     # print('**')
-    print('\n')
+    # print('\n')
 
     # Final banner
     for c in range(banner):
