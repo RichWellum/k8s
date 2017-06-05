@@ -149,8 +149,6 @@ def untar(fname):
         tar.extractall()
         tar.close()
 
-` <
-
 
 def pause_to_debug(str):
     '''Pause the script for manual debugging of the VM before continuing'''
