@@ -162,12 +162,12 @@ def demo(title, description):
         return
     print('\n')
     for c in description:
-        print('*',)
+        print('*', end='')
     print('"%s"' % title)
     print('"%s"' % description)
     print('\n')
     for c in description:
-        print('*',)
+        print('*', end='')
 
     raw_input('Press Enter to continue with demo')
 
