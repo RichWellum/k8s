@@ -160,20 +160,21 @@ def demo(title, description):
     '''Pause the script to provide demo information'''
     if not DEMO:
         return
-    just = len(description) - len(title) + 6
+    banner = len(description) + 4
+    just = len(description) - len(title) + 3
     just2 = 6
 
     print('\n')
     print('*', end='')
     print('*', end='')
-    for c in description:
+    for c in banner:
         print('*', end='')
     print('\n* %s'.ljust(just) % title, end='')
     print('  *')
 
     print('* %s'.ljust(just2) % description, end='')
     print('  *')
-    for c in description:
+    for c in banner:
         print('*', end='')
     print('\n')
 
