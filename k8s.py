@@ -441,34 +441,34 @@ def k8s_deploy_k8s():
          'Kubeadm is a new tool that is part of the Kubernetes distribution ' +
          'that makes this easier')
     demo('The Kubernetes Control Plane',
-         'The Kubernetes control plane consists of the Kubernetes API server ' +
-         '(kube-apiserver), \ncontroller manager (kube-controller-manager), ' +
-         'and scheduler (kube-scheduler). \nThe API server depends on etcd so ' +
-         'an etcd cluster is also required. \n' +
+         'The Kubernetes control plane consists of the Kubernetes API server\n' +
+         '(kube-apiserver), controller manager (kube-controller-manager),\n' +
+         'and scheduler (kube-scheduler). The API server depends on etcd so\n' +
+         'an etcd cluster is also required.\n' +
          'https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master')
     demo('kubeadm and the kubelet',
-         'Kubernetes has a component called the Kubelet which manages containers ' +
-         'running on a single host.\nIt allows us to use Kubelet to manage the ' +
-         'control plane components.\nThis is exactly what kubeadm sets us up to do.\n' +
-         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 ' +
+         'Kubernetes has a component called the Kubelet which manages containers\n' +
+         'running on a single host. It allows us to use Kubelet to manage the\n' +
+         'control plane components. This is exactly what kubeadm sets us up to do.\n' +
+         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16' +
          '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output')
     if DEMO:
         out = run_shell(
             'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
         print(out)
         demo('What happened?',
-             'We can see that kubeadm created the necessary certificates for ' +
+             'We can see above that kubeadm created the necessary certificates for ' +
              'the API, started the control plane components, and installed the ' +
              'essential addons. kubeadm does not mention anything about the Kubelet ' +
              'but we can verify that it is running:')
         out = run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep')
         print(out)
         demo('Kubelet was started. But how? ',
-             'The Kubelet will monitor the control plane components but what' +
-             'monitors Kubelet and make sure it is always running? This is ' +
-             'where we use systemd. Systemd is started as PID 1 so the OS will ' +
-             'make sure it is always running, systemd makes sure the Kubelet is ' +
-             'running, and the Kubelet makes sure our containers with the ' +
+             'The Kubelet will monitor the control plane components but what\n' +
+             'monitors Kubelet and make sure it is always running? This is\n' +
+             'where we use systemd. Systemd is started as PID 1 so the OS will\n' +
+             'make sure it is always running, systemd makes sure the Kubelet is\n' +
+             'running, and the Kubelet makes sure our containers with the\n' +
              'control plane components are running.')
     else:
         run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
@@ -489,55 +489,54 @@ def k8s_load_kubeadm_creds():
     run_shell('sudo chmod 777 %s' % kube)
     run_shell('sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
     demo('Verify Kubelet',
-         'Kubelete should be running our control plane components and be ' +
-         'connected to the API server (like any other Kubelet node.' +
+         'Kubelete should be running our control plane components and be\n' +
+         'connected to the API server (like any other Kubelet node.\n' +
          'kubectl get nodes')
     if DEMO:
         out = run_shell('sudo kubectl get nodes')
         print(out)
-        out = run_shell('kubectl get pods --all-namespaces')
-        print(out)
     demo('Verifying the Control Plane Components',
-         'We can see that kubeadm created a /etc/kubernetes/ directory so check out what is there.')
+         'We can see that kubeadm created a /etc/kubernetes/ directory so check\n'
+         'out what is there.')
     if DEMO:
         out = run_shell('ls -lh /etc/kubernetes/')
         print(out)
         demo('Files',
-             'The admin.conf and kubelet.conf are yaml files that mostly ' +
-             'contain certs used for authentication with the API. The pki ' +
-             'directory contains the certificate authority certs, API server ' +
+             'The admin.conf and kubelet.conf are yaml files that mostly\n' +
+             'contain certs used for authentication with the API. The pki\n' +
+             'directory contains the certificate authority certs, API server\n' +
              'certs, and tokens.')
         out = run_shell('ls -lh /etc/kubernetes/pki')
         print(out)
         demo('The manifests directory ',
-             'The manifests directory is where things get interesting. In the ' +
-             'manifests directory we have a number of json files for our ' +
+             'The manifests directory is where things get interesting. In the\n' +
+             'manifests directory we have a number of json files for our\n' +
              'control plane components.')
-        out = run_shell('ls -lh /etc/kubernetes/manifests/')
+        out = run_shell('sudo ls -lh /etc/kubernetes/manifests/')
         print(out)
         demo('Pod Manifests',
-             'If you noticed earlier the Kubelet was passed the ' +
-             '--pod-manifest-path=/etc/kubernetes/manifests flag which tells ' +
-             'it to monitor the files in the /etc/kubernetes/manifests directory ' +
-             'and makes sure the components defined therein are always running. ' +
-             'We can see that they are running my checking with the local Docker ' +
+             'If you noticed earlier the Kubelet was passed the\n' +
+             '--pod-manifest-path=/etc/kubernetes/manifests flag which tells\n' +
+             'it to monitor the files in the /etc/kubernetes/manifests directory\n' +
+             'and makes sure the components defined therein are always running.\n' +
+             'We can see that they are running my checking with the local Docker\n' +
              'to list the running containers.')
-        out = run_shell('docker ps --format="table {{.ID}}\t{{.Image}}"')
+        out = run_shell('sudo docker ps --format="table {{.ID}}\t{{.Image}}"')
         print(out)
-        demo('Note Containers', 'we can see that etcd, kube-apiserver, ' +
+        demo('Note Containers', 'we can see that etcd, kube-apiserver,\n' +
              'kube-controller-manager, and kube-scheduler are running.')
-        demo('How can we connect to containers?', 'If we look at each of the ' +
-             'json files in the /etc/kubernetes/manifests directory we can see ' +
-             'that they each use the hostNetwork: true option which allows the ' +
-             'applications to bind to ports on the host just as if they were ' +
+        demo('How can we connect to containers?', 'If we look at each of the\n' +
+             'json files in the /etc/kubernetes/manifests directory we can see\n' +
+             'that they each use the hostNetwork: true option which allows the\n' +
+             'applications to bind to ports on the host just as if they were\n' +
              'running outside of a container.')
-        demo('Connect to the API', 'So we can connect to the API servers' +
+        demo('Connect to the API', 'So we can connect to the API servers\n' +
              'insecure local port. curl http://127.0.0.1:8080/version')
-        out = run_shell('curl http://127.0.0.1:8080/version')
+        out = run_shell('sudo curl http://127.0.0.1:8080/version')
         print(out)
-        demo('Secure port?', 'The API server also binds a secure port 443 which ' +
-             'requires a client cert and authentication. Be careful to use the ' +
-             'public IP for your master here. ' +
+        demo('Secure port?', 'The API server also binds a secure port 443 which\n' +
+             'requires a client cert and authentication. Be careful to use the\n' +
+             'public IP for your master here.\n' +
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         out = run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(out)
