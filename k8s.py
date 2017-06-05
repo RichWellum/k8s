@@ -170,13 +170,16 @@ def demo(title, description):
     for c in range(banner):
         print('*', end='')
 
-    # Add title formatted to banner length plus 4
+    # Add title formatted to banner length
     print('\n* %s'.ljust(banner - len(title) + 2) % title, end='')
     print('*')
 
     # Add description plus 5
-    print('* %s\n'.ljust(banner) % description, end='')
+    print('* %s'.ljust(banner) % description, end='')
+    print('*')
+
     # print('**')
+    print('\n')
 
     # Final banner
     for c in range(banner):
