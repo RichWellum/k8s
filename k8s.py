@@ -437,7 +437,7 @@ def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
     demo('Initializes your Kubernetes Master',
          'One of the most frequent criticisms of Kubernetes is that it is ' +
-         'hard to install.\n ' +
+         'hard to install.\n' +
          'Kubeadm is a new tool that is part of the Kubernetes distribution ' +
          'that makes this easier')
     demo('The Kubernetes Control Plane',
@@ -448,8 +448,8 @@ def k8s_deploy_k8s():
          'https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master')
     demo('kubeadm and the kubelet',
          'Kubernetes has a component called the Kubelet which manages containers ' +
-         'running on a single host. It allows us to use Kubelet to manage the ' +
-         'control plane components. This is exactly what kubeadm sets us up to do.' +
+         'running on a single host.\nIt allows us to use Kubelet to manage the ' +
+         'control plane components.\nThis is exactly what kubeadm sets us up to do.\n' +
          'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 ' +
          '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output')
     if DEMO:
