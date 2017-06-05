@@ -175,7 +175,7 @@ def demo(title, description):
     print('*')
 
     # Add description plus 5
-    print('* %s'.ljust(banner) % description, end='')
+    print('* %s *' % description, end='')
     print('*')
 
     # print('**')
