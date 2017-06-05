@@ -453,8 +453,8 @@ def k8s_deploy_k8s():
          'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 ' +
          '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output')
     if DEMO:
-        out = run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
-        --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+        out = run_shell(
+            'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
         print(out)
         demo('What happened?',
              'We can see that kubeadm created the necessary certificates for ' +
