@@ -169,7 +169,7 @@ def demo(title, description):
 
     # Add DEMO string
     # print('\n* DEMO'.rjust(banner - len('DEMO') + 2), end='')
-    print('\n* DEMO'.ljust(20), end='')
+    print('\n*{:>20} DEMO'.ljust(20), end='')
     print('*')
 
     # Add title formatted to banner length
