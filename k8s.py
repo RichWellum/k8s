@@ -109,6 +109,7 @@ def parse_args():
                         help='Cleanup existing Kubernetes cluster then exit')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
+    # Todo: make this the default then add a switch for kolla or os-helm
     parser.add_argument('-os', '--openstack', action='store_true',
                         help='Build OpenStack on an existing Kubernetes Cluster')
     parser.add_argument('-n', '--nslookup', action='store_true',
@@ -118,6 +119,8 @@ def parse_args():
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages')
+    parser.add_argument('-d', '--demo', action='store_true',
+                        help='Display some demo information and offer to move on')
 
     return parser.parse_args()
 
@@ -148,9 +151,22 @@ def untar(fname):
 
 
 def pause_to_debug(str):
-    '''Pause the script for manual debugging of the VM before continuing.'''
+    '''Pause the script for manual debugging of the VM before continuing'''
     print('Pause: "%s"' % str)
     raw_input('Press Enter to continue')
+
+
+def demo(title, description):
+    '''Pause the script to provide demo information'''
+    if not DEMO:
+        return
+    print('\n')
+    print('************Demo***************')
+    print('"%s"' % title)
+    print('"%s"' % description)
+    print('\n')
+
+    raw_input('Press Enter to continue with demo')
 
 
 def curl(*args):
@@ -286,6 +302,7 @@ def k8s_wait_for_vm(vm):
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
+    demo('Installing tools', 'Installing a bunch of tools yo')
     run_shell('sudo yum install -y epel-release bridge-utils nmap')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
@@ -1052,6 +1069,9 @@ def main():
 
     global DEBUG
     DEBUG = args.verbose
+
+    global DEMO
+    DEMO = args.demo
 
     print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
           (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
