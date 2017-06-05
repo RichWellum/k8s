@@ -171,7 +171,7 @@ def demo(title, description):
         print('*', end='')
 
     # Add title formatted to banner length plus 4
-    print('\n* %s'.ljust(banner - len(title)) % title, end='')
+    print('\n* %s'.ljust(banner - len(title) + 2) % title, end='')
     print('*')
 
     # Add description plus 5
