@@ -167,14 +167,14 @@ def demo(title, description):
     print('\n')
     print('*', end='')
     print('*', end='')
-    for c in banner:
+    for c in range(banner):
         print('*', end='')
     print('\n* %s'.ljust(just) % title, end='')
     print('  *')
 
     print('* %s'.ljust(just2) % description, end='')
     print('  *')
-    for c in banner:
+    for c in range(banner):
         print('*', end='')
     print('\n')
 
