@@ -566,7 +566,7 @@ def k8s_deploy_canal_sdn():
          'specification started by CoreOS with the input from the wider open\n' +
          'source community aimed to make network plugins interoperable between\n' +
          'container execution engines. It aims to be as common and vendor-neutral\n' +
-         'as possible to support a wide variety of networking options — from\n' +
+         'as possible to support a wide variety of networking options from\n' +
          'MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
          'CNI is growing in popularity. It got its start as a network plugin\n' +
          'layer for rkt, a container runtime from CoreOS. CNI is getting even\n' +
