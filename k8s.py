@@ -557,6 +557,23 @@ def k8s_deploy_canal_sdn():
     run_shell('kubectl create -f /tmp/rbac.yaml')
 
     print('Kubernetes - Deploy the Canal CNI driver')
+    demo('Take a look at pods',
+         'In a separate window execute "kubectl get pods --all-namespaces"')
+    if DEMO:
+        print(run_shell('kubectl get pods --all-namespaces'))
+    demo('Why use a CNI Driver?',
+         'Container Network Interface (CNI) is a\n' +
+         'specification started by CoreOS with the input from the wider open\n' +
+         'source community aimed to make network plugins interoperable between\n' +
+         'container execution engines. It aims to be as common and vendor-neutral\n' +
+         'as possible to support a wide variety of networking options — from\n' +
+         'MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
+         'CNI is growing in popularity. It got its start as a network plugin\n' +
+         'layer for rkt, a container runtime from CoreOS. CNI is getting even\n' +
+         'wider adoption with Kubernetes adding support for it. Kubernetes\n' +
+         'accelerates development cycles while simplifying operations, and with\n' +
+         'support for CNI is taking the next step toward a common ground for\n' +
+         'networking.')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
