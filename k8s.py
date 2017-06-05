@@ -161,7 +161,7 @@ def demo(title, description):
     if not DEMO:
         return
     just = len(description) - len(title) + 6
-    just2 = len(description) + 6
+    just2 = 6
 
     print('\n')
     print('*', end='')
