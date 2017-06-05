@@ -167,7 +167,7 @@ def demo(title, description):
     print('"%s"' % description)
     print('\n')
     for c in description:
-        print('*', end='', flush=True)
+        print('*',)
 
     raw_input('Press Enter to continue with demo')
 
