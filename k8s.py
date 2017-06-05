@@ -450,19 +450,18 @@ def k8s_deploy_k8s():
          'Kubernetes has a component called the Kubelet which manages containers\n' +
          'running on a single host. It allows us to use Kubelet to manage the\n' +
          'control plane components. This is exactly what kubeadm sets us up to do.\n' +
-         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16' +
-         '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output')
+         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 //n' +
+         '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output\n' +
+         'Run: "watch -d sudo docker ps" in another window')
     if DEMO:
-        out = run_shell(
-            'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
-        print(out)
+        print(run_shell(
+            'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks'))
         demo('What happened?',
-             'We can see above that kubeadm created the necessary certificates for ' +
-             'the API, started the control plane components, and installed the ' +
-             'essential addons. kubeadm does not mention anything about the Kubelet ' +
+             'We can see above that kubeadm created the necessary certificates for\n' +
+             'the API, started the control plane components, and installed the\n' +
+             'essential addons. Kubeadm does not mention anything about the Kubelet\n' +
              'but we can verify that it is running:')
-        out = run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep')
-        print(out)
+        print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
         demo('Kubelet was started. But how? ',
              'The Kubelet will monitor the control plane components but what\n' +
              'monitors Kubelet and make sure it is always running? This is\n' +
@@ -491,29 +490,25 @@ def k8s_load_kubeadm_creds():
     demo('Verify Kubelet',
          'Kubelete should be running our control plane components and be\n' +
          'connected to the API server (like any other Kubelet node.\n' +
-         'kubectl get nodes')
+         'Run "watch -d kubectl get nodes" in another window')
     if DEMO:
-        out = run_shell('sudo kubectl get nodes')
-        print(out)
+        print(run_shell('sudo kubectl get nodes'))
     demo('Verifying the Control Plane Components',
          'We can see that kubeadm created a /etc/kubernetes/ directory so check\n'
          'out what is there.')
     if DEMO:
-        out = run_shell('ls -lh /etc/kubernetes/')
-        print(out)
+        print(run_shell('ls -lh /etc/kubernetes/'))
         demo('Files',
              'The admin.conf and kubelet.conf are yaml files that mostly\n' +
              'contain certs used for authentication with the API. The pki\n' +
              'directory contains the certificate authority certs, API server\n' +
-             'certs, and tokens.')
-        out = run_shell('ls -lh /etc/kubernetes/pki')
-        print(out)
+             'certs, and tokens:')
+        print(run_shell('ls -lh /etc/kubernetes/pki'))
         demo('The manifests directory ',
              'The manifests directory is where things get interesting. In the\n' +
              'manifests directory we have a number of json files for our\n' +
              'control plane components.')
-        out = run_shell('sudo ls -lh /etc/kubernetes/manifests/')
-        print(out)
+        print(run_shell('sudo ls -lh /etc/kubernetes/manifests/'))
         demo('Pod Manifests',
              'If you noticed earlier the Kubelet was passed the\n' +
              '--pod-manifest-path=/etc/kubernetes/manifests flag which tells\n' +
@@ -521,8 +516,7 @@ def k8s_load_kubeadm_creds():
              'and makes sure the components defined therein are always running.\n' +
              'We can see that they are running my checking with the local Docker\n' +
              'to list the running containers.')
-        out = run_shell('sudo docker ps --format="table {{.ID}}\t{{.Image}}"')
-        print(out)
+        print(run_shell('sudo docker ps --format="table {{.ID}}\t{{.Image}}"'))
         demo('Note Containers', 'we can see that etcd, kube-apiserver,\n' +
              'kube-controller-manager, and kube-scheduler are running.')
         demo('How can we connect to containers?', 'If we look at each of the\n' +
@@ -532,14 +526,12 @@ def k8s_load_kubeadm_creds():
              'running outside of a container.')
         demo('Connect to the API', 'So we can connect to the API servers\n' +
              'insecure local port. curl http://127.0.0.1:8080/version')
-        out = run_shell('sudo curl http://127.0.0.1:8080/version')
-        print(out)
+        print(run_shell('sudo curl http://127.0.0.1:8080/version'))
         demo('Secure port?', 'The API server also binds a secure port 443 which\n' +
              'requires a client cert and authentication. Be careful to use the\n' +
              'public IP for your master here.\n' +
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
-        out = run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
-        print(out)
+        print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
 
 
 def k8s_deploy_canal_sdn():
@@ -557,23 +549,21 @@ def k8s_deploy_canal_sdn():
     run_shell('kubectl create -f /tmp/rbac.yaml')
 
     print('Kubernetes - Deploy the Canal CNI driver')
-    demo('Take a look at pods',
-         'In a separate window execute "kubectl get pods --all-namespaces"')
     if DEMO:
+        demo('Why use a CNI Driver?',
+             'Container Network Interface (CNI) is a\n' +
+             'specification started by CoreOS with the input from the wider open\n' +
+             'source community aimed to make network plugins interoperable between\n' +
+             'container execution engines. It aims to be as common and vendor-neutral\n' +
+             'as possible to support a wide variety of networking options from\n' +
+             'MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
+             'CNI is growing in popularity. It got its start as a network plugin\n' +
+             'layer for rkt, a container runtime from CoreOS. CNI is getting even\n' +
+             'wider adoption with Kubernetes adding support for it. Kubernetes\n' +
+             'accelerates development cycles while simplifying operations, and with\n' +
+             'support for CNI is taking the next step toward a common ground for\n' +
+             'networking.')
         print(run_shell('kubectl get pods --all-namespaces'))
-    demo('Why use a CNI Driver?',
-         'Container Network Interface (CNI) is a\n' +
-         'specification started by CoreOS with the input from the wider open\n' +
-         'source community aimed to make network plugins interoperable between\n' +
-         'container execution engines. It aims to be as common and vendor-neutral\n' +
-         'as possible to support a wide variety of networking options from\n' +
-         'MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
-         'CNI is growing in popularity. It got its start as a network plugin\n' +
-         'layer for rkt, a container runtime from CoreOS. CNI is getting even\n' +
-         'wider adoption with Kubernetes adding support for it. Kubernetes\n' +
-         'accelerates development cycles while simplifying operations, and with\n' +
-         'support for CNI is taking the next step toward a common ground for\n' +
-         'networking.')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
@@ -582,6 +572,10 @@ def k8s_deploy_canal_sdn():
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
+    demo('Wait for CNI to be deployed', 'The CNI will allow DNS')
+    if DEMO:
+        print(run_shell('kubectl get pods --all-namespaces'))
+        demo('Check for DNS now', '')
 
 
 def k8s_add_api_server(ip):
@@ -598,6 +592,9 @@ def k8s_schedule_master_node():
 
     While the command says "taint" the "-" at the end is an "untaint"'''
     print('Kubernetes - Mark master node as schedulable')
+    demo('Running on the master is different though',
+         'There is a special annotation on our node telling Kubernetes not to\n' +
+         'schedule containers on our master node.')
     run_shell('kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-')
 
 
@@ -1013,8 +1010,7 @@ def kolla_create_demo_vm():
     print('Kolla - Create a demo vm in our OpenStack cluster')
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    out = run_shell('source ~/keystonerc_admin; %s' % create_demo1)
-    print(out)
+    print(run_shell('source ~/keystonerc_admin; %s' % create_demo1))
     k8s_wait_for_vm('demo1')
 
     # Create a floating ip
@@ -1022,8 +1018,7 @@ def kolla_create_demo_vm():
     cmd = "source ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
-    out = run_shell(cmd)
-    print(out)
+    print(run_shell(cmd))
 
     # Open up ingress rules to access VM
     print('Kolla - Allow Ingress by changing neutron rules')
@@ -1042,8 +1037,7 @@ done
 
     # Display nova list
     print('Kolla - nova list')
-    out = run_shell('source ~/keystonerc_admin; nova list')
-    print(out)
+    print(run_shell('source ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
@@ -1140,6 +1134,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_schedule_master_node()
     k8s_pause_to_check_nslookup(args.nslookup)
     k8s_check_exit(args.kubernetes)
+    demo('Congrats - your kubernetes cluster should be up abd running now', '')
 
 
 def kolla_bring_up_openstack(args):
