@@ -319,7 +319,7 @@ def k8s_wait_for_vm(vm):
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
-    demo('Installing tools', 'Installing a bunch of tools yo')
+    demo('Installing tools', 'Installing a bunch of tools to make me very happy and I say what')
     run_shell('sudo yum install -y epel-release bridge-utils nmap')
     run_shell('sudo yum install -y python-pip')
     run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
