@@ -161,24 +161,22 @@ def demo(title, description):
     if not DEMO:
         return
     banner = len(description) + 4
-    # just = len(description) + 4
-    # just2 = 5
 
     # First banner
     print('\n')
-    # print('**', end='')
     for c in range(banner):
         print('*', end='')
+
+    # Add DEMO string
+    print('\n* DEMO'.rjust(banner - len('DEMO') + 2), end='')
+    print('*')
 
     # Add title formatted to banner length
     print('\n* %s'.ljust(banner - len(title) + 2) % title, end='')
     print('*')
 
-    # Add description plus 5
+    # Add description
     print('* %s *' % description)
-
-    # print('**')
-    # print('\n')
 
     # Final banner
     for c in range(banner):
