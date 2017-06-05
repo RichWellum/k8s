@@ -149,11 +149,13 @@ def untar(fname):
         tar.extractall()
         tar.close()
 
+` <
+
 
 def pause_to_debug(str):
     '''Pause the script for manual debugging of the VM before continuing'''
     print('Pause: "%s"' % str)
-    raw_input('Press Enter to continue')
+    raw_input('Press Enter to continue\n')
 
 
 def demo(title, description):
@@ -436,14 +438,14 @@ def k8s_deploy_k8s():
     print('Kubernetes - Deploying Kubernetes with kubeadm')
     demo('Initializes your Kubernetes Master',
          'One of the most frequent criticisms of Kubernetes is that it is ' +
-         'hard to install. ' +
+         'hard to install.\n ' +
          'Kubeadm is a new tool that is part of the Kubernetes distribution ' +
          'that makes this easier')
     demo('The Kubernetes Control Plane',
          'The Kubernetes control plane consists of the Kubernetes API server ' +
-         '(kube-apiserver), controller manager (kube-controller-manager), ' +
-         'and scheduler (kube-scheduler). The API server depends on etcd so ' +
-         'an etcd cluster is also required. ' +
+         '(kube-apiserver), \ncontroller manager (kube-controller-manager), ' +
+         'and scheduler (kube-scheduler). \nThe API server depends on etcd so ' +
+         'an etcd cluster is also required. \n' +
          'https://www.ianlewis.org/en/how-kubeadm-initializes-your-kubernetes-master')
     demo('kubeadm and the kubelet',
          'Kubernetes has a component called the Kubelet which manages containers ' +
