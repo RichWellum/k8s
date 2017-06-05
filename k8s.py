@@ -161,10 +161,13 @@ def demo(title, description):
     if not DEMO:
         return
     print('\n')
-    print('************Demo***************')
+    for c in description:
+        print('*', end='', flush=True)
     print('"%s"' % title)
     print('"%s"' % description)
     print('\n')
+    for c in description:
+        print('*', end='', flush=True)
 
     raw_input('Press Enter to continue with demo')
 
