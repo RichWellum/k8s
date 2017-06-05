@@ -165,10 +165,8 @@ def demo(title, description):
     print('*', end='')
     for c in description:
         print('*', end='')
-    print('\n* %s *' % title, end='')
-    print('*')
-    print('* %s *' % description, end='')
-    print('*')
+    print('\n* %s *' % title)
+    print('* %s *' % description)
     for c in description:
         print('*', end='')
     print('\n')
