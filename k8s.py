@@ -166,7 +166,7 @@ def demo(title, description):
 
     # First banner
     print('\n')
-    print('**', end='')
+    # print('**', end='')
     for c in range(banner):
         print('*', end='')
 
@@ -176,7 +176,7 @@ def demo(title, description):
 
     # Add description plus 5
     print('* %s'.ljust(banner) % description, end='')
-    print('**')
+    # print('**')
 
     # Final banner
     for c in range(banner):
