@@ -160,7 +160,8 @@ def demo(title, description):
     '''Pause the script to provide demo information'''
     if not DEMO:
         return
-    banner = len(description) + 4
+
+    banner = len(description)
     if banner > 100:
         banner = 100
 
@@ -170,15 +171,13 @@ def demo(title, description):
         print('*', end='')
 
     # Add DEMO string
-    print('\n* %s'.ljust(banner - len('DEMO') + 2) % 'DEMO', end='')
-    print('*')
+    print('\n%s'.ljust(banner - len('DEMO')) % 'DEMO', end='')
 
     # Add title formatted to banner length
-    print('* %s'.ljust(banner - len(title) + 1) % title, end='')
-    print('*')
+    print('%s'.ljust(banner - len(title)) % title, end='')
 
     # Add description
-    print('* %s *' % description)
+    print('%s' % description)
 
     # Final banner
     for c in range(banner):
