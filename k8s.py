@@ -160,17 +160,17 @@ def demo(title, description):
     '''Pause the script to provide demo information'''
     if not DEMO:
         return
-    just = len(description) - len(title) + 4
+    just = len(description) - len(title) + 8
     print('\n')
     print('*', end='')
     print('*', end='')
     for c in description:
         print('*', end='')
     print('\n* %s'.ljust(just) % title, end='')
-    print('*')
+    print('  *')
 
     print('* %s'.ljust(len(description)) % description, end='')
-    print('*')
+    print('  *')
     for c in description:
         print('*', end='')
     print('\n')
