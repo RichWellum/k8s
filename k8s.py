@@ -471,8 +471,8 @@ def k8s_deploy_k8s():
         demo('Kubelet was started. But what is it doing? ',
              'The Kubelet will monitor the control plane components but what monitors Kubelet and make sure\n' +
              'it is always running? This is where we use systemd. Systemd is started as PID 1 so the OS\n' +
-             'will make sure it is always running, systemd makes sure the Kubelet is\n' +
-             'running, and the Kubelet makes sure our containers with the control plane components are running.')
+             'will make sure it is always running, systemd makes sure the Kubelet is running, and the\n' +
+             'Kubelet makes sure our containers with the control plane components are running.')
     else:
         run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
         --service-cidr=10.3.3.0/24 --skip-preflight-checks')
@@ -762,8 +762,8 @@ def kolla_gen_passwords():
 def kolla_create_namespace():
     '''Create a kolla namespace'''
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
-    demo('Create a namespace using "kubectl create namespace kolla"',
-         'This isolates this kubernetes use')
+    demo('Isolate the Kubernetes namespace',
+         'Create a namespace using "kubectl create namespace kolla"')
     if DEMO:
         print(run_shell('kubectl create namespace kolla'))
     else:
