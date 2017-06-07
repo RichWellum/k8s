@@ -27,6 +27,9 @@ TODO:
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
 5. Use optional other CNI to canal
+6. Make it work with os-helm
+7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
+8. Install docker with "curl -sSL https://get.docker.io | bash"?
 
 Dependencies:
 
@@ -131,7 +134,9 @@ def run_shell(cmd):
     Not using logger.debug as a bit noisy for this info'''
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    # logger.debug(out)
+    if DEMO:
+        print('DEMO: CMD: "%s"' % cmd)
+
     if DEBUG == 10:  # Hack - debug enabled
         if out:
             print('Shell output: %s' % out)
@@ -601,6 +606,11 @@ def k8s_schedule_master_node():
 def kolla_update_rbac():
     '''Override the default RBAC settings'''
     print('Kolla - Overide default RBAC settings')
+    demo('Role-based access control (RBAC)',
+         'A method of regulating access to computer or network resources based\n' +
+         'on the roles of individual users within an enterprise. In this context,\n' +
+         'access is the ability of an individual user to perform a specific task\n' +
+         'such as view, create, or modify a file.')
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
@@ -620,12 +630,17 @@ subjects:
 - kind: Group
   name: system:unauthenticated
 """)
-    run_shell('kubectl update -f /tmp/rbac')
+    if DEMO:
+        print(run_shell('kubectl update -f /tmp/rbac'))
+    else:
+        run_shell('kubectl update -f /tmp/rbac')
 
 
 def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
+    demo('Download the version of helm requested and install it',
+         'Installing means the Tiller Server will be instantiated in a pod')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
@@ -642,6 +657,8 @@ def kolla_install_deploy_helm(version):
         else:
             time.sleep(3)
             continue
+    demo('Check running pods..',
+         'Tiller is ready to respond to helm chart requests')
 
 
 def k8s_cleanup(doit):
@@ -675,6 +692,10 @@ def kolla_install_repos():
     '''Installing the kolla repos
     For sanity I just delete a repo if already exists'''
     print('Kolla - Clone kolla-ansible')
+    demo('Git cloning repos, then using pip to install them',
+         'http://github.com/openstack/kolla-ansible\n' +
+         'http://github.com/openstack/kolla-kubernetes')
+
     if os.path.exists('./kolla-ansible'):
         run_shell('sudo rm -rf ./kolla-ansible')
     run_shell('git clone http://github.com/openstack/kolla-ansible')
@@ -696,9 +717,12 @@ def kolla_install_repos():
 
 def kolla_setup_loopback_lvm():
     '''Setup a loopback LVM for Cinder
-
     /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh'''
     print('Kolla - Setup Loopback LVM for Cinder')
+    demo('Loopback LVM for Cinder',
+         'Create a flat file on the filesystem and then loopback mount\n' +
+         'it so that it looks like a block-device attached to /dev/zero\n' +
+         'Then LVM manages it. This is useful for test and development')
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
@@ -719,7 +743,10 @@ sudo vgcreate -y cinder-volumes $LOOP
 
 def kolla_install_os_client():
     '''Install Openstack Client'''
-    print('Kolla - Install Openstack Client')
+    print('Kolla - Install Python Openstack Client')
+    demo('Install Python packages',
+         'python-openstackclient, python-neutronclient and python-cinderclient\n' +
+         'provide the command-line clients for openstack')
     run_shell('sudo pip install python-openstackclient')
     run_shell('sudo pip install python-neutronclient')
     run_shell('sudo pip install python-cinderclient')
@@ -728,17 +755,27 @@ def kolla_install_os_client():
 def kolla_gen_passwords():
     '''Generate the Kolla Passwords'''
     print('Kolla - Generate default passwords via SPRNG')
+    demo('Generate passwords',
+         'This will populate all empty fields in the /etc/kolla/passwords.yml\n' +
+         'file using randomly generated values to secure the deployment')
     run_shell('sudo kolla-kubernetes-genpwd')
 
 
 def kolla_create_namespace():
     '''Create a kolla namespace'''
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
-    run_shell('kubectl create namespace kolla')
+    demo('Create a namespace using "kubectl create namespace kolla"',
+         'This isolates this kubernetes use')
+    if DEMO:
+        print(run_shell('kubectl create namespace kolla'))
+    else:
+        run_shell('kubectl create namespace kolla')
 
 
 def k8s_label_nodes(node_list):
     '''Label the nodes according to the list passed in'''
+    demo('Label the node',
+         'Currently controller and compute')
     for node in node_list:
         print('Kolla - Label the AIO node as %s' % node)
         run_shell('kubectl label node $(hostname) %s=true' % node)
@@ -755,6 +792,11 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Necessary additions and changes to the global.yml - which is based on
     the users inputs'''
     print('Kolla - Modify globals to setup network_interface and neutron_interface')
+    demo('Kolla uses two files currently to configure', 'Here we are modifying /etc/kolla/globals.yml\n' +
+         'We are setting the management interface "%s" and IP %s\n' +
+         'The interface for neutron(externally bound "%s"\n' +
+         'globals.yml is used when we run ansible to generate configs in a\n' +
+         'further step' % (MGMT_INT, MGMT_IP, NEUTRON_INT))
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
     run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
@@ -809,6 +851,10 @@ cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
     run_shell('cat %s | sudo tee -a %s' % (new, add_to))
+    demo('We have also added some basic config that is not defaulted',
+         'Mainly Cinder and Database:')
+    if DEMO:
+        print(run_shell('sudo cat /tmp/add'))
 
 
 def kolla_enable_qemu():
@@ -834,10 +880,12 @@ cpu_mode = none
 
 def kolla_gen_configs():
     '''Generate the configs using Jinja2
-
     Some version meddling here until things are more stable'''
     print('Kolla - Generate the default configuration')
     # globals.yml is used when we run ansible to generate configs
+    demo('Generate Kolla Config files',
+         'A little more complicated - this uses an Ansible playbook to\n' +
+         'create config files for Kolla from globals.yml and the generated passwords')
     run_shell('cd kolla-kubernetes; sudo ansible-playbook -e \
     ansible_python_interpreter=/usr/bin/python -e \
     @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
@@ -847,12 +895,25 @@ def kolla_gen_configs():
 def kolla_gen_secrets():
     '''Generate Kubernetes secrets'''
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
+    demo('Create secrets from the generates password file',
+         'using "kubectl create secret generic"\n' +
+         'Kubernetes Secrets is an object that contains a small amount of\n' +
+         'sensitive data such as passwords, keys and tokens etc')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
 
 def kolla_create_config_maps():
     '''Generate the Kolla config map'''
     print('Kolla - Create and register the Kolla config maps')
+    demo('Create Kolla Config Maps',
+         'Similar to Secrets, Config Maps are another kubernetes artifact\n' +
+         'ConfigMaps allow you to decouple configuration artifacts from image\n' +
+         'content to keep containerized applications portable. The ConfigMap API\n' +
+         'resource stores configuration data as key-value pairs. The data can be\n' +
+         'consumed in pods or provide the configurations for system components\n' +
+         'such as controllers. ConfigMap is similar to Secrets, but provides a\n' +
+         'means of working with strings that don’t contain sensit\ive information.\n' +
+         'Users and system components alike can store configuration data in ConfigMap.')
     run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
     nova-scheduler glance-api-haproxy glance-registry-haproxy glance-api \
@@ -874,7 +935,17 @@ def kolla_resolve_workaround():
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
     print('Kolla - Build all Helm microcharts, service charts, and metacharts')
-    run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp')
+    demo('Build helm charts',
+         'Helm uses a packaging format called charts. A chart is a collection of\n' +
+         'files that describe a related set of Kubernetes resources. A single chart\n' +
+         'might be used to deploy something simple, like a memcached pod, or something\n' +
+         'complex, like a full web app stack with HTTP servers, databases, caches, and so on\n' +
+         'Helm also allows you to detail dependencies between charts - vital for Openstack\n' +
+         'This step builds all the known helm charts and dependencies (193)')
+    if DEMO:
+        print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
+    else:
+        run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp')
 
 
 def kolla_verify_helm_images():
@@ -891,7 +962,11 @@ def kolla_verify_helm_images():
 def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
     '''Generate the cloud.yml file which works with the globals.yml
     file to define your cluster networking'''
-    print('Kolla - Create and run cloud.yaml')
+    print('Kolla - Create a cloud.yaml')
+    demo('Create a cloud.yaml',
+         'cloud.yaml is the partner to globals.yml\n' +
+         'It contains a list of global OpenStack services and key-value pairs, which\n' +
+         'guide helm when running each chart. This includes our basic inputs, MGMT and Neutron')
     cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
         w.write("""\
@@ -958,6 +1033,8 @@ global:
        all:
          port_external: true
         """ % (MGMT_IP, MGMT_INT, VIP_IP, MGMT_IP, MGMT_IP, NEUTRON_INT))
+        if DEMO:
+            print(run_shell('sudo cat /tmp/cloud.yaml'))
 
 
 def helm_install_service_chart(chart_list):
@@ -991,11 +1068,13 @@ def sudo_timeout_off(state):
 
 def kolla_create_demo_vm():
     '''Final steps now that a working cluster is up.
-
     Create a keystone admin user.
     Run "runonce" to set everything up and then install a demo image.
     Attach a floating ip'''
 
+    demo('We now should have a running OpenStack Cluster on Kubernetes!',
+         'Lets create a keystone account, create a demo VM, attach a floating ip\n' +
+         'Finally ssh to the VM and or open Horizon and see our cluster')
     print('Kolla - Create a keystone admin account and source in to it')
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
@@ -1166,21 +1245,26 @@ def kolla_bring_up_openstack(args):
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
+    demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
     chart_list = ['keepalived-daemonset']
+    demo('Install %s Helm Chart' % chart_list, '')
     helm_install_micro_service_chart(chart_list)
 
     # Install Helm charts
     chart_list = ['mariadb']
+    demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
     # Install remaining service level charts
     chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
                   'cinder-control', 'cinder-volume-lvm', 'horizon', 'neutron']
+    demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
     chart_list = ['nova-control', 'nova-compute']
+    demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
     namespace_list = ['kube-system', 'kolla']
