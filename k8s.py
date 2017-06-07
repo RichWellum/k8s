@@ -912,7 +912,7 @@ def kolla_create_config_maps():
          'resource stores configuration data as key-value pairs. The data can be\n' +
          'consumed in pods or provide the configurations for system components\n' +
          'such as controllers. ConfigMap is similar to Secrets, but provides a\n' +
-         'means of working with strings that don’t contain sensit\ive information.\n' +
+         'means of working with strings that do not contain sensit\ive information.\n' +
          'Users and system components alike can store configuration data in ConfigMap.')
     run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
