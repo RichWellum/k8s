@@ -1087,7 +1087,7 @@ def kolla_create_demo_vm():
     print('Kolla - Create a demo vm in our OpenStack cluster')
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    print(run_shell('source ~/keystonerc_admin; %s' % create_demo1))
+    run_shell('source ~/keystonerc_admin; %s' % create_demo1)
     k8s_wait_for_vm('demo1')
 
     # Create a floating ip
@@ -1095,7 +1095,7 @@ def kolla_create_demo_vm():
     cmd = "source ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
-    print(run_shell(cmd))
+    run_shell(cmd)
 
     # Open up ingress rules to access VM
     print('Kolla - Allow Ingress by changing neutron rules')
