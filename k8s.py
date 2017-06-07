@@ -467,7 +467,7 @@ def k8s_deploy_k8s():
              'essential addons. Kubeadm does not mention anything about the Kubelet\n' +
              'but we can verify that it is running:')
         print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
-        demo('Kubelet was started. But how? ',
+        demo('Kubelet was started. But what is it doing? ',
              'The Kubelet will monitor the control plane components but what\n' +
              'monitors Kubelet and make sure it is always running? This is\n' +
              'where we use systemd. Systemd is started as PID 1 so the OS will\n' +
@@ -495,7 +495,7 @@ def k8s_load_kubeadm_creds():
     demo('Verify Kubelet',
          'Kubelete should be running our control plane components and be\n' +
          'connected to the API server (like any other Kubelet node.\n' +
-         'Run "watch -d kubectl get nodes" in another window')
+         'Run "watch -d kubectl get pods --all-namespaces" in another window')
     if DEMO:
         print(run_shell('sudo kubectl get nodes'))
     demo('Verifying the Control Plane Components',
@@ -522,15 +522,17 @@ def k8s_load_kubeadm_creds():
              'We can see that they are running my checking with the local Docker\n' +
              'to list the running containers.')
         print(run_shell('sudo docker ps --format="table {{.ID}}\t{{.Image}}"'))
-        demo('Note Containers', 'we can see that etcd, kube-apiserver,\n' +
-             'kube-controller-manager, and kube-scheduler are running.')
-        demo('How can we connect to containers?', 'If we look at each of the\n' +
-             'json files in the /etc/kubernetes/manifests directory we can see\n' +
-             'that they each use the hostNetwork: true option which allows the\n' +
-             'applications to bind to ports on the host just as if they were\n' +
-             'running outside of a container.')
-        demo('Connect to the API', 'So we can connect to the API servers\n' +
-             'insecure local port. curl http://127.0.0.1:8080/version')
+        demo('Note above containers',
+             'we can see that etcd, kube-apiserver, kube-controller-manager, and\n' +
+             'kube-scheduler are running.')
+        demo('How can we connect to containers?',
+             'If we look at each of the json files in the /etc/kubernetes/manifests\n' +
+             'directory we can see that they each use the hostNetwork: true option\n' +
+             'which allows the applications to bind to ports on the host just as\n' +
+             'if they were running outside of a container.')
+        demo('Connect to the API',
+             'So we can connect to the API servers insecure local port.\n' +
+             'curl http://127.0.0.1:8080/version')
         print(run_shell('sudo curl http://127.0.0.1:8080/version'))
         demo('Secure port?', 'The API server also binds a secure port 443 which\n' +
              'requires a client cert and authentication. Be careful to use the\n' +
@@ -541,7 +543,6 @@ def k8s_load_kubeadm_creds():
 
 def k8s_deploy_canal_sdn():
     '''SDN/CNI Driver of choice is Canal'''
-    # Code changes a lot so use the gate
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
@@ -556,12 +557,11 @@ def k8s_deploy_canal_sdn():
     print('Kubernetes - Deploy the Canal CNI driver')
     if DEMO:
         demo('Why use a CNI Driver?',
-             'Container Network Interface (CNI) is a\n' +
-             'specification started by CoreOS with the input from the wider open\n' +
-             'source community aimed to make network plugins interoperable between\n' +
-             'container execution engines. It aims to be as common and vendor-neutral\n' +
-             'as possible to support a wide variety of networking options from\n' +
-             'MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
+             'Container Network Interface (CNI) is a specification started by CoreOS\n' +
+             'with the input from the wider open source community aimed to make network\n' +
+             'plugins interoperable between container execution engines. It aims to be\n' +
+             'as common and vendor-neutral as possible to support a wide variety of\n' +
+             'networking options from MACVLAN to modern SDNs such as Weave and flannel.\n\n' +
              'CNI is growing in popularity. It got its start as a network plugin\n' +
              'layer for rkt, a container runtime from CoreOS. CNI is getting even\n' +
              'wider adoption with Kubernetes adding support for it. Kubernetes\n' +
@@ -577,10 +577,8 @@ def k8s_deploy_canal_sdn():
     run_shell('sudo chmod 777 /tmp/canal.yaml')
     run_shell('sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell('kubectl create -f /tmp/canal.yaml')
-    demo('Wait for CNI to be deployed', 'The CNI will allow DNS')
-    if DEMO:
-        print(run_shell('kubectl get pods --all-namespaces'))
-        demo('Check for DNS now', '')
+    demo('Wait for CNI to be deployed',
+         'A successfully deployed CNI will result in a valid dns pod')
 
 
 def k8s_add_api_server(ip):
@@ -632,6 +630,7 @@ subjects:
 """)
     if DEMO:
         print(run_shell('kubectl update -f /tmp/rbac'))
+        demo('Note the cluster-admin has been replaced', '')
     else:
         run_shell('kubectl update -f /tmp/rbac')
 
@@ -722,7 +721,8 @@ def kolla_setup_loopback_lvm():
     demo('Loopback LVM for Cinder',
          'Create a flat file on the filesystem and then loopback mount\n' +
          'it so that it looks like a block-device attached to /dev/zero\n' +
-         'Then LVM manages it. This is useful for test and development')
+         'Then LVM manages it. This is useful for test and development' +
+         'Its also very slpw and you will see etcdserver time out frequently')
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
@@ -792,11 +792,12 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Necessary additions and changes to the global.yml - which is based on
     the users inputs'''
     print('Kolla - Modify globals to setup network_interface and neutron_interface')
-    demo('Kolla uses two files currently to configure', 'Here we are modifying /etc/kolla/globals.yml\n' +
-         'We are setting the management interface "%s" and IP %s\n' +
-         'The interface for neutron(externally bound "%s"\n' +
-         'globals.yml is used when we run ansible to generate configs in a\n' +
-         'further step' % (MGMT_INT, MGMT_IP, NEUTRON_INT))
+    demo('Kolla uses two files currently to configure',
+         'Here we are modifying /etc/kolla/globals.yml\n' +
+         'We are setting the management interface "%s" and IP %s\n' % MGMT_INT +
+         'The interface for neutron(externally bound "%s"\n' % MGMT_IP +
+         'globals.yml is used when we run ansible to generate configs in a\n' % NEUTRON_INT +
+         'further step')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
     run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
@@ -1154,6 +1155,8 @@ def k8s_pause_to_check_nslookup(manual_check):
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
     print("Kubernetes - Test 'nslookup kubernetes'")
+    demo('Lets create a simple pod and verify that DNS works',
+         'If it does not then this deployment will not work.')
     name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""\
@@ -1169,11 +1172,12 @@ spec:
     - sleep
     - "1000000"
 """)
+    demo('The busy box yaml is: %s' % name, '')
     run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
     out = run_shell(
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
-    logger.debug('Kolla DNS test output==%s' % out)
+    demo('Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
         print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
