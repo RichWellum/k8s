@@ -455,7 +455,7 @@ def k8s_deploy_k8s():
          'Kubernetes has a component called the Kubelet which manages containers\n' +
          'running on a single host. It allows us to use Kubelet to manage the\n' +
          'control plane components. This is exactly what kubeadm sets us up to do.\n' +
-         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16 //n' +
+         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16\n' +
          '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output\n' +
          'Run: "watch -d sudo docker ps" in another window')
     if DEMO:
@@ -464,7 +464,9 @@ def k8s_deploy_k8s():
         demo('What happened?',
              'We can see above that kubeadm created the necessary certificates for\n' +
              'the API, started the control plane components, and installed the\n' +
-             'essential addons. Kubeadm does not mention anything about the Kubelet\n' +
+             'essential addons.\n' +
+             'The join command is important - it allows other nodes to be added to the existing resources\n' +
+             'Kubeadm does not mention anything about the Kubelet\n' +
              'but we can verify that it is running:')
         print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
         demo('Kubelet was started. But what is it doing? ',
@@ -523,7 +525,7 @@ def k8s_load_kubeadm_creds():
              'to list the running containers.')
         print(run_shell('sudo docker ps --format="table {{.ID}}\t{{.Image}}"'))
         demo('Note above containers',
-             'we can see that etcd, kube-apiserver, kube-controller-manager, and\n' +
+             'We can see that etcd, kube-apiserver, kube-controller-manager, and\n' +
              'kube-scheduler are running.')
         demo('How can we connect to containers?',
              'If we look at each of the json files in the /etc/kubernetes/manifests\n' +
@@ -657,6 +659,7 @@ def kolla_install_deploy_helm(version):
             time.sleep(3)
             continue
     demo('Check running pods..',
+         'Note that the helm version in server and client is the same.\n' +
          'Tiller is ready to respond to helm chart requests')
 
 
@@ -721,8 +724,8 @@ def kolla_setup_loopback_lvm():
     demo('Loopback LVM for Cinder',
          'Create a flat file on the filesystem and then loopback mount\n' +
          'it so that it looks like a block-device attached to /dev/zero\n' +
-         'Then LVM manages it. This is useful for test and development' +
-         'Its also very slpw and you will see etcdserver time out frequently')
+         'Then LVM manages it. This is useful for test and development\n' +
+         'It is also very slow and you will see etcdserver time out frequently')
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""\
@@ -794,9 +797,9 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     print('Kolla - Modify globals to setup network_interface and neutron_interface')
     demo('Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n' +
-         'We are setting the management interface "%s" and IP %s\n' % MGMT_INT +
-         'The interface for neutron(externally bound "%s"\n' % MGMT_IP +
-         'globals.yml is used when we run ansible to generate configs in a\n' % NEUTRON_INT +
+         'We are setting the management interface "%s" and IP %s\n' % (MGMT_INT, MGMT_IP) +
+         'The interface for neutron(externally bound "%s"\n' % NEUTRON_INT +
+         'globals.yml is used when we run ansible to generate configs in a\n' +
          'further step')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
@@ -1173,6 +1176,9 @@ spec:
     - "1000000"
 """)
     demo('The busy box yaml is: %s' % name, '')
+    if DEMO:
+        print(run_shell('sudo cat ./busybox.yaml'))
+
     run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
     out = run_shell(
