@@ -135,7 +135,8 @@ def run_shell(cmd):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     out = p.stdout.read()
     if DEMO:
-        print('DEMO: CMD: "%s"' % cmd)
+        if not re.search('kubectl get pods', cmd):
+            print('DEMO: CMD: "%s"' % cmd)
 
     if DEBUG == 10:  # Hack - debug enabled
         if out:
@@ -189,7 +190,7 @@ def demo(title, description):
         print('*', end='')
     print('\n')
 
-    raw_input('Press Enter to continue with demo')
+    raw_input('Press Enter to continue with demo...')
 
 
 def curl(*args):
@@ -455,27 +456,23 @@ def k8s_deploy_k8s():
          'Kubernetes has a component called the Kubelet which manages containers\n' +
          'running on a single host. It allows us to use Kubelet to manage the\n' +
          'control plane components. This is exactly what kubeadm sets us up to do.\n' +
-         'We run: kubeadm init --pod-network-cidr=10.1.0.0/16\n' +
-         '--service-cidr=10.3.3.0/24 --skip-preflight-checks and check output\n' +
+         'We run:\n' +
+         'kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks and check output\n' +
          'Run: "watch -d sudo docker ps" in another window')
     if DEMO:
         print(run_shell(
             'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks'))
         demo('What happened?',
              'We can see above that kubeadm created the necessary certificates for\n' +
-             'the API, started the control plane components, and installed the\n' +
-             'essential addons.\n' +
+             'the API, started the control plane components, and installed the essential addons.\n' +
              'The join command is important - it allows other nodes to be added to the existing resources\n' +
-             'Kubeadm does not mention anything about the Kubelet\n' +
-             'but we can verify that it is running:')
+             'Kubeadm does not mention anything about the Kubelet but we can verify that it is running:')
         print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
         demo('Kubelet was started. But what is it doing? ',
-             'The Kubelet will monitor the control plane components but what\n' +
-             'monitors Kubelet and make sure it is always running? This is\n' +
-             'where we use systemd. Systemd is started as PID 1 so the OS will\n' +
-             'make sure it is always running, systemd makes sure the Kubelet is\n' +
-             'running, and the Kubelet makes sure our containers with the\n' +
-             'control plane components are running.')
+             'The Kubelet will monitor the control plane components but what monitors Kubelet and make sure\n' +
+             'it is always running? This is where we use systemd. Systemd is started as PID 1 so the OS\n' +
+             'will make sure it is always running, systemd makes sure the Kubelet is\n' +
+             'running, and the Kubelet makes sure our containers with the control plane components are running.')
     else:
         run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
         --service-cidr=10.3.3.0/24 --skip-preflight-checks')
@@ -497,22 +494,21 @@ def k8s_load_kubeadm_creds():
     demo('Verify Kubelet',
          'Kubelete should be running our control plane components and be\n' +
          'connected to the API server (like any other Kubelet node.\n' +
-         'Run "watch -d kubectl get pods --all-namespaces" in another window')
-    if DEMO:
-        print(run_shell('sudo kubectl get nodes'))
+         'Run "watch -d kubectl get pods --all-namespaces" in another window\n' +
+         'Note that the kube-dns-* pod is not ready yet. We do not have a network yet')
     demo('Verifying the Control Plane Components',
          'We can see that kubeadm created a /etc/kubernetes/ directory so check\n'
          'out what is there.')
     if DEMO:
         print(run_shell('ls -lh /etc/kubernetes/'))
-        demo('Files',
+        demo('Files created by kubectl',
              'The admin.conf and kubelet.conf are yaml files that mostly\n' +
              'contain certs used for authentication with the API. The pki\n' +
              'directory contains the certificate authority certs, API server\n' +
              'certs, and tokens:')
         print(run_shell('ls -lh /etc/kubernetes/pki'))
         demo('The manifests directory ',
-             'The manifests directory is where things get interesting. In the\n' +
+             'This directory is where things get interesting. In the\n' +
              'manifests directory we have a number of json files for our\n' +
              'control plane components.')
         print(run_shell('sudo ls -lh /etc/kubernetes/manifests/'))
@@ -570,7 +566,6 @@ def k8s_deploy_canal_sdn():
              'accelerates development cycles while simplifying operations, and with\n' +
              'support for CNI is taking the next step toward a common ground for\n' +
              'networking.')
-        print(run_shell('kubectl get pods --all-namespaces'))
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
@@ -797,10 +792,9 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     print('Kolla - Modify globals to setup network_interface and neutron_interface')
     demo('Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n' +
-         'We are setting the management interface "%s" and IP %s\n' % (MGMT_INT, MGMT_IP) +
-         'The interface for neutron(externally bound "%s"\n' % NEUTRON_INT +
-         'globals.yml is used when we run ansible to generate configs in a\n' +
-         'further step')
+         'We are setting the management interface to "%s" and IP to %s\n' % (MGMT_INT, MGMT_IP) +
+         'The interface for neutron(externally bound) "%s"\n' % NEUTRON_INT +
+         'globals.yml is used when we run ansible to generate configs in further step')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
     run_shell("sudo sed -i 's/#network_interface/network_interface/g' /etc/kolla/globals.yml")
     run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" % MGMT_IP)
@@ -899,8 +893,7 @@ def kolla_gen_configs():
 def kolla_gen_secrets():
     '''Generate Kubernetes secrets'''
     print('Kolla - Generate the Kubernetes secrets and register them with Kubernetes')
-    demo('Create secrets from the generates password file',
-         'using "kubectl create secret generic"\n' +
+    demo('Create secrets from the generated password file using "kubectl create secret generic"',
          'Kubernetes Secrets is an object that contains a small amount of\n' +
          'sensitive data such as passwords, keys and tokens etc')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
@@ -916,7 +909,7 @@ def kolla_create_config_maps():
          'resource stores configuration data as key-value pairs. The data can be\n' +
          'consumed in pods or provide the configurations for system components\n' +
          'such as controllers. ConfigMap is similar to Secrets, but provides a\n' +
-         'means of working with strings that do not contain sensit\ive information.\n' +
+         'means of working with strings that do not contain sensitive information.\n' +
          'Users and system components alike can store configuration data in ConfigMap.')
     run_shell('kollakube res create configmap \
     mariadb keystone horizon rabbitmq memcached nova-api nova-conductor \
@@ -945,7 +938,8 @@ def kolla_build_micro_charts():
          'might be used to deploy something simple, like a memcached pod, or something\n' +
          'complex, like a full web app stack with HTTP servers, databases, caches, and so on\n' +
          'Helm also allows you to detail dependencies between charts - vital for Openstack\n' +
-         'This step builds all the known helm charts and dependencies (193)')
+         'This step builds all the known helm charts and dependencies (193)\n' +
+         'This is another step that takes a few minutes')
     if DEMO:
         print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
     else:
@@ -1037,8 +1031,8 @@ global:
        all:
          port_external: true
         """ % (MGMT_IP, MGMT_INT, VIP_IP, MGMT_IP, MGMT_IP, NEUTRON_INT))
-        if DEMO:
-            print(run_shell('sudo cat /tmp/cloud.yaml'))
+    if DEMO:
+        print(run_shell('sudo cat /tmp/cloud.yaml'))
 
 
 def helm_install_service_chart(chart_list):
@@ -1223,7 +1217,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_schedule_master_node()
     k8s_pause_to_check_nslookup(args.nslookup)
     k8s_check_exit(args.kubernetes)
-    demo('Congrats - your kubernetes cluster should be up abd running now', '')
+    demo('Congrats - your kubernetes cluster should be up and running now', '')
 
 
 def kolla_bring_up_openstack(args):
