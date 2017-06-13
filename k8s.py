@@ -424,8 +424,9 @@ def k8s_install_k8s(k8s_version, cni_version):
             'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
             kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
     else:
-        run_shell('sudo apt-get install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
-            kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
+        # Todo for now don't use versions as ubuntu unhappy
+        run_shell('sudo apt install -y docker ebtables kubelet kubeadm kubectl \
+            kubernetes-cni')
         CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
         run_shell('sudo sed - i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s \
         |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
