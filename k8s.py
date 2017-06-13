@@ -212,12 +212,9 @@ def determine_linux():
     global LINUX
 
     find_os = platform.linux_distribution()
-    print(find_os[1])
-    print(find_os[2])
-    print(find_os[0])
-    if re.search('Centos', find_os[1]):
+    if re.search('Centos', find_os[0]):
         LINUX = 'Centos'
-    elif re.search('Ubuntu', find_os[1]):
+    elif re.search('Ubuntu', find_os[0]):
         LINUX = 'Ubuntu'
     else:
         LINUX = 'Something Else...'
