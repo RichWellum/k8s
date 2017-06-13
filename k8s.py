@@ -359,7 +359,8 @@ def k8s_install_tools(a_ver, j_ver):
     if LINUX == 'Centos':
         run_shell('sudo yum install -y epel-release bridge-utils nmap')
         run_shell('sudo yum install -y python-pip')
-        run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
+        run_shell('sudo yum install -y git gcc python-devel libffi-devel \
+        openssl-devel crudini jq ansible')
     else:
         run_shell('sudo apt install -y bridge-utils nmap')
         run_shell('sudo apt install -y python-pip')
@@ -419,6 +420,9 @@ def k8s_install_k8s(k8s_version, cni_version):
     else:
         run_shell('sudo apt-get install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
             kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
+        CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
+        run_shell('sudo sed - i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s \
+        |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
@@ -518,8 +522,8 @@ def k8s_deploy_k8s():
              'will make sure it is always running, systemd makes sure the Kubelet is running, and the\n' +
              'Kubelet makes sure our containers with the control plane components are running.')
     else:
-        run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 \
-        --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+        run_shell(
+            'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
 
 
 def k8s_load_kubeadm_creds():
