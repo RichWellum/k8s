@@ -54,6 +54,7 @@ try:
     __import__('psutil')
 except ImportError:
     print('Install psutil failed')
+import platform
 import psutil
 import re
 import tarfile
@@ -204,6 +205,13 @@ def curl(*args):
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE).communicate()[0]
     return curl_result
+
+
+def determine_linux():
+    '''Determine Ubuntu or Centos'''
+    global LINUX
+    LINUX = platform.linux_distribution()
+    print('Linux distribution is %s' % LINUX)
 
 
 def k8s_create_repo():
@@ -1312,6 +1320,7 @@ def main():
           (args.helm_version, args.k8s_version))
     print('Ansible version %s, Jinja2 version %s' %
           (args.ansible_version, args.jinja2_version))
+    determine_linux()
 
     set_logging()
     logger.setLevel(level=args.verbose)
