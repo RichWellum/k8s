@@ -42,7 +42,7 @@ Centos:
     sudo yum install gcc python-devel nmap -y
 
 Ubuntu:
-  sudo apt-get install python-dev
+  sudo apt-get install python-dev -y
 
 Both:
   sudo pip install psutil
@@ -219,7 +219,6 @@ def determine_linux():
     global LINUX
 
     find_os = platform.linux_distribution()
-    print(find_os[0])
     if re.search('Centos', find_os[0], re.IGNORECASE):
         LINUX = 'Centos'
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
@@ -256,7 +255,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
             w.write("""\
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 """)
-
+        run_shell('sudo mv ./kubernetes.list %s' % repo)
         run_shell('sudo apt-get update')
 
 
