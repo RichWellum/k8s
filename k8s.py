@@ -428,7 +428,7 @@ def k8s_install_k8s(k8s_version, cni_version):
         run_shell('sudo apt install -y docker.io ebtables kubelet kubeadm kubectl \
             kubernetes-cni')
         CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-        run_shell('sudo sed - i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s \
+        run_shell('sudo sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s \
         |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
 
     if k8s_version == '1.6.3':
@@ -663,22 +663,22 @@ def kolla_update_rbac():
          'such as view, create, or modify a file.')
     name = '/tmp/rbac'
     with open(name, "w") as w:
-        w.write("""
-apiVersion: rbac.authorization.k8s.io / v1alpha1
+        w.write("""\
+apiVersion: rbac.authorization.k8s.io/v1alpha1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster - admin
+  name: cluster-admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster - admin
+  name: cluster-admin
 subjects:
 - kind: Group
-  name: system: masters
+  name: system:masters
 - kind: Group
-  name: system: authenticated
+  name: system:authenticated
 - kind: Group
-  name: system: unauthenticated
+  name: system:unauthenticated
 """)
     if DEMO:
         print(run_shell('kubectl update -f /tmp/rbac'))
@@ -779,17 +779,17 @@ def kolla_setup_loopback_lvm():
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
         w.write("""
-sudo mkdir - p / data / kolla
-sudo df - h
-sudo dd if= / dev / zero of= / data / kolla / cinder - volumes.img bs=5M count=2048
-LOOP=$(losetup - f)
-sudo losetup $LOOP / data / kolla / cinder - volumes.img
-sudo parted - s $LOOP mklabel gpt
-sudo parted - s $LOOP mkpart 1 0 % 100 %
-sudo parted - s $LOOP set 1 lvm on
+sudo mkdir -p /data/kolla
+sudo df -h
+sudo dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
+LOOP=$(losetup -f)
+sudo losetup $LOOP /data/kolla/cinder-volumes.img
+sudo parted -s $LOOP mklabel gpt
+sudo parted -s $LOOP mkpart 1 0 % 100 %
+sudo parted -s $LOOP set 1 lvm on
 sudo partprobe $LOOP
-sudo pvcreate - y $LOOP
-sudo vgcreate - y cinder - volumes $LOOP
+sudo pvcreate -y $LOOP
+sudo vgcreate -y cinder-volumes $LOOP
 """)
     run_shell('bash %s' % new)
 
@@ -925,8 +925,8 @@ def kolla_enable_qemu():
     with open(new, "w") as w:
         w.write("""
 [libvirt]
-virt_type=qemu
-cpu_mode=none
+virt_type = qemu
+cpu_mode = none
 """)
     run_shell('sudo mv %s %s' % (new, add_to))
 
@@ -1055,11 +1055,11 @@ global:
        tunnel_interface: "%s"
        resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
-       kolla_kubernetes_external_vip: % s
+       kolla_kubernetes_external_vip: %s
        kube_logger: false
      keepalived:
        all:
-         api_interface: br - ex
+         api_interface: br-ex
      keystone:
        all:
          admin_port_external: "true"
@@ -1081,7 +1081,7 @@ global:
            port_external: "true"
        volume_lvm:
          all:
-           element_name: cinder - volume
+           element_name: cinder-volume
          daemonset:
            lvm_backends:
            - '%s': 'cinder-volumes'
@@ -1100,8 +1100,8 @@ global:
      openvwswitch:
        all:
          add_port: true
-         ext_bridge_name: br - ex
-         ext_interface_name: % s
+         ext_bridge_name: br-ex
+         ext_interface_name: %s
          setup_bridge: true
      horizon:
        all:
@@ -1178,12 +1178,12 @@ def kolla_create_demo_vm():
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""
-openstack security group list - f value - c ID | while read SG_ID; do
-    neutron security - group - rule - create - -protocol icmp
-        - -direction ingress $SG_ID
-    neutron security - group - rule - create - -protocol tcp
-        - -port - range - min 22 - -port - range - max 22
-        - -direction ingress $SG_ID
+openstack security group list -f value -c ID | while read SG_ID; do
+    neutron security-group-rule-create --protocol icmp
+        --direction ingress $SG_ID
+    neutron security-group-rule-create --protocol tcp
+        --port-range-min 22 --port-range-max 22
+        --direction ingress $SG_ID
 done
 """)
     run_shell('source ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
@@ -1232,11 +1232,11 @@ def k8s_pause_to_check_nslookup(manual_check):
          'If it does not then this deployment will not work.')
     name = './busybox.yaml'
     with open(name, "w") as w:
-        w.write("""
+        w.write("""\
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kolla - dns - test
+  name: kolla-dns-test
 spec:
   containers:
   - name: busybox
