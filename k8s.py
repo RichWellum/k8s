@@ -210,7 +210,15 @@ def curl(*args):
 def determine_linux():
     '''Determine Ubuntu or Centos'''
     global LINUX
-    LINUX = platform.linux_distribution()
+
+    find_os = platform.linux_distribution()
+    if re.search('Centos', find_os):
+        LINUX = 'Centos'
+    elif re.search('Ubuntu', find_os):
+        LINUX = 'Ubuntu'
+    else:
+        LINUX = 'Something Else...'
+
     print('Linux distribution is %s' % LINUX)
 
 
