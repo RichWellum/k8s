@@ -33,13 +33,20 @@ TODO:
 
 Dependencies:
 
-Install pip:
-  curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-  sudo python get-pip.py
+Centos:
+  Install pip:
+    curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+    sudo python get-pip.py
 
-Install tools:
-  sudo yum install gcc python-devel nmap -y
+  Install tools:
+    sudo yum install gcc python-devel nmap -y
+
+Ubuntu:
+  sudo apt-get install python-dev
+
+Both:
   sudo pip install psutil
+
 '''
 
 from __future__ import print_function
