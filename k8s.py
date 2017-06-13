@@ -218,17 +218,19 @@ def determine_linux():
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
         LINUX = 'Ubuntu'
     else:
-        LINUX = 'Something Else...'
+        print('Linux "%s" is not supported yet' % find_os[0])
+        sys.exit(1)
 
     print('Linux distribution is %s' % LINUX)
 
 
 def k8s_create_repo():
     '''Create a k8s repository file'''
-    name = './kubernetes.repo'
-    repo = '/etc/yum.repos.d/kubernetes.repo'
-    with open(name, "w") as w:
-        w.write("""\
+    if LINUX == 'Centos':
+        name = './kubernetes.repo'
+        repo = '/etc/yum.repos.d/kubernetes.repo'
+        with open(name, "w") as w:
+            w.write("""\
 [kubernetes]
 name=Kubernetes
 baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
@@ -238,7 +240,17 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-    run_shell('sudo mv ./kubernetes.repo %s' % repo)
+            run_shell('sudo mv ./kubernetes.repo %s' % repo)
+    else:
+        run_shell('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
+        name = './kubernetes.list'
+        repo = '/etc/apt/sources.list.d/kubernetes.list'
+        with open(name, "w") as w:
+            w.write("""\
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+""")
+
+        run_shell('sudo apt-get update')
 
 
 def k8s_wait_for_kube_system():
@@ -343,9 +355,16 @@ def k8s_wait_for_vm(vm):
 def k8s_install_tools(a_ver, j_ver):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
-    run_shell('sudo yum install -y epel-release bridge-utils nmap')
-    run_shell('sudo yum install -y python-pip')
-    run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
+
+    if LINUX == 'Centos':
+        run_shell('sudo yum install -y epel-release bridge-utils nmap')
+        run_shell('sudo yum install -y python-pip')
+        run_shell('sudo yum install -y git gcc python-devel libffi-devel openssl-devel crudini jq ansible')
+    else:
+        run_shell('sudo apt install -y bridge-utils nmap')
+        run_shell('sudo apt install -y python-pip')
+        run_shell('sudo apt install -y git gcc crudini jq ansible')
+
     curl(
         '-L',
         'https://bootstrap.pypa.io/get-pip.py',
@@ -360,7 +379,11 @@ def k8s_install_tools(a_ver, j_ver):
 
 def k8s_setup_ntp():
     '''Setup NTP - this caused issues when doing it on a VM'''
-    run_shell('sudo yum install -y ntp')
+    if LINUX == 'Centos':
+        run_shell('sudo yum install -y ntp')
+    else:
+        run_shell('sudo apt install -y ntp')
+
     run_shell('sudo systemctl enable ntpd.service')
     run_shell('sudo systemctl start ntpd.service')
 
@@ -387,12 +410,16 @@ def k8s_install_k8s(k8s_version, cni_version):
     run_shell('sudo pip install --upgrade pip')
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
-    demo('Installing Kubernetes', 'Installing docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' %
-         (k8s_version, k8s_version, cni_version))
+    if LINUX == 'Centos':
+        demo('Installing Kubernetes', 'Installing docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' %
+             (k8s_version, k8s_version, cni_version))
+        run_shell(
+            'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
+            kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
+    else:
+        run_shell('sudo apt-get install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
+            kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
 
-    run_shell(
-        'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
-        kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
         # 1.6.3 is broken so if user chooses it - use special image
@@ -625,22 +652,22 @@ def kolla_update_rbac():
          'such as view, create, or modify a file.')
     name = '/tmp/rbac'
     with open(name, "w") as w:
-        w.write("""\
-apiVersion: rbac.authorization.k8s.io/v1alpha1
+        w.write("""
+apiVersion: rbac.authorization.k8s.io / v1alpha1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster-admin
+  name: cluster - admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: cluster - admin
 subjects:
 - kind: Group
-  name: system:masters
+  name: system: masters
 - kind: Group
-  name: system:authenticated
+  name: system: authenticated
 - kind: Group
-  name: system:unauthenticated
+  name: system: unauthenticated
 """)
     if DEMO:
         print(run_shell('kubectl update -f /tmp/rbac'))
@@ -740,18 +767,18 @@ def kolla_setup_loopback_lvm():
          'It is also very slow and you will see etcdserver time out frequently')
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
-        w.write("""\
-sudo mkdir -p /data/kolla
-sudo df -h
-sudo dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
-LOOP=$(losetup -f)
-sudo losetup $LOOP /data/kolla/cinder-volumes.img
-sudo parted -s $LOOP mklabel gpt
-sudo parted -s $LOOP mkpart 1 0% 100%
-sudo parted -s $LOOP set 1 lvm on
+        w.write("""
+sudo mkdir - p / data / kolla
+sudo df - h
+sudo dd if= / dev / zero of= / data / kolla / cinder - volumes.img bs=5M count=2048
+LOOP=$(losetup - f)
+sudo losetup $LOOP / data / kolla / cinder - volumes.img
+sudo parted - s $LOOP mklabel gpt
+sudo parted - s $LOOP mkpart 1 0 % 100 %
+sudo parted - s $LOOP set 1 lvm on
 sudo partprobe $LOOP
-sudo pvcreate -y $LOOP
-sudo vgcreate -y cinder-volumes $LOOP
+sudo pvcreate - y $LOOP
+sudo vgcreate - y cinder - volumes $LOOP
 """)
     run_shell('bash %s' % new)
 
@@ -827,7 +854,7 @@ def kolla_add_to_globals():
     add_to = '/etc/kolla/globals.yml'
 
     with open(new, "w") as w:
-        w.write("""\
+        w.write("""
 kolla_install_type: "source"
 tempest_image_alt_id: "{{ tempest_image_id }}"
 tempest_flavor_ref_alt_id: "{{ tempest_flavor_ref_id }}"
@@ -885,10 +912,10 @@ def kolla_enable_qemu():
     new = '/tmp/add'
     add_to = '/etc/kolla/config/nova.conf'
     with open(new, "w") as w:
-        w.write("""\
+        w.write("""
 [libvirt]
-virt_type = qemu
-cpu_mode = none
+virt_type=qemu
+cpu_mode=none
 """)
     run_shell('sudo mv %s %s' % (new, add_to))
 
@@ -1005,7 +1032,7 @@ def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
          'guide helm when running each chart. This includes our basic inputs, MGMT and Neutron')
     cloud = '/tmp/cloud.yaml'
     with open(cloud, "w") as w:
-        w.write("""\
+        w.write("""
 global:
    kolla:
      all:
@@ -1017,11 +1044,11 @@ global:
        tunnel_interface: "%s"
        resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
-       kolla_kubernetes_external_vip: %s
+       kolla_kubernetes_external_vip: % s
        kube_logger: false
      keepalived:
        all:
-         api_interface: br-ex
+         api_interface: br - ex
      keystone:
        all:
          admin_port_external: "true"
@@ -1043,7 +1070,7 @@ global:
            port_external: "true"
        volume_lvm:
          all:
-           element_name: cinder-volume
+           element_name: cinder - volume
          daemonset:
            lvm_backends:
            - '%s': 'cinder-volumes'
@@ -1062,8 +1089,8 @@ global:
      openvwswitch:
        all:
          add_port: true
-         ext_bridge_name: br-ex
-         ext_interface_name: %s
+         ext_bridge_name: br - ex
+         ext_interface_name: % s
          setup_bridge: true
      horizon:
        all:
@@ -1139,13 +1166,13 @@ def kolla_create_demo_vm():
     print('Kolla - Allow Ingress by changing neutron rules')
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
-        w.write("""\
-openstack security group list -f value -c ID | while read SG_ID; do
-    neutron security-group-rule-create --protocol icmp \
-        --direction ingress $SG_ID
-    neutron security-group-rule-create --protocol tcp \
-        --port-range-min 22 --port-range-max 22 \
-        --direction ingress $SG_ID
+        w.write("""
+openstack security group list - f value - c ID | while read SG_ID; do
+    neutron security - group - rule - create - -protocol icmp
+        - -direction ingress $SG_ID
+    neutron security - group - rule - create - -protocol tcp
+        - -port - range - min 22 - -port - range - max 22
+        - -direction ingress $SG_ID
 done
 """)
     run_shell('source ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
@@ -1194,11 +1221,11 @@ def k8s_pause_to_check_nslookup(manual_check):
          'If it does not then this deployment will not work.')
     name = './busybox.yaml'
     with open(name, "w") as w:
-        w.write("""\
+        w.write("""
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kolla-dns-test
+  name: kolla - dns - test
 spec:
   containers:
   - name: busybox
