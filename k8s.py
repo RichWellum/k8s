@@ -427,8 +427,6 @@ def k8s_install_k8s(k8s_version, cni_version):
         # Todo for now don't use versions as ubuntu unhappy
         run_shell('sudo apt install -y docker.io ebtables kubelet kubeadm kubectl \
             kubernetes-cni')
-        CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-        run_shell('sudo sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
@@ -447,6 +445,10 @@ def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
+    if LINUX == 'Ubuntu':
+        CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
+        run_shell('sudo sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
+
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
