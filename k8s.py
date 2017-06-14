@@ -765,15 +765,12 @@ def kolla_install_repos():
     if LINUX == 'Centos':
         print('Kolla - Copy default kolla-ansible configuration to /etc')
         run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
-
-        print('Kolla - Copy default kolla-kubernetes configuration to /etc')
-        run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
     else:
         print('Kolla - Copy default kolla-ansible configuration to /etc')
-        run_shell('sudo cp -aR /usr/local/share/kolla-kubernetes /etc')
+        run_shell('sudo cp -aR /usr/local/share/kolla-ansible/etc_examples/kolla /etc')
 
-        print('Kolla - Copy default kolla-kubernetes configuration to /etc')
-        run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
+    print('Kolla - Copy default kolla-kubernetes configuration to /etc')
+    run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
 def kolla_setup_loopback_lvm():
@@ -794,7 +791,7 @@ sudo dd if=/dev/zero of=/data/kolla/cinder-volumes.img bs=5M count=2048
 LOOP=$(losetup -f)
 sudo losetup $LOOP /data/kolla/cinder-volumes.img
 sudo parted -s $LOOP mklabel gpt
-sudo parted -s $LOOP mkpart 1 0 % 100 %
+sudo parted -s $LOOP mkpart 1 0% 100%
 sudo parted -s $LOOP set 1 lvm on
 sudo partprobe $LOOP
 sudo pvcreate -y $LOOP
