@@ -389,11 +389,11 @@ def k8s_setup_ntp():
     '''Setup NTP - this caused issues when doing it on a VM'''
     if LINUX == 'Centos':
         run_shell('sudo yum install -y ntp')
+        run_shell('sudo systemctl enable ntpd.service')
+        run_shell('sudo systemctl start ntpd.service')
     else:
         run_shell('sudo apt install -y ntp')
-
-    run_shell('sudo systemctl enable ntpd.service')
-    run_shell('sudo systemctl start ntpd.service')
+        run_shell('systemctl restart ntp')
 
 
 def k8s_turn_things_off():
@@ -448,7 +448,7 @@ def k8s_setup_dns():
     run_shell('sudo systemctl start docker')
     if LINUX == 'Ubuntu':
         CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-        run_shell("sudo sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s |g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
+        run_shell("sudo sed -i 's/KUBELET_KUBECONFIG_ARGS=/KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s/g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
 
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
@@ -773,7 +773,7 @@ def kolla_install_repos():
         run_shell('sudo cp -aR /usr/local/share/kolla-kubernetes /etc')
 
         print('Kolla - Copy default kolla-kubernetes configuration to /etc')
-        run_shell('selfudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
+        run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
 def kolla_setup_loopback_lvm():
