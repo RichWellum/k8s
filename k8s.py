@@ -43,10 +43,6 @@ Centos:
 
 Ubuntu:
   sudo apt-get install python-dev -y
-
-Both:
-  sudo -H pip install psutil #todo - remove
-
 '''
 
 from __future__ import print_function
@@ -58,7 +54,6 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
 import platform
-# import psutil
 import re
 import tarfile
 
@@ -243,7 +238,8 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-        run_shell('sudo mv ./kubernetes.repo %s' % repo)
+        run_shell('sudo mv ./kubernetes.repo %s' %
+                  repo)  # todo: add -H to all sudo's see ifit works in both envs
     else:
         run_shell('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
         name = './kubernetes.list'
