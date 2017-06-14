@@ -45,7 +45,7 @@ Ubuntu:
   sudo apt-get install python-dev -y
 
 Both:
-  sudo -H pip install psutil
+  sudo -H pip install psutil #todo - remove
 
 '''
 
@@ -57,12 +57,8 @@ import subprocess
 import argparse
 from argparse import RawDescriptionHelpFormatter
 import logging
-try:
-    __import__('psutil')
-except ImportError:
-    print('Install psutil failed')
 import platform
-import psutil
+# import psutil
 import re
 import tarfile
 
@@ -398,17 +394,21 @@ def k8s_setup_ntp():
 
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
-    print('Kubernetes - Turn off SELinux')
-    run_shell('sudo setenforce 0')
-    run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
+    if LINUX == 'Centos':
+        print('Kubernetes - Turn off SELinux')
+        run_shell('sudo setenforce 0')
+        run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
-    print('Kubernetes - Turn off Firewalld if running')
-    PROCNAME = 'firewalld'
-    for proc in psutil.process_iter():
-        if PROCNAME in proc.name():
-            print('Found %s, Stopping and Disabling firewalld' % proc.name())
-            run_shell('sudo systemctl stop firewalld')
-            run_shell('sudo systemctl disable firewalld')
+    print('Kubernetes - Turn off firewall if running')
+    # PROCNAME = 'firewalld'
+    # for proc in psutil.process_iter():
+    #     if PROCNAME in proc.name():
+    # print('Found %s, Stopping and Disabling firewalld' % proc.name())
+    if LINUX == 'Centos':
+        run_shell('sudo systemctl stop firewalld')
+        run_shell('sudo systemctl disable firewalld')
+    else:
+        run_shell('sudo ufw disable')
 
 
 def k8s_install_k8s(k8s_version, cni_version):
