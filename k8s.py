@@ -412,6 +412,7 @@ def k8s_turn_things_off():
         print('Kubernetes - Turn off iscsid')
         run_shell('sudo systemctl stop iscsid')
         run_shell('sudo systemctl stop iscsid.service')
+        run_shell('sudo systemctl stop iscsid.socket')
 
 
 def k8s_install_k8s(k8s_version, cni_version):
