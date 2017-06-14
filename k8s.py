@@ -338,7 +338,7 @@ def k8s_wait_for_vm(vm):
 
     while True:
         nova_out = run_shell(
-            'source ~/keystonerc_admin; nova list | grep %s' % vm)
+            '.  ~/keystonerc_admin; nova list | grep %s' % vm)
         if not re.search('Running', nova_out):
             print('Kubernetes - VM %s is not Running yet' % vm)
             time.sleep(RETRY_INTERVAL)
@@ -1163,10 +1163,10 @@ def kolla_create_demo_vm():
     print('Kolla - Create a keystone admin account and source in to it')
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
-    out = run_shell('source ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
+    out = run_shell('.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     logger.debug(out)
 
-    demo_net_id = run_shell("source ~/keystonerc_admin; \
+    demo_net_id = run_shell(".  ~/keystonerc_admin; \
     echo $(openstack network list | awk '/ demo-net / {print $2}')")
     logger.debug(demo_net_id)
 
@@ -1174,12 +1174,12 @@ def kolla_create_demo_vm():
     print('Kolla - Create a demo vm in our OpenStack cluster')
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    run_shell('source ~/keystonerc_admin; %s' % create_demo1)
+    run_shell('.  ~/keystonerc_admin; %s' % create_demo1)
     k8s_wait_for_vm('demo1')
 
     # Create a floating ip
     print('Kolla - Create floating ip')
-    cmd = "source ~/keystonerc_admin; \
+    cmd = ".  ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
     run_shell(cmd)
@@ -1197,11 +1197,11 @@ openstack security group list -f value -c ID | while read SG_ID; do
         --direction ingress $SG_ID
 done
 """)
-    run_shell('source ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
+    run_shell('.  ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
 
     # Display nova list
     print('Kolla - nova list')
-    print(run_shell('source ~/keystonerc_admin; nova list'))
+    print(run_shell('.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
