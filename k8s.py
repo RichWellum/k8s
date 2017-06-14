@@ -243,7 +243,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-            run_shell('sudo mv ./kubernetes.repo %s' % repo)
+        run_shell('sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
         name = './kubernetes.list'
@@ -450,11 +450,6 @@ def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
-    # todo may not be needed
-    # if LINUX == 'Ubuntu':
-    #     CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-    #     run_shell("sudo sed -i 's/KUBELET_KUBECONFIG_ARGS=/KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s/g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
-
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
