@@ -401,16 +401,17 @@ def k8s_turn_things_off():
         run_shell('sudo setenforce 0')
         run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
-    print('Kubernetes - Turn off firewall if running')
-    # PROCNAME = 'firewalld'
-    # for proc in psutil.process_iter():
-    #     if PROCNAME in proc.name():
-    # print('Found %s, Stopping and Disabling firewalld' % proc.name())
+    print('Kubernetes - Turn off firewall')
     if LINUX == 'Centos':
         run_shell('sudo systemctl stop firewalld')
         run_shell('sudo systemctl disable firewalld')
     else:
         run_shell('sudo ufw disable')
+
+    if LINUX == 'Ubuntu':
+        print('Kubernetes - Turn off iscsid')
+        run_shell('sudo systemctl stop iscsid')
+        run_shell('sudo systemctl stop iscsid.service')
 
 
 def k8s_install_k8s(k8s_version, cni_version):
