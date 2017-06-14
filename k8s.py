@@ -1386,6 +1386,7 @@ def main():
     try:
         if args.complete_cleanup:
             k8s_cleanup(args.complete_cleanup)
+            print('Cleanup - Complete Cleanup done. Highly recommend rebooting your host')
             sys.exit(1)
 
         k8s_test_neutron_int(args.VIP_IP)
