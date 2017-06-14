@@ -1188,10 +1188,10 @@ def kolla_create_demo_vm():
     with open(new, "w") as w:
         w.write("""
 openstack security group list -f value -c ID | while read SG_ID; do
-    neutron security-group-rule-create --protocol icmp
+    neutron security-group-rule-create --protocol icmp \
         --direction ingress $SG_ID
-    neutron security-group-rule-create --protocol tcp
-        --port-range-min 22 --port-range-max 22
+    neutron security-group-rule-create --protocol tcp \
+        --port-range-min 22 --port-range-max 22 \
         --direction ingress $SG_ID
 done
 """)
