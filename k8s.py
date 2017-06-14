@@ -446,9 +446,10 @@ def k8s_setup_dns():
     print('Kubernetes - Start docker and setup the DNS server with the service CIDR')
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
-    if LINUX == 'Ubuntu':
-        CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-        run_shell("sudo sed -i 's/KUBELET_KUBECONFIG_ARGS=/KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s/g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
+    # todo may not be needed
+    # if LINUX == 'Ubuntu':
+    #     CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
+    #     run_shell("sudo sed -i 's/KUBELET_KUBECONFIG_ARGS=/KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s/g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
 
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
@@ -463,9 +464,9 @@ def k8s_reload_service_files():
 
 
 def k8s_start_kubelet():
-    '''Start kubectl'''
+    '''Start kubelet'''
     print('Kubernetes - Enable and start kubelet')
-    demo('Enable and start kubectl', 'kubectl is a command line interface for ' +
+    demo('Enable and start kubelet', 'kubelet is a command line interface for ' +
          'running commands against Kubernetes clusters')
     run_shell('sudo systemctl enable kubelet')
     run_shell('sudo systemctl start kubelet')
