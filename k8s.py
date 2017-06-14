@@ -45,7 +45,7 @@ Ubuntu:
   sudo apt-get install python-dev -y
 
 Both:
-  sudo pip install psutil
+  sudo -H pip install psutil
 
 '''
 
@@ -215,7 +215,8 @@ def curl(*args):
 
 
 def determine_linux():
-    '''Determine Ubuntu or Centos'''
+    '''Determine Linux version - Ubuntu or Centos
+    Fail if it is not one of those'''
     global LINUX
 
     find_os = platform.linux_distribution()
@@ -377,11 +378,11 @@ def k8s_install_tools(a_ver, j_ver):
         'https://bootstrap.pypa.io/get-pip.py',
         '-o', '/tmp/get-pip.py')
     run_shell('sudo python /tmp/get-pip.py')
-    run_shell('sudo pip install psutil')
+    run_shell('sudo -H pip install psutil')
     # Seems to be the recommended ansible version
-    run_shell('sudo pip install ansible==%s' % a_ver)
+    run_shell('sudo -H pip install ansible==%s' % a_ver)
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo pip install Jinja2==%s' % j_ver)
+    run_shell('sudo -H pip install Jinja2==%s' % j_ver)
 
 
 def k8s_setup_ntp():
@@ -414,7 +415,7 @@ def k8s_install_k8s(k8s_version, cni_version):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
-    run_shell('sudo pip install --upgrade pip')
+    run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
     if LINUX == 'Centos':
@@ -447,7 +448,7 @@ def k8s_setup_dns():
     run_shell('sudo systemctl start docker')
     if LINUX == 'Ubuntu':
         CGROUP_DRIVER = run_shell("sudo docker info | grep 'Cgroup Driver' | awk '{print $3}'")
-        run_shell('sudo sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s |g" /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf' % CGROUP_DRIVER)
+        run_shell("sudo sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--cgroup-driver=%s |g' /etc/systemd/system/ kubelet.service.d/10-kubeadm.conf" % CGROUP_DRIVER)
 
     run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
@@ -759,13 +760,20 @@ def kolla_install_repos():
     run_shell('git clone http://github.com/openstack/kolla-kubernetes')
 
     print('Kolla - Install kolla-ansible and kolla-kubernetes')
-    run_shell('sudo pip install -U kolla-ansible/ kolla-kubernetes/')
+    run_shell('sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
-    print('Kolla - Copy default kolla-ansible configuration to /etc')
-    run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
+    if LINUX == 'Centos':
+        print('Kolla - Copy default kolla-ansible configuration to /etc')
+        run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
 
-    print('Kolla - Copy default kolla-kubernetes configuration to /etc')
-    run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
+        print('Kolla - Copy default kolla-kubernetes configuration to /etc')
+        run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
+    else:
+        print('Kolla - Copy default kolla-ansible configuration to /etc')
+        run_shell('sudo cp -aR /usr/local/share/kolla-kubernetes /etc')
+
+        print('Kolla - Copy default kolla-kubernetes configuration to /etc')
+        run_shell('selfudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
 def kolla_setup_loopback_lvm():
@@ -801,9 +809,9 @@ def kolla_install_os_client():
     demo('Install Python packages',
          'python-openstackclient, python-neutronclient and python-cinderclient\n' +
          'provide the command-line clients for openstack')
-    run_shell('sudo pip install python-openstackclient')
-    run_shell('sudo pip install python-neutronclient')
-    run_shell('sudo pip install python-cinderclient')
+    run_shell('sudo -H pip install python-openstackclient')
+    run_shell('sudo -H pip install python-neutronclient')
+    run_shell('sudo -H pip install python-cinderclient')
 
 
 def kolla_gen_passwords():
