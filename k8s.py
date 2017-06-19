@@ -719,6 +719,7 @@ def kolla_install_deploy_helm(version):
          'Installing means the Tiller Server will be instantiated in a pod')
     url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
     curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    pause_to_debug('Check helm now')
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     run_shell('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell('helm init')
