@@ -224,7 +224,7 @@ def linux_ver():
 
 def print_versions(args):
     '''Print out versions of all the carious tools needed'''
-    print('%s - Versions' % __file__)
+    print('\n%s - Versions:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
     print('Neutron Int:     %s' % args.NEUTRON_INT)
@@ -235,7 +235,8 @@ def print_versions(args):
     print('Jinja2 version:  %s' % args.jinja2_version)
     print('Image Tag:       %s' % args.image_tag)
     linux_ver()
-    print('Linux distro:    %s' % LINUX)
+    print('Linux distro:    %s\n' % LINUX)
+    time.sleep(5)
 
 
 def k8s_create_repo():
