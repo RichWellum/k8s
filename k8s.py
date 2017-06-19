@@ -95,6 +95,8 @@ def parse_args():
                         help='Neutron Interface, E.g: eth1')
     parser.add_argument('VIP_IP',
                         help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
+    parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
+                        help='Specify a different image tage to the default(4.0.0)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.4',
@@ -1034,10 +1036,13 @@ def kolla_verify_helm_images():
         sys.exit(1)
 
 
-def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
+def kolla_create_cloud(args):
     '''Generate the cloud.yml file which works with the globals.yml
-    file to define your cluster networking'''
+    file to define your cluster networking.
+
+    This uses most of the user options.'''
     print('Kolla - Create a cloud.yaml')
+
     demo('Create a cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n' +
          'It contains a list of global OpenStack services and key-value pairs, which\n' +
@@ -1048,7 +1053,7 @@ def kolla_create_cloud(MGMT_INT, MGMT_IP, NEUTRON_INT, VIP_IP):
 global:
    kolla:
      all:
-       image_tag: "4.0.0"
+       image_tag: "%s"
        kube_logger: false
        external_vip: "%s"
        base_distro: "centos"
@@ -1107,7 +1112,9 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (MGMT_IP, MGMT_INT, VIP_IP, MGMT_IP, MGMT_IP, NEUTRON_INT))
+        """ % (args.IT, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
+               args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
+
     if DEMO:
         print(run_shell('sudo cat /tmp/cloud.yaml'))
 
@@ -1327,7 +1334,7 @@ def kolla_bring_up_openstack(args):
     kolla_resolve_workaround()
     kolla_build_micro_charts()
     kolla_verify_helm_images()
-    kolla_create_cloud(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP)
+    kolla_create_cloud(args)
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
