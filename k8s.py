@@ -1381,6 +1381,7 @@ def main():
           (args.helm_version, args.k8s_version))
     print('Ansible version %s, Jinja2 version %s' %
           (args.ansible_version, args.jinja2_version))
+    print('Image Tag version %s' % args.image_tag)
     determine_linux()
 
     set_logging()
