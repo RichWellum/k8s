@@ -207,7 +207,7 @@ def curl(*args):
     return curl_result
 
 
-def determine_linux():
+def linux_ver():
     '''Determine Linux version - Ubuntu or Centos
     Fail if it is not one of those'''
     global LINUX
@@ -221,7 +221,21 @@ def determine_linux():
         print('Linux "%s" is not supported yet' % find_os[0])
         sys.exit(1)
 
-    print('Linux distribution is %s' % LINUX)
+
+def print_versions(args):
+    '''Print out versions of all the carious tools needed'''
+    print('%s - Versions' % __file__)
+    print('Management Int:  %s' % args.MGMT_INT)
+    print('Management IP:   %s' % args.MGMT_IP)
+    print('Neutron Int:     %s' % args.NEUTRON_INT)
+    print('VIP Keepalive:   %s' % args.VIP_IP)
+    print('Helm version:    %s' % args.helm_version)
+    print('K8s version:     %s' % args.k8s_version)
+    print('Ansible version: %s' % args.ansible_version)
+    print('Jinja2 version:  %s' % args.jinja2_version)
+    print('Image Tag:       %s' % args.image_tag)
+    linux_ver()
+    print('Linux distro:    %s' % LINUX)
 
 
 def k8s_create_repo():
@@ -1375,14 +1389,7 @@ def main():
     global DEMO
     DEMO = args.demo
 
-    print('Kubernetes - Management Int:%s, Management IP:%s, Neutron Int:%s, VIP Keepalive IP:%s' %
-          (args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT, args.VIP_IP))
-    print('Helm version %s, Kubernetes version %s' %
-          (args.helm_version, args.k8s_version))
-    print('Ansible version %s, Jinja2 version %s' %
-          (args.ansible_version, args.jinja2_version))
-    print('Image Tag version %s' % args.image_tag)
-    determine_linux()
+    print_versions(args)
 
     set_logging()
     logger.setLevel(level=args.verbose)
