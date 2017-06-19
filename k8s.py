@@ -311,16 +311,16 @@ def k8s_wait_for_running_negate():
     '''Query get pods until only state is Running'''
 
     TIMEOUT = 1000  # Give k8s 1000s to come up
-    RETRY_INTERVAL = 2
+    RETRY_INTERVAL = 5
 
     print("Kubernetes - Wait for all pods to be in Running state:")
     elapsed_time = 0
     prev_not_running = 0
     while True:
-        status = run_shell('kubectl get pods --no-headers --all-namespaces')
-        print('DEBUG: "%s"' % status)
-        if re.search('Error from server: etcdserver: request timed out',
-                     status, re.IGNORECASE):
+        etcd_check = run_shell('kubectl get pods --no-headers --all-namespaces \
+        | grep -i "request timed out" | wc -l')
+
+        if int(etcd_check) != 0:
             print('Kubernetes - etcdserver is busy - retrying after brief pause')
             time.sleep(15)
             continue
