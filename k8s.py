@@ -403,9 +403,11 @@ def k8s_turn_things_off():
         run_shell('sudo systemctl disable firewalld')
     else:
         run_shell('sudo ufw disable')
-        print('Kubernetes - Turn off iscsid')
-        run_shell('sudo systemctl stop iscsid')
-        run_shell('sudo systemctl stop iscsid.service')
+
+        if LINUX == 'Ubuntu':
+            print('Kubernetes - Turn off iscsid')
+            run_shell('sudo systemctl stop iscsid')
+            run_shell('sudo systemctl stop iscsid.service')
 
 
 def k8s_install_k8s(k8s_version, cni_version):
@@ -424,10 +426,10 @@ def k8s_install_k8s(k8s_version, cni_version):
             kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
     else:
         # Todo for now don't use versions as ubuntu unhappy
-        # run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm=%s kubectl=%s \
-            # kubernetes-cni=%s' % (k8s_version, k8s_version, cni_version))
-        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl \
-            kubernetes-cni')
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm=%s kubectl=%s \
+            kubernetes-cni=%s' % (k8s_version, k8s_version, cni_version))
+        # run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl \
+        #     kubernetes-cni')
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
@@ -1210,7 +1212,7 @@ def k8s_test_neutron_int(ip):
     if LINUX == 'Centos':
         run_shell('sudo yum install -y nmap')
     else:
-        run_shell('sudo apt-get install nmap')
+        run_shell('sudo apt-get install -y nmap')
 
     truth = run_shell('sudo nmap -sP -PR %s | grep Host' % ip)
     if re.search('Host is up', truth):
