@@ -103,8 +103,8 @@ def parse_args():
                         help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
                         help='Specify a different jinja2 version to the default(2.8.1)')
-    # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
-    #                     help='Specify a different kubernetes-cni version to the default(0.5.2)')
+    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
+                        help='Specify a different kubernetes-cni version to the default(0.5.2)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
