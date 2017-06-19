@@ -1112,7 +1112,7 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.IT, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
+        """ % (args.image_tag, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
                args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
 
     if DEMO:
