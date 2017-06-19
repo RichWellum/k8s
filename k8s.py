@@ -238,8 +238,8 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-        run_shell('sudo mv ./kubernetes.repo %s' %
-                  repo)  # todo: add -H to all sudo's see ifit works in both envs
+        # todo: add -H to all sudo's see ifit works in both envs
+        run_shell('sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
         name = './kubernetes.list'
@@ -1345,7 +1345,8 @@ def kolla_bring_up_openstack(args):
 
     # Install remaining service level charts
     chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
-                  'cinder-control', 'cinder-volume-lvm', 'horizon', 'neutron']
+                  'cinder-control', 'cinder-volume-lvm', 'horizon',
+                  'neutron', 'ironic']
     demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
