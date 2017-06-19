@@ -97,8 +97,8 @@ def parse_args():
                         help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
-                        help='Specify a different ansible version to the default(1.6.5)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.4',
+                        help='Specify a different ansible version to the default(1.6.4)')
     parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
                         help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
