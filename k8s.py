@@ -376,13 +376,16 @@ def k8s_install_tools(a_ver, j_ver):
     print('Kolla - Install necessary tools')
 
     if LINUX == 'Centos':
+        run_shell('sudo yum update -y; sudo yum upgrade -y')
         run_shell('sudo yum install -y epel-release bridge-utils nmap')
-        run_shell('sudo yum install -y python-pip')
-        run_shell('sudo yum install -y git gcc python-devel libffi-devel \
-        openssl-devel crudini jq ansible')
+        run_shell('sudo yum install -y python-pip python-devel libffi-devel \
+        gcc openssl-devel sshpass')
+        run_shell('sudo yum install -y git crudini jq ansible')
     else:
+        run_shell('sudo apt-get update')
         run_shell('sudo apt-get install -y bridge-utils nmap')
-        run_shell('sudo apt-get install -y python-pip')
+        run_shell('sudo apt-get install -y python-dev libffi-dev gcc libssl-dev \
+        python-pip sshpass')
         run_shell('sudo apt-get install -y git gcc crudini jq ansible')
 
     curl(
@@ -390,7 +393,6 @@ def k8s_install_tools(a_ver, j_ver):
         'https://bootstrap.pypa.io/get-pip.py',
         '-o', '/tmp/get-pip.py')
     run_shell('sudo python /tmp/get-pip.py')
-    run_shell('sudo -H pip install psutil')
     # Seems to be the recommended ansible version
     run_shell('sudo -H pip install ansible==%s' % a_ver)
     # Standard jinja2 in Centos7(2.9.6) is broken
