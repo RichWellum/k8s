@@ -435,16 +435,16 @@ def k8s_install_k8s(k8s_version, cni_version):
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
-    demo('Installing Kubernetes', 'Installing docker ebtables kubelet kubeadm-%s kubectl-%s kubernetes-cni-%s' %
-         (k8s_version, k8s_version, cni_version))
+    demo('Installing Kubernetes', 'Installing docker ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
+         (k8s_version, k8s_version, k8s_version, cni_version))
 
     if LINUX == 'Centos':
         run_shell(
-            'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
-            kubernetes-cni' % (k8s_version, k8s_version))
+            'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
+            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
     else:
-        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni' % (k8s_version, k8s_version))
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
+            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
