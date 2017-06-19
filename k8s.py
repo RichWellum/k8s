@@ -97,14 +97,14 @@ def parse_args():
                         help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.4.1',
                         help='Specify a different helm version to the default(2.4.1)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.4',
-                        help='Specify a different ansible version to the default(1.6.4)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
+                        help='Specify a different ansible version to the default(1.6.5)')
     parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
                         help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
                         help='Specify a different jinja2 version to the default(2.8.1)')
-    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
-                        help='Specify a different kubernetes-cni version to the default(0.5.2)')
+    # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
+    #                     help='Specify a different kubernetes-cni version to the default(0.5.2)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
@@ -423,13 +423,10 @@ def k8s_install_k8s(k8s_version, cni_version):
     if LINUX == 'Centos':
         run_shell(
             'sudo yum install -y docker ebtables kubelet kubeadm-%s kubectl-%s \
-            kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
+            kubernetes-cni' % (k8s_version, k8s_version))
     else:
-        # Todo for now don't use versions as ubuntu unhappy
-        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm=%s kubectl=%s \
-            kubernetes-cni=%s' % (k8s_version, k8s_version, cni_version))
-        # run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl \
-        #     kubernetes-cni')
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm=%s-00 kubectl=%s-00 \
+            kubernetes-cni' % (k8s_version, k8s_version))
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
