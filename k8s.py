@@ -363,9 +363,9 @@ def k8s_install_tools(a_ver, j_ver):
         run_shell('sudo yum install -y git gcc python-devel libffi-devel \
         openssl-devel crudini jq ansible')
     else:
-        run_shell('sudo apt install -y bridge-utils nmap')
-        run_shell('sudo apt install -y python-pip')
-        run_shell('sudo apt install -y git gcc crudini jq ansible')
+        run_shell('sudo apt-get install -y bridge-utils nmap')
+        run_shell('sudo apt-get install -y python-pip')
+        run_shell('sudo apt-get install -y git gcc crudini jq ansible')
 
     curl(
         '-L',
@@ -386,7 +386,7 @@ def k8s_setup_ntp():
         run_shell('sudo systemctl enable ntpd.service')
         run_shell('sudo systemctl start ntpd.service')
     else:
-        run_shell('sudo apt install -y ntp')
+        run_shell('sudo apt-get install -y ntp')
         run_shell('systemctl restart ntp')
 
 
@@ -426,7 +426,7 @@ def k8s_install_k8s(k8s_version, cni_version):
             kubernetes-cni-%s' % (k8s_version, k8s_version, cni_version))
     else:
         # Todo for now don't use versions as ubuntu unhappy
-        run_shell('sudo apt install -y docker.io ebtables kubelet kubeadm kubectl \
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl \
             kubernetes-cni')
 
     if k8s_version == '1.6.3':
