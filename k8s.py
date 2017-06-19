@@ -221,6 +221,8 @@ def linux_ver():
         print('Linux "%s" is not supported yet' % find_os[0])
         sys.exit(1)
 
+    return(find_os)
+
 
 def print_versions(args):
     '''Print out versions of all the carious tools needed'''
@@ -234,8 +236,9 @@ def print_versions(args):
     print('Ansible version: %s' % args.ansible_version)
     print('Jinja2 version:  %s' % args.jinja2_version)
     print('Image Tag:       %s' % args.image_tag)
-    linux_ver()
+    str = linux_ver()
     print('Linux distro:    %s\n' % LINUX)
+    print('Linux info:      %s\n' % str)
     time.sleep(5)
 
 
