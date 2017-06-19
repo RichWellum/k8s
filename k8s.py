@@ -443,9 +443,9 @@ def k8s_install_k8s(k8s_version, cni_version):
             'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
             kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
     else:
-        # run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-        #     kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
-        run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl kubernetes-cni')
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
+            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
+        # run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl kubernetes-cni')
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
