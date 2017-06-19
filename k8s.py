@@ -1353,7 +1353,7 @@ def kolla_bring_up_openstack(args):
     # Install remaining service level charts
     chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
                   'cinder-control', 'cinder-volume-lvm', 'horizon',
-                  'neutron', 'ironic']
+                  'neutron']
     demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
