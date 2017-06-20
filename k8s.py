@@ -717,15 +717,15 @@ def kolla_install_deploy_helm(version):
     print('Kolla - Install and deploy Helm version %s - Tiller pod' % version)
     demo('Download the version of helm requested and install it',
          'Installing means the Tiller Server will be instantiated in a pod')
-    url = 'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get'
-    curl('-sSL', url, '-o', '/tmp/get_helm.sh')
-    run_shell('chmod 700 /tmp/get_helm.sh')
-    run_shell('/tmp/get_helm.sh')
-    # url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
-    # curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
-    # pause_to_debug('Check helm now')
-    # untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
-    # run_shell('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
+    # url = 'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get'
+    # curl('-sSL', url, '-o', '/tmp/get_helm.sh')
+    # run_shell('chmod 700 /tmp/get_helm.sh')
+    # run_shell('/tmp/get_helm.sh')
+    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
+    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    pause_to_debug('Check helm now')
+    untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    run_shell('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell('helm init')
     k8s_wait_for_running_negate()
     # Check for helm version
