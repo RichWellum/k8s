@@ -23,14 +23,15 @@ Inputs:
 TODO:
 
 1. Will need a blueprint if adding this to community
-2. Make it work on a baremetal host and Ubuntu VM
+2. Make it work on a baremetal host
 3. Pythonify some of these run_shells
 4. Potentially build a docker container or VM to run this on
 5. Use optional other CNI to canal
 6. Make it work with os-helm
 7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
 8. Install docker with "curl -sSL https://get.docker.io | bash"?
-
+9. Add steps to output (1/17 etc)
+10. Change namespace to openstack not kolla
 Dependencies:
 
 Centos:
