@@ -1236,7 +1236,7 @@ done
 
     # Suggest Horizon logon info
     address = run_shell(
-        "kubectl get svc horizon --namespace openstack --no-headers | awk '{print $3}'")
+        "kubectl get svc horizon --namespace kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
     print('To Access Horizon:')
