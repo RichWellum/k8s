@@ -854,11 +854,11 @@ def kolla_create_namespace():
     '''Create a kolla namespace'''
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
     demo('Isolate the Kubernetes namespace',
-         'Create a namespace using "kubectl create namespace kolla"')
+         'Create a namespace using "kubectl create namespace openstack"')
     if DEMO:
-        print(run_shell('kubectl create namespace kolla'))
+        print(run_shell('kubectl create namespace openstack'))
     else:
-        run_shell('kubectl create namespace kolla')
+        run_shell('kubectl create namespace openstack')
 
 
 def k8s_label_nodes(node_list):
@@ -1029,7 +1029,7 @@ def kolla_create_config_maps():
     placement-api placement-api-haproxy')
 
     demo('Lets look at a configmap',
-         'kubectl get configmap -n kolla; kubectl describe configmap -n kolla XYZ')
+         'kubectl get configmap -n openstack; kubectl describe configmap -n openstack XYZ')
 
 
 def kolla_resolve_workaround():
@@ -1166,7 +1166,7 @@ def helm_install_micro_service_chart(chart_list):
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
-        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        --namespace openstack --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -1235,7 +1235,7 @@ done
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
-    address = run_shell("kubectl get svc horizon --namespace=kolla --no-headers | awk '{print $3}'")
+    address = run_shell("kubectl get svc horizon --namespac=ekolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
     print('To Access Horizon:')
@@ -1394,7 +1394,7 @@ def kolla_bring_up_openstack(args):
     demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
-    namespace_list = ['kube-system', 'kolla']
+    namespace_list = ['kube-system', 'openstack']
     k8s_get_pods(namespace_list)
 
 
