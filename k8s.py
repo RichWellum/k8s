@@ -854,11 +854,11 @@ def kolla_create_namespace():
     '''Create a kolla namespace'''
     print('Kolla - Create a Kubernetes namespace to isolate this Kolla deployment')
     demo('Isolate the Kubernetes namespace',
-         'Create a namespace using "kubectl create namespace openstack"')
+         'Create a namespace using "kubectl create namespace kolla"')
     if DEMO:
-        print(run_shell('kubectl create namespace openstack'))
+        print(run_shell('kubectl create namespace kolla'))
     else:
-        run_shell('kubectl create namespace openstack')
+        run_shell('kubectl create namespace kolla')
 
 
 def k8s_label_nodes(node_list):
@@ -1002,7 +1002,7 @@ def kolla_gen_secrets():
     demo('Create secrets from the generated password file using "kubectl create secret generic"',
          'Kubernetes Secrets is an object that contains a small amount of\n' +
          'sensitive data such as passwords, keys and tokens etc')
-    run_shell('python ./kolla-kubernetes/tools/secret-generator.py create openstack')
+    run_shell('python ./kolla-kubernetes/tools/secret-generator.py create kolla')
 
 
 def kolla_create_config_maps():
@@ -1029,7 +1029,7 @@ def kolla_create_config_maps():
     placement-api placement-api-haproxy')
 
     demo('Lets look at a configmap',
-         'kubectl get configmap -n openstack; kubectl describe configmap -n openstack XYZ')
+         'kubectl get configmap -n kolla; kubectl describe configmap -n kolla XYZ')
 
 
 def kolla_resolve_workaround():
@@ -1157,7 +1157,7 @@ def helm_install_service_chart(chart_list):
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
-        --namespace openstack --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -1166,7 +1166,7 @@ def helm_install_micro_service_chart(chart_list):
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
-        --namespace openstack --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -1219,7 +1219,7 @@ def kolla_create_demo_vm():
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""
-openstack security group list -f value -c ID | while read SG_ID; do
+kolla security group list -f value -c ID | while read SG_ID; do
     neutron security-group-rule-create --protocol icmp \
         --direction ingress $SG_ID
     neutron security-group-rule-create --protocol tcp \
@@ -1395,7 +1395,7 @@ def kolla_bring_up_openstack(args):
     demo('Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(chart_list)
 
-    namespace_list = ['kube-system', 'openstack']
+    namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(namespace_list)
 
 
