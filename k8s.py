@@ -227,13 +227,23 @@ def linux_ver():
     return(str(find_os))
 
 
+def docker_ver():
+    '''Display docker version'''
+    docker_ver = run_shell("docker --version | awk '{print $3}'")
+    docker_ver2 = run_shell("%s=${v::-1}'" % docker_ver)
+    return(str(docker_ver2))
+
+
 def print_versions(args):
     '''Print out versions of all the carious tools needed'''
-    print('\n%s - Versions:' % __file__)
+    print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
     print('Neutron Int:     %s' % args.NEUTRON_INT)
     print('VIP Keepalive:   %s' % args.VIP_IP)
+
+    print('\n%s - Versions:' % __file__)
+    print('Docker version:  %s' % docker_ver())
     print('Helm version:    %s' % args.helm_version)
     print('K8s version:     %s' % args.k8s_version)
     print('Ansible version: %s' % args.ansible_version)
