@@ -393,7 +393,7 @@ def k8s_install_tools(a_ver, j_ver):
         gcc openssl-devel sshpass')
         run_shell('sudo yum install -y git crudini jq ansible')
     else:
-        run_shell('sudo apt-get update -y; sudo apt-get upgrade -y')
+        run_shell('sudo apt-get update -y; sudo apt-get upgrade -y --allow-downgrades')
         run_shell('sudo apt-get install -y bridge-utils nmap')
         run_shell('sudo apt-get install -y python-dev libffi-dev gcc libssl-dev python-pip sshpass')
         run_shell('sudo apt-get install -y git gcc crudini jq ansible')
