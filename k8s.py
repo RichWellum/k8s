@@ -1002,7 +1002,7 @@ def kolla_gen_secrets():
     demo('Create secrets from the generated password file using "kubectl create secret generic"',
          'Kubernetes Secrets is an object that contains a small amount of\n' +
          'sensitive data such as passwords, keys and tokens etc')
-    run_shell('python ./kolla-kubernetes/tools/secret-generator.py create openstac')
+    run_shell('python ./kolla-kubernetes/tools/secret-generator.py create openstack')
 
 
 def kolla_create_config_maps():
