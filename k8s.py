@@ -1157,7 +1157,7 @@ def helm_install_service_chart(chart_list):
     for chart in chart_list:
         print('Helm - Install service chart: %s' % chart)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
-        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        --namespace openstack --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
 
 
@@ -1235,7 +1235,8 @@ done
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
-    address = run_shell("kubectl get svc horizon --namespac=ekolla --no-headers | awk '{print $3}'")
+    address = run_shell(
+        "kubectl get svc horizon --namespace openstack --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
     print('To Access Horizon:')
