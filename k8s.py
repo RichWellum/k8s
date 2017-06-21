@@ -32,31 +32,19 @@ TODO:
 8. Install docker with "curl -sSL https://get.docker.io | bash"?
 9. Add steps to output (1/17 etc)
 10. Change namespace to openstack not kolla
-11. Add to demo modernDetermine IP and port information from Service:
-          kubectl get svc -n kube-system
-          kubectl get svc -n kolla
-View all k8’s namespaces:
-     kubectl get namespaces
-Kolla Describe a pod in full detail:
-      kubectl describe pod ceph-admin -n kolla
-View all deployed services:
-     kubectl get deployment -n kube-system
-View configuration maps:
-     kubectl get configmap -n kube-system
-General Cluster information:
-        kubectl cluster-info
-View all jobs:
-     kubectl get jobs --all-namespaces
-View all deployments:
-     kubectl get deployments --all-namespaces
-View secrets:
-     kubectl get secrets
-View docker images:sy
-     sudo docker images
-View deployed Helm Charts
-     Helm list
-Working cluster kill a pod and watch resilience.
-        kubectl delete pods <name> -n kolla
+11. Add to demo modernDetermine IP and port information from Service: kubectl get svc -n kube-system
+kubectl get svc -n kolla
+View all k8’s namespaces: kubectl get namespaces
+Kolla Describe a pod in full detail: kubectl describe pod ceph-admin -n kolla
+View all deployed services: kubectl get deployment -n kube-system
+View configuration maps: kubectl get configmap -n kube-system
+General Cluster information: kubectl cluster-info
+View all jobs: kubectl get jobs --all-namespaces
+View all deployments: kubectl get deployments --all-namespaces
+View secrets: kubectl get secrets
+View docker images:sy sudo docker images
+View deployed Helm Charts Helm list
+Working cluster kill a pod and watch resilience. kubectl delete pods <name> -n kolla
 
 Dependencies:
 
