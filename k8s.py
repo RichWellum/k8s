@@ -229,9 +229,10 @@ def linux_ver():
 
 def docker_ver():
     '''Display docker version'''
-    docker_ver = run_shell("docker --version | awk '{print $3}'")
-    # docker_ver2 = run_shell('echo `${%s:0:-4}`' % docker_ver)
-    return(str(docker_ver))
+    oldstr = run_shell("docker --version | awk '{print $3}'")
+    newstr = oldstr.replace(",", "")
+    # docker_ver2 = news_shell('echo `${%s:0:-4}`' % docker_ver)
+    return(str(newstr))
 
 
 def print_versions(args):
