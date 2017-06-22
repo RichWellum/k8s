@@ -232,7 +232,7 @@ def docker_ver():
     oldstr = run_shell("docker --version | awk '{print $3}'")
     newstr = oldstr.replace(",", "")
     # docker_ver2 = news_shell('echo `${%s:0:-4}`' % docker_ver)
-    return(str(newstr))
+    return(newstr.rstrip())
 
 
 def print_versions(args):
