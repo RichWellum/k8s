@@ -29,10 +29,9 @@ TODO:
 5. Use optional other CNI to canal
 6. Make it work with os-helm
 7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
-8. Install docker with "curl -sSL https://get.docker.io | bash"?
-9. Add steps to output (1/17 etc)
-10. Change namespace to openstack not kolla
-11. Add to demo more kubectl output (see todo)
+8. Add steps to output (1/17 etc)
+9. Change namespace to openstack not kolla
+10. Add to demo more kubectl output (see todo)
 
 Dependencies:
 
@@ -108,8 +107,8 @@ def parse_args():
                         help='Specify a different k8s version to the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
                         help='Specify a different jinja2 version to the default(2.8.1)')
-    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.2',
-                        help='Specify a different kubernetes-cni version to the default(0.5.2)')
+    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
+                        help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before creating a new one')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
@@ -458,17 +457,16 @@ def k8s_install_k8s(k8s_version, cni_version):
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
-    demo('Installing Kubernetes', 'Installing ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
+    demo('Installing Kubernetes', 'Installing docker ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
          (k8s_version, k8s_version, k8s_version, cni_version))
 
     if LINUX == 'Centos':
         run_shell(
-            'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
-            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
+            'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
+            kubernetes-cni-%s' % (k8s_version, k8s_version, k8s_version, cni_version))
     else:
-        run_shell('sudo apt-get install -y ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
-        # run_shell('sudo apt-get install -y docker.io ebtables kubelet kubeadm kubectl kubernetes-cni')
+        run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
+            kubernetes-cni-%s' % (k8s_version, k8s_version, k8s_version, cni_version))
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
