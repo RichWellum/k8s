@@ -99,6 +99,8 @@ def parse_args():
                         help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
                         help='Specify a different image tage to the default(4.0.0)')
+    parser.add_argument('-lv', '--latest_version', action='store_true',
+                        help='Try to install al the latest versions of tools')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
                         help='Specify a different helm version to the default(2.5.0)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
@@ -246,7 +248,7 @@ def print_versions(args):
     print('Docker version:  %s' % docker_ver())
     print('Helm version:    %s' % args.helm_version)
     print('K8s version:     %s' % args.k8s_version)
-    print('K8s CNI version: %s' % args.cni_version)
+    # print('K8s CNI version: %s' % args.cni_version)
     print('Ansible version: %s' % args.ansible_version)
     print('Jinja2 version:  %s' % args.jinja2_version)
     print('Image Tag:       %s' % args.image_tag)
@@ -464,10 +466,10 @@ def k8s_install_k8s(k8s_version, cni_version):
     if LINUX == 'Centos':
         run_shell(
             'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
-            kubernetes-cni-%s' % (k8s_version, k8s_version, k8s_version, cni_version))
+            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
     else:
         run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni-%s' % (k8s_version, k8s_version, k8s_version, cni_version))
+            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
 
     if k8s_version == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
