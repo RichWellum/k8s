@@ -235,7 +235,7 @@ def docker_ver():
 
 
 def print_versions(args):
-    '''Print out versions of all the carious tools needed'''
+    '''Print out versions of all the various tools needed'''
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
@@ -246,6 +246,7 @@ def print_versions(args):
     print('Docker version:  %s' % docker_ver())
     print('Helm version:    %s' % args.helm_version)
     print('K8s version:     %s' % args.k8s_version)
+    print('K8s CNI version: %s' % args.cni_version)
     print('Ansible version: %s' % args.ansible_version)
     print('Jinja2 version:  %s' % args.jinja2_version)
     print('Image Tag:       %s' % args.image_tag)
