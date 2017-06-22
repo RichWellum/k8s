@@ -1229,7 +1229,7 @@ def kolla_create_demo_vm():
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""
-kolla security group list -f value -c ID | while read SG_ID; do
+openstack security group list -f value -c ID | while read SG_ID; do
     neutron security-group-rule-create --protocol icmp \
         --direction ingress $SG_ID
     neutron security-group-rule-create --protocol tcp \
