@@ -141,6 +141,8 @@ def parse_args():
                         help='turn on verbose messages')
     parser.add_argument('-d', '--demo', action='store_true',
                         help='Display some demo information and offer to move on')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='When used in conjunction with --demo - it will proceed without user input')
 
     return parser.parse_args()
 
@@ -207,7 +209,10 @@ def demo(title, description):
         print('*', end='')
     print('\n')
 
-    raw_input('Press Enter to continue with demo...')
+    if not FORCE:
+        raw_input('Press Enter to continue with demo...')
+    else:
+        print('Demo: Continuing with Demo')
 
 
 def curl(*args):
@@ -1475,6 +1480,9 @@ def main():
 
     global DEMO
     DEMO = args.demo
+
+    global FORCE
+    FORCE = args.force
 
     print_versions(args)
 
