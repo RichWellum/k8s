@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 '''
+ko - Kubernetes Openstack
+
 Author: Rich Wellum (richwellum@gmail.com)
 
 This is a tool to build a running Kubernetes Cluster on a single Bare Metal
