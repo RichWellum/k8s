@@ -1373,14 +1373,14 @@ def kubernetes_test_cli():
     demo('Test CLI:', 'View all deployments:')
     print(run_shell('kubectl get deployments --all-namespaces'))
 
-    demo('Test CLI:', 'View selfecrets:')
+    demo('Test CLI:', 'View secrets:')
     print(run_shell('kubectl get secrets'))
 
     demo('Test CLI:', 'View docker images')
     print(run_shell('sudo docker images'))
 
     demo('Test CLI:', 'View deployed Helm Charts')
-    print(run_shell('Helm list'))
+    print(run_shell('helm list'))
 
     demo('Test CLI:', 'Working cluster kill a pod and watch resilience.')
     demo('Test CLI:', 'kubectl delete pods <name> -n kolla')
