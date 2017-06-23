@@ -3,9 +3,9 @@
 Author: Rich Wellum (richwellum@gmail.com)
 
 This is a tool to build a running Kubernetes Cluster on a single Bare Metal
-server or a VM running on a server.
+server or a Centos or Ubuntu VM running on a server.
 
-Initial supported state is a Centos 7 VM.
+Then OpenStack will be built on top of the kubernetes cluster.
 
 Configuration is done with kubeadm.
 
@@ -14,24 +14,34 @@ particular the Bare Metal Deployment Guide:
 
 https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
 
-Inputs:
+However support will be added to also install OpenStack with the openstack-helm
+project.
+
+The purpose of this tool, when there are so many others out there is:
+
+1. Many tools don't support both Centos and Ubuntu with no input from the user.
+2. I like to play with versions of all the supporting tools, it helps when users
+report issues when they upgrade say helm, or docker, or kubernetes.
+3. This tool verifies it's completeness by generating a VM in the OpenStack
+Cluster.
+4. Contains a demo mode that walks the user through Kubernetes and OpenStack
+
+Mandatory Inputs:
 
 1. mgmt_int   : Name of the interface to be used for management operations
 2. mgmt_ip    : IP Address of management interface
 3. neutron_int: Name of the interface to be used for Neutron operations
+4. keepalived : Ip address for keep alice dameon
 
 TODO:
 
-1. Will need a blueprint if adding this to community
-2. Make it work on a baremetal host
-3. Pythonify some of these run_shells
-4. Potentially build a docker container or VM to run this on
-5. Use optional other CNI to canal
+1. Make it work on a baremetal host
+2. Potentially build a docker container or VM to run this on
+5. Add option to use a CNI other than canal
 6. Make it work with os-helm
 7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
 8. Add steps to output (1/17 etc)
-9. Change namespace to openstack not kolla
-10. Add to demo more kubectl output (see todo)
+10. Add to demo more kubectl outputs (see todo)
 
 Dependencies:
 
@@ -1326,6 +1336,49 @@ spec:
         pause_to_debug('Check "nslookup kubernetes" now')
 
 
+def kubernetes_test_cli():
+    '''Run some commands for demo purposes'''
+    if not DEMO:
+        return
+
+    demo('Determine IP and port information from Service:')
+    print(run_shell('kubectl get svc -n kube-system'))
+    print(run_shell('kubectl get svc -n kolla'))
+
+    demo('View all k8’s namespaces:')
+    print(run_shell('kubectl get namespaces'))
+
+    demo('Kolla Describe a pod in full detail:')
+    print(run_shell('kubectl describe pod ceph-admin -n kolla'))
+
+    demo('View all deployed services:')
+    print(run_shell('kubectl get deployment -n kube-system'))
+
+    demo('View configuration maps:')
+    print(run_shell('kubectl get configmap -n kube-system'))
+
+    demo('General Cluster information:')
+    print(run_shell('kubectl cluster-info'))
+
+    demo('View all jobs:')
+    print(run_shell('kubectl get jobs --all-namespaces'))
+
+    demo('View all deployments:')
+    print(run_shell('kubectl get deployments --all-namespaces'))
+
+    demo('View selfecrets:')
+    print(run_shell('kubectl get secrets'))
+
+    demo('View docker images')
+    print(run_shell('sudo docker images'))
+
+    demo('View deployed Helm Charts')
+    print(run_shell('Helm list'))
+
+    demo('Working cluster kill a pod and watch resilience.')
+    demo('kubectl delete pods <name> -n kolla')
+
+
 def k8s_bringup_kubernetes_cluster(args):
     '''Bring up a working Kubernetes Cluster
     Explicitly using the Canal CNI for now'''
@@ -1436,6 +1489,7 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         kolla_create_demo_vm()
+        kubernetes_test_cli()
 
     except Exception:
         print('Exception caught:')
