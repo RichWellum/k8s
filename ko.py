@@ -1343,42 +1343,42 @@ def kubernetes_test_cli():
     if not DEMO:
         return
 
-    demo('Determine IP and port information from Service:')
+    demo('Test CLI:', 'Determine IP and port information from Service:')
     print(run_shell('kubectl get svc -n kube-system'))
     print(run_shell('kubectl get svc -n kolla'))
 
-    demo('View all k8s namespaces:')
+    demo('Test CLI:', 'View all k8s namespaces:')
     print(run_shell('kubectl get namespaces'))
 
-    demo('Kolla Describe a pod in full detail:')
+    demo('Test CLI:', 'Kolla Describe a pod in full detail:')
     print(run_shell('kubectl describe pod ceph-admin -n kolla'))
 
-    demo('View all deployed services:')
+    demo('Test CLI:', 'View all deployed services:')
     print(run_shell('kubectl get deployment -n kube-system'))
 
-    demo('View configuration maps:')
+    demo('Test CLI:', 'View configuration maps:')
     print(run_shell('kubectl get configmap -n kube-system'))
 
-    demo('General Cluster information:')
+    demo('Test CLI:', 'General Cluster information:')
     print(run_shell('kubectl cluster-info'))
 
-    demo('View all jobs:')
+    demo('Test CLI:', 'View all jobs:')
     print(run_shell('kubectl get jobs --all-namespaces'))
 
-    demo('View all deployments:')
+    demo('Test CLI:', 'View all deployments:')
     print(run_shell('kubectl get deployments --all-namespaces'))
 
-    demo('View selfecrets:')
+    demo('Test CLI:', 'View selfecrets:')
     print(run_shell('kubectl get secrets'))
 
-    demo('View docker images')
+    demo('Test CLI:', 'View docker images')
     print(run_shell('sudo docker images'))
 
-    demo('View deployed Helm Charts')
+    demo('Test CLI:', 'View deployed Helm Charts')
     print(run_shell('Helm list'))
 
-    demo('Working cluster kill a pod and watch resilience.')
-    demo('kubectl delete pods <name> -n kolla')
+    demo('Test CLI:', 'Working cluster kill a pod and watch resilience.')
+    demo('Test CLI:', 'kubectl delete pods <name> -n kolla')
 
 
 def k8s_bringup_kubernetes_cluster(args):
