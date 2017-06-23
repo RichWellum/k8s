@@ -1347,7 +1347,7 @@ def kubernetes_test_cli():
     print(run_shell('kubectl get svc -n kube-system'))
     print(run_shell('kubectl get svc -n kolla'))
 
-    demo('View all k8’s namespaces:')
+    demo('View all k8s namespaces:')
     print(run_shell('kubectl get namespaces'))
 
     demo('Kolla Describe a pod in full detail:')
