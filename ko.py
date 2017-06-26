@@ -99,7 +99,7 @@ def parse_args():
     '''Parse sys.argv and return args'''
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
-        description='A tool to create a working Kubernetes Cluster on Bare Metal or a VM.',
+        description='A tool to create a working Kubernetes Cluster on Bare Metal or a VM. Then install OpenStack using Containers.',
         epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -c -v -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
                         help='Management Interface, E.g: eth0')
