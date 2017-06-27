@@ -286,7 +286,7 @@ def curl(*args):
 
 
 def linux_ver():
-    '''Determine Linux version - Ubuntu or Centos
+    '''Determine Linux version - Ubuntu or Centos (or openSUSE)
     Fail if it is not one of those'''
     global LINUX
 
@@ -296,8 +296,13 @@ def linux_ver():
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
         LINUX = 'Ubuntu'
     else:
-        print('Linux "%s" is not supported yet' % find_os[0])
-        sys.exit(1)
+        # Lets check if openSUSE
+        try:
+            LINUX = os.popen('lsb_release -i').read().split(':')[1].strip()
+            find_os = LINUX
+        except IndexError:
+            print('Linux "%s" is not supported yet' % find_os[0])
+            sys.exit(1)
 
     return(str(find_os))
 
@@ -521,7 +526,7 @@ def k8s_turn_things_off():
     else:
         run_shell('sudo ufw disable')
 
-        if LINUX == 'Ubuntu':
+        if LINUX == 'Ubuntu' or LINUX == 'openSUSE':
             print('Kubernetes - Turn off iscsid')
             run_shell('sudo systemctl stop iscsid')
             run_shell('sudo systemctl stop iscsid.service')
