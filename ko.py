@@ -151,7 +151,7 @@ def parse_args():
     parser.add_argument('MGMT_IP',
                         help='MGMT_INT IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
-                        help='the interface that will be used for the external ' +
+                        help='The interface that will be used for the external ' +
                         'bridge in Neutron, E.g: eth1')
     parser.add_argument('VIP_IP',
                         help='Keepalived VIP, used with keepalived should be ' +
@@ -187,7 +187,7 @@ def parse_args():
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
-                        help='turn on verbose messages')
+                        help='Turn on verbose messages')
     parser.add_argument('-d', '--demo', action='store_true',
                         help='Display some demo information and offer to move on')
     parser.add_argument('-f', '--force', action='store_true',
