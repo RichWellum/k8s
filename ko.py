@@ -4,12 +4,40 @@ ko - Kubernetes Openstack
 
 Author: Rich Wellum (richwellum@gmail.com)
 
-This is a tool to build a running Kubernetes Cluster on a single Bare Metal
-server or a Centos or Ubuntu VM running on a server.
+This tool provides a method to deploy OpenStack on a Kubernetes Cluster using
+Kolla and Kolla-Kubernetes on bare metal servers or virtual machines. Virtual
+machines supported are Ubuntu and Centos.
 
-Then OpenStack will be built on top of the kubernetes cluster.
+Host machine requirements
+=========================
 
-Configuration is done with kubeadm.
+The host machine must satisfy the following minimum requirements:
+
+- 2 network interfaces
+- 16GB main memory
+- 80GB disk space
+
+Root access to the deployment host machine is required.
+
+Prerequisites
+=============
+
+Verify the state of network interfaces. If using a VM spawned on
+OpenStack as the host machine, the state of the second interface will be DOWN
+on booting the VM.
+
+    ip addr show
+
+Bring up the second network interface if it is down.
+
+    ip link set ens4 up
+
+Verify if the second interface has an IP address.
+
+    ip addr show
+
+Preceding
+=========
 
 This relies heavily on the OpenStack kolla-kubernetes project and in
 particular the Bare Metal Deployment Guide:
@@ -18,6 +46,9 @@ https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
 
 However support will be added to also install OpenStack with the openstack-helm
 project.
+
+Purpose
+=======
 
 The purpose of this tool, when there are so many others out there is:
 
@@ -28,14 +59,31 @@ report issues when they upgrade say helm, or docker, or kubernetes.
 Cluster.
 4. Contains a demo mode that walks the user through Kubernetes and OpenStack
 
-Mandatory Inputs:
+Mandatory Inputs
+================
 
-1. mgmt_int   : Name of the interface to be used for management operations
-2. mgmt_ip    : IP Address of management interface
-3. neutron_int: Name of the interface to be used for Neutron operations
-4. keepalived : Ip address for keep alice dameon
+1. mgmt_int (network_interface):
+Name of the interface to be used for management operations
+The `network_interface` variable is the interface to which Kolla binds API
+services. For example, when starting Mariadb, it will bind to the IP on the
+interface list in the ``network_interface`` variable.
 
-TODO:
+2. mgmt_ip    : IP Address of management interface (mgmt_int)
+
+3. neutron_int (neutron_external_interface):
+Name of the interface to be used for Neutron operations
+The `neutron_external_interface` variable is the interface that will be used
+for the external bridge in Neutron. Without this bridge the deployment instance
+traffic will be unable to access the rest of the Internet.
+
+4. keepalived:
+An unused IP address in the network to act as a VIP for
+`kolla_internal_vip_address`. The VIP will be used with keepalived and added
+to the ``api_interface`` as specified in the ``globals.yml``
+
+
+TODO
+====
 
 1. Make it work on a baremetal host
 2. Potentially build a docker container or VM to run this on
@@ -43,20 +91,9 @@ TODO:
 6. Make it work with os-helm
 7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
 8. Add steps to output (1/17 etc)
-10. Add to demo more kubectl outputs (see todo)
 
-Dependencies:
-
-Centos:
-  Install pip:
-    curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-    sudo python get-pip.py
-
-  Install tools:
-    sudo yum install gcc python-devel nmap -y
-
-Ubuntu:
-  sudo apt-get install python-dev -y
+Dependencies
+============
 '''
 
 from __future__ import print_function
@@ -99,18 +136,28 @@ def parse_args():
     '''Parse sys.argv and return args'''
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
-        description='A tool to create a working Kubernetes Cluster on Bare Metal or a VM. Then install OpenStack using Containers.',
-        epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -c -v -kv 1.6.2 -hv 2.4.2\n')
+        description='This tool provides a method to deploy OpenStack on a ' +
+        'Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal ' +
+        'servers or virtual machines. Virtual machines supported are Ubuntu and ' +
+        'Centos.\n' +
+        'The host machine must satisfy the following minimum requirements:\n' +
+        '- 2 network interfaces\n' +
+        '- 16GB main memory\n' +
+        '- 80GB disk space\n' +
+        'Root access to the deployment host machine is required.',
+        epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
-                        help='Management Interface, E.g: eth0')
+                        help='The interface to which Kolla binds API services, E.g: eth0')
     parser.add_argument('MGMT_IP',
-                        help='Management Interface IP Address, E.g: 10.240.83.111')
+                        help='MGMT_INT IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
-                        help='Neutron Interface, E.g: eth1')
+                        help='the interface that will be used for the external ' +
+                        'bridge in Neutron, E.g: eth1')
     parser.add_argument('VIP_IP',
-                        help='Keepalived VIP, i.e. unused IP on management NIC subnet, E.g: 10.240.83.112')
+                        help='Keepalived VIP, used with keepalived should be ' +
+                        'an unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
-                        help='Specify a different image tage to the default(4.0.0)')
+                        help='Specify a different Kolla image tage to the default(4.0.0)')
     parser.add_argument('-lv', '--latest_version', action='store_true',
                         help='Try to install all the latest versions of tools')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
@@ -124,9 +171,11 @@ def parse_args():
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
                         help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='YMMV: Cleanup existing Kubernetes cluster before creating a new one')
+                        help='YMMV: Cleanup existing Kubernetes cluster before ' +
+                        'creating a new one')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster then exit, reboot host is advised')
+                        help='Cleanup existing Kubernetes cluster then exit, ' +
+                        'reboot host is advised')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
     # Todo: make this the default then add a switch for kolla or os-helm
