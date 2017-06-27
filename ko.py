@@ -14,8 +14,9 @@ Host machine requirements
 The host machine must satisfy the following minimum requirements:
 
 - 2 network interfaces
-- 16GB main memory
-- 80GB disk space
+- 8GB min, 16GB preferred - main memory
+- 40G min, 80GB preferred disk space
+- 2 CPU's Min, 4 preferred CPU's
 
 Root access to the deployment host machine is required.
 
@@ -148,8 +149,9 @@ def parse_args():
         'Centos.\n' +
         'The host machine must satisfy the following minimum requirements:\n' +
         '- 2 network interfaces\n' +
-        '- 16GB main memory\n' +
-        '- 80GB disk space\n' +
+        '- 8GB min, 16GB preferred - main memory\n' +
+        '- 40G min, 80GB preferred disk space\n' +
+        '- 2 CPUss Min, 4 preferred CPUs\n' +
         'Root access to the deployment host machine is required.',
         epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
