@@ -58,28 +58,34 @@ report issues when they upgrade say helm, or docker, or kubernetes.
 3. This tool verifies it's completeness by generating a VM in the OpenStack
 Cluster.
 4. Contains a demo mode that walks the user through Kubernetes and OpenStack
+5. Leaves the user with a working OpenStack Cluster with all the basic services.
 
 Mandatory Inputs
 ================
 
 1. mgmt_int (network_interface):
-Name of the interface to be used for management operations
+Name of the interface to be used for management operations.
+
 The `network_interface` variable is the interface to which Kolla binds API
 services. For example, when starting Mariadb, it will bind to the IP on the
 interface list in the ``network_interface`` variable.
 
-2. mgmt_ip    : IP Address of management interface (mgmt_int)
+2. mgmt_ip:
+IP Address of management interface (mgmt_int)
 
 3. neutron_int (neutron_external_interface):
-Name of the interface to be used for Neutron operations
+Name of the interface to be used for Neutron operations.
+
 The `neutron_external_interface` variable is the interface that will be used
 for the external bridge in Neutron. Without this bridge the deployment instance
 traffic will be unable to access the rest of the Internet.
 
 4. keepalived:
 An unused IP address in the network to act as a VIP for
-`kolla_internal_vip_address`. The VIP will be used with keepalived and added
-to the ``api_interface`` as specified in the ``globals.yml``
+`kolla_internal_vip_address`.
+
+The VIP will be used with keepalived and added to the `api_interface` as
+specified in the ``globals.yml``
 
 
 TODO
@@ -87,10 +93,10 @@ TODO
 
 1. Make it work on a baremetal host
 2. Potentially build a docker container or VM to run this on
-5. Add option to use a CNI other than canal
-6. Make it work with os-helm
-7. Verify networks - as per kolla/kolla-ansible/doc/quickstart.rst
-8. Add steps to output (1/17 etc)
+3. Add option to use a CNI other than canal
+4. Make it work with os-helm
+5. Add steps to output (1/17 etc)
+6. Note there are various todo's scattered inline as well.
 
 Dependencies
 ============
@@ -154,7 +160,7 @@ def parse_args():
                         help='The interface that will be used for the external ' +
                         'bridge in Neutron, E.g: eth1')
     parser.add_argument('VIP_IP',
-                        help='Keepalived VIP, used with keepalived should be ' +
+                        help='Keepalived VIP, used with keepalived, should be ' +
                         'an unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
                         help='Specify a different Kolla image tage to the default(4.0.0)')
@@ -338,7 +344,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-        # todo: add -H to all sudo's see ifit works in both envs
+        # todo: add -H to all sudo's see if it works in both envs
         run_shell('sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
@@ -1383,8 +1389,6 @@ spec:
         print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
         print("Kubernetes - 'nslookup kubernetes' worked - continuing")
-
-    # run_shell('kubectl delete kolla-dns-test -n default') # todo - doesn't delete
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
