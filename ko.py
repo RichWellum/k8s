@@ -1613,12 +1613,13 @@ def main():
     global FORCE
     FORCE = args.force
 
-    global tools_dict
-    tools_dict = tools_versions(args)
-    print_versions(args)
-
     set_logging()
     logger.setLevel(level=args.verbose)
+
+    global tools_dict
+    tools_dict = tools_versions(args)
+    if args.complete_cleanup is not True:
+        print_versions(args)
 
     try:
         if args.complete_cleanup:
