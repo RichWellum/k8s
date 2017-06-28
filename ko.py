@@ -1588,6 +1588,7 @@ def main():
     global tools_dict
     tools_dict = tools_versions(args)
     print_versions(args)
+    sys.exit(1)
 
     set_logging()
     logger.setLevel(level=args.verbose)
