@@ -566,10 +566,13 @@ def k8s_install_tools():
         'https://bootstrap.pypa.io/get-pip.py',
         '-o', '/tmp/get-pip.py')
     run_shell('sudo python /tmp/get-pip.py')
-    # Seems to be the recommended ansible version
-    run_shell('sudo -H pip install ansible==%s' % tools_dict["ansible"])
-    # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo -H pip install Jinja2==%s' % tools_dict["jinja2"])
+    if args.latest_version is True:
+        run_shell('sudo -H pip install ansible')
+        run_shell('sudo -H pip install Jinja2')
+    else:
+        run_shell('sudo -H pip install ansible==%s' % tools_dict["ansible"])
+        # Standard jinja2 in Centos7(2.9.6) is broken
+        run_shell('sudo -H pip install Jinja2==%s' % tools_dict["jinja2"])
 
 
 def k8s_setup_ntp():
@@ -603,7 +606,7 @@ def k8s_turn_things_off():
             run_shell('sudo systemctl stop iscsid.service')
 
 
-def k8s_install_k8s():
+def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
@@ -615,12 +618,20 @@ def k8s_install_k8s():
           tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
 
     if LINUX == 'Centos':
-        run_shell(
-            'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
-            kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
+        if args.latest_version is True:
+            run_shell(
+                'sudo yum install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
+        else:
+            run_shell(
+                'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
+                kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
     else:
         print('DEBUG HERE %s' % tools_dict["kubernetes"])
-        run_shell('sudo apt-get install -y ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
+        if args.latest_version is True:
+            run_shell(
+                'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
+        else:
+            run_shell('sudo apt-get install -y ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
             kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
 
     if tools_dict["kubernetes"] == '1.6.3':
@@ -1531,7 +1542,7 @@ def k8s_bringup_kubernetes_cluster(args):
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
-    k8s_install_k8s()
+    k8s_install_k8s(args)
     k8s_setup_dns()
     k8s_reload_service_files()
     k8s_start_kubelet()
