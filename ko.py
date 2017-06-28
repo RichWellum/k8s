@@ -348,7 +348,6 @@ def tools_versions(args):
         if tools_dict["jinja2"] is not args.jinja2_version:
             tools_dict["jinja2"] = args.jinja2_version
 
-    print('DEBUG\n %s' % tools_dict)
     return(tools_dict)
 
 
@@ -1617,7 +1616,6 @@ def main():
     global tools_dict
     tools_dict = tools_versions(args)
     print_versions(args)
-    sys.exit(1)
 
     set_logging()
     logger.setLevel(level=args.verbose)
