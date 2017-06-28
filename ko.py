@@ -365,6 +365,8 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
+    print('Linux info:      %s\n' % lv)
+
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
@@ -374,11 +376,30 @@ def print_versions(args):
     print('\n%s - Versions:' % __file__)
     print('Docker version:  %s' % docker_ver())
     print('Image Tag:       %s' % tools_dict["kolla"])
-    print('Helm version:    %s' % tools_dict["helm"])
-    print('K8s version:     %s' % tools_dict["kubernetes"])
-    print('Ansible version: %s' % tools_dict["ansible"])
-    print('Jinja2 version:  %s' % tools_dict["jinja2"])
-    print('Linux info:      %s\n' % lv)
+
+    if tools_dict["helm"] == "":
+        v = "Latest"
+    else:
+        v = tools_dict["helm"]
+    print('Helm version:    %s' % v)
+
+    if tools_dict["kubernetes"] == "":
+        v = "Latest"
+    else:
+        v = tools_dict["kubernetes"]
+    print('K8s version:     %s' % v)
+
+    if tools_dict["ansible"] == "":
+        v = "Latest"
+    else:
+        v = tools_dict["ansible"]
+    print('Ansible version: %s' % v)
+
+    if tools_dict["jinja2"] == "":
+        v = "Latest"
+    else:
+        v = tools_dict["jinja2"]
+    print('Jinja2 version:  %s' % v)
     time.sleep(1)
 
 
