@@ -320,6 +320,8 @@ def tools_versions(args):
     The user can overide all with '-latest_version' and live on the wild side.
     '''
 
+    global tools_dict
+
     tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
     if args.latest_version is True:
         # todo: find kolla latest image tag
@@ -348,7 +350,7 @@ def tools_versions(args):
         if tools_dict["jinja2"] is not args.jinja2_version:
             tools_dict["jinja2"] = args.jinja2_version
 
-    return(tools_dict)
+    return
 
 
 def print_versions(args):
@@ -1618,8 +1620,7 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    global tools_dict
-    tools_dict = tools_versions(args)
+    tools_versions(args)
     if args.complete_cleanup is not True:
         print_versions(args)
 
