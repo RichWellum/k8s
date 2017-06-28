@@ -365,7 +365,7 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
-    print('Linux info:      %s\n' % lv)
+    print('Linux info:      %s' % lv)
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
@@ -400,6 +400,8 @@ def print_versions(args):
     else:
         v = tools_dict["jinja2"]
     print('Jinja2 version:  %s' % v)
+
+    print('\n')
     time.sleep(1)
 
 
