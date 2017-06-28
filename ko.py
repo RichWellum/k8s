@@ -167,17 +167,17 @@ def parse_args():
     parser.add_argument('-lv', '--latest_version', action='store_true',
                         help='Try to install all the latest versions of tools, ' +
                         'overidden by individual tool versions if requested.')
-    parser.add_argument('-it', '--image_tag', type=str,  # default='4.0.0', dfdf
+    parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
                         help='Specify a different Kolla image tage to the default(4.0.0)')
-    parser.add_argument('-hv', '--helm_version', type=str,  # default='2.5.0',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
                         help='Specify a different helm version to the default(2.5.0)')
-    parser.add_argument('-kv', '--k8s_version', type=str,  # default='1.6.5',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
                         help='Specify a different kubernetes version to the default(1.6.5)')
-    parser.add_argument('-cv', '--cni_version', type=str,  # default='0.5.1-00',
+    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
                         help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
-    parser.add_argument('-av', '--ansible_version', type=str,  # default='2.2.0.0',
+    parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
                         help='Specify a different ansible version to the default(2.2.0.0)')
-    parser.add_argument('-jv', '--jinja2_version', type=str,  # default='2.8.1',
+    parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
                         help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before ' +
@@ -345,6 +345,7 @@ def tools_versions(args):
     if tools_dict["jinja2"] is not args.jinja2_version:
         tools_dict["jinja2"] = args.jinja2_version
 
+    print('DEBUG\n %s' % tools_dict)
     return(tools_dict)
 
 
