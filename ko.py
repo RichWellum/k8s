@@ -404,6 +404,7 @@ def print_versions(args):
     print('Jinja2 version:  %s' % v)
 
     time.sleep(1)
+    print('\n')
     sys.exit(1)
 
 
