@@ -558,7 +558,7 @@ def k8s_install_tools(args):
         run_shell('sudo yum install -y git crudini jq ansible')
     else:
         run_shell('sudo apt-get update -y; sudo apt-get upgrade -y --allow-downgrades')
-        run_shell('sudo apt-get install -y bridge-utils nmap')
+        run_shell('sudo apt-get install -y bridge-utils nmap ')
         run_shell('sudo apt-get install -y python-dev libffi-dev gcc libssl-dev python-pip sshpass')
         run_shell('sudo apt-get install -y git gcc crudini jq ansible')
 
@@ -629,9 +629,9 @@ def k8s_install_k8s(args):
     else:
         if args.latest_version is True:
             run_shell(
-                'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
+                'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni --allow-downgrades')
         else:
-            run_shell('sudo apt-get install -y ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
+            run_shell('sudo apt-get install -y --allow-downgrades ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
             kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
 
     if tools_dict["kubernetes"] == '1.6.3':
