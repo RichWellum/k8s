@@ -322,7 +322,8 @@ def tools_versions(args):
 
     tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
     if args.latest_version is True:
-        versions = ["", "", "", "", "", ""]
+        # todo: find kolla latest image tag
+        versions = ["4.0.0", "", "", "", "", ""]
     else:
         versions = ["4.0.0", "2.5.0", "1.6.5", "0.5.1", "2.2.0.0", "2.8.1"]
 
@@ -332,17 +333,17 @@ def tools_versions(args):
         tools_dict[tools[i]] = versions[i]
 
     # Now overide based on user input - first
-    if tools_dict["kolla"] is not args.image_tag:
+    if tools_dict["kolla"] is not args.image_tag and args.latest_version is not True:
         tools_dict["kolla"] = args.image_tag
-    if tools_dict["helm"] is not args.helm_version:
+    if tools_dict["helm"] is not args.helm_version and args.latest_version is not True:
         tools_dict["helm"] = args.helm_version
-    if tools_dict["kubernetes"] is not args.k8s_version:
+    if tools_dict["kubernetes"] is not args.k8s_version and args.latest_version is not True:
         tools_dict["kubernetes"] = args.k8s_version
-    if tools_dict["kubernetes-cni"] is not args.cni_version:
+    if tools_dict["kubernetes-cni"] is not args.cni_version and args.latest_version is not True:
         tools_dict["kubernetes-cni"] = args.cni_version
-    if tools_dict["ansible"] is not args.ansible_version:
+    if tools_dict["ansible"] is not args.ansible_version and args.latest_version is not True:
         tools_dict["ansible"] = args.ansible_version
-    if tools_dict["jinja2"] is not args.jinja2_version:
+    if tools_dict["jinja2"] is not args.jinja2_version and args.latest_version is not True:
         tools_dict["jinja2"] = args.jinja2_version
 
     print('DEBUG\n %s' % tools_dict)
