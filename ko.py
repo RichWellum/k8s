@@ -405,7 +405,6 @@ def print_versions(args):
 
     time.sleep(1)
     print('\n')
-    sys.exit(1)
 
 
 def k8s_create_repo():
