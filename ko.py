@@ -403,7 +403,6 @@ def print_versions(args):
         v = tools_dict["jinja2"]
     print('Jinja2 version:  %s' % v)
 
-    print('\n')
     time.sleep(1)
     sys.exit(1)
 
