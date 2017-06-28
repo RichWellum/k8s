@@ -327,7 +327,7 @@ def tools_versions(args):
     tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
     if args.latest_version is True:
         kolla_version = run_shell(
-            "sudo docker images | grep 'kolla/centos-source-glance-api' | awk '{print $2}'")
+            "sudo docker images | grep 'kolla/centos-source-glance-api' | awk '{print $2}'").rstrip()
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
