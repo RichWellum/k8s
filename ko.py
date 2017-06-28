@@ -359,6 +359,8 @@ def tools_versions(args):
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
 
+    print('Linux info:      %s' % linux_ver())
+
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
     if LINUX == 'Centos':
@@ -366,8 +368,6 @@ def print_versions(args):
             'sudo yum install -y docker')
     else:
         run_shell('sudo apt-get install -y docker.io')
-
-    print('Linux info:      %s' % linux_ver())
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
