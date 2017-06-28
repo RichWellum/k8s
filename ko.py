@@ -1621,6 +1621,7 @@ def main():
     logger.setLevel(level=args.verbose)
 
     tools_versions(args)
+    print('DEBUGDFDF "%s"' % tools_dict)
     if args.complete_cleanup is not True:
         print_versions(args)
 
