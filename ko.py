@@ -609,7 +609,8 @@ def k8s_install_k8s():
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
     demo('Installing Kubernetes', 'Installing docker ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
-         (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
+         (tools_dict["kubernetes"], tools_dict["kubernetes"],
+          tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
 
     if LINUX == 'Centos':
         run_shell(
