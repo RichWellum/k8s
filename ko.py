@@ -321,7 +321,7 @@ def tools_versions(args):
     '''
 
     tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
-    if args.latest is True:
+    if args.latest_version is True:
         versions = ["", "", "", "", "", ""]
     else:
         versions = ["4.0.0", "2.5.0", "1.6.5", "0.5.1", "2.2.0.0", "2.8.1"]
