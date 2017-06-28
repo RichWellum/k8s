@@ -164,20 +164,21 @@ def parse_args():
     parser.add_argument('VIP_IP',
                         help='Keepalived VIP, used with keepalived, should be ' +
                         'an unused IP on management NIC subnet, E.g: 10.240.83.112')
-    parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
-                        help='Specify a different Kolla image tage to the default(4.0.0)')
     parser.add_argument('-lv', '--latest_version', action='store_true',
-                        help='Try to install all the latest versions of tools')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
+                        help='Try to install all the latest versions of tools, ' +
+                        'overidden by individual tool versions if requested.')
+    parser.add_argument('-it', '--image_tag', type=str,  # default='4.0.0', dfdf
+                        help='Specify a different Kolla image tage to the default(4.0.0)')
+    parser.add_argument('-hv', '--helm_version', type=str,  # default='2.5.0',
                         help='Specify a different helm version to the default(2.5.0)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
-                        help='Specify a different ansible version to the default(1.6.5)')
-    parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
-                        help='Specify a different k8s version to the default(2.2.0.0)')
-    parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
-                        help='Specify a different jinja2 version to the default(2.8.1)')
-    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
+    parser.add_argument('-kv', '--k8s_version', type=str,  # default='1.6.5',
+                        help='Specify a different kubernetes version to the default(1.6.5)')
+    parser.add_argument('-cv', '--cni_version', type=str,  # default='0.5.1-00',
                         help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
+    parser.add_argument('-av', '--ansible_version', type=str,  # default='2.2.0.0',
+                        help='Specify a different ansible version to the default(2.2.0.0)')
+    parser.add_argument('-jv', '--jinja2_version', type=str,  # default='2.8.1',
+                        help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before ' +
                         'creating a new one')
@@ -286,7 +287,7 @@ def curl(*args):
 
 
 def linux_ver():
-    '''Determine Linux version - Ubuntu or Centos (or openSUSE)
+    '''Determine Linux version - Ubuntu or Centos
     Fail if it is not one of those'''
     global LINUX
 
@@ -296,13 +297,8 @@ def linux_ver():
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
         LINUX = 'Ubuntu'
     else:
-        # Lets check if openSUSE
-        try:
-            LINUX = os.popen('lsb_release -i').read().split(':')[1].strip()
-            find_os = LINUX
-        except IndexError:
-            print('Linux "%s" is not supported yet' % find_os[0])
-            sys.exit(1)
+        print('Linux "%s" is not supported yet' % find_os[0])
+        sys.exit(1)
 
     return(str(find_os))
 
@@ -311,12 +307,58 @@ def docker_ver():
     '''Display docker version'''
     oldstr = run_shell("docker --version | awk '{print $3}'")
     newstr = oldstr.replace(",", "")
-    # docker_ver2 = news_shell('echo `${%s:0:-4}`' % docker_ver)
     return(newstr.rstrip())
+
+
+def tools_versions(args):
+    '''A Dictionary of tools and their versions
+
+    Defaults are populated by tested well known versions.
+
+    The user can overide with '-latest_version'.
+
+    User can then further overide each individual tool.
+    '''
+
+    tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
+    if args.latest is True:
+        versions = ["", "", "", "", "", ""]
+    else:
+        versions = ["4.0.0", "2.5.0", "1.6.5", "0.5.1", "2.2.0.0", "2.8.1"]
+
+    tools_dict = {}
+    # Generate dictionary
+    for i in range(len(tools)):
+        tools_dict[tools[i]] = versions[i]
+
+    # Now overide based on user input - first
+    if tools_dict["kolla"] is not args.image_tag:
+        tools_dict["kolla"] = args.image_tag
+    if tools_dict["helm"] is not args.helm_version:
+        tools_dict["helm"] = args.helm_version
+    if tools_dict["kubernetes"] is not args.k8s_version:
+        tools_dict["kubernetes"] = args.k8s_version
+    if tools_dict["kubernetes-cni"] is not args.cni_version:
+        tools_dict["kubernetes-cni"] = args.cni_version
+    if tools_dict["ansible"] is not args.ansible_version:
+        tools_dict["ansible"] = args.ansible_version
+    if tools_dict["jinja2"] is not args.jinja2_version:
+        tools_dict["jinja2"] = args.jinja2_version
+
+    return(tools_dict)
 
 
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
+
+    # This a good place to install docker - as it's always needed and we
+    # need the version anyway
+    if LINUX == 'Centos':
+        run_shell(
+            'sudo yum install -y docker')
+    else:
+        run_shell('sudo apt-get install -y docker.io')
+
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
@@ -325,12 +367,11 @@ def print_versions(args):
 
     print('\n%s - Versions:' % __file__)
     print('Docker version:  %s' % docker_ver())
-    print('Helm version:    %s' % args.helm_version)
-    print('K8s version:     %s' % args.k8s_version)
-    # print('K8s CNI version: %s' % args.cni_version)
-    print('Ansible version: %s' % args.ansible_version)
-    print('Jinja2 version:  %s' % args.jinja2_version)
-    print('Image Tag:       %s' % args.image_tag)
+    print('Image Tag:       %s' % tools_dict["kolla"])
+    print('Helm version:    %s' % tools_dict["helm"])
+    print('K8s version:     %s' % tools_dict["kubernetes"])
+    print('Ansible version: %s' % tools_dict["ansible"])
+    print('Jinja2 version:  %s' % tools_dict["jinja2"])
     print('Linux info:      %s\n' % linux_ver())
     time.sleep(1)
 
@@ -474,7 +515,7 @@ def k8s_wait_for_vm(vm):
             sys.exit(1)
 
 
-def k8s_install_tools(a_ver, j_ver):
+def k8s_install_tools():
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
 
@@ -496,9 +537,9 @@ def k8s_install_tools(a_ver, j_ver):
         '-o', '/tmp/get-pip.py')
     run_shell('sudo python /tmp/get-pip.py')
     # Seems to be the recommended ansible version
-    run_shell('sudo -H pip install ansible==%s' % a_ver)
+    run_shell('sudo -H pip install ansible==%s' % tools_dict["ansible"])
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo -H pip install Jinja2==%s' % j_ver)
+    run_shell('sudo -H pip install Jinja2==%s' % tools_dict["jinja2"])
 
 
 def k8s_setup_ntp():
@@ -526,13 +567,13 @@ def k8s_turn_things_off():
     else:
         run_shell('sudo ufw disable')
 
-        if LINUX == 'Ubuntu' or LINUX == 'openSUSE':
+        if LINUX == 'Ubuntu':
             print('Kubernetes - Turn off iscsid')
             run_shell('sudo systemctl stop iscsid')
             run_shell('sudo systemctl stop iscsid.service')
 
 
-def k8s_install_k8s(k8s_version, cni_version):
+def k8s_install_k8s():
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
     print('Kubernetes - Creating kubernetes repo')
@@ -540,17 +581,17 @@ def k8s_install_k8s(k8s_version, cni_version):
     k8s_create_repo()
     print('Kubernetes - Installing kubernetes packages')
     demo('Installing Kubernetes', 'Installing docker ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
-         (k8s_version, k8s_version, k8s_version, cni_version))
+         (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
 
     if LINUX == 'Centos':
         run_shell(
             'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
-            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
+            kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
     else:
         run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni' % (k8s_version, k8s_version, k8s_version))
+            kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
 
-    if k8s_version == '1.6.3':
+    if tools_dict["kubernetes"] == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
         # 1.6.3 is broken so if user chooses it - use special image
         curl(
@@ -1453,12 +1494,12 @@ def k8s_bringup_kubernetes_cluster(args):
         print('Kolla - Building OpenStack on existing Kubernetes cluster')
         return
 
-    k8s_install_tools(args.ansible_version, args.jinja2_version)
+    k8s_install_tools()
     k8s_cleanup(args.cleanup)
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
-    k8s_install_k8s(args.k8s_version, args.cni_version)
+    k8s_install_k8s()
     k8s_setup_dns()
     k8s_reload_service_files()
     k8s_start_kubelet()
@@ -1544,6 +1585,8 @@ def main():
     global FORCE
     FORCE = args.force
 
+    global tools_dict
+    tools_dict = tools_versions(args)
     print_versions(args)
 
     set_logging()
