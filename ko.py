@@ -288,7 +288,9 @@ def curl(*args):
 
 def linux_ver():
     '''Determine Linux version - Ubuntu or Centos
-    Fail if it is not one of those'''
+    Fail if it is not one of those.
+
+    Return the long string for output'''
     global LINUX
 
     find_os = platform.linux_distribution()
@@ -358,15 +360,13 @@ def print_versions(args):
 
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
-    lv = linux_ver()
-
     if LINUX == 'Centos':
         run_shell(
             'sudo yum install -y docker')
     else:
         run_shell('sudo apt-get install -y docker.io')
 
-    print('Linux info:      %s' % lv)
+    print('Linux info:      %s' % linux_ver())
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
