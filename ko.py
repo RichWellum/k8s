@@ -626,7 +626,6 @@ def k8s_install_k8s(args):
                 'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
                 kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
     else:
-        print('DEBUG HERE %s' % tools_dict["kubernetes"])
         if args.latest_version is True:
             run_shell(
                 'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
@@ -1632,7 +1631,6 @@ def main():
     logger.setLevel(level=args.verbose)
 
     tools_versions(args)
-    print('DEBUGDFDF "%s"' % tools_dict)
     if args.complete_cleanup is not True:
         print_versions(args)
 
