@@ -326,8 +326,9 @@ def tools_versions(args):
 
     tools = ["kolla", "helm", "kubernetes", "kubernetes-cni", "ansible", "jinja2"]
     if args.latest_version is True:
-        # todo: find kolla latest image tag
-        versions = ["4.0.0", "", "", "", "", ""]
+        kolla_version = run_shell(
+            "sudo docker images | grep 'kolla/centos-source-glance-api' | awk '{print $2}'")
+        versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
         versions = ["4.0.0", "2.5.0", "1.6.5", "0.5.1", "2.2.0.0", "2.8.1"]
@@ -404,6 +405,7 @@ def print_versions(args):
 
     print('\n')
     time.sleep(1)
+    sys.exit(1)
 
 
 def k8s_create_repo():
