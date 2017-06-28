@@ -545,7 +545,7 @@ def k8s_wait_for_vm(vm):
             sys.exit(1)
 
 
-def k8s_install_tools():
+def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
     print('Kolla - Install necessary tools')
 
@@ -1537,7 +1537,7 @@ def k8s_bringup_kubernetes_cluster(args):
         print('Kolla - Building OpenStack on existing Kubernetes cluster')
         return
 
-    k8s_install_tools()
+    k8s_install_tools(args)
     k8s_cleanup(args.cleanup)
     print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
