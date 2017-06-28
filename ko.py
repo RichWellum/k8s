@@ -353,6 +353,8 @@ def print_versions(args):
 
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
+    lv = linux_ver()
+
     if LINUX == 'Centos':
         run_shell(
             'sudo yum install -y docker')
@@ -372,7 +374,7 @@ def print_versions(args):
     print('K8s version:     %s' % tools_dict["kubernetes"])
     print('Ansible version: %s' % tools_dict["ansible"])
     print('Jinja2 version:  %s' % tools_dict["jinja2"])
-    print('Linux info:      %s\n' % linux_ver())
+    print('Linux info:      %s\n' % lv)
     time.sleep(1)
 
 
