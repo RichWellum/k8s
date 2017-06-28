@@ -565,9 +565,9 @@ def k8s_install_tools():
         '-o', '/tmp/get-pip.py')
     run_shell('sudo python /tmp/get-pip.py')
     # Seems to be the recommended ansible version
-    run_shell('sudo -H pip install ansible==%s' % tools_dict["ansible"])
+    run_shell('sudo -H pip install ansible=%s' % tools_dict["ansible"])
     # Standard jinja2 in Centos7(2.9.6) is broken
-    run_shell('sudo -H pip install Jinja2==%s' % tools_dict["jinja2"])
+    run_shell('sudo -H pip install Jinja2=%s' % tools_dict["jinja2"])
 
 
 def k8s_setup_ntp():
@@ -617,6 +617,7 @@ def k8s_install_k8s():
             'sudo yum install -y docker ebtables kubelet-%s kubeadm-%s kubectl-%s \
             kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
     else:
+        print('DEBUG HERE')
         run_shell('sudo apt-get install -y docker.io ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
             kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
 
