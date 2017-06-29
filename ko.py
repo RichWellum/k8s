@@ -1585,6 +1585,7 @@ def kolla_bring_up_openstack(args):
     kolla_build_micro_charts()
     kolla_verify_helm_images()
     kolla_create_cloud(args)
+    pause_to_debug('Add to cloud.yaml now')
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
