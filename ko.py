@@ -377,7 +377,7 @@ def print_versions(args):
 
     print('\n%s - Versions:' % __file__)
     print('Docker version:  %s' % docker_ver())
-    print('Image Tag:       %s' % tools_dict["kolla"])
+    print('Kolla Image Tag: %s' % tools_dict["kolla"])
 
     if tools_dict["helm"] == "":
         v = "Latest"
