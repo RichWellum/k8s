@@ -194,6 +194,9 @@ def parse_args():
                         help='Pause for the user to manually test nslookup in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
+    parser.add_argument('-ec', '--edit_config', action='store_true',
+                        help='Pause to allow the user to edit the global.yaml and the cloud.yaml' +
+                        'files - for custome configuration')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='Turn on verbose messages')
@@ -1070,7 +1073,7 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     run_shell("sudo sed -i 's/#neutron_external_interface/neutron_external_interface/g' /etc/kolla/globals.yml")
 
 
-def kolla_add_to_globals():
+def kolla_add_to_globals(args):
     '''Default section needed'''
     print('Kolla - Add default config to globals.yml')
 
@@ -1117,6 +1120,10 @@ cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
     run_shell('cat %s | sudo tee -a %s' % (new, add_to))
+
+    if args.edit_config is True:
+        pause_to_debug('Pausing to edit the /etc/kolla/globals.yml file')
+
     demo('We have also added some basic config that is not defaulted',
          'Mainly Cinder and Database:')
     if DEMO:
@@ -1324,6 +1331,9 @@ global:
          port_external: true
         """ % (args.image_tag, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
                args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
+
+    if args.edit_config is True:
+        pause_to_debug('Pausing to edit the /tmp/cloud.yaml file')
 
     if DEMO:
         print(run_shell('sudo cat /tmp/cloud.yaml'))
@@ -1578,7 +1588,7 @@ def kolla_bring_up_openstack(args):
     k8s_label_nodes(node_list)
 
     kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
-    kolla_add_to_globals()
+    kolla_add_to_globals(args)
     kolla_enable_qemu()
     kolla_gen_configs()
     kolla_gen_secrets()
