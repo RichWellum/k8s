@@ -236,7 +236,7 @@ def untar(fname):
         tar.close()
 
 
-def pause_to_debug(str):
+def pause_tool_execution(str):
     '''Pause the script for manual debugging of the VM before continuing'''
     print('Pause: "%s"' % str)
     raw_input('Press Enter to continue\n')
@@ -1122,7 +1122,7 @@ nova_backend_ceph: "no"
     run_shell('cat %s | sudo tee -a %s' % (new, add_to))
 
     if args.edit_config is True:
-        pause_to_debug('Pausing to edit the /etc/kolla/globals.yml file')
+        pause_tool_execution('Pausing to edit the /etc/kolla/globals.yml file')
 
     demo('We have also added some basic config that is not defaulted',
          'Mainly Cinder and Database:')
@@ -1333,7 +1333,7 @@ global:
                args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
 
     if args.edit_config is True:
-        pause_to_debug('Pausing to edit the /tmp/cloud.yaml file')
+        pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
 
     if DEMO:
         print(run_shell('sudo cat /tmp/cloud.yaml'))
@@ -1496,7 +1496,7 @@ spec:
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
         print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
-        pause_to_debug('Check "nslookup kubernetes" now')
+        pause_tool_execution('Check "nslookup kubernetes" now')
 
 
 def kubernetes_test_cli():
@@ -1597,7 +1597,7 @@ def kolla_bring_up_openstack(args):
     kolla_build_micro_charts()
     kolla_verify_helm_images()
     kolla_create_cloud(args)
-    pause_to_debug('Add to cloud.yaml now')
+    pause_tool_execution('Add to cloud.yaml now')
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
