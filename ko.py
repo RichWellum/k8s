@@ -171,8 +171,8 @@ def parse_args():
                         help='Specify a different Kolla image tage to the default(4.0.0)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
                         help='Specify a different helm version to the default(2.5.0)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.6.5',
-                        help='Specify a different kubernetes version to the default(1.6.5)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.0',
+                        help='Specify a different kubernetes version to the default(1.7.0)')
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
                         help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
     parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
