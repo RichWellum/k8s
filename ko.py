@@ -98,6 +98,7 @@ TODO
 4. Make it work with os-helm
 5. Add steps to output (1/17 etc)
 6. Note there are various todo's scattered inline as well.
+7. Add an option to insert a cherry-pick before compiling kolla-kubernetes
 
 Dependencies
 ============
@@ -334,7 +335,7 @@ def tools_versions(args):
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
-        versions = ["4.0.0", "2.5.0", "1.6.5", "0.5.1", "2.2.0.0", "2.8.1"]
+        versions = ["4.0.0", "2.5.0", "1.7.0", "0.5.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
