@@ -107,6 +107,7 @@ Dependencies
 from __future__ import print_function
 import sys
 import os
+import pwd
 import time
 import subprocess
 import argparse
@@ -1751,7 +1752,7 @@ def main():
     args = parse_args()
 
     # Force sudo early on
-    run_shell('sudo %s' % os.getusername())
+    run_shell('sudo %s' % pwd.getpwuid(os.getuid())[0])
 
     global DEBUG
     DEBUG = args.verbose
