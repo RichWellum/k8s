@@ -571,7 +571,7 @@ def k8s_install_tools(args):
     add_one_to_progress()
 
     if LINUX == 'Centos':
-        run_shell('sudo yum update; sudo yum upgrade -y')
+        run_shell('sudo yum update -y; sudo yum upgrade -y')
         run_shell('sudo yum install -y epel-release bridge-utils nmap')
         run_shell('sudo yum install -y python-pip python-devel libffi-devel \
         gcc openssl-devel sshpass')
