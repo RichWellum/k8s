@@ -1750,9 +1750,6 @@ def main():
     '''Main function.'''
     args = parse_args()
 
-    # Force sudo early on
-    run_shell('sudo %s' % os.getlogin())
-
     global DEBUG
     DEBUG = args.verbose
 
@@ -1764,6 +1761,10 @@ def main():
 
     global PROGRESS
     PROGRESS = 0
+
+    # Force sudo early on
+    run_shell('sudo %s' % os.getlogin())
+
     # Start progress on one
     add_one_to_progress()
 
