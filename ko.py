@@ -1754,7 +1754,7 @@ def main():
     K8S_FINAL_PROGRESS = 18
 
     global KOLLA_FINAL_PROGRESS
-    KOLLA_FINAL_PROGRESS = 37
+    KOLLA_FINAL_PROGRESS = 34
 
     set_logging()
     logger.setLevel(level=args.verbose)
