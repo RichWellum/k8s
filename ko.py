@@ -196,8 +196,8 @@ def parse_args():
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     #                     help='optionally change cloud network config files from default(3)')
     parser.add_argument('-ec', '--edit_config', action='store_true',
-                        help='Pause to allow the user to edit the global.yaml and the cloud.yaml' +
-                        'files - for custome configuration')
+                        help='Pause to allow the user to edit the global.yaml and the cloud.yaml ' +
+                        'files - for custom configuration')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='Turn on verbose messages')
