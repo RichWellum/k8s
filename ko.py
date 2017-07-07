@@ -556,6 +556,7 @@ def k8s_wait_for_vm(vm):
 
 
 def add_one_to_progress():
+    global PROGRESS
     PROGRESS += 1
 
 
@@ -1727,6 +1728,7 @@ def main():
     FORCE = args.force
 
     global PROGRESS
+    PROGRESS = 0
     # Start progress on one
     add_one_to_progress()
 
