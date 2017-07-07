@@ -590,7 +590,7 @@ def k8s_setup_ntp():
         run_shell('sudo systemctl start ntpd.service')
     else:
         run_shell('sudo apt-get install -y ntp')
-        run_shell('systemctl restart ntp')
+        run_shell('sudo systemctl restart ntp')
 
 
 def k8s_turn_things_off():
