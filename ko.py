@@ -362,7 +362,7 @@ def tools_versions(args):
 
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
-
+    print('Kubernetes - Bring up a Kubernetes Cluster\n')
     print('Linux info:      %s' % linux_ver())
 
     # This a good place to install docker - as it's always needed and we
@@ -487,8 +487,7 @@ def k8s_wait_for_running_negate():
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 5
 
-    print("(%s/%s) Kubernetes - Wait for all pods to be in Running state:" %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+    print('Kubernetes - Wait for all pods to be in Running state:')
 
     elapsed_time = 0
     prev_not_running = 0
@@ -506,7 +505,7 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('Kubernetes - %s pod(s) are not in Running state' % int(not_running))
+                print('  Kubernetes - %s pod(s) are not in Running state' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             prev_not_running = not_running
@@ -615,14 +614,13 @@ def k8s_setup_ntp():
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
     print('(%s/%s) Kubernetes - Turn some things off' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
 
     if LINUX == 'Centos':
-        print('Kubernetes - Turn off SELinux')
+        print('(%s/%s) Kubernetes - Turn off SELinux' % (PROGRESS, K8S_FINAL_PROGRESS))
         run_shell('sudo setenforce 0')
         run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
-    print('Kubernetes - Turn off firewall')
+    print('(%s/%s) Kubernetes - Turn off firewall' % (PROGRESS, K8S_FINAL_PROGRESS))
     if LINUX == 'Centos':
         run_shell('sudo systemctl stop firewalld')
         run_shell('sudo systemctl disable firewalld')
@@ -633,17 +631,19 @@ def k8s_turn_things_off():
             print('Kubernetes - Turn off iscsid')
             run_shell('sudo systemctl stop iscsid')
             run_shell('sudo systemctl stop iscsid.service')
+    add_one_to_progress()
 
 
 def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
-    print('(%s/%s) Kubernetes - Creating kubernetes repo' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%s/%s) Kubernetes - Creating kubernetes repo, installing Kubernetes packages' %
+          (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
-    print('Kubernetes - Installing kubernetes packages')
+
     demo('Installing Kubernetes', 'Installing docker ebtables kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
          (tools_dict["kubernetes"], tools_dict["kubernetes"],
           tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
@@ -848,7 +848,8 @@ def k8s_deploy_canal_sdn():
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
-    print('(%s/%s) Kubernetes - Create RBAC' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%s/%s) Kubernetes - Create RBAC and Deploy the Canal CNI driver' %
+          (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     answer = curl(
@@ -858,7 +859,6 @@ def k8s_deploy_canal_sdn():
     logger.debug(answer)
     run_shell('kubectl create -f /tmp/rbac.yaml')
 
-    print('Kubernetes - Deploy the Canal CNI driver')
     if DEMO:
         demo('Why use a CNI Driver?',
              'Container Network Interface (CNI) is a specification started by CoreOS\n' +
@@ -938,7 +938,7 @@ subjects:
   name: system:unauthenticated
 """)
     if DEMO:
-        print(run_shell('kubectl update -f /tmp/rbac'))
+        print(run_shell('kubectl replace -f /tmp/rbac'))
         demo('Note the cluster-admin has been replaced', '')
     else:
         run_shell('kubectl update -f /tmp/rbac')
@@ -948,7 +948,6 @@ def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
     print('(%s/%s) Kolla - Install and deploy Helm version %s - Tiller pod' %
           (PROGRESS, KOLLA_FINAL_PROGRESS, version))
-    add_one_to_progress()
 
     demo('Download the version of helm requested and install it',
          'Installing means the Tiller Server will be instantiated in a pod')
@@ -967,7 +966,8 @@ def kolla_install_deploy_helm(version):
     while True:
         out = run_shell('helm version | grep "%s" | wc -l' % version)
         if int(out) == 2:
-            print('Kolla - Helm successfully installed')
+            print('(%s/%s) Kolla - Helm successfully installed' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+            add_one_to_progress()
             break
         else:
             time.sleep(3)
@@ -1018,22 +1018,32 @@ def kolla_install_repos():
         run_shell('sudo rm -rf ./kolla-ansible')
     run_shell('git clone http://github.com/openstack/kolla-ansible')
 
-    print('Kolla - Clone kolla-kubernetes')
+    print('(%s/%s) Kolla - Clone kolla-kubernetes' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     if os.path.exists('./kolla-kubernetes'):
         run_shell('sudo rm -rf ./kolla-kubernetes')
     run_shell('git clone http://github.com/openstack/kolla-kubernetes')
 
-    print('Kolla - Install kolla-ansible and kolla-kubernetes')
+    print('(%s/%s) Kolla - Install kolla-ansible and kolla-kubernetes' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
     run_shell('sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if LINUX == 'Centos':
-        print('Kolla - Copy default kolla-ansible configuration to /etc')
+        print('(%s/%s) Kolla - Copy default kolla-ansible configuration to /etc' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        add_one_to_progress()
         run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
     else:
-        print('Kolla - Copy default kolla-ansible configuration to /etc')
+        print('(%s/%s) Kolla - Copy default kolla-ansible configuration to /etc' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        add_one_to_progress()
         run_shell('sudo cp -aR /usr/local/share/kolla-ansible/etc_examples/kolla /etc')
 
-    print('Kolla - Copy default kolla-kubernetes configuration to /etc')
+    print('(%s/%s) Kolla - Copy default kolla-kubernetes configuration to /etc' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
@@ -1107,13 +1117,13 @@ def kolla_create_namespace():
 def kolla_label_nodes(node_list):
     '''Label the nodes according to the list passed in'''
     print('(%s/%s) Kolla - Label Nodes' % (PROGRESS, KOLLA_FINAL_PROGRESS))
-    add_one_to_progress()
 
     demo('Label the node',
          'Currently controller and compute')
     for node in node_list:
-        print('Kolla - Label the AIO node as %s' % node)
+        print('(%s/%s) Kolla - Label the AIO node as %s' % (PROGRESS, KOLLA_FINAL_PROGRESS, node))
         run_shell('kubectl label node $(hostname) %s=true' % node)
+    add_one_to_progress()
 
 
 def k8s_check_exit(k8s_only):
@@ -1545,7 +1555,8 @@ def k8s_pause_to_check_nslookup(manual_check):
 
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
-    print("(%s/%s) Kubernetes - Test 'nslookup kubernetes'" % (PROGRESS, K8S_FINAL_PROGRESS))
+    print("(%s/%s) Kubernetes - Test 'nslookup kubernetes' - bring up test container" %
+          (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     demo('Lets create a simple pod and verify that DNS works',
@@ -1637,7 +1648,6 @@ def k8s_bringup_kubernetes_cluster(args):
 
     k8s_install_tools(args)
     k8s_cleanup(args.cleanup)
-    print('Kubernetes - Bring up a Kubernetes Cluster')
     k8s_setup_ntp()
     k8s_turn_things_off()
     k8s_install_k8s(args)
@@ -1662,6 +1672,7 @@ def kolla_bring_up_openstack(args):
     print('Kolla - install OpenStack')
     clean_progress()
     # Start Kolla deployment
+    add_one_to_progress()
     kolla_update_rbac()
     kolla_install_deploy_helm(args.helm_version)
     kolla_install_repos()
@@ -1736,7 +1747,7 @@ def main():
     K8S_FINAL_PROGRESS = 18
 
     global KOLLA_FINAL_PROGRESS
-    KOLLA_FINAL_PROGRESS = 40
+    KOLLA_FINAL_PROGRESS = 30
 
     set_logging()
     logger.setLevel(level=args.verbose)
