@@ -411,6 +411,7 @@ def print_versions(args):
     else:
         v = tools_dict["jinja2"]
     print('Jinja2 version:  %s' % v)
+    print('\n')
 
     time.sleep(1)
 
