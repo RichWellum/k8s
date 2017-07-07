@@ -1729,6 +1729,8 @@ def main():
     '''Main function.'''
     args = parse_args()
 
+    subprocess.call(["/usr/bin/sudo", "/usr/bin/id"])
+
     global DEBUG
     DEBUG = args.verbose
 
