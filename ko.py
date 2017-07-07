@@ -408,7 +408,6 @@ def print_versions(args):
     print('Jinja2 version:  %s' % v)
 
     time.sleep(1)
-    print('\n')
 
 
 def k8s_create_repo():
@@ -467,7 +466,7 @@ def k8s_wait_for_kube_system():
                 cnt = nlines
 
             if elapsed_time is not 0:
-                print('Kubernetes - Pod status after %d seconds, pods up %s:6 - '
+                print('  Kubernetes - Pod status after %d seconds, pods up %s:6 - '
                       'sleep %d seconds and retry'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -613,8 +612,6 @@ def k8s_setup_ntp():
 
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
-    print('(%s/%s) Kubernetes - Turn some things off' % (PROGRESS, K8S_FINAL_PROGRESS))
-
     if LINUX == 'Centos':
         print('(%s/%s) Kubernetes - Turn off SELinux' % (PROGRESS, K8S_FINAL_PROGRESS))
         run_shell('sudo setenforce 0')
@@ -1669,7 +1666,7 @@ def k8s_bringup_kubernetes_cluster(args):
 
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
-    print('Kolla - install OpenStack')
+    print('\nKolla - install OpenStack')
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
@@ -1729,7 +1726,8 @@ def main():
     '''Main function.'''
     args = parse_args()
 
-    subprocess.call(["/usr/bin/sudo", "/usr/bin/id"])
+    # Force sudo early on
+    run_shell('sudo %s' % os.getusername())
 
     global DEBUG
     DEBUG = args.verbose
