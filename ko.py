@@ -1475,7 +1475,10 @@ def kolla_create_demo_vm():
     demo('We now should have a running OpenStack Cluster on Kubernetes!',
          'Lets create a keystone account, create a demo VM, attach a floating ip\n' +
          'Finally ssh to the VM and or open Horizon and see our cluster')
-    print('Kolla - Create a keystone admin account and source in to it')
+    print('(%s/%s) Kolla - Create a keystone admin account and source in to it' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     run_shell('sudo rm -f ~/keystonerc_admin')
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
     out = run_shell('.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
@@ -1486,21 +1489,29 @@ def kolla_create_demo_vm():
     logger.debug(demo_net_id)
 
     # Create a demo image
-    print('Kolla - Create a demo vm in our OpenStack cluster')
+    print('(%s/%s) Kolla - Create a demo vm in our OpenStack cluster' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
     run_shell('.  ~/keystonerc_admin; %s' % create_demo1)
     k8s_wait_for_vm('demo1')
 
     # Create a floating ip
-    print('Kolla - Create floating ip')
+    print('(%s/%s) Kolla - Create floating ip' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     cmd = ".  ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
     run_shell(cmd)
 
     # Open up ingress rules to access VM
-    print('Kolla - Allow Ingress by changing neutron rules')
+    print('(%s/%s) Kolla - Allow Ingress by changing neutron rules' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     new = '/tmp/neutron_rules.sh'
     with open(new, "w") as w:
         w.write("""
@@ -1515,7 +1526,9 @@ done
     run_shell('.  ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
 
     # Display nova list
-    print('Kolla - nova list')
+    print('(%s/%s) Kolla - nova list' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     print(run_shell('.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
 
@@ -1524,7 +1537,9 @@ done
         "kubectl get svc horizon --namespace kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
-    print('To Access Horizon:')
+    print('(%s/%s) Kolla - To Access Horizon:' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
+
     print('  Point your browser to: %s' % address)
     print('  %s' % username)
     print('  %s' % password)
@@ -1549,7 +1564,9 @@ def k8s_get_pods(namespace):
     '''Display all pods per namespace list'''
     for name in namespace:
         final = run_shell('kubectl get pods -n %s' % name)
-        print('Kolla - Final Kolla Kubernetes Openstack pods for namespace %s:' % name)
+        print('(%s/%s) Kolla - Final Kolla Kubernetes OpenStack pods for namespace %s:' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS, name))
+        add_one_to_progress()
         print(final)
 
 
@@ -1754,7 +1771,7 @@ def main():
     K8S_FINAL_PROGRESS = 18
 
     global KOLLA_FINAL_PROGRESS
-    KOLLA_FINAL_PROGRESS = 34
+    KOLLA_FINAL_PROGRESS = 42
 
     set_logging()
     logger.setLevel(level=args.verbose)
