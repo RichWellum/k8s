@@ -786,7 +786,6 @@ def k8s_load_kubeadm_creds():
     '''This ensures the user gets output from 'kubectl get pods'''
     print('(%s/%s) Kubernetes - Load kubeadm credentials into the system' %
           (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
 
     home = os.environ['HOME']
     kube = os.path.join(home, '.kube')
@@ -843,7 +842,9 @@ def k8s_load_kubeadm_creds():
              'public IP for your master here.\n' +
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
-    print('Kubernetes - Note "kubectl get pods --all-namespaces" should work now')
+    print('(%s/%s) Kubernetes - Note "kubectl get pods --all-namespaces" should work now' %
+          (PROGRESS, KOLLA_FINAL_PROGRESS))
+    add_one_to_progress()
 
 
 def k8s_deploy_canal_sdn():
