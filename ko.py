@@ -1437,7 +1437,8 @@ global:
 def helm_install_service_chart(chart_list):
     '''helm install a list of service charts'''
     for chart in chart_list:
-        print('(%s/%s) Helm - Install service chart: %s' % (PROGRESS, KOLLA_FINAL_PROGRESS, chart))
+        print('(%s/%s) Kolla - Helm Install service chart: %s' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS, chart))
         add_one_to_progress()
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
@@ -1447,7 +1448,8 @@ def helm_install_service_chart(chart_list):
 def helm_install_micro_service_chart(chart_list):
     '''helm install a list of micro service charts'''
     for chart in chart_list:
-        print('(%s/%s) Helm - Install service chart: %s' % (PROGRESS, KOLLA_FINAL_PROGRESS, chart))
+        print('(%s/%s) Kolla - Helm Install service chart: %s' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS, chart))
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
