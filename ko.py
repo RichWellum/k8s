@@ -454,15 +454,14 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
 
     print('(%s/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+          (PROGRESS.zfill(2), K8S_FINAL_PROGRESS))
 
     time.sleep(RETRY_INTERVAL)
     while True:
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
         if nlines == 6:
-            print('(%s/%s) Kubernetes - All pods %s/6 are started, continuing' %
-                  (PROGRESS, KOLLA_FINAL_PROGRESS, nlines))
+            print('  All pods %s/6 are started, continuing')
             run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
@@ -517,7 +516,7 @@ def k8s_wait_for_running_negate():
             prev_not_running = not_running
             continue
         else:
-            print('  All pods are in Running state')
+            print('    All pods are in Running state')
             time.sleep(5)
             break
 
@@ -843,8 +842,7 @@ def k8s_load_kubeadm_creds():
              'public IP for your master here.\n' +
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
-    print('(%s/%s) Kubernetes - Note "kubectl get pods --all-namespaces" should work now' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+    print('  Kubernetes - Note "kubectl get pods --all-namespaces" should work now')
     add_one_to_progress()
 
 
@@ -1772,7 +1770,7 @@ def main():
     add_one_to_progress()
 
     global K8S_FINAL_PROGRESS
-    K8S_FINAL_PROGRESS = 18
+    K8S_FINAL_PROGRESS = 15
 
     global KOLLA_FINAL_PROGRESS
     KOLLA_FINAL_PROGRESS = 42
