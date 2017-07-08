@@ -472,8 +472,8 @@ def k8s_wait_for_kube_system():
                 cnt = nlines
 
             if elapsed_time is not 0:
-                print('  Pod status after %d seconds, pods up %s:6 - '
-                      'sleep %d seconds and retry'
+                print('  *Pod status after %d seconds, pods up %s:6 - '
+                      'sleep %d seconds and retry*'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -493,7 +493,7 @@ def k8s_wait_for_running_negate():
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 5
 
-    print('  Kubernetes - Wait for all pods to be in Running state:')
+    print('  Wait for all pods to be in Running state:')
 
     elapsed_time = 0
     prev_not_running = 0
@@ -511,13 +511,13 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('    %s pod(s) are not in Running state' % int(not_running))
+                print('    *%s pod(s) are not in Running state*' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             prev_not_running = not_running
             continue
         else:
-            print('  Kubernetes - All pods are in Running state')
+            print('  All pods are in Running state')
             time.sleep(5)
             break
 
@@ -844,7 +844,7 @@ def k8s_load_kubeadm_creds():
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
     print('(%s/%s) Kubernetes - Note "kubectl get pods --all-namespaces" should work now' %
-          (PROGRESS, KOLLA_FINAL_PROGRESS))
+          (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
 
@@ -1126,7 +1126,7 @@ def kolla_label_nodes(node_list):
     demo('Label the node',
          'Currently controller and compute')
     for node in node_list:
-        print('(%s/%s) Kolla - Label the AIO node as %s' % (PROGRESS, KOLLA_FINAL_PROGRESS, node))
+        print('  Label the AIO node as %s' % node)
         run_shell('kubectl label node $(hostname) %s=true' % node)
     add_one_to_progress()
 
@@ -1609,11 +1609,9 @@ spec:
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     demo('Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
-        print("(%s/%s) Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing" %
-              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
-        print("(%s/%s) Kubernetes - 'nslookup kubernetes' worked - continuing" %
-              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        print("  'nslookup kubernetes' worked - continuing")
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
@@ -1695,7 +1693,7 @@ def k8s_bringup_kubernetes_cluster(args):
 
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
-    print('\nKolla - install OpenStack')
+    print('\nKolla - install OpenStack:')
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
