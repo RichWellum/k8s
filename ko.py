@@ -1805,7 +1805,7 @@ def main():
     add_one_to_progress()
 
     global K8S_FINAL_PROGRESS
-    K8S_FINAL_PROGRESS = 13
+    K8S_FINAL_PROGRESS = 15
 
     global KOLLA_FINAL_PROGRESS
     KOLLA_FINAL_PROGRESS = 42
