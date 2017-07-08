@@ -223,9 +223,9 @@ def run_shell(cmd):
 
     if DEBUG == 10:  # Hack - debug enabled
         if out:
-            print('Shell output: %s' % out)
+            print('Shell STDOUT output: %s' % out)
         if err:
-            print('Shell error output: %s' % err)
+            print('Shell STDERR output: %s' % err)
 
     return(out)
 
