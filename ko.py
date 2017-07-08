@@ -1005,8 +1005,8 @@ def kolla_install_deploy_helm(version):
 def k8s_cleanup(doit):
     '''Cleanup on Isle 9'''
 
-    clean_progress()
     if doit is True:
+        clean_progress()
         print('(%s/%s) Kubernetes - Cleaning up existing Kubernetes Cluster' %
               (PROGRESS, K8S_CLEANUP_PROGRESS))
         add_one_to_progress()
