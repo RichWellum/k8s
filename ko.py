@@ -248,6 +248,28 @@ def pause_tool_execution(str):
     raw_input('Press Enter to continue\n')
 
 
+def banner(description):
+    '''Display a bannerized print'''
+
+    print('\n')
+    banner = len(description)
+    if banner > 100:
+        banner = 100
+
+    # First banner
+    print('\n')
+    for c in range(banner):
+        print('*', end='')
+
+    # Add description
+    print('%s' % description)
+
+    # Final banner
+    for c in range(banner):
+        print('*', end='')
+    print('\n')
+
+
 def demo(title, description):
     '''Pause the script to provide demo information'''
     if not DEMO:
@@ -367,7 +389,7 @@ def tools_versions(args):
 
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
-    print('Kubernetes - Bring up a Kubernetes Cluster:\n')
+    banner('Kubernetes - Bring up a Kubernetes Cluster:')
     print('Linux info:      %s' % linux_ver())
 
     # This a good place to install docker - as it's always needed and we
@@ -1694,7 +1716,8 @@ def k8s_bringup_kubernetes_cluster(args):
 
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
-    print('\nKolla - install OpenStack:')
+    # print('\nKolla - install OpenStack:')
+    banner('Kolla - install OpenStack:')
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
