@@ -262,7 +262,7 @@ def banner(description):
         print('*', end='')
 
     # Add description
-    print('%s' % description)
+    print('\n%s' % description)
 
     # Final banner
     for c in range(banner):
