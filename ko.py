@@ -482,7 +482,7 @@ def k8s_wait_for_kube_system():
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
         if nlines == 6:
-            print('  All pods %s/6 are started, continuing' % nlines)
+            print('  *All pods %s/6 are started, continuing*' % nlines)
             run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
