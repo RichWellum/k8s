@@ -1005,10 +1005,16 @@ def kolla_install_deploy_helm(version):
 
 def k8s_cleanup(doit):
     '''Cleanup on Isle 9'''
+
+    clean_progress()
     if doit is True:
-        print('Kubernetes - Cleaning up existing Kubernetes Cluster')
+        print('(%s/%s) Kubernetes - Cleaning up existing Kubernetes Cluster' %
+              (PROGRESS, K8S_CLEANUP_PROGRESS))
+        add_one_to_progress()
         run_shell('sudo kubeadm reset')
-        print('Kubernetes - Cleaning up old directories and files and docker images')
+        print('(%s/%s) Kubernetes - Cleaning up old directories and files and docker images' %
+              (PROGRESS, K8S_CLEANUP_PROGRESS))
+        add_one_to_progress()
         # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
         # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20
         # | xargs sudo docker stop)')
@@ -1025,9 +1031,14 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /var/run/lock/etcd.lock')
         run_shell('sudo rm -rf /var/run/lock/kubelet.lock')
         if os.path.exists('/data'):
-            print('Kubernetes - Remove cinder volumes and data')
+            print('(%s/%s) Kubernetes - Remove cinder volumes and data' %
+                  (PROGRESS, K8S_CLEANUP_PROGRESS))
+            add_one_to_progress()
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
+
+        print('(%s/%s) Kubernetes - Complete Cleanup done. Highly recommend rebooting your host' %
+              (PROGRESS, K8S_CLEANUP_PROGRESS))
 
 
 def kolla_install_repos():
@@ -1800,6 +1811,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     KOLLA_FINAL_PROGRESS = 42
 
+    global K8S_CLEANUP_PROGRESS
+    K8S_CLEANUP_PROGRESS = 3
+
     set_logging()
     logger.setLevel(level=args.verbose)
 
@@ -1810,7 +1824,6 @@ def main():
     try:
         if args.complete_cleanup:
             k8s_cleanup(args.complete_cleanup)
-            print('Cleanup - Complete Cleanup done. Highly recommend rebooting your host')
             sys.exit(1)
 
         k8s_test_neutron_int(args.VIP_IP)
