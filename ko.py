@@ -477,7 +477,6 @@ def k8s_wait_for_kube_system():
     print('(%02d/%d) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
           (PROGRESS, K8S_FINAL_PROGRESS))
 
-    # time.sleep(RETRY_INTERVAL)
     while True:
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
@@ -1154,12 +1153,12 @@ def kolla_create_namespace():
 
 def kolla_label_nodes(node_list):
     '''Label the nodes according to the list passed in'''
-    print('(%02d/%d) Kolla - Label Nodes' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+    print('(%02d/%d) Kolla - Label Nodes:' % (PROGRESS, KOLLA_FINAL_PROGRESS))
 
     demo('Label the node',
          'Currently controller and compute')
     for node in node_list:
-        print('  Label the AIO node as %s' % node)
+        print("  Label the AIO node as '%s'" % node)
         run_shell('kubectl label node $(hostname) %s=true' % node)
     add_one_to_progress()
 
@@ -1806,7 +1805,7 @@ def main():
     add_one_to_progress()
 
     global K8S_FINAL_PROGRESS
-    K8S_FINAL_PROGRESS = 15
+    K8S_FINAL_PROGRESS = 13
 
     global KOLLA_FINAL_PROGRESS
     KOLLA_FINAL_PROGRESS = 42
