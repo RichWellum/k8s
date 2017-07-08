@@ -461,7 +461,7 @@ def k8s_wait_for_kube_system():
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
         if nlines == 6:
-            print('  All pods %s/6 are started, continuing')
+            print('  All pods %s/6 are started, continuing' % nlines)
             run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
@@ -516,7 +516,7 @@ def k8s_wait_for_running_negate():
             prev_not_running = not_running
             continue
         else:
-            print('    All pods are in Running state')
+            print('    *All pods are in Running state*')
             time.sleep(5)
             break
 
@@ -843,7 +843,7 @@ def k8s_load_kubeadm_creds():
              'public IP for your master here.\n' +
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
-    print('  Kubernetes - Note "kubectl get pods --all-namespaces" should work now')
+    print('  Note "kubectl get pods --all-namespaces" should work now')
     add_one_to_progress()
 
 
@@ -1612,7 +1612,7 @@ spec:
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
-        print("  'nslookup kubernetes' worked - continuing")
+        print("  Kubernetes Cluster is up and running")
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
