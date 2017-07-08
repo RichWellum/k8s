@@ -251,7 +251,6 @@ def pause_tool_execution(str):
 def banner(description):
     '''Display a bannerized print'''
 
-    print('\n')
     banner = len(description)
     if banner > 100:
         banner = 100
