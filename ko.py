@@ -367,7 +367,7 @@ def tools_versions(args):
 
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
-    print('Kubernetes - Bring up a Kubernetes Cluster\n')
+    print('Kubernetes - Bring up a Kubernetes Cluster:\n')
     print('Linux info:      %s' % linux_ver())
 
     # This a good place to install docker - as it's always needed and we
