@@ -453,8 +453,8 @@ def k8s_wait_for_kube_system():
     RETRY_INTERVAL = 10
     elapsed_time = 0
 
-    print('(%s/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
-          (PROGRESS.zfill(2), K8S_FINAL_PROGRESS))
+    print('(%02ds/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
+          (PROGRESS, K8S_FINAL_PROGRESS))
 
     time.sleep(RETRY_INTERVAL)
     while True:
