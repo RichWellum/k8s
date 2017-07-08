@@ -453,7 +453,7 @@ def k8s_wait_for_kube_system():
     RETRY_INTERVAL = 10
     elapsed_time = 0
 
-    print('(%02ds/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
+    print('(%02d/%d) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
           (PROGRESS, K8S_FINAL_PROGRESS))
 
     time.sleep(RETRY_INTERVAL)
@@ -571,7 +571,7 @@ def clean_progress():
 
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
-    print('(%s/%s) Kubernetes - Install necessary tools' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%02d/%d) Kubernetes - Install necessary tools' % (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     if LINUX == 'Centos':
