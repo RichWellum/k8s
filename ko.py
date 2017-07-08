@@ -453,16 +453,16 @@ def k8s_wait_for_kube_system():
     RETRY_INTERVAL = 10
     elapsed_time = 0
 
-    print('(%s/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure' %
+    print('(%s/%s) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
           (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
 
     time.sleep(RETRY_INTERVAL)
     while True:
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
         if nlines == 6:
-            print('Kubernetes - All pods %s/6 are started, continuing' % nlines)
+            print('(%s/%s) Kubernetes - All pods %s/6 are started, continuing' %
+                  (PROGRESS, KOLLA_FINAL_PROGRESS, nlines))
             run_shell('kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
@@ -472,7 +472,7 @@ def k8s_wait_for_kube_system():
                 cnt = nlines
 
             if elapsed_time is not 0:
-                print('  Kubernetes - Pod status after %d seconds, pods up %s:6 - '
+                print('  Pod status after %d seconds, pods up %s:6 - '
                       'sleep %d seconds and retry'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
             time.sleep(RETRY_INTERVAL)
@@ -484,6 +484,7 @@ def k8s_wait_for_kube_system():
             raise AbortScriptException(
                 "Kubernetes - did not come up after {0} seconds!"
                 .format(elapsed_time))
+    add_one_to_progress()
 
 
 def k8s_wait_for_running_negate():
@@ -492,7 +493,7 @@ def k8s_wait_for_running_negate():
     TIMEOUT = 1000  # Give k8s 1000s to come up
     RETRY_INTERVAL = 5
 
-    print('Kubernetes - Wait for all pods to be in Running state:')
+    print('  Kubernetes - Wait for all pods to be in Running state:')
 
     elapsed_time = 0
     prev_not_running = 0
@@ -510,13 +511,13 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('  Kubernetes - %s pod(s) are not in Running state' % int(not_running))
+                print('    %s pod(s) are not in Running state' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             prev_not_running = not_running
             continue
         else:
-            print('Kubernetes - All pods are in Running state')
+            print('  Kubernetes - All pods are in Running state')
             time.sleep(5)
             break
 
@@ -535,19 +536,19 @@ def k8s_wait_for_vm(vm):
     TIMEOUT = 100
     RETRY_INTERVAL = 5
 
-    print("Kubernetes - Wait for VM %s to be in running state:" % vm)
+    print("  Kubernetes - Wait for VM %s to be in running state:" % vm)
     elapsed_time = 0
 
     while True:
         nova_out = run_shell(
             '.  ~/keystonerc_admin; nova list | grep %s' % vm)
         if not re.search('Running', nova_out):
-            print('Kubernetes - VM %s is not Running yet' % vm)
+            print('    Kubernetes - VM %s is not Running yet' % vm)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
         else:
-            print('Kubernetes - VM %s is Running' % vm)
+            print('    Kubernetes - VM %s is Running' % vm)
             break
 
         if elapsed_time > TIMEOUT:
@@ -1559,7 +1560,7 @@ def k8s_test_neutron_int(ip):
         print('Kubernetes - Neutron Interface %s is in use, choose another' % ip)
         sys.exit(1)
     else:
-        print('Kubernetes - VIP Keepalive Interface %s is valid' % ip)
+        logger.debug('Kubernetes - VIP Keepalive Interface %s is valid' % ip)
 
 
 def k8s_get_pods(namespace):
@@ -1580,7 +1581,6 @@ def k8s_pause_to_check_nslookup(manual_check):
     the deployment guide advises.'''
     print("(%s/%s) Kubernetes - Test 'nslookup kubernetes' - bring up test container" %
           (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
 
     demo('Lets create a simple pod and verify that DNS works',
          'If it does not then this deployment will not work.')
@@ -1609,14 +1609,17 @@ spec:
         'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
     demo('Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
-        print("Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing")
+        print("(%s/%s) Kubernetes - Warning 'nslookup kubernetes ' failed. YMMV continuing" %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
     else:
-        print("Kubernetes - 'nslookup kubernetes' worked - continuing")
+        print("(%s/%s) Kubernetes - 'nslookup kubernetes' worked - continuing" %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
         print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
         pause_tool_execution('Check "nslookup kubernetes" now')
+    add_one_to_progress()
 
 
 def kubernetes_test_cli():
