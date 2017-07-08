@@ -419,19 +419,19 @@ def print_versions(args):
         v = "Latest"
     else:
         v = tools_dict["kubernetes"]
-    print('K8s version:     %s' % v.rstrip)
+    print('K8s version:     %s' % v.rstrip())
 
     if tools_dict["ansible"] == "":
         v = "Latest"
     else:
         v = tools_dict["ansible"]
-    print('Ansible version: %s' % v.rstrip)
+    print('Ansible version: %s' % v.rstrip())
 
     if tools_dict["jinja2"] == "":
         v = "Latest"
     else:
         v = tools_dict["jinja2"]
-    print('Jinja2 version:  %s' % v.rstrip)
+    print('Jinja2 version:  %s' % v.rstrip())
     print('\n')
 
     time.sleep(1)
