@@ -1644,7 +1644,7 @@ spec:
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
-        print("  Kubernetes Cluster is up and running")
+        banner("Kubernetes Cluster is up and running")
 
     if manual_check:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
