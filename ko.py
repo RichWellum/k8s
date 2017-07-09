@@ -966,7 +966,7 @@ subjects:
         print(run_shell('kubectl replace -f /tmp/rbac'))
         demo('Note the cluster-admin has been replaced', '')
     else:
-        run_shell('kubectl update -f /tmp/rbac')
+        run_shell('kubectl replace -f /tmp/rbac')
 
 
 def kolla_install_deploy_helm(version):
@@ -1800,7 +1800,6 @@ def main():
     PROGRESS = 0
 
     # Force sudo early on
-    # run_shell('sudo %s' % os.getlogin())
     run_shell('sudo -v')
 
     # Start progress on one
