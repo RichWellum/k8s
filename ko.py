@@ -591,7 +591,8 @@ def clean_progress():
 
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
-    print('(%02d/%d) Kubernetes - Install necessary tools' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%02d/%d) Kubernetes - Update and install base tools' %
+          (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     if LINUX == 'Centos':
@@ -737,7 +738,7 @@ def k8s_start_kubelet():
 def k8s_fix_iptables():
     '''Maybe Centos only but this needs to be changed to proceed'''
     reload_sysctl = False
-    print('(%02d/%d) Kubernetes - Fix iptables' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%02d/%d) Kubernetes - Fix iptables to enable bridging' % (PROGRESS, K8S_FINAL_PROGRESS))
     add_one_to_progress()
 
     demo('Centos fix bridging',
@@ -1173,7 +1174,7 @@ def k8s_check_exit(k8s_only):
 def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Necessary additions and changes to the global.yml - which is based on
     the users inputs'''
-    print('(%02d/%d) Kolla - Modify globals to setup network_interface and neutron_interface' %
+    print('(%02d/%d) Kolla - Modify global.yml to setup network_interface and neutron_interface' %
           (PROGRESS, KOLLA_FINAL_PROGRESS))
     add_one_to_progress()
 
@@ -1799,7 +1800,8 @@ def main():
     PROGRESS = 0
 
     # Force sudo early on
-    run_shell('sudo %s' % os.getlogin())
+    # run_shell('sudo %s' % os.getlogin())
+    run_shell('sudo -v')
 
     # Start progress on one
     add_one_to_progress()
