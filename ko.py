@@ -1363,10 +1363,10 @@ def kolla_build_micro_charts():
     if DEMO:
         print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
     else:
-        run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp')
+        print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
 
-        demo('Lets look at these helm charts',
-             'helm list; helm search | grep local | wc -l; helm fetch url chart; helm inspect local/glance')
+    demo('Lets look at these helm charts',
+         'helm list; helm search | grep local | wc -l; helm fetch url chart; helm inspect local/glance')
 
 
 def kolla_verify_helm_images():
