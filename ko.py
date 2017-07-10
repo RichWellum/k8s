@@ -1353,7 +1353,7 @@ def kolla_build_micro_charts():
           (PROGRESS, KOLLA_FINAL_PROGRESS))
     print('DEBUG1')
     add_one_to_progress()
-    print('DEBUG2')`
+    print('DEBUG2')
     demo('Build helm charts',
          'Helm uses a packaging format called charts. A chart is a collection of\n' +
          'files that describe a related set of Kubernetes resources. A single chart\n' +
