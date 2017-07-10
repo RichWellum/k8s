@@ -215,7 +215,7 @@ def run_shell(cmd):
     Not using logger.debug as a bit noisy for this info'''
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out = p.stdout.read()
-    err = p.stderr.read()
+    # err = p.stderr.read()
 
     if DEMO:
         if not re.search('kubectl get pods', cmd):
@@ -224,8 +224,8 @@ def run_shell(cmd):
     if DEBUG == 10:  # Hack - debug enabled
         if out:
             print('Shell STDOUT output: %s' % out)
-        if err:
-            print('Shell STDERR output: %s' % err)
+        # if err:
+            # print('Shell STDERR output: %s' % err)
 
     return(out)
 
