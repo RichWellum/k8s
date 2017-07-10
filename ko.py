@@ -53,13 +53,23 @@ Purpose
 
 The purpose of this tool, when there are so many others out there is:
 
-1. Many tools don't support both Centos and Ubuntu with no input from the user.
-2. I like to play with versions of all the supporting tools, it helps when users
-report issues when they upgrade say helm, or docker, or kubernetes.
-3. This tool verifies it's completeness by generating a VM in the OpenStack
-Cluster.
-4. Contains a demo mode that walks the user through Kubernetes and OpenStack
-5. Leaves the user with a working OpenStack Cluster with all the basic services.
+1. Many tools don't support both Centos and Ubuntu with no input
+from the user.
+
+2. I like to play with versions of all the supporting tools, it
+helps when users report issues when they upgrade say helm, or
+docker, or kubernetes.
+
+3. I like the output of my tool - it's succinct and easy to
+follow. Plus the verbose mode is helpful for seeing all the output.
+
+4. Contains a demo mode that walks the user through Kubernetes and OpenStack.
+
+5. This tool verifies it's completeness by generating a VM in the
+OpenStack Cluster.
+
+6. Leaves the user with a working OpenStack Cluster with all the
+basic services.
 
 Mandatory Inputs
 ================
