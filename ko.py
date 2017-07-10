@@ -1367,9 +1367,7 @@ def kolla_build_micro_charts():
     '''Build all helm micro charts'''
     print('(%02d/%d) Kolla - Build all Helm microcharts, service charts, and metacharts' %
           (PROGRESS, KOLLA_FINAL_PROGRESS))
-    print('DEBUG1')
     add_one_to_progress()
-    print('DEBUG2')
     demo('Build helm charts',
          'Helm uses a packaging format called charts. A chart is a collection of\n' +
          'files that describe a related set of Kubernetes resources. A single chart\n' +
@@ -1381,9 +1379,8 @@ def kolla_build_micro_charts():
     if DEMO:
         print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
     else:
-        print(run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp'))
+        run_shell('./kolla-kubernetes/tools/helm_build_all.sh /tmp')
 
-    print('DEBUG3')
     demo('Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; helm fetch url chart; helm inspect local/glance')
 
