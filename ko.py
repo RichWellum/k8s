@@ -1018,6 +1018,7 @@ def k8s_cleanup(doit):
 
     if doit is True:
         clean_progress()
+        add_one_to_progress()
         print('(%s/%s) Kubernetes - Cleaning up existing Kubernetes Cluster' %
               (PROGRESS, K8S_CLEANUP_PROGRESS))
         add_one_to_progress()
