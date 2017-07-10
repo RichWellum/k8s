@@ -222,6 +222,7 @@ def run_shell(cmd):
             print('Shell STDOUT output: %s' % out)
         if err:
             print('Shell STDERR output: %s' % err)
+    return(out)
 
 
 def run_shell2(cmd):
