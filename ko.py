@@ -210,6 +210,21 @@ def parse_args():
 
 
 def run_shell(cmd):
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+
+    if DEMO:
+        if not re.search('kubectl get pods', cmd):
+            print('DEMO: CMD: "%s"' % cmd)
+
+    if DEBUG == 10:  # Hack - debug enabled
+        if out:
+            print('Shell STDOUT output: %s' % out)
+        if err:
+            print('Shell STDERR output: %s' % err)
+
+
+def run_shell2(cmd):
     '''Run a shell command and return the output
     Print the output if debug is enabled
     Not using logger.debug as a bit noisy for this info'''
