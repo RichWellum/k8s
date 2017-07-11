@@ -654,17 +654,14 @@ def k8s_turn_things_off():
         run_shell('sudo setenforce 0')
         run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
-    print('(%02d/%d) Kubernetes - Turn off firewall' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print('(%02d/%d) Kubernetes - Turn off firewall and ISCSID' % (PROGRESS, K8S_FINAL_PROGRESS))
     if LINUX == 'Centos':
         run_shell('sudo systemctl stop firewalld')
         run_shell('sudo systemctl disable firewalld')
     else:
         run_shell('sudo ufw disable')
-
-        if LINUX == 'Ubuntu':
-            print('Kubernetes - Turn off iscsid')
-            run_shell('sudo systemctl stop iscsid')
-            run_shell('sudo systemctl stop iscsid.service')
+        run_shell('sudo systemctl stop iscsid')
+        run_shell('sudo systemctl stop iscsid.service')
     add_one_to_progress()
 
 
@@ -689,14 +686,18 @@ def k8s_install_k8s(args):
         else:
             run_shell(
                 'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
-                kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
+                kubernetes-cni' % (tools_dict["kubernetes"],
+                                   tools_dict["kubernetes"],
+                                   tools_dict["kubernetes"]))
     else:
         if args.latest_version is True:
             run_shell(
                 'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni --allow-downgrades')
         else:
             run_shell('sudo apt-get install -y --allow-downgrades ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni' % (tools_dict["kubernetes"], tools_dict["kubernetes"], tools_dict["kubernetes"]))
+            kubernetes-cni' % (tools_dict["kubernetes"],
+                               tools_dict["kubernetes"],
+                               tools_dict["kubernetes"]))
 
     if tools_dict["kubernetes"] == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
