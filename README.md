@@ -24,6 +24,73 @@
 
     richwellum@gmail.com
 
+Help
+====
+
+    [rwellum@centosko openstack]$ ../k8s/ko.py -h
+    usage: ko.py [-h] [-lv] [-it IMAGE_TAG] [-hv HELM_VERSION] [-kv K8S_VERSION]
+                 [-cv CNI_VERSION] [-av ANSIBLE_VERSION] [-jv JINJA2_VERSION] [-c]
+                 [-cc] [-k8s] [-os] [-n] [-ec] [-v] [-d] [-f]
+                 MGMT_INT MGMT_IP NEUTRON_INT VIP_IP
+
+    This tool provides a method to deploy OpenStack on a Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal servers or virtual machines. Virtual machines supported are Ubuntu and Centos.
+    The host machine must satisfy the following minimum requirements:
+    - 2 network interfaces
+    - 8GB min, 16GB preferred - main memory
+    - 40G min, 80GB preferred - disk space
+    - 2 CPUs Min, 4 preferred - CPUs
+    Root access to the deployment host machine is required.
+
+    positional arguments:
+      MGMT_INT              The interface to which Kolla binds API services, E.g:
+                            eth0
+      MGMT_IP               MGMT_INT IP Address, E.g: 10.240.83.111
+      NEUTRON_INT           The interface that will be used for the external
+                            bridge in Neutron, E.g: eth1
+      VIP_IP                Keepalived VIP, used with keepalived, should be an
+                            unused IP on management NIC subnet, E.g: 10.240.83.112
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -lv, --latest_version
+                            Try to install all the latest versions of tools,
+                            overidden by individual tool versions if requested.
+      -it IMAGE_TAG, --image_tag IMAGE_TAG
+                            Specify a different Kolla image tage to the
+                            default(4.0.0)
+      -hv HELM_VERSION, --helm_version HELM_VERSION
+                            Specify a different helm version to the default(2.5.0)
+      -kv K8S_VERSION, --k8s_version K8S_VERSION
+                            Specify a different kubernetes version to the
+                            default(1.7.0)
+      -cv CNI_VERSION, --cni_version CNI_VERSION
+                            Specify a different kubernetes-cni version to the
+                            default(0.5.1-00)
+      -av ANSIBLE_VERSION, --ansible_version ANSIBLE_VERSION
+                            Specify a different ansible version to the
+                            default(2.2.0.0)
+      -jv JINJA2_VERSION, --jinja2_version JINJA2_VERSION
+                            Specify a different jinja2 version to the
+                            default(2.8.1)
+      -c, --cleanup         YMMV: Cleanup existing Kubernetes cluster before
+                            creating a new one
+      -cc, --complete_cleanup
+                            Cleanup existing Kubernetes cluster then exit, reboot
+                            host is advised
+      -k8s, --kubernetes    Stop after bringing up kubernetes, do not install
+                            OpenStack
+      -os, --openstack      Build OpenStack on an existing Kubernetes Cluster
+      -n, --nslookup        Pause for the user to manually test nslookup in
+                            kubernetes cluster
+      -ec, --edit_config    Pause to allow the user to edit the global.yaml and
+                            the cloud.yaml files - for custom configuration
+      -v, --verbose         Turn on verbose messages
+      -d, --demo            Display some demo information and offer to move on
+      -f, --force           When used in conjunction with --demo - it will proceed
+                            without user input
+
+    E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2
+
 Host machine requirements
 =========================
     The host machine must satisfy the following minimum requirements:
