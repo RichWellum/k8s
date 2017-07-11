@@ -572,7 +572,7 @@ def k8s_wait_for_vm(vm):
         nova_out = run_shell(
             '.  ~/keystonerc_admin; nova list | grep %s' % vm)
         if not re.search('Running', nova_out):
-            print('    Kubernetes - VM %s is not Running yet' % vm)
+            print('    *Kubernetes - VM %s is not Running yet*' % vm)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
