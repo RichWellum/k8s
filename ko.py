@@ -1388,9 +1388,9 @@ def kolla_verify_helm_images():
 
     out = run_shell('ls /tmp | grep ".tgz" | wc -l')
     if int(out) > 190:
-        print('Kolla - %s Helm images created' % int(out))
+        print('  Kolla - %s Helm images created' % int(out))
     else:
-        print('Kolla - Error: only %s Helm images created' % int(out))
+        print('  Kolla - Error: only %s Helm images created' % int(out))
         sys.exit(1)
 
 
