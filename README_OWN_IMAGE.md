@@ -1,6 +1,6 @@
-    Building your own OpenStack Image (keystone) from private source and running it
-    with kolla-kubernetes OpenStack:
-    ===============================================================================
+Building your own OpenStack Image (keystone) from private source and running it
+with kolla-kubernetes OpenStack:
+===============================================================================
     Building kolla images with custom repos - many ops want to do it and do not want
     upstream/out-of-the-box repos that kolla provides, and want kolla to build
     internal/curated custom packages.
@@ -22,31 +22,31 @@
     config-generator  examples     httpd        rally-jobs   setup.py          tox.ini
     CONTRIBUTING.rst  .git         keystone     README.rst   .testr.conf
 
-    Get kolla repo
-    ==============
+Get kolla repo
+==============
     git clone http://github.com/openstack/kolla
 
 
-    Compile kolla
-    =============
+Compile kolla
+=============
     sudo -H pip install -U kolla
 
 
-    Generate kolla-build.conf
-    =========================
+Generate kolla-build.conf
+=========================
     sudo pip install tox
     cd kolla; tox -e genconfig
 
 
-    Optional - Edit kolla-build.conf and add in source
-    ==================================================
+Optional - Edit kolla-build.conf and add in source
+==================================================
     vi etc/kolla/kolla-build.conf
 
         install_type = source
 
 
-    Edit kolla-build.conf and add pointer to source
-    ===============================================
+Edit kolla-build.conf and add pointer to source
+===============================================
     $ vi etc/kolla/kolla-build.conf
     [keystone-base]
     type = local
@@ -70,8 +70,8 @@
     reference = stable/mitaka
 
 
-    Build kolla keystone images
-    ===========================
+Build kolla keystone images
+===========================
     Use source keyword (drop 'keystone' if you want to build everything)
 
     sudo kolla-build -t source keystone
@@ -87,8 +87,8 @@
     sudo kolla-build -t source horizon cinder keystone
 
 
-    Check for valid generated image
-    ===============================
+Check for valid generated image
+===============================
     docker images | grep keystone (look at timestamp)
 
     rwellum@ubuntuk8s:~/openstack$ sudo docker images | grep keystone
@@ -108,8 +108,8 @@
     kolla/centos-source-cinder-base                          5.0.0               613e0c645bf9        5 minutes ago       1.137 GB
 
 
-    Add image generated to cloud.yml
-    ================================
+Add image generated to cloud.yml
+================================
     Add to your cloud.yml the image_full tage and point to docker image location:
 
     KEYSTONE:
@@ -154,7 +154,8 @@
 
     ===
 
-    Running OpenStack
-    =================
+Running OpenStack
+=================
     Select the tag that matches the version of OpenStack you've replaced (mitaka=3.0.0) and select --edit-config
+
     rwellum@ubuntuk8s:~/openstack$ ../k8s/ko.py ens3 10.240.43.250 ens4 10.240.43.55 -it 3.0.3 -ec
