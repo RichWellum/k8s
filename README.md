@@ -113,242 +113,248 @@ Mandatory Inputs
 
 Example Output
 ==============
-[rwellum@centosko openstack]$ ../k8s/ko.py eth0 10.240.43.77 eth1 10.240.43.113
+
+    [rwellum@centosko openstack]$ ../k8s/ko.py eth0 10.240.43.77 eth1 10.240.43.113
+
+    *******************************************
+    Kubernetes - Bring up a Kubernetes Cluster:
+    *******************************************
+
+    Linux info:      ('CentOS Linux', '7.3.1611', 'Core')
+
+    ../k8s/ko.py - Networking:
+    Management Int:  eth0
+    Management IP:   10.240.43.77
+    Neutron Int:     eth1
+    VIP Keepalive:   10.240.43.113
+
+    ../k8s/ko.py - Versions:
+    Docker version:  1.12.6
+    Kolla Image Tag: 4.0.0
+    Helm version:    2.5.0
+    K8s version:     1.7.0
+    Ansible version: 2.2.0.0
+    Jinja2 version:  2.8.1
 
 
-*******************************************
-Kubernetes - Bring up a Kubernetes Cluster:
-*******************************************
-
-Linux info:      ('CentOS Linux', '7.3.1611', 'Core')
-
-../k8s/ko.py - Networking:
-Management Int:  eth0
-Management IP:   10.240.43.77
-Neutron Int:     eth1
-VIP Keepalive:   10.240.43.113
-
-../k8s/ko.py - Versions:
-Docker version:  1.12.6
-Kolla Image Tag: 4.0.0
-Helm version:    2.5.0
-K8s version:     1.7.0
-Ansible version: 2.2.0.0
-Jinja2 version:  2.8.1
-
-
-(01/15) Kubernetes - Update and install base tools
-(02/15) Kubernetes - Setup NTP
-(03/15) Kubernetes - Turn off SELinux
-(03/15) Kubernetes - Turn off firewall
-(04/15) Kubernetes - Creating kubernetes repo, installing Kubernetes packages
-(05/15) Kubernetes - Start docker and setup the DNS server with the service CIDR
-(06/15) Kubernetes - Reload the hand-modified service files
-(07/15) Kubernetes - Enable and start kubelet
-(08/15) Kubernetes - Fix iptables to enable bridging
-(09/15) Kubernetes - Deploying Kubernetes with kubeadm
-(10/15) Kubernetes - Load kubeadm credentials into the system
-  Note "kubectl get pods --all-namespaces" should work now
-(11/15) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:
-  *Pod status after 10 seconds, pods up 0:6 - sleep 10 seconds and retry*
-  *Pod status after 20 seconds, pods up 2:6 - sleep 10 seconds and retry*
-  *Pod status after 30 seconds, pods up 2:6 - sleep 10 seconds and retry*
-  *Pod status after 40 seconds, pods up 2:6 - sleep 10 seconds and retry*
-  *Pod status after 50 seconds, pods up 2:6 - sleep 10 seconds and retry*
-  *Pod status after 60 seconds, pods up 5:6 - sleep 10 seconds and retry*
-  *All pods 6/6 are started, continuing*
-(12/15) Kubernetes - Add API Server
-(13/15) Kubernetes - Create RBAC and Deploy the Canal CNI driver
-  Wait for all pods to be in Running state:
-    *2 pod(s) are not in Running state*
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(14/15) Kubernetes - Mark master node as schedulable
-(15/15) Kubernetes - Test 'nslookup kubernetes' - bring up test container
-  Wait for all pods to be in Running state:
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
+    (01/15) Kubernetes - Update and install base tools
+    (02/15) Kubernetes - Setup NTP
+    (03/15) Kubernetes - Turn off SELinux
+    (03/15) Kubernetes - Turn off firewall
+    (04/15) Kubernetes - Creating kubernetes repo, installing Kubernetes packages
+    (05/15) Kubernetes - Start docker and setup the DNS server with the service CIDR
+    (06/15) Kubernetes - Reload the hand-modified service files
+    (07/15) Kubernetes - Enable and start kubelet
+    (08/15) Kubernetes - Fix iptables to enable bridging
+    (09/15) Kubernetes - Deploying Kubernetes with kubeadm
+    (10/15) Kubernetes - Load kubeadm credentials into the syste
+    (08/15) Kubernetes - Fix iptables to enable bridging
+    (09/15) Kubernetes - Deploying Kubernetes with kubeadm
+    (10/15) Kubernetes - Load kubeadm credentials into the system
+      Note "kubectl get pods --all-namespaces" should work now
+    (11/15) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:
+      *Pod status after 10 seconds, pods up 0:6 - sleep 10 seconds and retry*m
+      Note "kubectl get pods --all-namespaces" should work now
+    (11/15) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:
+      *Pod status after 10 seconds, pods up 0:6 - sleep 10 seconds and retry*
+      *Pod status after 20 seconds, pods up 2:6 - sleep 10 seconds and retry*
+      *Pod status after 30 seconds, pods up 2:6 - sleep 10 seconds and retry*
+      *Pod status after 40 seconds, pods up 2:6 - sleep 10 seconds and retry*
+      *Pod status after 50 seconds, pods up 2:6 - sleep 10 seconds and retry*
+      *Pod status after 60 seconds, pods up 5:6 - sleep 10 seconds and retry*
+      *All pods 6/6 are started, continuing*
+    (12/15) Kubernetes - Add API Server
+    (13/15) Kubernetes - Create RBAC and Deploy the Canal CNI driver
+      Wait for all pods to be in Running state:
+        *2 pod(s) are not in Running state*
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (14/15) Kubernetes - Mark master node as schedulable
+    (15/15) Kubernetes - Test 'nslookup kubernetes' - bring up test container
+      Wait for all pods to be in Running state:
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
 
 
-************************************
-Kubernetes Cluster is up and running
-************************************
+    ************************************
+    Kubernetes Cluster is up and running
+    ************************************
 
 
 
-**************************
-Kolla - install OpenStack:
-**************************
+    **************************
+    Kolla - install OpenStack:
+    **************************
 
-(01/42) Kolla - Overide default RBAC settings
-(02/42) Kolla - Install and deploy Helm version 2.5.0 - Tiller pod
-  Wait for all pods to be in Running state:
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(02/42) Kolla - Helm successfully installed
-(03/42) Kolla - Clone kolla-ansible
-(04/42) Kolla - Clone kolla-kubernetes
-(05/42) Kolla - Install kolla-ansible and kolla-kubernetes
-(06/42) Kolla - Copy default kolla-ansible configuration to /etc
-(07/42) Kolla - Copy default kolla-kubernetes configuration to /etc
-(08/42) Kolla - Setup Loopback LVM for Cinder
-(09/42) Kolla - Install Python Openstack Client
-(10/42) Kolla - Generate default passwords via SPRNG
-(11/42) Kolla - Create a Kubernetes namespace to isolate this Kolla deployment
-(12/42) Kolla - Label Nodes:
-  Label the AIO node as 'kolla_compute'
-  Label the AIO node as 'kolla_controller'
-(13/42) Kolla - Modify global.yml to setup network_interface and neutron_interface
-(14/42) Kolla - Add default config to globals.yml
-(15/42) Kolla - Enable qemu
-(16/42) Kolla - Generate the default configuration
-(17/42) Kolla - Generate the Kubernetes secrets and register them with Kubernetes
-(18/42) Kolla - Create and register the Kolla config maps
-(19/42) Kolla - Enable resolv.conf workaround
-(20/42) Kolla - Build all Helm microcharts, service charts, and metacharts
-(21/42) Kolla - Verify helm images
-Kolla - 193 Helm images created
-(22/42) Kolla - Create a cloud.yaml
-(23/42) Kolla - Helm Install service chart: openvswitch
-  Wait for all pods to be in Running state:
-    *2 pod(s) are not in Running state*
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(24/42) Kolla - Helm Install service chart: keepalived-daemonset
-  Wait for all pods to be in Running state:
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(24/42) Kolla - Helm Install service chart: mariadb
-  Wait for all pods to be in Running state:
-    *2 pod(s) are not in Running state*
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(25/42) Kolla - Helm Install service chart: rabbitmq
-(26/42) Kolla - Helm Install service chart: memcached
-(27/42) Kolla - Helm Install service chart: keystone
-(28/42) Kolla - Helm Install service chart: glance
-(29/42) Kolla - Helm Install service chart: cinder-control
-(30/42) Kolla - Helm Install service chart: cinder-volume-lvm
-(31/42) Kolla - Helm Install service chart: horizon
-(32/42) Kolla - Helm Install service chart: neutron
-  Wait for all pods to be in Running state:
-    *46 pod(s) are not in Running state*
-    *45 pod(s) are not in Running state*
-    *44 pod(s) are not in Running state*
-    *43 pod(s) are not in Running state*
-    *42 pod(s) are not in Running state*
-    *41 pod(s) are not in Running state*
-    *40 pod(s) are not in Running state*
-    *39 pod(s) are not in Running state*
-    *38 pod(s) are not in Running state*
-    *37 pod(s) are not in Running state*
-    *36 pod(s) are not in Running state*
-    *35 pod(s) are not in Running state*
-    *32 pod(s) are not in Running state*
-    *31 pod(s) are not in Running state*
-    *30 pod(s) are not in Running state*
-    *29 pod(s) are not in Running state*
-    *28 pod(s) are not in Running state*
-    *24 pod(s) are not in Running state*
-    *22 pod(s) are not in Running state*
-    *23 pod(s) are not in Running state*
-    *16 pod(s) are not in Running state*
-    *15 pod(s) are not in Running state*
-    *12 pod(s) are not in Running state*
-    *10 pod(s) are not in Running state*
-    *9 pod(s) are not in Running state*
-    *8 pod(s) are not in Running state*
-    *6 pod(s) are not in Running state*
-    *5 pod(s) are not in Running state*
-    *4 pod(s) are not in Running state*
-    *3 pod(s) are not in Running state*
-    *2 pod(s) are not in Running state*
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(33/42) Kolla - Helm Install service chart: nova-control
-(34/42) Kolla - Helm Install service chart: nova-compute
-  Wait for all pods to be in Running state:
-    *23 pod(s) are not in Running state*
-    *22 pod(s) are not in Running state*
-    *21 pod(s) are not in Running state*
-    *19 pod(s) are not in Running state*
-    *17 pod(s) are not in Running state*
-    *16 pod(s) are not in Running state*
-    *15 pod(s) are not in Running state*
-    *12 pod(s) are not in Running state*
-    *10 pod(s) are not in Running state*
-    *9 pod(s) are not in Running state*
-    *8 pod(s) are not in Running state*
-    *7 pod(s) are not in Running state*
-    *3 pod(s) are not in Running state*
-    *2 pod(s) are not in Running state*
-    *1 pod(s) are not in Running state*
-    *All pods are in Running state*
-(35/42) Kolla - Final Kolla Kubernetes OpenStack pods for namespace kube-system:
-NAME                               READY     STATUS    RESTARTS   AGE
-canal-3fzw2                        3/3       Running   0          35m
-etcd-centosko                      1/1       Running   1          35m
-kube-apiserver-centosko            1/1       Running   0          35m
-kube-controller-manager-centosko   1/1       Running   1          35m
-kube-dns-2425271678-k5jpw          3/3       Running   0          36m
-kube-proxy-m8222                   1/1       Running   0          36m
-kube-scheduler-centosko            1/1       Running   1          35m
-tiller-deploy-3235729489-nwx6v     1/1       Running   0          33m
+    (01/42) Kolla - Overide default RBAC settings
+    (02/42) Kolla - Install and deploy Helm version 2.5.0 - Tiller pod
+      Wait for all pods to be in Running state:
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (02/42) Kolla - Helm successfully installed
+    (03/42) Kolla - Clone kolla-ansible
+    (04/42) Kolla - Clone kolla-kubernetes
+    (05/42) Kolla - Install kolla-ansible and kolla-kubernetes
+    (06/42) Kolla - Copy default kolla-ansible configuration to /etc
+    (07/42) Kolla - Copy default kolla-kubernetes configuration to /etc
+    (08/42) Kolla - Setup Loopback LVM for Cinder
+    (09/42) Kolla - Install Python Openstack Client
+    (10/42) Kolla - Generate default passwords via SPRNG
+    (11/42) Kolla - Create a Kubernetes namespace to isolate this Kolla deployment
+    (12/42) Kolla - Label Nodes:
+      Label the AIO node as 'kolla_compute'
+      Label the AIO node as 'kolla_controller'
+    (13/42) Kolla - Modify global.yml to setup network_interface and neutron_interface
+    (14/42) Kolla - Add default config to globals.yml
+    (15/42) Kolla - Enable qemu
+    (16/42) Kolla - Generate the default configuration
+    (17/42) Kolla - Generate the Kubernetes secrets and register them with Kubernetes
+    (18/42) Kolla - Create and register the Kolla config maps
+    (19/42) Kolla - Enable resolv.conf workaround
+    (20/42) Kolla - Build all Helm microcharts, service charts, and metacharts
+    (21/42) Kolla - Verify helm images
+    Kolla - 193 Helm images created
+    (22/42) Kolla - Create a cloud.yaml
+    (23/42) Kolla - Helm Install service chart: openvswitch
+      Wait for all pods to be in Running state:
+        *2 pod(s) are not in Running state*
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (24/42) Kolla - Helm Install service chart: keepalived-daemonset
+      Wait for all pods to be in Running state:
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (24/42) Kolla - Helm Install service chart: mariadb
+      Wait for all pods to be in Running state:
+        *2 pod(s) are not in Running state*
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (25/42) Kolla - Helm Install service chart: rabbitmq
+    (26/42) Kolla - Helm Install service chart: memcached
+    (27/42) Kolla - Helm Install service chart: keystone
+    (28/42) Kolla - Helm Install service chart: glance
+    (29/42) Kolla - Helm Install service chart: cinder-control
+    (30/42) Kolla - Helm Install service chart: cinder-volume-lvm
+    (31/42) Kolla - Helm Install service chart: horizon
+    (32/42) Kolla - Helm Install service chart: neutron
+      Wait for all pods to be in Running state:
+        *46 pod(s) are not in Running state*
+        *45 pod(s) are not in Running state*
+        *44 pod(s) are not in Running state*
+        *43 pod(s) are not in Running state*
+        *42 pod(s) are not in Running state*
+        *41 pod(s) are not in Running state*
+        *40 pod(s) are not in Running state*
+        *39 pod(s) are not in Running state*
+        *38 pod(s) are not in Running state*
+        *37 pod(s) are not in Running state*
+        *36 pod(s) are not in Running state*
+        *35 pod(s) are not in Running state*
+        *32 pod(s) are not in Running state*
+        *31 pod(s) are not in Running state*
+        *30 pod(s) are not in Running state*
+        *29 pod(s) are not in Running state*
+        *28 pod(s) are not in Running state*
+        *24 pod(s) are not in Running state*
+        *22 pod(s) are not in Running state*
+        *23 pod(s) are not in Running state*
+        *16 pod(s) are not in Running state*
+        *15 pod(s) are not in Running state*
+        *12 pod(s) are not in Running state*
+        *10 pod(s) are not in Running state*
+        *9 pod(s) are not in Running state*
+        *8 pod(s) are not in Running state*
+        *6 pod(s) are not in Running state*
+        *5 pod(s) are not in Running state*
+        *4 pod(s) are not in Running state*
+        *3 pod(s) are not in Running state*
+        *2 pod(s) are not in Running state*
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (33/42) Kolla - Helm Install service chart: nova-control
+    (34/42) Kolla - Helm Install service chart: nova-compute
+      Wait for all pods to be in Running state:
+        *23 pod(s) are not in Running state*
+        *22 pod(s) are not in Running state*
+        *21 pod(s) are not in Running state*
+        *19 pod(s) are not in Running state*
+        *17 pod(s) are not in Running state*
+        *16 pod(s) are not in Running state*
+        *15 pod(s) are not in Running state*
+        *12 pod(s) are not in Running state*
+        *10 pod(s) are not in Running state*
+        *9 pod(s) are not in Running state*
+        *8 pod(s) are not in Running state*
+        *7 pod(s) are not in Running state*
+        *3 pod(s) are not in Running state*
+        *2 pod(s) are not in Running state*
+        *1 pod(s) are not in Running state*
+        *All pods are in Running state*
+    (35/42) Kolla - Final Kolla Kubernetes OpenStack pods for namespace kube-system:
+    NAME                               READY     STATUS    RESTARTS   AGE
+    canal-3fzw2                        3/3       Running   0          35m
+    etcd-centosko                      1/1       Running   1          35m
+    kube-apiserver-centosko            1/1       Running   0          35m
+    kube-controller-manager-centosko   1/1       Running   1          35m
+    kube-dns-2425271678-k5jpw          3/3       Running   0          36m
+    kube-proxy-m8222                   1/1       Running   0          36m
+    kube-scheduler-centosko            1/1       Running   1          35m
+    tiller-deploy-3235729489-nwx6v     1/1       Running   0          33m
 
-(36/42) Kolla - Final Kolla Kubernetes OpenStack pods for namespace kolla:
-NAME                                      READY     STATUS    RESTARTS   AGE
-cinder-api-2775249182-2wprn               3/3       Running   0          21m
-cinder-scheduler-0                        1/1       Running   0          21m
-cinder-volume-vjbvq                       1/1       Running   3          21m
-glance-api-1563514938-p1tpb               1/1       Running   0          21m
-glance-registry-480622726-h1vfl           3/3       Running   0          21m
-horizon-4102269680-ps443                  1/1       Running   0          20m
-iscsid-fcn83                              1/1       Running   0          21m
-keepalived-5wn6f                          1/1       Running   0          23m
-keystone-4247253593-56ks2                 1/1       Running   0          21m
-mariadb-0                                 1/1       Running   0          23m
-memcached-3612446176-kjbhd                2/2       Running   0          21m
-neutron-dhcp-agent-l2sx6                  1/1       Running   0          20m
-neutron-l3-agent-network-t6ngw            1/1       Running   0          20m
-neutron-metadata-agent-network-79cr1      1/1       Running   0          20m
-neutron-openvswitch-agent-network-wcdxj   1/1       Running   0          20m
-neutron-server-4156805867-7zk39           3/3       Running   0          20m
-nova-api-4162245109-qbgc6                 3/3       Running   0          9m
-nova-api-create-cell-c1h92                1/1       Running   0          9m
-nova-compute-2mqps                        1/1       Running   0          9m
-nova-conductor-0                          1/1       Running   0          9m
-nova-consoleauth-0                        1/1       Running   0          9m
-nova-libvirt-k5096                        1/1       Running   0          9m
-nova-novncproxy-1208748992-fz5gk          3/3       Running   0          9m
-nova-scheduler-0                          1/1       Running   0          9m
-openvswitch-ovsdb-network-gqk04           1/1       Running   0          25m
-openvswitch-vswitchd-network-bvkkz        1/1       Running   0          25m
-placement-api-1550969126-1zr6l            1/1       Running   0          9m
-rabbitmq-0                                1/1       Running   0          21m
-tgtd-hj99f                                1/1       Running   0          21m
+    (36/42) Kolla - Final Kolla Kubernetes OpenStack pods for namespace kolla:
+    NAME                                      READY     STATUS    RESTARTS   AGE
+    cinder-api-2775249182-2wprn               3/3       Running   0          21m
+    cinder-scheduler-0                        1/1       Running   0          21m
+    cinder-volume-vjbvq                       1/1       Running   3          21m
+    glance-api-1563514938-p1tpb               1/1       Running   0          21m
+    glance-registry-480622726-h1vfl           3/3       Running   0          21m
+    horizon-4102269680-ps443                  1/1       Running   0          20m
+    iscsid-fcn83                              1/1       Running   0          21m
+    keepalived-5wn6f                          1/1       Running   0          23m
+    keystone-4247253593-56ks2                 1/1       Running   0          21m
+    mariadb-0                                 1/1       Running   0          23m
+    memcached-3612446176-kjbhd                2/2       Running   0          21m
+    neutron-dhcp-agent-l2sx6                  1/1       Running   0          20m
+    neutron-l3-agent-network-t6ngw            1/1       Running   0          20m
+    neutron-metadata-agent-network-79cr1      1/1       Running   0          20m
+    neutron-openvswitch-agent-network-wcdxj   1/1       Running   0          20m
+    neutron-server-4156805867-7zk39           3/3       Running   0          20m
+    nova-api-4162245109-qbgc6                 3/3       Running   0          9m
+    nova-api-create-cell-c1h92                1/1       Running   0          9m
+    nova-compute-2mqps                        1/1       Running   0          9m
+    nova-conductor-0                          1/1       Running   0          9m
+    nova-consoleauth-0                        1/1       Running   0          9m
+    nova-libvirt-k5096                        1/1       Running   0          9m
+    nova-novncproxy-1208748992-fz5gk          3/3       Running   0          9m
+    nova-scheduler-0                          1/1       Running   0          9m
+    openvswitch-ovsdb-network-gqk04           1/1       Running   0          25m
+    openvswitch-vswitchd-network-bvkkz        1/1       Running   0          25m
+    placement-api-1550969126-1zr6l            1/1       Running   0          9m
+    rabbitmq-0                                1/1       Running   0          21m
+    tgtd-hj99f                                1/1       Running   0          21m
 
-(37/42) Kolla - Create a keystone admin account and source in to it
-(38/42) Kolla - Create a demo vm in our OpenStack cluster
-  Kubernetes - Wait for VM demo1 to be in running state:
-    Kubernetes - VM demo1 is not Running yet
-    Kubernetes - VM demo1 is not Running yet
-    Kubernetes - VM demo1 is not Running yet
-    Kubernetes - VM demo1 is not Running yet
-    Kubernetes - VM demo1 is Running
-(39/42) Kolla - Create floating ip
-(40/42) Kolla - Allow Ingress by changing neutron rules
-(41/42) Kolla - nova list
-+--------------------------------------+-------+--------+------------+-------------+-------------------------------+
-| ID                                   | Name  | Status | Task State | Power State | Networks                      |
-+--------------------------------------+-------+--------+------------+-------------+-------------------------------+
-| f67dc3b5-08f9-4b55-8cb1-3b0ba5ba54d9 | demo1 | ACTIVE | -          | Running     | demo-net=10.0.0.6, 10.0.2.154 |
-+--------------------------------------+-------+--------+------------+-------------+-------------------------------+
+    (37/42) Kolla - Create a keystone admin account and source in to it
+    (38/42) Kolla - Create a demo vm in our OpenStack cluster
+      Kubernetes - Wait for VM demo1 to be in running state:
+        Kubernetes - VM demo1 is not Running yet
+        Kubernetes - VM demo1 is not Running yet
+        Kubernetes - VM demo1 is not Running yet
+        Kubernetes - VM demo1 is not Running yet
+        Kubernetes - VM demo1 is Running
+    (39/42) Kolla - Create floating ip
+    (40/42) Kolla - Allow Ingress by changing neutron rules
+    (41/42) Kolla - nova list
+    +--------------------------------------+-------+--------+------------+-------------+-------------------------------+
+    | ID                                   | Name  | Status | Task State | Power State | Networks                      |
+    +--------------------------------------+-------+--------+------------+-------------+-------------------------------+
+    | f67dc3b5-08f9-4b55-8cb1-3b0ba5ba54d9 | demo1 | ACTIVE | -          | Running     | demo-net=10.0.0.6, 10.0.2.154 |
+    +--------------------------------------+-------+--------+------------+-------------+-------------------------------+
 
-(42/42) Kolla - To Access Horizon:
-  Point your browser to: 10.240.43.77
+    (42/42) Kolla - To Access Horizon:
+      Point your browser to: 10.240.43.77
 
-  OS_PASSWORD=icCX8aqjYVVp7pgNT3x1RoNjTUtlqZEgynAMBJLe
+      OS_PASSWORD=icCX8aqjYVVp7pgNT3x1RoNjTUtlqZEgynAMBJLe
 
-  OS_USERNAME=admin
+      OS_USERNAME=admin
 
-[rwellum@centosko openstack]$ 
+    [rwellum@centosko openstack]$
