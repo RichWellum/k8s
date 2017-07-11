@@ -520,7 +520,7 @@ def k8s_wait_for_running_negate():
     '''Query get pods until only state is Running'''
 
     TIMEOUT = 1000  # Give k8s 1000s to come up
-    RETRY_INTERVAL = 5
+    RETRY_INTERVAL = 3
 
     print('  Wait for all pods to be in Running state:')
 
