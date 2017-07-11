@@ -540,7 +540,7 @@ def k8s_wait_for_running_negate():
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('    *%s pod(s) are not in Running state*' % int(not_running))
+                print('    *%02d pod(s) are not in Running state*' % int(not_running))
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             prev_not_running = not_running
