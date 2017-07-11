@@ -4,7 +4,25 @@
 
     This tool provides a method to deploy OpenStack on a Kubernetes
     Cluster using Kolla and Kolla-Kubernetes on bare metal servers or
-    virtual machines. Virtual machines supported are Ubuntu and Centos.
+    virtual machines. Virtual machines supported are Ubuntu and
+    Centos.
+
+    This is designed to be a fun way to play with this technology. In
+    no way is it supposed to be production ready. It contains both a
+    verbose mode to see what is going on during deployment and a demo
+    mode which attempts to walk the user through all the steps.
+
+    It contains a lot of options to play with different tool versions
+    so it can be useful to verify and debug when the environment has
+    changed - say a kubernetes upgrade.
+
+    It currently works only with the kolla-kubernetes methodology but
+    I intend to expand it to use openstack-helm so the user can
+    compare and contrast.
+
+    All comments, suggestions and improvements welcome.
+
+    richwellum@gmail.com
 
 Host machine requirements
 =========================
