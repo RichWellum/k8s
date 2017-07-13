@@ -811,8 +811,12 @@ def k8s_deploy_k8s():
              'will make sure it is always running, systemd makes sure the Kubelet is running, and the\n' +
              'Kubelet makes sure our containers with the control plane components are running.')
     else:
-        run_shell(
+        out = run_shell(
             'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --skip-preflight-checks')
+        for line in out.splitlines():
+            if re.search('kubeadm join', line):
+                print(line)
+                pause_tool_execution()
 
 
 def k8s_load_kubeadm_creds():
