@@ -818,7 +818,7 @@ def k8s_deploy_k8s():
                 print('  You can now join any number of machines by running the following on each node as root:')
                 line += ' ' * 2
                 print(line)
-                pause_tool_execution()
+                pause_tool_execution('hi')
 
 
 def k8s_load_kubeadm_creds():
