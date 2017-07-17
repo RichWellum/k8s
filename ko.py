@@ -608,7 +608,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-    print('(%02d/%d) %s - %s' % (PROGRESS, finalctr, process, msg))
+    print('(%02d/%02d) %s - %s' % (PROGRESS, finalctr, process, msg))
     add_one_to_progress()
 
 
