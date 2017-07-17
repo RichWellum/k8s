@@ -1783,7 +1783,7 @@ def main():
     K8S_FINAL_PROGRESS = 16
 
     global KOLLA_FINAL_PROGRESS
-    KOLLA_FINAL_PROGRESS = 42
+    KOLLA_FINAL_PROGRESS = 44
 
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
