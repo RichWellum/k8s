@@ -1013,7 +1013,7 @@ def k8s_cleanup(doit):
     if doit is True:
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
-        print_progress('Kubernetes', 'kubeadm reset', K8S_CLEANUP_PROGRESS, True)
+        print_progress('Kubernetes', '(Slow!) kubeadm reset', K8S_CLEANUP_PROGRESS, True)
         run_shell('sudo kubeadm reset')
 
         # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
@@ -1339,7 +1339,7 @@ def kolla_resolve_workaround():
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
     print_progress(
-        'Kolla', '(SLOW!) Build all Helm microcharts, service charts, and metacharts', KOLLA_FINAL_PROGRESS)
+        'Kolla', '(Slow!) Build all Helm microcharts, service charts, and metacharts', KOLLA_FINAL_PROGRESS)
 
     demo('Build helm charts',
          'Helm uses a packaging format called charts. A chart is a collection of\n' +
