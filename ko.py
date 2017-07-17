@@ -1019,8 +1019,14 @@ def kolla_install_deploy_helm(version):
          'Tiller is ready to respond to helm chart requests')
 
 
-def progress(process, msg, finalctr, add_one=False):
+def print_progress(process, msg, finalctr, add_one=False):
     '''Print a message with a progress account'''
+    global K8S_CLEANUP_PROGRESS
+    if os.path.exists('/data'):
+        K8S_CLEANUP_PROGRESS = 6
+    else:
+        K8S_CLEANUP_PROGRESS = 5
+
     if add_one:
         add_one_to_progress()
     print('(%s/%s) %s - %s' % (PROGRESS, finalctr, process, msg))
@@ -1036,13 +1042,13 @@ def k8s_cleanup(doit):
         # add_one_to_progress()
         # print('(%s/%s) Kubernetes - kubeadm reset' % (PROGRESS, K8S_CLEANUP_PROGRESS))
         # add_one_to_progress()
-        progress('Kubernetes', 'kubeadm reset', K8S_CLEANUP_PROGRESS, True)
+        print_progress('Kubernetes', 'kubeadm reset', K8S_CLEANUP_PROGRESS, True)
         run_shell('sudo kubeadm reset')
 
         # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
         # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20
         # | xargs sudo docker stop)')
-        progress('Kubernetes', 'delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
+        print_progress('Kubernetes', 'delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
 
         # print('(%s/%s) Kubernetes - delete /etc files and dirs' % (PROGRESS, K8S_CLEANUP_PROGRESS))
         # add_one_to_progress()
@@ -1050,7 +1056,7 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
 
-        progress('Kubernetes', 'delete /var files and dirs', K8S_CLEANUP_PROGRESS)
+        print_progress('Kubernetes', 'delete /var files and dirs', K8S_CLEANUP_PROGRESS)
         # print('(%s/%s) Kubernetes - delete /var files and dirs' % (PROGRESS, K8S_CLEANUP_PROGRESS))
         # add_one_to_progress()
 
@@ -1063,21 +1069,21 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /var/run/lock/etcd.lock')
         run_shell('sudo rm -rf /var/run/lock/kubelet.lock')
 
-        progress('Kubernetes', 'delete /tmp', K8S_CLEANUP_PROGRESS)
+        print_progress('Kubernetes', 'delete /tmp', K8S_CLEANUP_PROGRESS)
         # print('(%s/%s) Kubernetes - delete /tmp' % (PROGRESS, K8S_CLEANUP_PROGRESS))
         # add_one_to_progress()
         run_shell('sudo rm -rf /tmp/*')
 
         if os.path.exists('/data'):
-            progress('Kubernetes', 'Remove cinder volumes and data', K8S_CLEANUP_PROGRESS)
+            print_progress('Kubernetes', 'Remove cinder volumes and data', K8S_CLEANUP_PROGRESS)
             # print('(%s/%s) Kubernetes - Remove cinder volumes and data' %
             # (PROGRESS, K8S_CLEANUP_PROGRESS))
             # add_one_to_progress()
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
 
-        progress('Kubernetes', 'Complete Cleanup done. Highly recommend rebooting your host',
-                 K8S_CLEANUP_PROGRESS)
+        print_progress('Kubernetes', 'Complete Cleanup done. Highly recommend rebooting your host',
+                       K8S_CLEANUP_PROGRESS)
         # print('(%s/%s) Kubernetes - Complete Cleanup done. Highly recommend rebooting your host' %
         # (PROGRESS, K8S_CLEANUP_PROGRESS))
 
@@ -1852,8 +1858,8 @@ def main():
     global KOLLA_FINAL_PROGRESS
     KOLLA_FINAL_PROGRESS = 42
 
-    global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 4
+    # global K8S_CLEANUP_PROGRESS    todo
+    # K8S_CLEANUP_PROGRESS = 4
 
     set_logging()
     logger.setLevel(level=args.verbose)
