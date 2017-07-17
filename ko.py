@@ -1113,7 +1113,7 @@ sudo vgcreate -y cinder-volumes $LOOP
 
 def kolla_install_os_client():
     '''Install Openstack Client'''
-    print_progress('Kolla', ' Install Python Openstack Client', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Install Python Openstack Client', KOLLA_FINAL_PROGRESS)
 
     demo('Install Python packages',
          'python-openstackclient, python-neutronclient and python-cinderclient\n' +
