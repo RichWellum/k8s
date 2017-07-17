@@ -1859,7 +1859,7 @@ def main():
     KOLLA_FINAL_PROGRESS = 42
 
     global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 4 todo
+    K8S_CLEANUP_PROGRESS = 4
 
     set_logging()
     logger.setLevel(level=args.verbose)
