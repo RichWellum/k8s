@@ -603,8 +603,6 @@ def print_progress(process, msg, finalctr, add_one=False):
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
         K8S_CLEANUP_PROGRESS = 6
-    else:
-        K8S_CLEANUP_PROGRESS = 5
 
     if add_one:
         add_one_to_progress()
@@ -1023,7 +1021,7 @@ def k8s_cleanup(doit):
 
     if doit is True:
         clean_progress()
-        banner('Kubernetes - Cleaning up existing Kubernetes Cluster')
+        banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress('Kubernetes', 'kubeadm reset', K8S_CLEANUP_PROGRESS, True)
         run_shell('sudo kubeadm reset')
 
@@ -1865,7 +1863,7 @@ def main():
     KOLLA_FINAL_PROGRESS = 42
 
     global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 4
+    K8S_CLEANUP_PROGRESS = 5
 
     set_logging()
     logger.setLevel(level=args.verbose)
