@@ -1026,18 +1026,23 @@ def k8s_cleanup(doit):
         clean_progress()
         banner('Kubernetes - Cleaning up existing Kubernetes Cluster')
         add_one_to_progress()
-        run_shell('sudo kubeadm reset')
-        print('(%s/%s) Kubernetes - Cleaning up old directories and files and docker images' %
-              (PROGRESS, K8S_CLEANUP_PROGRESS))
+        print('(%s/%s) Kubernetes - kubeadm reset' % (PROGRESS, K8S_CLEANUP_PROGRESS))
         add_one_to_progress()
+        run_shell('sudo kubeadm reset')
+
         # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
         # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20
         # | xargs sudo docker stop)')
+        print('(%s/%s) Kubernetes - delete /etc files and dirs' % (PROGRESS, K8S_CLEANUP_PROGRESS))
+        add_one_to_progress()
         run_shell('sudo rm -rf /etc/kolla*')
         run_shell('sudo rm -rf /etc/kubernetes')
         run_shell('sudo rm -rf /etc/kolla-kubernetes')
+
+        print('(%s/%s) Kubernetes - delete /var files and dirs' % (PROGRESS, K8S_CLEANUP_PROGRESS))
+        add_one_to_progress()
+
         run_shell('sudo rm -rf /var/lib/kolla*')
-        run_shell('sudo rm -rf /tmp/*')
         run_shell('sudo rm -rf /var/etcd')
         run_shell('sudo rm -rf /var/run/kubernetes/*')
         run_shell('sudo rm -rf /var/lib/kubelet/*')
@@ -1045,6 +1050,11 @@ def k8s_cleanup(doit):
         run_shell('sudo rm -rf /var/run/lock/api-server.lock')
         run_shell('sudo rm -rf /var/run/lock/etcd.lock')
         run_shell('sudo rm -rf /var/run/lock/kubelet.lock')
+
+        print('(%s/%s) Kubernetes - delete /tmp' % (PROGRESS, K8S_CLEANUP_PROGRESS))
+        add_one_to_progress()
+        run_shell('sudo rm -rf /tmp/*')
+
         if os.path.exists('/data'):
             print('(%s/%s) Kubernetes - Remove cinder volumes and data' %
                   (PROGRESS, K8S_CLEANUP_PROGRESS))
@@ -1052,8 +1062,8 @@ def k8s_cleanup(doit):
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
 
-        print('(%s/%s) Kubernetes - Complete Cleanup done. Highly recommend rebooting your host' %
-              (PROGRESS, K8S_CLEANUP_PROGRESS))
+            print('(%s/%s) Kubernetes - Complete Cleanup done. Highly recommend rebooting your host' %
+                  (PROGRESS, K8S_CLEANUP_PROGRESS))
 
 
 def kolla_install_repos():
@@ -1827,7 +1837,7 @@ def main():
     KOLLA_FINAL_PROGRESS = 42
 
     global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 3
+    K8S_CLEANUP_PROGRESS = 2
 
     set_logging()
     logger.setLevel(level=args.verbose)
