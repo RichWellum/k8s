@@ -608,15 +608,16 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-    print('(%02d/%02d) %s - %s' % (PROGRESS, finalctr, process, msg))
+    print("(%02d/%02d) %s - %s" % (PROGRESS, finalctr, process, msg))
     add_one_to_progress()
 
 
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
-    print('(%02d/%d) Kubernetes - Update and install base tools' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    print_progress('Kubernetes', 'Update and install base tools', K8S_FINAL_PROGRESS)
+    # print('(%02d/%d) Kubernetes - Update and install base tools' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
 
     if LINUX == 'Centos':
         run_shell('sudo yum update -y; sudo yum upgrade -y')
@@ -648,9 +649,9 @@ def k8s_install_tools(args):
 
 def k8s_setup_ntp():
     '''Setup NTP - this caused issues when doing it on a VM'''
-    print('(%02d/%d) Kubernetes - Setup NTP' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
-
+    # print('(%02d/%d) Kubernetes - Setup NTP' % (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Setup NTP', K8S_FINAL_PROGRESS)
     if LINUX == 'Centos':
         run_shell('sudo yum install -y ntp')
         run_shell('sudo systemctl enable ntpd.service')
@@ -663,11 +664,13 @@ def k8s_setup_ntp():
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
     if LINUX == 'Centos':
-        print('(%02d/%d) Kubernetes - Turn off SELinux' % (PROGRESS, K8S_FINAL_PROGRESS))
+        print_progress('Kubernetes', 'Turn off SELinux', K8S_FINAL_PROGRESS)
+        # print('(%02d/%d) Kubernetes - Turn off SELinux' % (PROGRESS, K8S_FINAL_PROGRESS))
         run_shell('sudo setenforce 0')
         run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
-    print('(%02d/%d) Kubernetes - Turn off firewall and ISCSID' % (PROGRESS, K8S_FINAL_PROGRESS))
+    print_progress('Kubernetes', 'Turn off firewall and ISCSID', K8S_FINAL_PROGRESS)
+    # print('(%02d/%d) Kubernetes - Turn off firewall and ISCSID' % (PROGRESS, K8S_FINAL_PROGRESS))
     if LINUX == 'Centos':
         run_shell('sudo systemctl stop firewalld')
         run_shell('sudo systemctl disable firewalld')
@@ -675,15 +678,17 @@ def k8s_turn_things_off():
         run_shell('sudo ufw disable')
         run_shell('sudo systemctl stop iscsid')
         run_shell('sudo systemctl stop iscsid.service')
-    add_one_to_progress()
+    # add_one_to_progress()
 
 
 def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
-    print('(%02d/%d) Kubernetes - Creating kubernetes repo, installing Kubernetes packages' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Creating kubernetes repo, installing Kubernetes packages' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress(
+        'Kubernetes', 'Creating kubernetes repo, installing Kubernetes packages', K8S_FINAL_PROGRESS)
 
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
@@ -726,9 +731,11 @@ def k8s_install_k8s(args):
 
 def k8s_setup_dns():
     '''DNS services'''
-    print('(%02d/%d) Kubernetes - Start docker and setup the DNS server with the service CIDR' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Start docker and setup the DNS server with the service CIDR' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress(
+        'Kubernetes', 'Start docker and setup the DNS server with the service CIDR', K8S_FINAL_PROGRESS)
 
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
@@ -740,17 +747,19 @@ def k8s_setup_dns():
 
 def k8s_reload_service_files():
     '''Service files where modified so bring them up again'''
-    print('(%02d/%d) Kubernetes - Reload the hand-modified service files' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Reload the hand-modified service files' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Reload the hand-modified service files', K8S_FINAL_PROGRESS)
 
     run_shell('sudo systemctl daemon-reload')
 
 
 def k8s_start_kubelet():
     '''Start kubelet'''
-    print('(%02d/%d) Kubernetes - Enable and start kubelet' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Enable and start kubelet' % (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Enable and start kubelet', K8S_FINAL_PROGRESS)
 
     demo('Enable and start kubelet', 'kubelet is a command line interface for ' +
          'running commands against Kubernetes clusters')
@@ -762,8 +771,9 @@ def k8s_start_kubelet():
 def k8s_fix_iptables():
     '''Maybe Centos only but this needs to be changed to proceed'''
     reload_sysctl = False
-    print('(%02d/%d) Kubernetes - Fix iptables to enable bridging' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Fix iptables to enable bridging' % (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Fix iptables to enable bridging', K8S_FINAL_PROGRESS)
 
     demo('Centos fix bridging',
          'Setting net.bridge.bridge-nf-call-iptables=1 ' +
@@ -787,9 +797,10 @@ def k8s_fix_iptables():
 
 def k8s_deploy_k8s():
     '''Start the kubernetes master'''
-    print('(%02d/%d) Kubernetes - Deploying Kubernetes with kubeadm' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Deploying Kubernetes with kubeadm' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Deploying Kubernetes with kubeadm', K8S_FINAL_PROGRESS)
 
     demo('Initializes your Kubernetes Master',
          'One of the most frequent criticisms of Kubernetes is that it is ' +
@@ -836,8 +847,9 @@ def k8s_deploy_k8s():
 
 def k8s_load_kubeadm_creds():
     '''This ensures the user gets output from 'kubectl get pods'''
-    print('(%02d/%d) Kubernetes - Load kubeadm credentials into the system' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+    # print('(%02d/%d) Kubernetes - Load kubeadm credentials into the system' %
+    # (PROGRESS, K8S_FINAL_PROGRESS))
+    print_progress('Kubernetes', 'Load kubeadm credentials into the system', K8S_FINAL_PROGRESS)
 
     home = os.environ['HOME']
     kube = os.path.join(home, '.kube')
@@ -895,7 +907,7 @@ def k8s_load_kubeadm_creds():
              'curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version')
         print(run_shell('curl --cacert /etc/kubernetes/pki/ca.pem https://10.240.0.2/version'))
     print('  Note "kubectl get pods --all-namespaces" should work now')
-    add_one_to_progress()
+    # add_one_to_progress()
 
 
 def k8s_deploy_canal_sdn():
@@ -903,9 +915,10 @@ def k8s_deploy_canal_sdn():
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
-    print('(%02d/%d) Kubernetes - Create RBAC and Deploy the Canal CNI driver' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Create RBAC and Deploy the Canal CNI driver' %
+    #       (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Create RBAC and Deploy the Canal CNI driver', K8S_FINAL_PROGRESS)
 
     answer = curl(
         '-L',
@@ -940,8 +953,9 @@ def k8s_deploy_canal_sdn():
 
 
 def k8s_add_api_server(ip):
-    print('(%02d/%d) Kubernetes - Add API Server' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Add API Server' % (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Add API Server', K8S_FINAL_PROGRESS)
 
     run_shell('sudo mkdir -p /etc/nodepool/')
     run_shell('sudo echo %s > /tmp/primary_node_private' % ip)
@@ -954,8 +968,9 @@ def k8s_schedule_master_node():
     make it an AOI deployment
 
     While the command says "taint" the "-" at the end is an "untaint"'''
-    print('(%02d/%d) Kubernetes - Mark master node as schedulable' % (PROGRESS, K8S_FINAL_PROGRESS))
-    add_one_to_progress()
+    # print('(%02d/%d) Kubernetes - Mark master node as schedulable' % (PROGRESS, K8S_FINAL_PROGRESS))
+    # add_one_to_progress()
+    print_progress('Kubernetes', 'Mark master node as schedulable', K8S_FINAL_PROGRESS)
 
     demo('Running on the master is different though',
          'There is a special annotation on our node telling Kubernetes not to\n' +
@@ -1643,8 +1658,10 @@ def k8s_pause_to_check_nslookup(manual_check):
 
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
-    print("(%02d/%d) Kubernetes - Test 'nslookup kubernetes' - bring up test container" %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+    # print("(%02d/%d) Kubernetes - Test 'nslookup kubernetes' - bring up test container" %
+    # (PROGRESS, K8S_FINAL_PROGRESS))
+    print_progress(
+        'Kubernetes', "Test 'nslookup kubernetes' - bring up test container", K8S_FINAL_PROGRESS)
 
     demo('Lets create a simple pod and verify that DNS works',
          'If it does not then this deployment will not work.')
@@ -1681,7 +1698,7 @@ spec:
         print('Kubernetes - Run the following to create a pod to test kubernetes nslookup')
         print('Kubernetes - kubectl run -i -t $(uuidgen) --image=busybox --restart=Never')
         pause_tool_execution('Check "nslookup kubernetes" now')
-    add_one_to_progress()
+    # add_one_to_progress()
 
 
 def kubernetes_test_cli():
