@@ -600,9 +600,9 @@ def clean_progress():
 
 def print_progress(process, msg, finalctr, add_one=False):
     '''Print a message with a progress account'''
-    global K8S_CLEANUP_PROGRESS
-    if os.path.exists('/data'):
-        K8S_CLEANUP_PROGRESS = 6
+    # global K8S_CLEANUP_PROGRESS
+    # if os.path.exists('/data'):
+    #     K8S_CLEANUP_PROGRESS = 6
 
     if add_one:
         add_one_to_progress()
@@ -1863,7 +1863,10 @@ def main():
     KOLLA_FINAL_PROGRESS = 42
 
     global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 5
+    if os.path.exists('/data'):
+        K8S_CLEANUP_PROGRESS = 6
+    else:
+        K8S_CLEANUP_PROGRESS = 5
 
     set_logging()
     logger.setLevel(level=args.verbose)
