@@ -106,9 +106,8 @@ TODO
 2. Potentially build a docker container or VM to run this on
 3. Add option to use a CNI other than canal
 4. Make it work with os-helm
-5. Add steps to output (1/17 etc)
-6. Note there are various todo's scattered inline as well.
-7. Add an option to insert a cherry-pick before compiling kolla-kubernetes
+5. Note there are various todo's scattered inline as well.
+6. Add an option to insert a cherry-pick before compiling kolla-kubernetes
 
 Dependencies
 ============
@@ -1025,9 +1024,7 @@ def k8s_cleanup(doit):
 
     if doit is True:
         clean_progress()
-        add_one_to_progress()
-        print('(%s/%s) Kubernetes - Cleaning up existing Kubernetes Cluster' %
-              (PROGRESS, K8S_CLEANUP_PROGRESS))
+        banner('Kubernetes - Cleaning up existing Kubernetes Cluster')
         add_one_to_progress()
         run_shell('sudo kubeadm reset')
         print('(%s/%s) Kubernetes - Cleaning up old directories and files and docker images' %
