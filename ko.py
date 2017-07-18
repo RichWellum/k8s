@@ -1590,7 +1590,7 @@ done
     run_shell('.  ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
 
     # Display nova list
-    print_progress('Kolla', 'nova list', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'nova list to see floating IP and demo VM', KOLLA_FINAL_PROGRESS)
 
     print(run_shell('.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
