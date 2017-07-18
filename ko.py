@@ -191,11 +191,11 @@ def parse_args():
                         help='Specify a different jinja2 version to the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster before ' +
-                        'creating a new one. Because LVM os not cleaned up, space will ' +
+                        'creating a new one. Because LVM is not cleaned up, space will ' +
                         'be used up. "-cc" is far more reliable but requires a reboot')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster then exit, ' +
-                        'reboot host is advised')
+                        'rebooting host is advised')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
     # Todo: make this the default then add a switch for kolla or os-helm
