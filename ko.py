@@ -576,7 +576,7 @@ def k8s_wait_for_vm(vm):
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
         else:
-            print('    Kubernetes - VM %s is Running' % vm)
+            print('    *Kubernetes - VM %s is Running*' % vm)
             break
 
         if elapsed_time > TIMEOUT:
