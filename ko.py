@@ -1049,6 +1049,7 @@ def k8s_cleanup(args):
             print_progress('Kubernetes', 'Cleanup done. Will attempt to proceed with installation. YMMV.',
                            K8S_CLEANUP_PROGRESS)
             clean_progress()
+            add_one_to_progress()
 
 
 def kolla_install_repos():
