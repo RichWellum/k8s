@@ -138,9 +138,8 @@ logger = logging.getLogger(__name__)
 
 
 def set_logging():
-    '''
-    Set basic logging format.
-    '''
+    '''Set basic logging format.'''
+
     FORMAT = "[%(asctime)s.%(msecs)03d %(levelname)8s: %(funcName)20s:%(lineno)s] %(message)s"
     logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
@@ -151,6 +150,7 @@ class AbortScriptException(Exception):
 
 def parse_args():
     '''Parse sys.argv and return args'''
+
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description='This tool provides a method to deploy OpenStack on a ' +
@@ -242,6 +242,7 @@ def run_shell(cmd):
 
 def untar(fname):
     '''Untar a tarred and compressed file'''
+
     if (fname.endswith("tar.gz")):
         tar = tarfile.open(fname, "r:gz")
         tar.extractall()
@@ -254,6 +255,7 @@ def untar(fname):
 
 def pause_tool_execution(str):
     '''Pause the script for manual debugging of the VM before continuing'''
+
     print('Pause: "%s"' % str)
     raw_input('Press Enter to continue\n')
 
@@ -281,6 +283,7 @@ def banner(description):
 
 def demo(title, description):
     '''Pause the script to provide demo information'''
+
     if not DEMO:
         return
 
@@ -315,6 +318,7 @@ def demo(title, description):
 
 def curl(*args):
     '''Use curl to retrieve a file from a URI'''
+
     curl_path = '/usr/bin/curl'
     curl_list = [curl_path]
     for arg in args:
@@ -329,8 +333,8 @@ def curl(*args):
 def linux_ver():
     '''Determine Linux version - Ubuntu or Centos
     Fail if it is not one of those.
-
     Return the long string for output'''
+
     global LINUX
 
     find_os = platform.linux_distribution()
@@ -347,6 +351,7 @@ def linux_ver():
 
 def docker_ver():
     '''Display docker version'''
+
     oldstr = run_shell("docker --version | awk '{print $3}'")
     newstr = oldstr.replace(",", "")
     return(newstr.rstrip())
@@ -398,6 +403,7 @@ def tools_versions(args):
 
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
+
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
     print('Linux info:      %s' % linux_ver())
 
@@ -449,6 +455,7 @@ def print_versions(args):
 
 def k8s_create_repo():
     '''Create a k8s repository file'''
+
     if LINUX == 'Centos':
         name = './kubernetes.repo'
         repo = '/etc/yum.repos.d/kubernetes.repo'
@@ -590,11 +597,15 @@ def k8s_wait_for_vm(vm):
 
 
 def add_one_to_progress():
+    '''Add one to progress meter'''
+
     global PROGRESS
     PROGRESS += 1
 
 
 def clean_progress():
+    '''Reset progress meter to zero'''
+
     global PROGRESS
     PROGRESS = 0
 
@@ -610,6 +621,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
+
     print_progress('Kubernetes', 'Update and install base tools', K8S_FINAL_PROGRESS)
 
     if LINUX == 'Centos':
@@ -642,6 +654,7 @@ def k8s_install_tools(args):
 
 def k8s_setup_ntp():
     '''Setup NTP - this caused issues when doing it on a VM'''
+
     print_progress('Kubernetes', 'Setup NTP', K8S_FINAL_PROGRESS)
     if LINUX == 'Centos':
         run_shell('sudo yum install -y ntp')
@@ -654,6 +667,7 @@ def k8s_setup_ntp():
 
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
+
     if LINUX == 'Centos':
         print_progress('Kubernetes', 'Turn off SELinux', K8S_FINAL_PROGRESS)
         run_shell('sudo setenforce 0')
@@ -672,6 +686,7 @@ def k8s_turn_things_off():
 def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
+
     print_progress(
         'Kubernetes', 'Creating kubernetes repo, installing Kubernetes packages', K8S_FINAL_PROGRESS)
 
@@ -716,6 +731,7 @@ def k8s_install_k8s(args):
 
 def k8s_setup_dns():
     '''DNS services'''
+
     print_progress(
         'Kubernetes', 'Start docker and setup the DNS server with the service CIDR', K8S_FINAL_PROGRESS)
 
@@ -729,12 +745,14 @@ def k8s_setup_dns():
 
 def k8s_reload_service_files():
     '''Service files where modified so bring them up again'''
+
     print_progress('Kubernetes', 'Reload the hand-modified service files', K8S_FINAL_PROGRESS)
     run_shell('sudo systemctl daemon-reload')
 
 
 def k8s_start_kubelet():
     '''Start kubelet'''
+
     print_progress('Kubernetes', 'Enable and start kubelet', K8S_FINAL_PROGRESS)
 
     demo('Enable and start kubelet', 'kubelet is a command line interface for ' +
@@ -746,6 +764,7 @@ def k8s_start_kubelet():
 
 def k8s_fix_iptables():
     '''Maybe Centos only but this needs to be changed to proceed'''
+
     reload_sysctl = False
     print_progress('Kubernetes', 'Fix iptables to enable bridging', K8S_FINAL_PROGRESS)
 
@@ -771,6 +790,7 @@ def k8s_fix_iptables():
 
 def k8s_deploy_k8s():
     '''Start the kubernetes master'''
+
     print_progress('Kubernetes', '(Slow!) Deploying Kubernetes with kubeadm', K8S_FINAL_PROGRESS)
 
     demo('Initializes your Kubernetes Master',
@@ -818,6 +838,7 @@ def k8s_deploy_k8s():
 
 def k8s_load_kubeadm_creds():
     '''This ensures the user gets output from 'kubectl get pods'''
+
     print_progress('Kubernetes', 'Load kubeadm credentials into the system', K8S_FINAL_PROGRESS)
 
     home = os.environ['HOME']
@@ -880,6 +901,7 @@ def k8s_load_kubeadm_creds():
 
 def k8s_deploy_canal_sdn():
     '''SDN/CNI Driver of choice is Canal'''
+
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
@@ -920,6 +942,7 @@ def k8s_deploy_canal_sdn():
 
 def k8s_add_api_server(ip):
     '''Add API Server'''
+
     print_progress('Kubernetes', 'Add API Server', K8S_FINAL_PROGRESS)
 
     run_shell('sudo mkdir -p /etc/nodepool/')
@@ -933,6 +956,7 @@ def k8s_schedule_master_node():
     make it an AOI deployment
 
     While the command says "taint" the "-" at the end is an "untaint"'''
+
     print_progress('Kubernetes', 'Mark master node as schedulable', K8S_FINAL_PROGRESS)
 
     demo('Running on the master is different though',
@@ -943,6 +967,7 @@ def k8s_schedule_master_node():
 
 def kolla_update_rbac():
     '''Override the default RBAC settings'''
+
     print_progress('Kolla', 'Overide default RBAC settings', KOLLA_FINAL_PROGRESS)
 
     demo('Role-based access control (RBAC)',
@@ -978,6 +1003,7 @@ subjects:
 
 def kolla_install_deploy_helm(version):
     '''Deploy helm binary'''
+
     print_progress('Kolla', 'Install and deploy Helm version %s - Tiller pod' %
                    version, KOLLA_FINAL_PROGRESS)
 
@@ -1056,6 +1082,7 @@ def k8s_cleanup(args):
 def kolla_install_repos():
     '''Installing the kolla repos
     For sanity I just delete a repo if already exists'''
+
     print('(%02d/%d) Kolla - Clone kolla-ansible' % (PROGRESS, KOLLA_FINAL_PROGRESS))
     add_one_to_progress()
 
@@ -1093,6 +1120,7 @@ def kolla_install_repos():
 def kolla_setup_loopback_lvm():
     '''Setup a loopback LVM for Cinder
     /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh'''
+
     print_progress('Kolla', 'Setup Loopback LVM for Cinder', KOLLA_FINAL_PROGRESS)
 
     demo('Loopback LVM for Cinder',
@@ -1120,6 +1148,7 @@ sudo vgcreate -y cinder-volumes $LOOP
 
 def kolla_install_os_client():
     '''Install Openstack Client'''
+
     print_progress('Kolla', 'Install Python Openstack Client', KOLLA_FINAL_PROGRESS)
 
     demo('Install Python packages',
@@ -1132,6 +1161,7 @@ def kolla_install_os_client():
 
 def kolla_gen_passwords():
     '''Generate the Kolla Passwords'''
+
     print_progress('Kolla', 'Generate default passwords via SPRNG', KOLLA_FINAL_PROGRESS)
 
     demo('Generate passwords',
@@ -1142,6 +1172,7 @@ def kolla_gen_passwords():
 
 def kolla_create_namespace():
     '''Create a kolla namespace'''
+
     print_progress(
         'Kolla', 'Create a Kubernetes namespace to isolate this Kolla deployment', KOLLA_FINAL_PROGRESS)
 
@@ -1155,7 +1186,7 @@ def kolla_create_namespace():
 
 def kolla_label_nodes(node_list):
     '''Label the nodes according to the list passed in'''
-    # print('(%02d/%d) Kolla - Label Nodes:' % (PROGRESS, KOLLA_FINAL_PROGRESS))
+
     print_progress('Kolla', 'Label Nodes:', KOLLA_FINAL_PROGRESS)
 
     demo('Label the node',
@@ -1168,6 +1199,7 @@ def kolla_label_nodes(node_list):
 
 def k8s_check_exit(k8s_only):
     '''If the user only wants kubernetes and not kolla - stop here'''
+
     if k8s_only is True:
         print('Kubernetes Cluster is running and healthy and you do not wish to install kolla')
         sys.exit(1)
@@ -1176,6 +1208,7 @@ def k8s_check_exit(k8s_only):
 def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Necessary additions and changes to the global.yml - which is based on
     the users inputs'''
+
     print_progress(
         'Kolla', 'Modify global.yml to setup network_interface and neutron_interface', KOLLA_FINAL_PROGRESS)
 
@@ -1193,6 +1226,7 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
 
 def kolla_add_to_globals(args):
     '''Default section needed'''
+
     print_progress('Kolla', 'Add default config to globals.ym', KOLLA_FINAL_PROGRESS)
 
     new = '/tmp/add'
@@ -1250,6 +1284,7 @@ nova_backend_ceph: "no"
 
 def kolla_enable_qemu():
     '''Some configurations need qemu'''
+
     print_progress('Kolla', 'Enable qemu', KOLLA_FINAL_PROGRESS)
     # todo - as per gate:
     # sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt virt_type qemu
@@ -1300,6 +1335,7 @@ def kolla_gen_configs():
 
 def kolla_gen_secrets():
     '''Generate Kubernetes secrets'''
+
     print_progress(
         'Kolla', 'Generate the Kubernetes secrets and register them with Kubernetes', KOLLA_FINAL_PROGRESS)
 
@@ -1311,6 +1347,7 @@ def kolla_gen_secrets():
 
 def kolla_create_config_maps():
     '''Generate the Kolla config map'''
+
     print_progress('Kolla', 'Create and register the Kolla config maps', KOLLA_FINAL_PROGRESS)
     demo('Create Kolla Config Maps',
          'Similar to Secrets, Config Maps are another kubernetes artifact\n' +
@@ -1338,6 +1375,7 @@ def kolla_create_config_maps():
 
 def kolla_resolve_workaround():
     '''Resolve.Conf workaround'''
+
     print('(%02d/%d) Kolla - Enable resolv.conf workaround' % (PROGRESS, KOLLA_FINAL_PROGRESS))
     add_one_to_progress()
     run_shell('./kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
@@ -1345,6 +1383,7 @@ def kolla_resolve_workaround():
 
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
+
     print_progress(
         'Kolla', '(Slow!) Build all Helm microcharts, service charts, and metacharts', KOLLA_FINAL_PROGRESS)
 
@@ -1368,6 +1407,7 @@ def kolla_build_micro_charts():
 def kolla_verify_helm_images():
     '''Subjective but a useful check to see if enough helm charts were
     generated'''
+
     print_progress('Kolla', 'Verify number of helm images', KOLLA_FINAL_PROGRESS)
 
     out = run_shell('ls /tmp | grep ".tgz" | wc -l')
@@ -1383,6 +1423,7 @@ def kolla_create_cloud(args):
     file to define your cluster networking.
 
     This uses most of the user options.'''
+
     print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
 
     demo('Create a cloud.yaml',
@@ -1466,8 +1507,9 @@ global:
 
 def helm_install_service_chart(chart_list):
     '''helm install a list of service charts'''
+
     for chart in chart_list:
-        print_progress('Kolla', 'Helm Install service chart: %s' % chart, KOLLA_FINAL_PROGRESS)
+        print_progress('Kolla', 'Helm Install seravice chart: %s' % chart, KOLLA_FINAL_PROGRESS)
         run_shell('helm install --debug kolla-kubernetes/helm/service/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
     k8s_wait_for_running_negate()
@@ -1475,6 +1517,7 @@ def helm_install_service_chart(chart_list):
 
 def helm_install_micro_service_chart(chart_list):
     '''helm install a list of micro service charts'''
+
     for chart in chart_list:
         print_progress('Kolla', 'Helm Install service chart: %s' % chart, KOLLA_FINAL_PROGRESS)
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/%s \
@@ -1484,6 +1527,7 @@ def helm_install_micro_service_chart(chart_list):
 
 def sudo_timeout_off(state):
     '''Turn sudo timeout off or on'''
+
     # if state is True:
     # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
     # sudo sh -c 'echo "Defaults timestamp_timeout=-1" >> /etc/sudoers'
@@ -1565,6 +1609,7 @@ done
 
 def k8s_test_neutron_int(ip):
     '''Test that the neutron interface is not used'''
+
     if LINUX == 'Centos':
         run_shell('sudo yum install -y nmap')
     else:
@@ -1580,6 +1625,7 @@ def k8s_test_neutron_int(ip):
 
 def k8s_get_pods(namespace):
     '''Display all pods per namespace list'''
+
     for name in namespace:
         final = run_shell('kubectl get pods -n %s' % name)
         print_progress('Kolla', 'Final Kolla Kubernetes OpenStack pods for namespace %s:' %
@@ -1594,6 +1640,7 @@ def k8s_pause_to_check_nslookup(manual_check):
 
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
+
     print_progress(
         'Kubernetes', "Test 'nslookup kubernetes' - bring up test pod", K8S_FINAL_PROGRESS)
 
@@ -1636,6 +1683,7 @@ spec:
 
 def kubernetes_test_cli():
     '''Run some commands for demo purposes'''
+
     if not DEMO:
         return
 
@@ -1680,6 +1728,7 @@ def kubernetes_test_cli():
 def k8s_bringup_kubernetes_cluster(args):
     '''Bring up a working Kubernetes Cluster
     Explicitly using the Canal CNI for now'''
+
     if args.openstack:
         print('Kolla - Building OpenStack on existing Kubernetes cluster')
         return
@@ -1707,7 +1756,7 @@ def k8s_bringup_kubernetes_cluster(args):
 
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
-    # print('\nKolla - install OpenStack:')
+
     banner('Kolla - install OpenStack:')
     clean_progress()
     # Start Kolla deployment
@@ -1766,6 +1815,7 @@ def kolla_bring_up_openstack(args):
 
 def main():
     '''Main function.'''
+
     args = parse_args()
 
     global DEBUG
