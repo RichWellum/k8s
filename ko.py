@@ -1007,10 +1007,10 @@ def kolla_install_deploy_helm(version):
          'Tiller is ready to respond to helm chart requests')
 
 
-def k8s_cleanup(doit):
+def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
-    if doit is True:
+    if args.cleanup is True or args.complete_cleanup is True:
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress('Kubernetes', '(Slow!) kubeadm reset', K8S_CLEANUP_PROGRESS, True)
@@ -1042,8 +1042,13 @@ def k8s_cleanup(doit):
             run_shell('sudo vgremove cinder-volumes')
             run_shell('sudo rm -rf /data')
 
-        print_progress('Kubernetes', 'Complete Cleanup done. Highly recommend rebooting your host',
-                       K8S_CLEANUP_PROGRESS)
+        if args.complete_cleanup:
+            print_progress('Kubernetes', 'Cleanup done. Highly recommend rebooting your host',
+                           K8S_CLEANUP_PROGRESS)
+        else:
+            print_progress('Kubernetes', 'Cleanup done. Will attempt to proceed with installation. YMMV.',
+                           K8S_CLEANUP_PROGRESS)
+            clean_progress()
 
 
 def kolla_install_repos():
@@ -1678,7 +1683,7 @@ def k8s_bringup_kubernetes_cluster(args):
         return
 
     k8s_install_tools(args)
-    k8s_cleanup(args.cleanup)
+    k8s_cleanup(args)
     k8s_setup_ntp()
     k8s_turn_things_off()
     k8s_install_k8s(args)
@@ -1800,7 +1805,7 @@ def main():
 
     try:
         if args.complete_cleanup:
-            k8s_cleanup(args.complete_cleanup)
+            k8s_cleanup(args)
             sys.exit(1)
 
         k8s_test_neutron_int(args.VIP_IP)
