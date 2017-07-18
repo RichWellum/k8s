@@ -1601,7 +1601,8 @@ done
         "kubectl get svc horizon --namespace kolla --no-headers | awk '{print $3}'")
     username = run_shell("cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell("cat ~/keystonerc_admin | grep OS_USERNAME | awk '{print $2}'")
-    print_progress('Kolla', 'To Access Horizon:', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Complete Kolla OpenStack Cluster! To Access Horizon:',
+                   KOLLA_FINAL_PROGRESS)
 
     print('  Point your browser to: %s' % address)
     print('  %s' % username)
