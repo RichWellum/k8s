@@ -1519,7 +1519,7 @@ def kolla_create_cloud_v5(args):
 
         This works for tag version 4.x'''
 
-    print_progress('Kolla', 'Create a cloud.yaml - TAG 5', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
 
     demo('Create a cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n' +
@@ -1916,10 +1916,10 @@ def kolla_bring_up_openstack(args):
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
-        print(run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
+        run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
         --namespace kolla --name registry-centos --set distro=centos \
         --set node_port=30401 --set initial_load=true \
-        --set svc_name=registry-centos'))
+        --set svc_name=registry-centos')
         k8s_wait_for_running_negate(1500)
 
     # Set up OVS for the Infrastructure
