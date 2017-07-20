@@ -339,9 +339,9 @@ def linux_ver():
 
     find_os = platform.linux_distribution()
     if re.search('Centos', find_os[0], re.IGNORECASE):
-        LINUX = 'Centos'
+        LINUX = 'centos'
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
-        LINUX = 'Ubuntu'
+        LINUX = 'ubuntu'
     else:
         print('Linux "%s" is not supported yet' % find_os[0])
         sys.exit(1)
@@ -409,7 +409,7 @@ def print_versions(args):
 
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         run_shell(
             'sudo yum install -y docker')
     else:
@@ -456,7 +456,7 @@ def print_versions(args):
 def k8s_create_repo():
     '''Create a k8s repository file'''
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         name = './kubernetes.repo'
         repo = '/etc/yum.repos.d/kubernetes.repo'
         with open(name, "w") as w:
@@ -624,7 +624,7 @@ def k8s_install_tools(args):
 
     print_progress('Kubernetes', 'Update and install base tools', K8S_FINAL_PROGRESS)
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         run_shell('sudo yum update -y; sudo yum upgrade -y')
         run_shell('sudo yum install -y epel-release bridge-utils nmap')
         run_shell('sudo yum install -y python-pip python-devel libffi-devel \
@@ -656,7 +656,7 @@ def k8s_setup_ntp():
     '''Setup NTP - this caused issues when doing it on a VM'''
 
     print_progress('Kubernetes', 'Setup NTP', K8S_FINAL_PROGRESS)
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         run_shell('sudo yum install -y ntp')
         run_shell('sudo systemctl enable ntpd.service')
         run_shell('sudo systemctl start ntpd.service')
@@ -668,13 +668,13 @@ def k8s_setup_ntp():
 def k8s_turn_things_off():
     '''Currently turn off SELinux and Firewall'''
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         print_progress('Kubernetes', 'Turn off SELinux', K8S_FINAL_PROGRESS)
         run_shell('sudo setenforce 0')
         run_shell('sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
 
     print_progress('Kubernetes', 'Turn off firewall and ISCSID', K8S_FINAL_PROGRESS)
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         run_shell('sudo systemctl stop firewalld')
         run_shell('sudo systemctl disable firewalld')
     else:
@@ -697,7 +697,7 @@ def k8s_install_k8s(args):
          (tools_dict["kubernetes"], tools_dict["kubernetes"],
           tools_dict["kubernetes"], tools_dict["kubernetes-cni"]))
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         if args.latest_version is True:
             run_shell(
                 'sudo yum install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
@@ -1103,7 +1103,7 @@ def kolla_install_repos():
     print_progress('Kolla', 'Install kolla-ansible and kolla-kubernetes', KOLLA_FINAL_PROGRESS)
     run_shell('sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         print_progress('Kolla', 'Copy default kolla-ansible configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
         run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
@@ -1227,7 +1227,7 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
 def kolla_add_to_globals(args):
     '''Default section needed'''
 
-    print_progress('Kolla', 'Add default config to globals.ym', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Add default config to globals.yml', KOLLA_FINAL_PROGRESS)
 
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
@@ -1730,7 +1730,7 @@ done
 def k8s_test_neutron_int(ip):
     '''Test that the neutron interface is not used'''
 
-    if LINUX == 'Centos':
+    if LINUX == 'centos':
         run_shell('sudo yum install -y nmap')
     else:
         run_shell('sudo apt-get install -y nmap')
@@ -1906,6 +1906,12 @@ def kolla_bring_up_openstack(args):
         kolla_create_cloud_v5(args)
     else:
         kolla_create_cloud(args)
+
+    if re.search('5.', args.image_tag):
+        run_shell('helm install helm/microservice/registry-deployment --namespace kolla \
+        --name registry-centos --set distro=centos --set node_port=30402 --set initial_load=true \
+        --set svc_name=registry-centos')
+        k8s_wait_for_running_negate()
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
