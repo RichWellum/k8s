@@ -1422,7 +1422,9 @@ def kolla_create_cloud(args):
     '''Generate the cloud.yml file which works with the globals.yml
     file to define your cluster networking.
 
-    This uses most of the user options.'''
+    This uses most of the user options.
+
+    This works for tag version 4.x'''
 
     print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
 
@@ -1497,6 +1499,118 @@ global:
          port_external: true
         """ % (args.image_tag, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
                args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
+
+    if args.edit_config is True:
+        pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
+
+    if DEMO:
+        print(run_shell('sudo cat /tmp/cloud.yaml'))
+
+
+def kolla_create_cloud_v5(args):
+    '''Generate the cloud.yml file which works with the globals.yml
+    file to define your cluster networking.
+
+    This uses most of the user options.
+
+        This works for tag version 4.x'''
+
+    print_progress('Kolla', 'Create a cloud.yaml - TAG 5', KOLLA_FINAL_PROGRESS)
+
+    demo('Create a cloud.yaml',
+         'cloud.yaml is the partner to globals.yml\n' +
+         'It contains a list of global OpenStack services and key-value pairs, which\n' +
+         'guide helm when running each chart. This includes our basic inputs, MGMT and Neutron')
+    cloud = '/tmp/cloud.yaml'
+    with open(cloud, "w") as w:
+        w.write("""
+global:
+   kolla:
+     all:
+       docker_registry: 127.0.0.1:30401
+       docker_namespace: lokolla
+       image_tag: "%s"
+       storage_provider: host
+       install_type: source
+       storage_provider_fstype: xfs
+       ceph_backend: false
+       external_vip: "%s"
+       base_distro: "centos"
+       install_type: "source"
+       tunnel_interface: "%s"
+       resolve_conf_net_host_workaround: true
+       kolla_kubernetes_external_subnet: 24
+       kolla_kubernetes_external_vip: %s
+       kube_logger: false
+       kolla_toolbox_image_tag: %s
+       haproxy_image_tag: %s
+       fluentd_image_tag: %s
+       kubernetes_entrypoint_image_tag: %s
+     keepalived:
+       all:
+         api_interface: br-ex
+     keystone:
+       all:
+         admin_port_external: "true"
+         dns_name: "%s"
+         port: 5000
+       public:
+         all:
+           port_external: "true"
+     rabbitmq:
+       all:
+         cookie: 67
+     glance:
+       api:
+         all:
+           port_external: "true"
+     cinder:
+       api:
+         all:
+           port_external: "true"
+       volume_lvm:
+         all:
+           element_name: cinder-volume
+         daemonset:
+           lvm_backends:
+           - '%s': 'cinder-volumes'
+     ironic:
+       conductor:
+         daemonset:
+           selector_key: "kolla_conductor"
+     nova:
+       placement_api:
+         all:
+           port_external: true
+           cell_enabled: true
+           api:
+             create_cell:
+               job:
+                 cell_wait_compute: false
+       novncproxy:
+         all:
+           port: 6080
+           port_external: true
+     openvwswitch:
+       all:
+         add_port: true
+         ext_bridge_name: br-ex
+         ext_interface_name: %s
+         setup_bridge: true
+     horizon:
+       all:
+         port_external: true
+        """ % (args.image_tag,
+               args.MGMT_IP,
+               args.MGMT_INT,
+               args.VIP_IP,
+               args.image_tag,
+               args.image_tag,
+               args.image_tag,
+               args.image_tag,
+               args.MGMT_IP,
+               args.MGMT_IP,
+               args.NEUTRON_INT))
 
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
@@ -1788,7 +1902,10 @@ def kolla_bring_up_openstack(args):
     kolla_resolve_workaround()
     kolla_build_micro_charts()
     kolla_verify_helm_images()
-    kolla_create_cloud(args)
+    if re.search('5.', args.image_tag):
+        kolla_create_cloud_v5(args)
+    else:
+        kolla_create_cloud(args)
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
