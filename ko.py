@@ -1911,8 +1911,9 @@ def kolla_bring_up_openstack(args):
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
-        print(run_shell('helm install helm/microservice/registry-deployment --namespace kolla \
-        --name registry-centos --set distro=centos --set node_port=30402 --set initial_load=true \
+        print(run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
+        --namespace kolla --name registry-centos --set distro=centos \
+        --set node_port=30402 --set initial_load=true \
         --set svc_name=registry-centos'))
         k8s_wait_for_running_negate()
 
