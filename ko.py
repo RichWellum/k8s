@@ -523,10 +523,14 @@ def k8s_wait_for_kube_system():
     add_one_to_progress()
 
 
-def k8s_wait_for_running_negate():
+def k8s_wait_for_running_negate(timeout=None):
     '''Query get pods until only state is Running'''
 
-    TIMEOUT = 1000  # Give k8s 1000s to come up
+    if timeout is None:
+        TIMEOUT = 1000
+    else:
+        TIMEOUT = timeout
+
     RETRY_INTERVAL = 3
 
     print('  Wait for all pods to be in Running state:')
@@ -1913,9 +1917,9 @@ def kolla_bring_up_openstack(args):
             'registry-deployment', KOLLA_FINAL_PROGRESS)
         print(run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
         --namespace kolla --name registry-centos --set distro=centos \
-        --set node_port=30402 --set initial_load=true \
+        --set node_port=30401 --set initial_load=true \
         --set svc_name=registry-centos'))
-        k8s_wait_for_running_negate()
+        k8s_wait_for_running_negate(1500)
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
