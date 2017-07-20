@@ -1583,14 +1583,14 @@ global:
          daemonset:
            selector_key: "kolla_conductor"
      nova:
-       placement_api:
-         all:
-           port_external: true
-           cell_enabled: true
-           api:
-             create_cell:
-               job:
-                 cell_wait_compute: false
+       all:
+         placement_api_enabled: true
+         port_external: true
+         cell_enabled: true
+         api:
+           create_cell:
+             job:
+               cell_wait_compute: false
        novncproxy:
          all:
            port: 6080
