@@ -1912,6 +1912,7 @@ def kolla_bring_up_openstack(args):
         kolla_create_cloud(args)
 
     if re.search('5.', args.image_tag):
+        banner('Installing docker registry. This step is slow but needed for 5.x.')
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
