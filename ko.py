@@ -1911,6 +1911,9 @@ def kolla_bring_up_openstack(args):
     else:
         kolla_create_cloud(args)
 
+    # For OpenStack Pike (5.x) - because images are not on dockerhub have
+    # to run them from a docker registry running as a pod. This takes a long time
+    # to come up but then all the other image pulls are very quick.
     if re.search('5.', args.image_tag):
         banner('Installing docker registry. This step is slow but needed for 5.x.')
         print_progress(
