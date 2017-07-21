@@ -406,7 +406,7 @@ def print_versions(args):
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
     if args.edit_config:
-        print('  *globals.yaml and cloud.yaml will be editable with this mode*')
+        print('  *globals.yaml and cloud.yaml will be editable with this option*\n')
 
     print('Linux info:      %s' % linux_ver())
 
@@ -1128,7 +1128,7 @@ def kolla_setup_loopback_lvm():
     '''Setup a loopback LVM for Cinder
     /opt/kolla-kubernetes/tests/bin/setup_gate_loopback_lvm.sh'''
 
-    print_progress('Kolla', 'Setup Loopback LVM for Cinder', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', '(Slow!) Setup Loopback LVM for Cinder', KOLLA_FINAL_PROGRESS)
 
     demo('Loopback LVM for Cinder',
          'Create a flat file on the filesystem and then loopback mount\n' +
