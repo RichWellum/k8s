@@ -405,6 +405,9 @@ def print_versions(args):
     '''Print out versions of all the various tools needed'''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
+    if args.edit_config:
+        print('  *globals.yaml and cloud.yaml will be editable with this mode*')
+
     print('Linux info:      %s' % linux_ver())
 
     # This a good place to install docker - as it's always needed and we
@@ -1451,7 +1454,6 @@ global:
        resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
-       kube_logger: false
      keepalived:
        all:
          api_interface: br-ex
@@ -1534,18 +1536,14 @@ global:
        docker_registry: 127.0.0.1:30401
        docker_namespace: lokolla
        image_tag: "%s"
-       storage_provider: host
-       install_type: source
-       storage_provider_fstype: xfs
-       ceph_backend: false
+       kube_logger: false
        external_vip: "%s"
        base_distro: "centos"
-       install_type: "source"
+       install_type: source
        tunnel_interface: "%s"
        resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
-       kube_logger: false
        kolla_toolbox_image_tag: %s
        haproxy_image_tag: %s
        fluentd_image_tag: %s
