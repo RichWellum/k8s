@@ -458,7 +458,7 @@ def print_versions(args):
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
-    print('Management IP:   %s' % args.MGMT_IP)
+    print('Management IP:   %s' % args.mgmt_ip)
     print('Neutron Int:     %s' % args.NEUTRON_INT)
     print('VIP Keepalive:   %s' % args.VIP_IP)
 
