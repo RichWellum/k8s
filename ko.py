@@ -486,12 +486,12 @@ def populate_ip_addresses(args):
     By either finding the user input or finding them from
     the users system'''
 
-    # Populate Management IP Address - move to fn() todo
+    # Populate Management IP Address
     if args.mgmt_ip is 'None':
         mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         args.mgmt_ip = mgt.strip()
 
-    # Populate VIP IP Address - move to fn() todo
+    # Populate VIP IP Address
     if args.vip_ip is 'None':
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
