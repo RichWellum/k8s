@@ -200,11 +200,11 @@ def parse_args():
     parser.add_argument('NEUTRON_INT',
                         help='The interface that will be used for the external ' +
                         'bridge in Neutron, E.g: eth1')
-    parser.add_argument('VIP_IP',
-                        help='Keepalived VIP, used with keepalived, should be ' +
-                        'an unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-mi', '--mgmt_ip', type=str, default='None',
                         help='Provide own MGMT ip address Address, E.g: 10.240.83.111')
+    parser.add_argument('-vi', '--vip_ip', type=str, default='None',
+                        help='Keepalived VIP, used with keepalived, should be ' +
+                        'an unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-lv', '--latest_version', action='store_true',
                         help='Try to install all the latest versions of tools, ' +
                         'overidden by individual tool versions if requested.')
@@ -449,30 +449,11 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
-    # Experimental - remove mand VIP
-    # start_ip = run_shell("echo $%s | sed 's/\.[0-9]*$/.0/'" % args.mgmt_ip)
-    # start_ip = args.mgmt_ip.replace(' ', '')[:-3].upper()
-    start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
-    print('DEBUG1: %s, start_ip = "%s"' % (args.mgmt_ip, start_ip))
-
-    name = '/tmp/find_vip'
-    with open(name, "w") as w:
-        w.write("""\
-for i in {1..253}; do
-   ping -c 1 %s.$i >/dev/null;
-   if [ $? -ne 0 ]; then
-         echo "%s.$i is unused";
-         break;
-   fi;
-done
-        """ % (start_ip, start_ip))
-    print(run_shell('sudo bash %s' % name))
-
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.mgmt_ip)
     print('Neutron Int:     %s' % args.NEUTRON_INT)
-    print('VIP Keepalive:   %s' % args.VIP_IP)
+    print('VIP Keepalive:   %s' % args.vip_ip)
 
     print('\n%s - Versions:' % __file__)
     print('Docker version:  %s' % docker_ver())
@@ -1554,7 +1535,7 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.image_tag, args.mgmt_ip, args.MGMT_INT, args.VIP_IP,
+        """ % (args.image_tag, args.mgmt_ip, args.MGMT_INT, args.vip_ip,
                args.mgmt_ip, args.mgmt_ip, args.NEUTRON_INT))
 
     if args.edit_config is True:
@@ -1656,7 +1637,7 @@ global:
         """ % (args.image_tag,
                args.mgmt_ip,
                args.MGMT_INT,
-               args.VIP_IP,
+               args.vip_ip,
                args.image_tag,
                args.image_tag,
                args.image_tag,
@@ -2020,13 +2001,31 @@ def main():
     global PROGRESS
     PROGRESS = 0
 
+    # Force sudo early on
+    run_shell('sudo -v')
+
     # Populate Management IP Address - move to fn() todo
     if args.mgmt_ip is 'None':
         mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         args.mgmt_ip = mgt.strip()
 
-    # Force sudo early on
-    run_shell('sudo -v')
+    # Populate VIP IP Address - move to fn() todo
+    if args.vip_ip is 'None':
+        start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
+        print('DEBUG1: %s, start_ip = "%s"' % (args.mgmt_ip, start_ip))
+
+        find_vip = '/tmp/find_vip'
+        with open(find_vip, "w") as w:
+            w.write("""\
+for i in {2..253}; do
+   ping -c 1 %s.$i >/dev/null;
+   if [ $? -ne 0 ]; then
+         echo "%s.$i is unused";
+         break;
+   fi;
+done
+            """ % (start_ip, start_ip))
+            print(run_shell('sudo bash %s' % find_vip))
 
     # Start progress on one
     add_one_to_progress()
@@ -2055,7 +2054,7 @@ def main():
             k8s_cleanup(args)
             sys.exit(1)
 
-        k8s_test_neutron_int(args.VIP_IP)
+        k8s_test_neutron_int(args.vip_ip)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         kolla_create_demo_vm()
