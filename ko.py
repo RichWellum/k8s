@@ -449,6 +449,10 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
+    # Experimental
+    mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'")
+    print('DEBUG: % s' % mgt)
+
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.MGMT_IP)
@@ -485,6 +489,7 @@ def print_versions(args):
     print('\n')
 
     time.sleep(1)
+    sys.exit(1)
 
 
 def k8s_create_repo():
