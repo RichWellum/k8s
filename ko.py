@@ -496,12 +496,12 @@ def populate_ip_addresses(args):
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
         for k in range(2, 253):
-            print(k)
             vip = run_shell(
                 'sudo nmap -sP -PR %s.%s' % (start_ip, k))
             print(vip)
             if "Host seems down" in vip:
-                args.vip_ip = vip.strip()
+                args.vip_ip = start_ip + '.' + k
+                print(args.vip_ip)
                 break
 #         find_vip = '/tmp/find_vip'
 #         with open(find_vip, "w") as w:
