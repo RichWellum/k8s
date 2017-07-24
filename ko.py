@@ -178,7 +178,7 @@ def parse_args():
         description='This tool provides a method to deploy OpenStack on a ' +
         'Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal ' +
         'servers or virtual machines. Virtual machines supported are Ubuntu and ' +
-        'Centos.\n' +
+        'Centos. Usage as simple as: "ko.py eth0 eth1"\n' +
         'The host machine must satisfy the following minimum requirements:\n' +
         '- 2 network interfaces\n' +
         '- 8GB min, 16GB preferred - main memory\n' +
