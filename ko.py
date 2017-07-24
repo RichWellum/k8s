@@ -453,7 +453,7 @@ def print_versions(args):
     if args.mgmt_ip is 'None':
         mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         print('DEBUG: % s' % mgt)
-        args.mgmt_ip = mgt
+        args.mgmt_ip = mgt.strip()
     else:
         print('DEBUG: % s' % args.mgmt_ip)
 
