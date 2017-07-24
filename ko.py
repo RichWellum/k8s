@@ -450,7 +450,7 @@ def print_versions(args):
         run_shell('sudo apt-get install -y docker.io')
 
     # Experimental -move to parse args
-    if args.mgmt_ip is not 'None':
+    if args.mgmt_ip is 'None':
         mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         print('DEBUG: % s' % mgt)
         args.mgmt_ip = mgt
