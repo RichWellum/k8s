@@ -495,19 +495,24 @@ def populate_ip_addresses(args):
     if args.vip_ip is 'None':
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
-        find_vip = '/tmp/find_vip'
-        with open(find_vip, "w") as w:
-            w.write("""\
-for i in {2..253}; do
-    sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
-        if [ $? -ne 0 ]; then
-            echo "%s.$i";
-            break;
-        fi;
-done
-            """ % (start_ip, start_ip))
-            vip = run_shell('sudo bash %s' % find_vip)
-            args.vip_ip = vip.strip()
+        for k in range(2, 253):
+            vip = run_shell(
+                'sudo nmap -sP -PR %s.%s | grep -i "Host seems down" >/dev/null' % (start_ip, k))
+            if "Host seems down" in vip:
+                args.vip_ip = vip.strip()
+#         find_vip = '/tmp/find_vip'
+#         with open(find_vip, "w") as w:
+#             w.write("""\
+# for i in {2..253}; do
+#     sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
+#         if [ $? -ne 0 ]; then
+#             echo "%s.$i";
+#             break;
+#         fi;
+# done
+# """ % (start_ip, start_ip))
+        # vip = run_shell('sudo bash %s' % find_vip)
+        # args.vip_ip = vip.strip()
 
 
 def k8s_create_repo():
