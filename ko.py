@@ -2025,7 +2025,8 @@ for i in {2..253}; do
    fi;
 done
             """ % (start_ip, start_ip))
-            args.vip_ip = run_shell('sudo bash %s' % find_vip)
+        vip = run_shell('sudo bash %s' % find_vip)
+        args.vip_ip = vip.strip()
 
     # Start progress on one
     add_one_to_progress()
