@@ -203,7 +203,7 @@ def parse_args():
     parser.add_argument('-mi', '--mgmt_ip', type=str, default='None',
                         help='Provide own MGMT ip address Address, E.g: 10.240.83.111')
     parser.add_argument('-vi', '--vip_ip', type=str, default='None',
-                        help='Keepalived VIP, used with keepalived, should be ' +
+                        help='Provide own Keepalived VIP, used with keepalived, should be ' +
                         'an unused IP on management NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-lv', '--latest_version', action='store_true',
                         help='Try to install all the latest versions of tools, ' +
@@ -2025,7 +2025,7 @@ for i in {2..253}; do
    fi;
 done
             """ % (start_ip, start_ip))
-            print(run_shell('sudo bash %s' % find_vip))
+            args.mgmt_ip = (run_shell('sudo bash %s' % find_vip)).strip()
 
     # Start progress on one
     add_one_to_progress()
