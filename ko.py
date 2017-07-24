@@ -449,12 +449,13 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
-    # Experimental
+    # Experimental -move to parse args
     if args.mgmt_ip is not 'None':
         mgt = run_shell("ip add selfhow eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         print('DEBUG: % s' % mgt)
+        args.mgmt_ip = mgt
     else:
-        print('DEBUG: % s' % args.MGMT_IP)
+        print('DEBUG: % s' % args.mgmt_ip)
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
@@ -1542,8 +1543,8 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.image_tag, args.MGMT_IP, args.MGMT_INT, args.VIP_IP,
-               args.MGMT_IP, args.MGMT_IP, args.NEUTRON_INT))
+        """ % (args.image_tag, args.mgmt_ip, args.MGMT_INT, args.VIP_IP,
+               args.mgmt_ip, args.mgmt_ip, args.NEUTRON_INT))
 
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
@@ -1642,15 +1643,15 @@ global:
        all:
          port_external: true
         """ % (args.image_tag,
-               args.MGMT_IP,
+               args.mgmt_ip,
                args.MGMT_INT,
                args.VIP_IP,
                args.image_tag,
                args.image_tag,
                args.image_tag,
                args.image_tag,
-               args.MGMT_IP,
-               args.MGMT_IP,
+               args.mgmt_ip,
+               args.mgmt_ip,
                args.NEUTRON_INT))
 
     if args.edit_config is True:
@@ -1906,7 +1907,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s()
     k8s_load_kubeadm_creds()
     k8s_wait_for_kube_system()
-    k8s_add_api_server(args.MGMT_IP)
+    k8s_add_api_server(args.mgmt_ip)
     k8s_deploy_canal_sdn()
     k8s_wait_for_running_negate()
     k8s_schedule_master_node()
@@ -1934,7 +1935,7 @@ def kolla_bring_up_openstack(args):
     node_list = ['kolla_compute', 'kolla_controller']
     kolla_label_nodes(node_list)
 
-    kolla_modify_globals(args.MGMT_INT, args.MGMT_IP, args.NEUTRON_INT)
+    kolla_modify_globals(args.MGMT_INT, args.mgmt_ip, args.NEUTRON_INT)
     kolla_add_to_globals(args)
     kolla_enable_qemu()
     kolla_gen_configs()
