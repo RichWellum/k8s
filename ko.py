@@ -500,6 +500,7 @@ def populate_ip_addresses(args):
                 'sudo nmap -sP -PR %s.%s | grep -i "Host seems down" >/dev/null' % (start_ip, k))
             if "Host seems down" in vip:
                 args.vip_ip = vip.strip()
+                break
 #         find_vip = '/tmp/find_vip'
 #         with open(find_vip, "w") as w:
 #             w.write("""\
