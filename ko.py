@@ -451,7 +451,7 @@ def print_versions(args):
 
     # Experimental - remove mand VIP
     start_ip = run_shell('${%s::-2})' % args.mgmt_ip)
-    print('DEBUG1: start_ip %s' % start_ip)
+    print('DEBUG1: %s, start_ip = "%s"' % (args.mgmt_ip, start_ip))
 
     name = '/tmp/find_vip'
     with open(name, "w") as w:
