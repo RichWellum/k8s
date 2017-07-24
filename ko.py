@@ -505,9 +505,9 @@ for i in {2..253}; do
             break;
         fi;
 done
-""" % (start_ip, start_ip))
-        vip = run_shell('sudo bash %s' % find_vip)
-        args.vip_ip = vip.strip()
+            """ % (start_ip, start_ip))
+            vip = run_shell('sudo bash %s' % find_vip)
+            args.vip_ip = vip.strip()
 
 
 def k8s_create_repo():
