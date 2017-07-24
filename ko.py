@@ -197,7 +197,7 @@ def parse_args():
         epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
                         help='The interface to which Kolla binds API services, E.g: eth0')
-    parser.add_argument('MGMT_IP',
+    parser.add_argument('MGMT_IP', type=str,
                         help='MGMT_INT IP Address, E.g: 10.240.83.111')
     parser.add_argument('NEUTRON_INT',
                         help='The interface that will be used for the external ' +
@@ -450,7 +450,7 @@ def print_versions(args):
         run_shell('sudo apt-get install -y docker.io')
 
     # Experimental
-    mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'")
+    mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
     print('DEBUG: % s' % mgt)
 
     print('\n%s - Networking:' % __file__)
