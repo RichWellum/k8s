@@ -449,6 +449,21 @@ def print_versions(args):
     else:
         run_shell('sudo apt-get install -y docker.io')
 
+    # Experimental - remove mand VIP
+    start_ip = run_shell('${%s::-4})' % args.mgmt_ip)
+    name = '/tmp/find_vip'
+    with open(name, "w") as w:
+        w.write("""\
+for i in {1..253}; do
+   ping -c 1 %s.$i >/dev/null;
+   if [ $? -ne 0 ]; then
+         echo "%s.$i is unused";
+         break;
+   fi;
+done
+        """ % (start_ip, start_ip))
+    print(run_shell('bash %s' % name))
+
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.mgmt_ip)
@@ -2004,10 +2019,7 @@ def main():
     # Populate Management IP Address - move to fn() todo
     if args.mgmt_ip is 'None':
         mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
-        print('DEBUG: % s' % mgt)
         args.mgmt_ip = mgt.strip()
-    else:
-        print('DEBUG: % s' % args.mgmt_ip)
 
     # Force sudo early on
     run_shell('sudo -v')
