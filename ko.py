@@ -488,10 +488,11 @@ def populate_ip_addresses(args):
 
     # Populate Management IP Address
     if args.mgmt_ip is 'None':
-        mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
+        mgt = run_shell(
+            "ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
         args.mgmt_ip = mgt.strip()
 
-    # Populate VIP IP Address
+    # Populate VIP IP Address - by finding an unused IP on MGMT subnet
     if args.vip_ip is 'None':
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
@@ -503,19 +504,6 @@ def populate_ip_addresses(args):
                 args.vip_ip = start_ip + '.' + str(k)
                 print(args.vip_ip)
                 break
-#         find_vip = '/tmp/find_vip'
-#         with open(find_vip, "w") as w:
-#             w.write("""\
-# for i in {2..253}; do
-#     sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
-#         if [ $? -ne 0 ]; then
-#             echo "%s.$i";
-#             break;
-#         fi;
-# done
-# """ % (start_ip, start_ip))
-        # vip = run_shell('sudo bash %s' % find_vip)
-        # args.vip_ip = vip.strip()
 
 
 def k8s_create_repo():
