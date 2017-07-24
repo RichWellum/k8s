@@ -150,8 +150,6 @@ import re
 import tarfile
 
 __author__ = 'Rich Wellum'
-__copyright__ = 'Copyright 2017, Rich Wellum'
-__license__ = ''
 __version__ = '1.0.0'
 __maintainer__ = 'Rich Wellum'
 __email__ = 'rwellum@gmail.com'
