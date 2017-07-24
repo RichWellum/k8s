@@ -102,6 +102,10 @@ OpenStack Cluster.
 6. Leaves the user with a working OpenStack Cluster with all the
 basic services.
 
+7. Very simple to run - just requires two NIC's
+
+8. Lots of options to customize - even edit globals.yaml and cloud.yaml
+
 Mandatory Inputs
 ================
 
@@ -112,23 +116,12 @@ The `network_interface` variable is the interface to which Kolla binds API
 services. For example, when starting Mariadb, it will bind to the IP on the
 interface list in the ``network_interface`` variable.
 
-2. mgmt_ip:
-IP Address of management interface (mgmt_int)
-
-3. neutron_int (neutron_external_interface):
+2. neutron_int (neutron_external_interface):
 Name of the interface to be used for Neutron operations.
 
 The `neutron_external_interface` variable is the interface that will be used
 for the external bridge in Neutron. Without this bridge the deployment instance
 traffic will be unable to access the rest of the Internet.
-
-4. keepalived:
-An unused IP address in the network to act as a VIP for
-`kolla_internal_vip_address`.
-
-The VIP will be used with keepalived and added to the `api_interface` as
-specified in the ``globals.yml``
-
 
 TODO
 ====
@@ -194,7 +187,7 @@ def parse_args():
         '- 40G min, 80GB preferred - disk space\n' +
         '- 2 CPUs Min, 4 preferred - CPUs\n' +
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2\n')
+        epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2\n')
     parser.add_argument('MGMT_INT',
                         help='The interface to which Kolla binds API services, E.g: eth0')
     parser.add_argument('NEUTRON_INT',
@@ -485,7 +478,6 @@ def print_versions(args):
     print('\n')
 
     time.sleep(1)
-    sys.exit(1)
 
 
 def k8s_create_repo():

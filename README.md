@@ -27,11 +27,12 @@
 Help
 ====
 
-    [rwellum@centosko openstack]$ ../k8s/ko.py -h
-    usage: ko.py [-h] [-lv] [-it IMAGE_TAG] [-hv HELM_VERSION] [-kv K8S_VERSION]
-                 [-cv CNI_VERSION] [-av ANSIBLE_VERSION] [-jv JINJA2_VERSION] [-c]
-                 [-cc] [-k8s] [-os] [-n] [-ec] [-v] [-d] [-f]
-                 MGMT_INT MGMT_IP NEUTRON_INT VIP_IP
+    [rwellum@centosk8s k8s]$ ./ko.py eth0 eth1 -mi 3.3.3.3 -vi 5.5.5.5 -h
+    usage: ko.py [-h] [-mi MGMT_IP] [-vi VIP_IP] [-lv] [-it IMAGE_TAG]
+                 [-hv HELM_VERSION] [-kv K8S_VERSION] [-cv CNI_VERSION]
+                 [-av ANSIBLE_VERSION] [-jv JINJA2_VERSION] [-c] [-cc] [-k8s]
+                 [-os] [-n] [-ec] [-v] [-d] [-f]
+                 MGMT_INT NEUTRON_INT
 
     This tool provides a method to deploy OpenStack on a Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal servers or virtual machines. Virtual machines supported are Ubuntu and Centos.
     The host machine must satisfy the following minimum requirements:
@@ -44,14 +45,18 @@ Help
     positional arguments:
       MGMT_INT              The interface to which Kolla binds API services, E.g:
                             eth0
-      MGMT_IP               MGMT_INT IP Address, E.g: 10.240.83.111
       NEUTRON_INT           The interface that will be used for the external
                             bridge in Neutron, E.g: eth1
-      VIP_IP                Keepalived VIP, used with keepalived, should be an
-                            unused IP on management NIC subnet, E.g: 10.240.83.112
 
     optional arguments:
       -h, --help            show this help message and exit
+      -mi MGMT_IP, --mgmt_ip MGMT_IP
+                            Provide own MGMT ip address Address, E.g:
+                            10.240.83.111
+      -vi VIP_IP, --vip_ip VIP_IP
+                            Provide own Keepalived VIP, used with keepalived,
+                            should be an unused IP on management NIC subnet, E.g:
+                            10.240.83.112
       -lv, --latest_version
                             Try to install all the latest versions of tools,
                             overidden by individual tool versions if requested.
@@ -73,10 +78,12 @@ Help
                             Specify a different jinja2 version to the
                             default(2.8.1)
       -c, --cleanup         YMMV: Cleanup existing Kubernetes cluster before
-                            creating a new one
+                            creating a new one. Because LVM is not cleaned up,
+                            space will be used up. "-cc" is far more reliable but
+                            requires a reboot
       -cc, --complete_cleanup
-                            Cleanup existing Kubernetes cluster then exit, reboot
-                            host is advised
+                            Cleanup existing Kubernetes cluster then exit,
+                            rebooting host is advised
       -k8s, --kubernetes    Stop after bringing up kubernetes, do not install
                             OpenStack
       -os, --openstack      Build OpenStack on an existing Kubernetes Cluster
@@ -90,6 +97,7 @@ Help
                             without user input
 
     E.g.: k8s.py eth0 10.240.43.250 eth1 10.240.43.251 -v -kv 1.6.2 -hv 2.4.2
+    [rwellum@centosk8s k8s]$
 
 Host machine requirements
 =========================
@@ -130,6 +138,7 @@ Preceding
 
 Purpose
 =======
+
     The purpose of this tool, when there are so many others out there is:
 
     1. Many tools don't support both Centos and Ubuntu with no input
@@ -140,11 +149,9 @@ Purpose
     docker, or kubernetes.
 
     3. I like the output of my tool - it's succinct and easy to
-    follow. Plus the verbose mode is helpful for seeing all the
-    output.
+    follow. Plus the verbose mode is helpful for seeing all the output.
 
-    4. Contains a demo mode that walks the user through Kubernetes and
-    OpenStack.
+    4. Contains a demo mode that walks the user through Kubernetes and OpenStack.
 
     5. This tool verifies it's completeness by generating a VM in the
     OpenStack Cluster.
@@ -152,8 +159,13 @@ Purpose
     6. Leaves the user with a working OpenStack Cluster with all the
     basic services.
 
+    7. Very simple to run - just requires two NIC's
+
+    8. Lots of options to customize - even edit globals.yaml and cloud.yaml
+
 Mandatory Inputs
 ================
+
     1. mgmt_int (network_interface):
     Name of the interface to be used for management operations.
 
@@ -161,27 +173,17 @@ Mandatory Inputs
     services. For example, when starting Mariadb, it will bind to the IP on the
     interface list in the ``network_interface`` variable.
 
-    2. mgmt_ip:
-    IP Address of management interface (mgmt_int)
-
-    3. neutron_int (neutron_external_interface):
+    2. neutron_int (neutron_external_interface):
     Name of the interface to be used for Neutron operations.
 
     The `neutron_external_interface` variable is the interface that will be used
     for the external bridge in Neutron. Without this bridge the deployment instance
     traffic will be unable to access the rest of the Internet.
 
-    4. keepalived:
-    An unused IP address in the network to act as a VIP for
-    `kolla_internal_vip_address`.
-
-    The VIP will be used with keepalived and added to the `api_interface` as
-    specified in the ``globals.yml``
-
 Example Output
 ==============
 
-    [rwellum@centosko openstack]$ ../k8s/ko.py eth0 10.240.43.77 eth1 10.240.43.113
+    [rwellum@centosko openstack]$ ../k8s/ko.py eth0 eth1
 
     *******************************************
     Kubernetes - Bring up a Kubernetes Cluster:
