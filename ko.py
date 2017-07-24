@@ -496,6 +496,7 @@ def populate_ip_addresses(args):
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
         for k in range(2, 253):
+            print(k)
             vip = run_shell(
                 'sudo nmap -sP -PR %s.%s | grep -i "Host seems down" >/dev/null' % (start_ip, k))
             if "Host seems down" in vip:
