@@ -2012,7 +2012,6 @@ def main():
     # Populate VIP IP Address - move to fn() todo
     if args.vip_ip is 'None':
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
-        print('DEBUG1: %s, start_ip = "%s"' % (args.mgmt_ip, start_ip))
 
         find_vip = '/tmp/find_vip'
         with open(find_vip, "w") as w:
@@ -2020,7 +2019,7 @@ def main():
 for i in {2..253}; do
    ping -c 1 %s.$i >/dev/null;
    if [ $? -ne 0 ]; then
-         echo "%s.$i is unused";
+         echo "%s.$i";
          break;
    fi;
 done
