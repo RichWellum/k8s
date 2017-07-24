@@ -451,6 +451,8 @@ def print_versions(args):
 
     # Experimental - remove mand VIP
     start_ip = run_shell('${%s::-4})' % args.mgmt_ip)
+    print('DEBUG1: start_ip %s' % start_ip)
+
     name = '/tmp/find_vip'
     with open(name, "w") as w:
         w.write("""\
@@ -462,7 +464,7 @@ for i in {1..253}; do
    fi;
 done
         """ % (start_ip, start_ip))
-    print(run_shell('bash %s' % name))
+    print(run_shell('sudo bash %s' % name))
 
     print('\n%s - Networking:' % __file__)
     print('Management Int:  %s' % args.MGMT_INT)
