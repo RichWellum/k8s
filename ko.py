@@ -451,7 +451,8 @@ def print_versions(args):
 
     # Experimental - remove mand VIP
     # start_ip = run_shell("echo $%s | sed 's/\.[0-9]*$/.0/'" % args.mgmt_ip)
-    start_ip = args.mgmt_ip.replace(' ', '')[:-3].upper()
+    # start_ip = args.mgmt_ip.replace(' ', '')[:-3].upper()
+    start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
     print('DEBUG1: %s, start_ip = "%s"' % (args.mgmt_ip, start_ip))
 
     name = '/tmp/find_vip'
