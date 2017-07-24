@@ -480,6 +480,36 @@ def print_versions(args):
     time.sleep(1)
 
 
+def populate_ip_addresses(args):
+    '''Populate the management and vip ip addresses
+
+    By either finding the user input or finding them from
+    the users system'''
+
+    # Populate Management IP Address - move to fn() todo
+    if args.mgmt_ip is 'None':
+        mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
+        args.mgmt_ip = mgt.strip()
+
+    # Populate VIP IP Address - move to fn() todo
+    if args.vip_ip is 'None':
+        start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
+
+        find_vip = '/tmp/find_vip'
+        with open(find_vip, "w") as w:
+            w.write("""\
+for i in {2..253}; do
+   sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
+   if [ $? -ne 0 ]; then
+         echo "%s.$i";
+         break;
+   fi;
+done
+            """ % (start_ip, start_ip))
+        vip = run_shell('sudo bash %s' % find_vip)
+        args.vip_ip = vip.strip()
+
+
 def k8s_create_repo():
     '''Create a k8s repository file'''
 
@@ -1996,28 +2026,8 @@ def main():
     # Force sudo early on
     run_shell('sudo -v')
 
-    # Populate Management IP Address - move to fn() todo
-    if args.mgmt_ip is 'None':
-        mgt = run_shell("ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
-        args.mgmt_ip = mgt.strip()
-
-    # Populate VIP IP Address - move to fn() todo
-    if args.vip_ip is 'None':
-        start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
-
-        find_vip = '/tmp/find_vip'
-        with open(find_vip, "w") as w:
-            w.write("""\
-for i in {2..253}; do
-   sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
-   if [ $? -ne 0 ]; then
-         echo "%s.$i";
-         break;
-   fi;
-done
-            """ % (start_ip, start_ip))
-        vip = run_shell('sudo bash %s' % find_vip)
-        args.vip_ip = vip.strip()
+    # Populate IP Addresses
+    populate_ip_addresses(args)
 
     # Start progress on one
     add_one_to_progress()
