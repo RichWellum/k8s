@@ -450,7 +450,7 @@ def print_versions(args):
         run_shell('sudo apt-get install -y docker.io')
 
     # Experimental - remove mand VIP
-    start_ip = run_shell('${%s::-4})' % args.mgmt_ip)
+    start_ip = run_shell('${%s::-2})' % args.mgmt_ip)
     print('DEBUG1: start_ip %s' % start_ip)
 
     name = '/tmp/find_vip'
