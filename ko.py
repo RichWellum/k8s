@@ -2009,7 +2009,7 @@ def main():
         with open(find_vip, "w") as w:
             w.write("""\
 for i in {2..253}; do
-   ping -c 1 %s.$i >/dev/null;
+   sudo nmap -sP -PR 10.240.43.2 | grep -i "Host seems down" >/dev/null;
    if [ $? -ne 0 ]; then
          echo "%s.$i";
          break;
