@@ -623,7 +623,7 @@ def k8s_wait_for_vm(vm):
     """Wait for a vm to be listed as running in nova list"""
 
     TIMEOUT = 100
-    RETRY_INTERVAL = 5
+    RETRY_INTERVAL = 15
 
     print("  Kubernetes - Wait for VM %s to be in running state:" % vm)
     elapsed_time = 0
@@ -632,7 +632,7 @@ def k8s_wait_for_vm(vm):
         nova_out = run_shell(
             '.  ~/keystonerc_admin; nova list | grep %s' % vm)
         if not re.search('Running', nova_out):
-            print('    *Kubernetes - VM %s is not Running yet*' % vm)
+            print('    *Kubernetes - VM %s is not Running yet - wait 15s*' % vm)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -1719,17 +1719,21 @@ def kolla_create_demo_vm():
     run_shell('kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
     out = run_shell('.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     logger.debug(out)
+    print('DEBUG1: "%s"' % out)  # todo - remove
 
     demo_net_id = run_shell(".  ~/keystonerc_admin; \
     echo $(openstack network list | awk '/ demo-net / {print $2}')")
     logger.debug(demo_net_id)
+    print('DEBUG2: "%s"' % demo_net_id)  # todo - remove
 
     # Create a demo image
     print_progress('Kolla', 'Create a demo vm in our OpenStack cluster', KOLLA_FINAL_PROGRESS)
 
     create_demo1 = 'openstack server create --image cirros \
     --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    run_shell('.  ~/keystonerc_admin; %s' % create_demo1)
+    out = run_shell('.  ~/keystonerc_admin; %s' % create_demo1)
+    logger.debug(out)
+    print('DEBUG3: "%s"' % out)  # todo - remove
     k8s_wait_for_vm('demo1')
 
     # Create a floating ip
@@ -1738,7 +1742,9 @@ def kolla_create_demo_vm():
     cmd = ".  ~/keystonerc_admin; \
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
-    run_shell(cmd)
+    out = run_shell(cmd)
+    logger.debug(out)
+    print('DEBUG4: "%s"' % out)  # todo - remove
 
     # Open up ingress rules to access VM
     print_progress('Kolla', 'Allow Ingress by changing neutron rules', KOLLA_FINAL_PROGRESS)
@@ -1753,7 +1759,9 @@ openstack security group list -f value -c ID | while read SG_ID; do
         --direction ingress $SG_ID
 done
 """)
-    run_shell('.  ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
+    out = run_shell('.  ~/keystonerc_admin; chmod 766 %s; bash %s' % (new, new))
+    logger.debug(out)
+    print('DEBUG5: "%s"' % out)  # todo - remove
 
     # Display nova list
     print_progress('Kolla', 'nova list to see floating IP and demo VM', KOLLA_FINAL_PROGRESS)
