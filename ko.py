@@ -1936,6 +1936,8 @@ def k8s_bringup_kubernetes_cluster(args):
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
 
+    global KOLLA_FINAL_PROGRESS
+
     banner('Kolla - install OpenStack:')
     clean_progress()
     # Start Kolla deployment
@@ -1975,6 +1977,8 @@ def kolla_bring_up_openstack(args):
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
+        KOLLA_FINAL_PROGRESS += 1
+
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
         --namespace kolla --name registry-centos --set distro=centos \
         --set node_port=30401 --set initial_load=true \
