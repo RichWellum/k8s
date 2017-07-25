@@ -1119,7 +1119,7 @@ def k8s_cleanup(args):
 
         if os.path.exists('/data'):
             print_progress('Kubernetes', 'Remove cinder volumes and data', K8S_CLEANUP_PROGRESS)
-            run_shell('sudo vgremove cinder-volumes')
+            run_shell('sudo vgremove cinder-volumes -f')
             run_shell('sudo rm -rf /data')
 
         if args.complete_cleanup:
