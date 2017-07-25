@@ -487,8 +487,11 @@ def populate_ip_addresses(args):
     # Populate Management IP Address
     if args.mgmt_ip is 'None':
         mgt = run_shell(
-            "ip add show eth0 | awk ' / inet / {print $2}'  | cut -f1 -d'/'")
+            "ip add show %s | awk ' / inet / {print $2}'  | cut -f1 -d'/'" % args.MGMT_INT)
         args.mgmt_ip = mgt.strip()
+        if args.mgmt_ip is None:
+            print('    *Kubernetes - No IP Address found on %s*')
+            sys.exit(1)
 
     # Populate VIP IP Address - by finding an unused IP on MGMT subnet
     if args.vip_ip is 'None':
