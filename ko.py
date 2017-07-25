@@ -625,7 +625,7 @@ def k8s_wait_for_running_negate(timeout=None):
 def k8s_wait_for_vm(vm):
     """Wait for a vm to be listed as running in nova list"""
 
-    TIMEOUT = 100
+    TIMEOUT = 300
     RETRY_INTERVAL = 15
 
     print("  Kubernetes - Wait for VM %s to be in running state:" % vm)
@@ -638,18 +638,17 @@ def k8s_wait_for_vm(vm):
             print('    *Kubernetes - VM %s is not Running yet - wait 15s*' % vm)
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
+            if elapsed_time > TIMEOUT:
+                # Dump verbose output in case it helps...
+                print(nova_out)
+                raise AbortScriptException(
+                    "VM did not come up after {0} 1econds!"
+                    .format(elapsed_time))
+                sys.exit(1)
             continue
         else:
             print('    *Kubernetes - VM %s is Running*' % vm)
             break
-
-        if elapsed_time > TIMEOUT:
-            # Dump verbose output in case it helps...
-            print(nova_out)
-            raise AbortScriptException(
-                "VM did not come up after {0} 1econds!"
-                .format(elapsed_time))
-            sys.exit(1)
 
 
 def add_one_to_progress():
