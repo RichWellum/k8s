@@ -1983,7 +1983,7 @@ def kolla_bring_up_openstack(args):
         --namespace kolla --name registry-centos --set distro=centos \
         --set node_port=30401 --set initial_load=true \
         --set svc_name=registry-centos')
-        k8s_wait_for_running_negate(1500)
+        k8s_wait_for_running_negate(600)
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
