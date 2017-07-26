@@ -1982,7 +1982,6 @@ def kolla_bring_up_openstack(args):
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
-        KOLLA_FINAL_PROGRESS += 1
 
         run_shell('helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
         --namespace kolla --name registry-centos --set distro=centos \
@@ -2049,7 +2048,11 @@ def main():
     K8S_FINAL_PROGRESS = 16
 
     global KOLLA_FINAL_PROGRESS
-    KOLLA_FINAL_PROGRESS = 44
+    if re.search('5.', args.image_tag):
+        # Add one for additional docker registry pod bringup
+        KOLLA_FINAL_PROGRESS = 45
+    else:
+        KOLLA_FINAL_PROGRESS = 44
 
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
