@@ -147,6 +147,7 @@ from argparse import RawDescriptionHelpFormatter
 import logging
 import platform
 import re
+import random
 import tarfile
 
 __author__ = 'Rich Wellum'
@@ -497,7 +498,10 @@ def populate_ip_addresses(args):
     if args.vip_ip is 'None':
         start_ip = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
 
-        for k in range(2, 253):
+        r = list(range(2, 253))
+        random.shuffle(r)
+        for k in r:
+            # for k in range(2, 253):
             vip = run_shell(
                 'sudo nmap -sP -PR %s.%s' % (start_ip, k))
             if "Host seems down" in vip:
@@ -1570,7 +1574,7 @@ def kolla_create_cloud_v5(args):
 
     This uses most of the user options.
 
-        This works for tag version 4.x'''
+    This works for tag version 4.x'''
 
     print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
 
