@@ -961,7 +961,8 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
     print_progress(
-        'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver into a pod', K8S_FINAL_PROGRESS)
+        'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver into a pod (deploy a pod network)',
+        K8S_FINAL_PROGRESS)
 
     answer = curl(
         '-L',
@@ -1012,7 +1013,9 @@ def k8s_schedule_master_node():
 
     While the command says "taint" the "-" at the end is an "untaint"'''
 
-    print_progress('Kubernetes', 'Mark master node as schedulable', K8S_FINAL_PROGRESS)
+    print_progress(
+        'Kubernetes', 'Mark master node as schedulable by untainting the node',
+        K8S_FINAL_PROGRESS)
 
     demo('Running on the master is different though',
          'There is a special annotation on our node telling Kubernetes not to\n' +
