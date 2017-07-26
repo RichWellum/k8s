@@ -1638,7 +1638,7 @@ global:
        all:
          placement_api_enabled: true
          port_external: true
-         cell_enabled: true
+         cell_enabled: false
        api:
          create_cell:
            job:
