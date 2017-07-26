@@ -2056,6 +2056,7 @@ def main():
 
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
+        # Add one if we need to clean up LVM
         K8S_CLEANUP_PROGRESS = 6
     else:
         K8S_CLEANUP_PROGRESS = 5
