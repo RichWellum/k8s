@@ -127,11 +127,10 @@ TODO
 ====
 
 1. Make it work on a baremetal host
-2. Potentially build a docker container or VM to run this on
+2. Convert to using https://github.com/kubernetes-incubator/client-python
 3. Add option to use a CNI other than canal
-4. Make it work with os-helm
-5. Note there are various todo's scattered inline as well.
-6. Add an option to insert a cherry-pick before compiling kolla-kubernetes
+4. Note there are various todo's scattered inline as well.
+5. Add an option to insert a cherry-pick before compiling kolla-kubernetes
 
 Dependencies
 ============
@@ -221,7 +220,6 @@ def parse_args():
                         'rebooting host is advised')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, do not install OpenStack')
-    # Todo: make this the default then add a switch for kolla or os-helm
     parser.add_argument('-os', '--openstack', action='store_true',
                         help='Build OpenStack on an existing Kubernetes Cluster')
     parser.add_argument('-n', '--nslookup', action='store_true',
