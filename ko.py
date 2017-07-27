@@ -1636,13 +1636,14 @@ global:
            selector_key: "kolla_conductor"
      nova:
        all:
-         placement_api_enabled: true
-         port_external: true
-         cell_enabled: false
+         cell_enabled: true
        api:
          create_cell:
            job:
              cell_wait_compute: false
+       placement_api:
+         all:
+           port_external: true
        novncproxy:
          all:
            port: 6080
