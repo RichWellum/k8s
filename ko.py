@@ -518,7 +518,8 @@ def populate_ip_addresses(args):
     # Populate Management IP Address
     if args.mgmt_ip is 'None':
         mgt = run_shell(
-            "ip add show %s | awk ' / inet / {print $2}'  | cut -f1 -d'/'" % args.MGMT_INT)
+            "ip add show %s | awk ' / inet / {print $2}'  | cut -f1 -d'/'"
+            % args.MGMT_INT)
         args.mgmt_ip = mgt.strip()
         if args.mgmt_ip is None:
             print('    *Kubernetes - No IP Address found on %s*')
@@ -559,7 +560,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         run_shell('sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell(
-            'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo -E apt-key add -')
+            'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg ' +
+            '| sudo -E apt-key add -')
         name = './kubernetes.list'
         repo = '/etc/apt/sources.list.d/kubernetes.list'
         with open(name, "w") as w:
@@ -577,7 +579,8 @@ def k8s_wait_for_kube_system():
     RETRY_INTERVAL = 10
     elapsed_time = 0
 
-    print('(%02d/%d) Kubernetes - Wait for basic Kubernetes (6 pods) infrastructure:' %
+    print('(%02d/%d) Kubernetes - Wait for basic Kubernetes ' +
+          '(6 pods) infrastructure:' %
           (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
