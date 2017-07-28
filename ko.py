@@ -64,7 +64,8 @@ Bring up the second network interface if it is down.
 
     ip link set ens4 up
 
-Verify if the second interface has an IP address.
+However as this interface will be used for Neutron External, this Interface
+should not have an IP Address. Verify this with.
 
     ip addr show
 
