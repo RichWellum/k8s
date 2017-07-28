@@ -1449,8 +1449,8 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     demo('Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n'
          'We are setting the management interface to "%s" and IP to %s\n'
-         % (MGMT_INT, MGMT_IP)
-         'The interface for neutron(externally bound) "%s"\n' % NEUTRON_INT
+         % (MGMT_INT, MGMT_IP) +
+         'The interface for neutron(externally bound) "%s"\n' % NEUTRON_INT +
          'globals.yml is used when we run ansible to generate '
          'configs in further step')
     run_shell("sudo sed -i 's/eth0/%s/g' /etc/kolla/globals.yml" % MGMT_INT)
