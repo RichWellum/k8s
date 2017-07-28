@@ -458,7 +458,8 @@ def print_versions(args):
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
     if args.edit_config:
-        print('  *globals.yaml and cloud.yaml will be editable with this option*\n')
+        print('  *globals.yaml and cloud.yaml will be editable \
+        with this option*\n')
 
     print('Linux info:      %s' % linux_ver())
 
