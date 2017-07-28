@@ -580,8 +580,7 @@ def k8s_wait_for_kube_system():
     elapsed_time = 0
 
     print('(%02d/%d) Kubernetes - Wait for basic Kubernetes ' +
-          '(6 pods) infrastructure:' %
-          (PROGRESS, K8S_FINAL_PROGRESS))
+          '(6 pods) infrastructure:' % (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
         pod_status = run_shell('kubectl get pods -n kube-system --no-headers')
