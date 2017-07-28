@@ -178,8 +178,8 @@ def parse_args():
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description='This tool provides a method to deploy OpenStack on a '
-        'Kubernetes Cluster using Kolla\n and Kolla-Kubernetes on bare metal '
-        'servers or virtual machines.\n Virtual machines supported are Ubuntu '
+        'Kubernetes Cluster using Kolla\nand Kolla-Kubernetes on bare metal '
+        'servers or virtual machines.\nVirtual machines supported are Ubuntu '
         'and Centos. \nUsage as simple as: "ko.py eth0 eth1"\n'
         'The host machine must satisfy the following minimum requirements:\n'
         '- 2 network interfaces\n'
@@ -189,55 +189,73 @@ def parse_args():
         'Root access to the deployment host machine is required.',
         epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it 5.0.0\n')
     parser.add_argument('MGMT_INT',
-                        help='The interface to which Kolla binds API services, E.g: eth0')
+                        help='The interface to which Kolla binds API services,'
+                        'E.g: eth0')
     parser.add_argument('NEUTRON_INT',
-                        help='The interface that will be used for the external ' +
-                        'bridge in Neutron, E.g: eth1')
+                        help='The interface that will be used for the '
+                        'external bridge in Neutron, E.g: eth1')
     parser.add_argument('-mi', '--mgmt_ip', type=str, default='None',
-                        help='Provide own MGMT ip address Address, E.g: 10.240.83.111')
+                        help='Provide own MGMT ip address Address, '
+                        'E.g: 10.240.83.111')
     parser.add_argument('-vi', '--vip_ip', type=str, default='None',
-                        help='Provide own Keepalived VIP, used with keepalived, should be ' +
-                        'an unused IP on management NIC subnet, E.g: 10.240.83.112')
+                        help='Provide own Keepalived VIP, used with '
+                        'keepalived, should be an unused IP on management '
+                        'NIC subnet, E.g: 10.240.83.112')
     parser.add_argument('-lv', '--latest_version', action='store_true',
-                        help='Try to install all the latest versions of tools, ' +
-                        'overidden by individual tool versions if requested.')
+                        help='Try to install all the latest versions of '
+                        'tools, overidden by individual tool versions '
+                        'if requested.')
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
-                        help='Specify a different Kolla image tage to the default(4.0.0)')
+                        help='Specify a different Kolla image tage to '
+                        'the default(4.0.0)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
-                        help='Specify a different helm version to the default(2.5.0)')
+                        help='Specify a different helm version to the '
+                        'default(2.5.0)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.0',
-                        help='Specify a different kubernetes version to the default(1.7.0)')
+                        help='Specify a different kubernetes version to '
+                        'the default(1.7.0)')
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
-                        help='Specify a different kubernetes-cni version to the default(0.5.1-00)')
-    parser.add_argument('-av', '--ansible_version', type=str, default='2.2.0.0',
-                        help='Specify a different ansible version to the default(2.2.0.0)')
+                        help='Specify a different kubernetes-cni version '
+                        'to the default(0.5.1-00)')
+    parser.add_argument('-av', '--ansible_version', type=str,
+                        default='2.2.0.0',
+                        help='Specify a different ansible version to '
+                        'the default(2.2.0.0)')
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
-                        help='Specify a different jinja2 version to the default(2.8.1)')
+                        help='Specify a different jinja2 version to '
+                        'the default(2.8.1)')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='YMMV: Cleanup existing Kubernetes cluster before ' +
-                        'creating a new one. Because LVM is not cleaned up, space will ' +
-                        'be used up. "-cc" is far more reliable but requires a reboot')
+                        help='YMMV: Cleanup existing Kubernetes cluster '
+                        'before creating a new one. Because LVM is not '
+                        'cleaned up, space will be used up. '
+                        '"-cc" is far more reliable but requires a reboot')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster then exit, ' +
-                        'rebooting host is advised')
+                        help='Cleanup existing Kubernetes cluster '
+                        'then exit, rebooting host is advised')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
-                        help='Stop after bringing up kubernetes, do not install OpenStack')
+                        help='Stop after bringing up kubernetes, '
+                        'do not install OpenStack')
     parser.add_argument('-os', '--openstack', action='store_true',
-                        help='Build OpenStack on an existing Kubernetes Cluster')
+                        help='Build OpenStack on an existing '
+                        'Kubernetes Cluster')
     parser.add_argument('-n', '--nslookup', action='store_true',
-                        help='Pause for the user to manually test nslookup in kubernetes cluster')
+                        help='Pause for the user to manually test nslookup '
+                        'in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     # help='optionally change cloud network config files from default(3)')
     parser.add_argument('-ec', '--edit_config', action='store_true',
-                        help='Pause to allow the user to edit the global.yaml and the cloud.yaml ' +
+                        help='Pause to allow the user to edit the '
+                        'global.yaml and the cloud.yaml ' +
                         'files - for custom configuration')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='Turn on verbose messages')
     parser.add_argument('-d', '--demo', action='store_true',
-                        help='Display some demo information and offer to move on')
+                        help='Display some demo information and '
+                        'offer to move on')
     parser.add_argument('-f', '--force', action='store_true',
-                        help='When used in conjunction with --demo - it will proceed without user input')
+                        help='When used in conjunction with --demo - it '
+                        'will proceed without user input')
 
     return parser.parse_args()
 
