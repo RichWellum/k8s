@@ -178,8 +178,8 @@ def parse_args():
     parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description='This tool provides a method to deploy OpenStack on a '
-        'Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal '
-        'servers or virtual machines. Virtual machines supported are Ubuntu '
+        'Kubernetes Cluster using Kolla\n and Kolla-Kubernetes on bare metal '
+        'servers or virtual machines.\n Virtual machines supported are Ubuntu '
         'and Centos. \nUsage as simple as: "ko.py eth0 eth1"\n'
         'The host machine must satisfy the following minimum requirements:\n'
         '- 2 network interfaces\n'
