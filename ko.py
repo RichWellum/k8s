@@ -179,13 +179,13 @@ def parse_args():
         formatter_class=RawDescriptionHelpFormatter,
         description='This tool provides a method to deploy OpenStack on a '
         'Kubernetes Cluster using Kolla and Kolla-Kubernetes on bare metal '
-        'servers or virtual machines. Virtual machines supported are Ubuntu and ' +
-        'Centos. \nUsage as simple as: "ko.py eth0 eth1"\n' +
-        'The host machine must satisfy the following minimum requirements:\n' +
-        '- 2 network interfaces\n' +
-        '- 8GB min, 16GB preferred - main memory\n' +
-        '- 40G min, 80GB preferred - disk space\n' +
-        '- 2 CPUs Min, 4 preferred - CPUs\n' +
+        'servers or virtual machines. Virtual machines supported are Ubuntu '
+        'and Centos. \nUsage as simple as: "ko.py eth0 eth1"\n'
+        'The host machine must satisfy the following minimum requirements:\n'
+        '- 2 network interfaces\n'
+        '- 8GB min, 16GB preferred - main memory\n'
+        '- 40G min, 80GB preferred - disk space\n'
+        '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
         epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it 5.0.0\n')
     parser.add_argument('MGMT_INT',
