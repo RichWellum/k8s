@@ -189,7 +189,7 @@ def parse_args():
         'Root access to the deployment host machine is required.',
         epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it 5.0.0\n')
     parser.add_argument('MGMT_INT',
-                        help='The interface to which Kolla binds API services,'
+                        help='The interface to which Kolla binds API services, '
                         'E.g: eth0')
     parser.add_argument('NEUTRON_INT',
                         help='The interface that will be used for the '
@@ -423,7 +423,8 @@ def tools_versions(args):
         "jinja2"]
     if args.latest_version is True:
         kolla_version = run_shell(
-            "sudo docker images | grep 'kolla/centos-source-glance-api' | awk '{print $2}'").rstrip()
+            "sudo docker images | grep 'kolla/centos-source-glance-api' "
+            "| awk '{print $2}'").rstrip()
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
