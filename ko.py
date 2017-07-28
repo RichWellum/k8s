@@ -790,8 +790,9 @@ def k8s_install_k8s(args):
     This is often broken and may need to be more programatic'''
 
     print_progress(
-        'Kubernetes', 'Creating kubernetes repo, installing ' +
-        'Kubernetes packages', K8S_FINAL_PROGRESS)
+        'Kubernetes',
+        'Creating kubernetes repo, installing Kubernetes packages',
+        K8S_FINAL_PROGRESS)
 
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
@@ -840,8 +841,9 @@ def k8s_setup_dns():
     '''DNS services'''
 
     print_progress(
-        'Kubernetes', 'Start docker and setup the DNS server with the ' +
-        'service CIDR', K8S_FINAL_PROGRESS)
+        'Kubernetes',
+        'Start docker and setup the DNS server with the service CIDR',
+        K8S_FINAL_PROGRESS)
 
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
@@ -1070,8 +1072,8 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
     print_progress(
-        'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver into a ' +
-        'pod (deploy a pod network)', K8S_FINAL_PROGRESS)
+        'Kubernetes',
+        'Create RBAC and Deploy the Canal pd network', K8S_FINAL_PROGRESS)
 
     answer = curl(
         '-L',
@@ -1269,13 +1271,15 @@ def k8s_cleanup(args):
             run_shell('sudo rm -rf /data')
 
         if args.complete_cleanup:
-            print_progress('Kubernetes', 'Cleanup done. Highly ' +
-                           'recommend rebooting your host',
-                           K8S_CLEANUP_PROGRESS)
+            print_progress(
+                'Kubernetes',
+                'Cleanup done. Highly recommend rebooting your host',
+                K8S_CLEANUP_PROGRESS)
         else:
-            print_progress('Kubernetes', 'Cleanup done. Will attempt ' +
-                           'to proceed with installation. YMMV.',
-                           K8S_CLEANUP_PROGRESS)
+            print_progress(
+                'Kubernetes',
+                'Cleanup done. Will attempt to proceed with installation.',
+                K8S_CLEANUP_PROGRESS)
             clean_progress()
             add_one_to_progress()
 
@@ -1322,9 +1326,10 @@ def kolla_install_repos():
             'sudo cp -aR /usr/local/share/kolla-ansible/etc_' +
             'examples/kolla /etc')
 
-    print_progress('Kolla', 'Copy default kolla-kubernetes ' +
-                   'configuration to /etc',
-                   KOLLA_FINAL_PROGRESS)
+    print_progress(
+        'Kolla',
+        'Copy default kolla-kubernetes configuration to /etc',
+        KOLLA_FINAL_PROGRESS)
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
 
@@ -1397,8 +1402,9 @@ def kolla_create_namespace():
     '''Create a kolla namespace'''
 
     print_progress(
-        'Kolla', 'Create a Kubernetes namespace to isolate this ' +
-        'Kolla deployment', KOLLA_FINAL_PROGRESS)
+        'Kolla',
+        'Create a Kubernetes namespace to isolate this Kolla deployment',
+        KOLLA_FINAL_PROGRESS)
 
     demo('Isolate the Kubernetes namespace',
          'Create a namespace using "kubectl create namespace kolla"')
@@ -1436,8 +1442,9 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     the users inputs'''
 
     print_progress(
-        'Kolla', 'Modify global.yml to setup network_interface ' +
-        'and neutron_interface', KOLLA_FINAL_PROGRESS)
+        'Kolla',
+        'Modify global.yml to setup network_interface and neutron_interface',
+        KOLLA_FINAL_PROGRESS)
 
     demo('Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n' +
@@ -1586,8 +1593,9 @@ def kolla_gen_secrets():
     '''Generate Kubernetes secrets'''
 
     print_progress(
-        'Kolla', 'Generate the Kubernetes secrets and register ' +
-        'them with Kubernetes', KOLLA_FINAL_PROGRESS)
+        'Kolla',
+        'Generate the Kubernetes secrets and register them with Kubernetes',
+        KOLLA_FINAL_PROGRESS)
 
     demo('Create secrets from the generated password file ' +
          'using "kubectl create secret generic"',
@@ -2032,9 +2040,10 @@ def k8s_get_pods(namespace):
 
     for name in namespace:
         final = run_shell('kubectl get pods -n %s' % name)
-        print_progress('Kolla', 'Final Kolla Kubernetes OpenStack ' +
-                       'pods for namespace %s:' %
-                       name, KOLLA_FINAL_PROGRESS)
+        print_progress(
+            'Kolla',
+            'Final Kolla Kubernetes OpenStack pods for namespace %s:' %
+            name, KOLLA_FINAL_PROGRESS)
 
         print(final)
 
