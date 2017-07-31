@@ -928,25 +928,50 @@ def k8s_deploy_k8s():
          'manages containers\nrunning on a single host. It allows us to '
          'use Kubelet to manage the\ncontrol plane components. This is '
          'exactly what kubeadm sets us up to do.\n'
-         'We run:\n' +
+         'We run:\n'
          'kubeadm init --pod-network-cidr=10.1.0.0/16 '
-         '--service-cidr=10.3.3.0/24 --skip-preflight-checks and '
-         'what monitors Kubelet and make sure\nit is always running? This '
+         '--service-cidr=10.3.3.0/24 --skip-preflight-checks '
+         'and check output\n'
+         'Run: "watch -d sudo docker ps" in another window')
+    demo('What monitors Kubelet and make sure\nit is always running? This '
          'is where we use systemd. Systemd is started as PID 1 so the OS\n'
          'will make sure it is always running, systemd makes sure the '
          'Kubelet is running, and the\nKubelet makes sure our containers '
          'with the control plane components are running.')
+
+    if DEMO:
+        print(run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
+                        '--service-cidr=10.3.3.0/24 --skip-preflight-checks'))
+        demo('What happened?',
+             'We can see above that kubeadm created the necessary '
+             'certificates for\n' +
+             'the API, started the control plane components, '
+             'and installed the essential addons.\n' +
+             'The join command is important - it allows other nodes '
+             'to be added to the existing resources\n' +
+             'Kubeadm does not mention anything about the Kubelet but '
+             'we can verify that it is running:')
+        print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
+        demo('Kubelet was started. But what is it doing? ',
+             'The Kubelet will monitor the control plane components '
+             'but what monitors Kubelet and make sure\n'
+             'it is always running? This is where we use systemd. '
+             'Systemd is started as PID 1 so the OS\n'
+             'will make sure it is always running, systemd makes '
+             'sure the Kubelet is running, and the\nKubelet '
+             'makes sure our containers with the control plane '
+             'components are running.')
     else:
         out = run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
                         '--service-cidr=10.3.3.0/24 --skip-preflight-checks')
-        # Even in no-verbose mode, we need to displau the join command to
-        # enabled multi-node
-        for line in out.splitlines():
-            if re.search('kubeadm join', line):
-                print('  You can now join any number of machines by '
-                      'running the following on each node as root:')
-                line += ' ' * 2
-                print(line)
+    # Even in no-verbose mode, we need to display the join command to
+    # enabled multi-node
+    for line in out.splitlines():
+        if re.search('kubeadm join', line):
+            print('  You can now join any number of machines by '
+                  'running the following on each node as root:')
+            line += ' ' * 2
+            print(line)
 
 
 def k8s_load_kubeadm_creds():
