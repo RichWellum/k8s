@@ -969,14 +969,14 @@ def k8s_deploy_k8s():
     else:
         out = run_shell('sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
                         '--service-cidr=10.3.3.0/24 --skip-preflight-checks')
-    # Even in no-verbose mode, we need to display the join command to
-    # enabled multi-node
-    for line in out.splitlines():
-        if re.search('kubeadm join', line):
-            print('  You can now join any number of machines by '
-                  'running the following on each node as root:')
-            line += ' ' * 2
-            print(line)
+        # Even in no-verbose mode, we need to display the join command to
+        # enabled multi-node
+        for line in out.splitlines():
+            if re.search('kubeadm join', line):
+                print('  You can now join any number of machines by '
+                      'running the following on each node as root:')
+                line += ' ' * 2
+                print(line)
 
 
 def k8s_load_kubeadm_creds():
