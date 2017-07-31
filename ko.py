@@ -458,7 +458,7 @@ def print_versions(args):
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
     if args.edit_config:
-        print('  *globals.yaml and cloud.yaml will be editable ' +
+        print('  *globals.yaml and cloud.yaml will be editable '
               'with this option*\n')
 
     print('Linux info:      %s' % linux_ver())
@@ -579,8 +579,8 @@ def k8s_wait_for_kube_system():
     RETRY_INTERVAL = 10
     elapsed_time = 0
 
-    print("(%02d/%d) Kubernetes - Wait for basic "
-          "Kubernetes (6 pods) infrastructure:"
+    print('(%02d/%d) Kubernetes - Wait for basic '
+          'Kubernetes (6 pods) infrastructure:'
           % (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
