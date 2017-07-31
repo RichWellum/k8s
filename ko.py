@@ -631,12 +631,14 @@ def k8s_wait_for_running_negate(timeout=None):
         | grep -i "request timed out" | wc -l')
 
         if int(etcd_check) != 0:
-            print('Kubernetes - etcdserver is busy - retrying after brief pause')
+            print('Kubernetes - etcdserver is busy - '
+                  'retrying after brief pause')
             time.sleep(15)
             continue
 
         not_running = run_shell(
-            'kubectl get pods --no-headers --all-namespaces | grep -v "Running" | wc -l')
+            'kubectl get pods --no-headers --all-namespaces | '
+            'grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
