@@ -458,8 +458,8 @@ def print_versions(args):
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
     if args.edit_config:
-        print('  *globals.yaml and cloud.yaml will be editable ' +
-              'with this option*\n')
+        print('  *globals.yaml and cloud.yaml will be editable \
+        with this option*\n')
 
     print('Linux info:      %s' % linux_ver())
 
@@ -2095,11 +2095,12 @@ def kolla_bring_up_openstack(args):
         kolla_create_cloud(args)
 
     # For OpenStack Pike (5.x) - because images are not on dockerhub have
-    # to run them from a docker registry running as a pod. This takes a long time
-    # to come up but then all the other image pulls are very quick.
+    # to run them from a docker registry running as a pod. This takes a long
+    # time to come up but then all the other image pulls are very quick.
     if re.search('5.', args.image_tag):
         banner(
-            'Installing docker registry. This step is slow but needed for 5.x as images are not on dockerhub yet.')
+            'Installing docker registry. Slow but needed for 5.x as \
+            images are not on dockerhub yet.')
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
