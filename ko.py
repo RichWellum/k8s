@@ -189,8 +189,8 @@ def parse_args():
         'Root access to the deployment host machine is required.',
         epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it 5.0.0\n')
     parser.add_argument('MGMT_INT',
-                        help='The interface to which Kolla binds API services, '
-                        'E.g: eth0')
+                        help='The interface to which Kolla binds '
+                        'API services, E.g: eth0')
     parser.add_argument('NEUTRON_INT',
                         help='The interface that will be used for the '
                         'external bridge in Neutron, E.g: eth1')
@@ -245,7 +245,7 @@ def parse_args():
     # help='optionally change cloud network config files from default(3)')
     parser.add_argument('-ec', '--edit_config', action='store_true',
                         help='Pause to allow the user to edit the '
-                        'global.yaml and the cloud.yaml ' +
+                        'global.yaml and the cloud.yaml '
                         'files - for custom configuration')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
@@ -560,7 +560,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         run_shell('sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell(
-            'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg ' +
+            'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg '
             '| sudo -E apt-key add -')
         name = './kubernetes.list'
         repo = '/etc/apt/sources.list.d/kubernetes.list'
@@ -789,8 +789,9 @@ def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools
     This is often broken and may need to be more programatic'''
 
-    print_progress(
-        'Kubernetes', 'Creating kubernetes repo, installing Kubernetes packages', K8S_FINAL_PROGRESS)
+    print_progress('Kubernetes',
+                   'Creating kubernetes repo, installing Kubernetes '
+                   'packages', K8S_FINAL_PROGRESS)
 
     run_shell('sudo -H pip install --upgrade pip')
     k8s_create_repo()
@@ -802,8 +803,8 @@ def k8s_install_k8s(args):
 
     if LINUX == 'centos':
         if args.latest_version is True:
-            run_shell(
-                'sudo yum install -y ebtables kubelet kubeadm kubectl kubernetes-cni')
+            run_shell('sudo yum install -y ebtables kubelet kubeadm '
+                      'kubectl kubernetes-cni')
         else:
             run_shell(
                 'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
@@ -812,13 +813,14 @@ def k8s_install_k8s(args):
                                    tools_dict["kubernetes"]))
     else:
         if args.latest_version is True:
-            run_shell(
-                'sudo apt-get install -y ebtables kubelet kubeadm kubectl kubernetes-cni --allow-downgrades')
+            run_shell('sudo apt-get install -y ebtables kubelet '
+                      'kubeadm kubectl kubernetes-cni --allow-downgrades')
         else:
-            run_shell('sudo apt-get install -y --allow-downgrades ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 \
-            kubernetes-cni' % (tools_dict["kubernetes"],
-                               tools_dict["kubernetes"],
-                               tools_dict["kubernetes"]))
+            run_shell('sudo apt-get install -y --allow-downgrades '
+                      'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00'
+                      'kubernetes-cni' % (tools_dict["kubernetes"],
+                                          tools_dict["kubernetes"],
+                                          tools_dict["kubernetes"]))
 
     if tools_dict["kubernetes"] == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
@@ -836,15 +838,17 @@ def k8s_setup_dns():
     '''DNS services'''
 
     print_progress(
-        'Kubernetes', 'Start docker and setup the DNS server with the service CIDR', K8S_FINAL_PROGRESS)
+        'Kubernetes', 'Start docker and setup the DNS server with '
+        'the service CIDR', K8S_FINAL_PROGRESS)
 
     run_shell('sudo systemctl enable docker')
     run_shell('sudo systemctl start docker')
-    run_shell('sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
+    run_shell(
+        'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell('sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell('sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
-    run_shell(
-        'sudo mv /tmp/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
+    run_shell('sudo mv /tmp/10-kubeadm.conf '
+              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
 
 
 def k8s_reload_service_files():
@@ -883,7 +887,7 @@ def k8s_fix_iptables():
         K8S_FINAL_PROGRESS)
 
     demo('Centos fix bridging',
-         'Setting net.bridge.bridge-nf-call-iptables=1 ' +
+         'Setting net.bridge.bridge-nf-call-iptables=1 '
          'in /etc/sysctl.conf')
 
     run_shell('sudo cp /etc/sysctl.conf /tmp')
@@ -944,11 +948,11 @@ def k8s_deploy_k8s():
                         '--service-cidr=10.3.3.0/24 --skip-preflight-checks'))
         demo('What happened?',
              'We can see above that kubeadm created the necessary '
-             'certificates for\n' +
+             'certificates for\n'
              'the API, started the control plane components, '
-             'and installed the essential addons.\n' +
+             'and installed the essential addons.\n'
              'The join command is important - it allows other nodes '
-             'to be added to the existing resources\n' +
+             'to be added to the existing resources\n'
              'Kubeadm does not mention anything about the Kubelet but '
              'we can verify that it is running:')
         print(run_shell('sudo ps aux | grep /usr/bin/kubelet | grep -v grep'))
@@ -1009,8 +1013,8 @@ def k8s_load_kubeadm_creds():
              'API server\ncerts, and tokens:')
         print(run_shell('ls -lh /etc/kubernetes/pki'))
         demo('The manifests directory ',
-             'This directory is where things get interesting. In the\n' +
-             'manifests directory we have a number of json files for our\n' +
+             'This directory is where things get interesting. In the\n'
+             'manifests directory we have a number of json files for our\n'
              'control plane components.')
         print(run_shell('sudo ls -lh /etc/kubernetes/manifests/'))
         demo('Pod Manifests',
@@ -1052,12 +1056,14 @@ def k8s_deploy_canal_sdn():
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
     print_progress(
-        'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver into a pod (deploy a pod network)',
+        'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver '
+        'into a pod (deploy a pod network)',
         K8S_FINAL_PROGRESS)
 
     answer = curl(
         '-L',
-        'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/rbac.yaml',
+        'https://raw.githubusercontent.com/projectcalico/canal/master/'
+        'k8s-install/1.6/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
     logger.debug(answer)
     run_shell('kubectl create -f /tmp/rbac.yaml')
@@ -1086,7 +1092,8 @@ def k8s_deploy_canal_sdn():
              'common ground for\nnetworking.')
     answer = curl(
         '-L',
-        'https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.6/canal.yaml',
+        'https://raw.githubusercontent.com/projectcalico/canal/master/'
+        'k8s-install/1.6/canal.yaml',
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
     run_shell('sudo chmod 777 /tmp/canal.yaml')
@@ -1119,10 +1126,10 @@ def k8s_schedule_master_node():
 
     demo('Running on the master is different though',
          'There is a special annotation on our node '
-         'telling Kubernetes not to\n' +
+         'telling Kubernetes not to\n'
          'schedule containers on our master node.')
-    run_shell(
-        'kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-')
+    run_shell('kubectl taint nodes '
+              '--all=true node-role.kubernetes.io/master:NoSchedule-')
 
 
 def kolla_update_rbac():
@@ -1135,11 +1142,11 @@ def kolla_update_rbac():
 
     demo('Role-based access control (RBAC)',
          'A method of regulating access to computer or '
-         'network resources based\n' +
+         'network resources based\n'
          'on the roles of individual users within an enterprise. '
-         'In this context,\n' +
+         'In this context,\n'
          'access is the ability of an individual user to perform a '
-         'specific task\n' +
+         'specific task\n'
          'such as view, create, or modify a file.')
     name = '/tmp/rbac'
     with open(name, "w") as w:
@@ -1175,12 +1182,11 @@ def kolla_install_deploy_helm(version):
 
     demo('Download the version of helm requested and install it',
          'Installing means the Tiller Server will be instantiated in a pod')
-    # url = 'https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get'
-    # curl('-sSL', url, '-o', '/tmp/get_helm.sh')
-    # run_shell('chmod 700 /tmp/get_helm.sh')
-    # run_shell('/tmp/get_helm.sh')
-    url = 'https://storage.googleapis.com/kubernetes-helm/helm-v%s-linux-amd64.tar.gz' % version
-    curl('-sSL', url, '-o', '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
+    curl('-sSL',
+         'https://storage.googleapis.com/kubernetes-helm/'
+         'helm-v%s-linux-amd64.tar.gz' % version,
+         '-o',
+         '/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % version)
     run_shell('sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell('helm init')
@@ -1199,7 +1205,7 @@ def kolla_install_deploy_helm(version):
             time.sleep(3)
             continue
     demo('Check running pods..',
-         'Note that the helm version in server and client is the same.\n' +
+         'Note that the helm version in server and client is the same.\n'
          'Tiller is ready to respond to helm chart requests')
 
 
@@ -1216,9 +1222,6 @@ def k8s_cleanup(args):
             True)
         run_shell('sudo kubeadm reset')
 
-        # run_shell('sudo docker stop $(sudo docker ps -a | grep k8s| cut -c1-20 | xargs sudo docker stop)')
-        # run_shell('sudo docker rm -f $(sudo docker ps -a | grep k8s| cut -c1-20
-        # | xargs sudo docker stop)')
         print_progress(
             'Kubernetes',
             'delete /etc files and dirs',
@@ -1252,10 +1255,12 @@ def k8s_cleanup(args):
             run_shell('sudo rm -rf /data')
 
         if args.complete_cleanup:
-            print_progress('Kubernetes', 'Cleanup done. Highly recommend rebooting your host',
+            print_progress('Kubernetes', 'Cleanup done. Highly '
+                           'recommend rebooting your host',
                            K8S_CLEANUP_PROGRESS)
         else:
-            print_progress('Kubernetes', 'Cleanup done. Will attempt to proceed with installation. YMMV.',
+            print_progress('Kubernetes', 'Cleanup done. Will attempt '
+                           'to proceed with installation. YMMV.',
                            K8S_CLEANUP_PROGRESS)
             clean_progress()
             add_one_to_progress()
@@ -1270,7 +1275,7 @@ def kolla_install_repos():
     add_one_to_progress()
 
     demo('Git cloning repos, then using pip to install them',
-         'http://github.com/openstack/kolla-ansible\n' +
+         'http://github.com/openstack/kolla-ansible\n'
          'http://github.com/openstack/kolla-kubernetes')
 
     if os.path.exists('./kolla-ansible'):
@@ -1290,16 +1295,20 @@ def kolla_install_repos():
     run_shell('sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if LINUX == 'centos':
-        print_progress('Kolla', 'Copy default kolla-ansible configuration to /etc',
+        print_progress('Kolla', 'Copy default kolla-ansible '
+                       'configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
-        run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_examples/kolla /etc')
+        run_shell('sudo cp -aR /usr/share/kolla-ansible/etc_'
+                  'examples/kolla /etc')
     else:
-        print_progress('Kolla', 'Copy default kolla-ansible configuration to /etc',
+        print_progress('Kolla', 'Copy default kolla-ansible'
+                       'configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
-        run_shell(
-            'sudo cp -aR /usr/local/share/kolla-ansible/etc_examples/kolla /etc')
+        run_shell('sudo cp -aR /usr/local/share/kolla-ansible/'
+                  'etc_examples/kolla /etc')
 
-    print_progress('Kolla', 'Copy default kolla-kubernetes configuration to /etc',
+    print_progress('Kolla', 'Copy default kolla-kubernetes '
+                   'configuration to /etc',
                    KOLLA_FINAL_PROGRESS)
     run_shell('sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
@@ -1314,9 +1323,9 @@ def kolla_setup_loopback_lvm():
         KOLLA_FINAL_PROGRESS)
 
     demo('Loopback LVM for Cinder',
-         'Create a flat file on the filesystem and then loopback mount\n' +
-         'it so that it looks like a block-device attached to /dev/zero\n' +
-         'Then LVM manages it. This is useful for test and development\n' +
+         'Create a flat file on the filesystem and then loopback mount\n'
+         'it so that it looks like a block-device attached to /dev/zero\n'
+         'Then LVM manages it. This is useful for test and development\n'
          'It is also very slow and etcdserver may time out frequently')
     new = '/tmp/setup_lvm'
     with open(new, "w") as w:
@@ -1371,8 +1380,9 @@ def kolla_gen_passwords():
 def kolla_create_namespace():
     '''Create a kolla namespace'''
 
-    print_progress(
-        'Kolla', 'Create a Kubernetes namespace to isolate this Kolla deployment', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla',
+                   'Create a Kubernetes namespace to isolate this '
+                   'Kolla deployment', KOLLA_FINAL_PROGRESS)
 
     demo('Isolate the Kubernetes namespace',
          'Create a namespace using "kubectl create namespace kolla"')
@@ -1408,8 +1418,9 @@ def kolla_modify_globals(MGMT_INT, MGMT_IP, NEUTRON_INT):
     '''Necessary additions and changes to the global.yml - which is based on
     the users inputs'''
 
-    print_progress(
-        'Kolla', 'Modify global.yml to setup network_interface and neutron_interface', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla',
+                   'Modify global.yml to setup network_interface '
+                   'and neutron_interface', KOLLA_FINAL_PROGRESS)
 
     demo('Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n'
@@ -1494,9 +1505,12 @@ def kolla_enable_qemu():
 
     print_progress('Kolla', 'Enable qemu', KOLLA_FINAL_PROGRESS)
     # todo - as per gate:
-    # sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt virt_type qemu
-    # sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt cpu_mode none
-    # sudo crudini --set /etc/kolla/keystone/keystone.conf cache enabled False
+    # sudo crudini --set /etc/kolla/nova-compute/nova.conf
+    # libvirt virt_type qemu
+    # sudo crudini --set /etc/kolla/nova-compute/nova.conf
+    # libvirt cpu_mode none
+    # sudo crudini --set /etc/kolla/keystone/keystone.conf
+    # cache enabled False
 
     run_shell('sudo mkdir -p /etc/kolla/config')
 
@@ -1552,12 +1566,13 @@ def kolla_gen_configs():
 def kolla_gen_secrets():
     '''Generate Kubernetes secrets'''
 
-    print_progress(
-        'Kolla', 'Generate the Kubernetes secrets and register them with Kubernetes', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla',
+                   'Generate the Kubernetes secrets and register '
+                   'them with Kubernetes', KOLLA_FINAL_PROGRESS)
 
     demo('Create secrets from the generated password file using '
          '"kubectl create secret generic"',
-         'Kubernetes Secrets is an object that contains a small amount of\n' +
+         'Kubernetes Secrets is an object that contains a small amount of\n'
          'sensitive data such as passwords, keys and tokens etc')
     run_shell('python ./kolla-kubernetes/tools/secret-generator.py create')
 
@@ -1613,8 +1628,9 @@ def kolla_resolve_workaround():
 def kolla_build_micro_charts():
     '''Build all helm micro charts'''
 
-    print_progress(
-        'Kolla', '(Slow!) Build all Helm microcharts, service charts, and metacharts', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla',
+                   '(Slow!) Build all Helm microcharts, service charts, '
+                   'and metacharts', KOLLA_FINAL_PROGRESS)
 
     demo('Build helm charts',
          'Helm uses a packaging format called charts. '
@@ -1760,7 +1776,7 @@ def kolla_create_cloud_v5(args):
     demo('Create a cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
          'It contains a list of global OpenStack services '
-         'and key-value pairs, which\n' +
+         'and key-value pairs, which\n'
          'guide helm when running each chart. This includes our '
          'basic inputs, MGMT and Neutron')
     cloud = '/tmp/cloud.yaml'
@@ -1882,18 +1898,6 @@ def helm_install_micro_service_chart(chart_list):
     k8s_wait_for_running_negate()
 
 
-def sudo_timeout_off(state):
-    '''Turn sudo timeout off or on'''
-
-    # if state is True:
-    # d = run_shell('sudo echo "Defaults timestamp_timeout=-1" >> /etc/sudoers')
-    # sudo sh -c 'echo "Defaults timestamp_timeout=-1" >> /etc/sudoers'
-    # print(d)
-    # else:
-    # d = run_shell('sudo sed -i "/Defaults timestamp_timeout=-1/d" /etc/sudoers')
-    # print(d)
-
-
 def kolla_create_demo_vm():
     '''Final steps now that a working cluster is up.
     Create a keystone admin user.
@@ -1905,7 +1909,8 @@ def kolla_create_demo_vm():
          'attach a floating ip\n'
          'Finally ssh to the VM and or open Horizon and '
          'see our cluster')
-    print_progress('Kolla', 'Create a keystone admin account and source in to it',
+    print_progress('Kolla',
+                   'Create a keystone admin account and source in to it',
                    KOLLA_FINAL_PROGRESS)
 
     run_shell('sudo rm -f ~/keystonerc_admin')
@@ -1923,9 +1928,9 @@ def kolla_create_demo_vm():
         'Create a demo vm in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    create_demo1 = 'openstack server create --image cirros \
-    --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    out = run_shell('.  ~/keystonerc_admin; %s' % create_demo1)
+    out = run_shell('.  ~/keystonerc_admin; openstack server create '
+                    '--image cirros --flavor m1.tiny --key-name mykey '
+                    '--nic net-id=%s demo1' % demo_net_id.rstrip())
     logger.debug(out)
     k8s_wait_for_vm('demo1')
 
@@ -1969,8 +1974,8 @@ done
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
-    address = run_shell(
-        "kubectl get svc horizon --namespace kolla --no-headers | awk '{print $3}'")
+    address = run_shell("kubectl get svc horizon --namespace kolla "
+                        "--no-headers | awk '{print $3}'")
     username = run_shell(
         "cat ~/keystonerc_admin | grep OS_PASSWORD | awk '{print $2}'")
     password = run_shell(
@@ -1981,7 +1986,8 @@ done
     print('  %s' % username)
     print('  %s' % password)
 
-    banner('Successfully deployed Kolla-Kubernetes. OpenStack Cluster is ready for use')
+    banner('Successfully deployed Kolla-Kubernetes. '
+           'OpenStack Cluster is ready for use')
 
 
 def k8s_test_neutron_int(ip):
@@ -2020,8 +2026,9 @@ def k8s_pause_to_check_nslookup(manual_check):
     Also handles the option to create a test pod manually like
     the deployment guide advises.'''
 
-    print_progress(
-        'Kubernetes', "Test 'nslookup kubernetes' - bring up test pod", K8S_FINAL_PROGRESS)
+    print_progress('Kubernetes',
+                   "Test 'nslookup kubernetes' - bring up test pod",
+                   K8S_FINAL_PROGRESS)
 
     demo('Lets create a simple pod and verify that DNS works',
          'If it does not then this deployment will not work.')
@@ -2046,8 +2053,8 @@ spec:
 
     run_shell('kubectl create -f %s' % name)
     k8s_wait_for_running_negate()
-    out = run_shell(
-        'kubectl exec kolla-dns-test -- nslookup kubernetes | grep -i address | wc -l')
+    out = run_shell('kubectl exec kolla-dns-test -- nslookup '
+                    'kubernetes | grep -i address | wc -l')
     demo('Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
