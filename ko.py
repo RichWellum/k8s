@@ -937,7 +937,8 @@ def k8s_deploy_k8s():
          '--service-cidr=10.3.3.0/24 --skip-preflight-checks '
          'and check output\n'
          'Run: "watch -d sudo docker ps" in another window')
-    demo('What monitors Kubelet and make sure\nit is always running? This '
+    demo('Monitoring Kubernetes',
+         'What monitors Kubelet and make sure\nit is always running? This '
          'is where we use systemd. Systemd is started as PID 1 so the OS\n'
          'will make sure it is always running, systemd makes sure the '
          'Kubelet is running, and the\nKubelet makes sure our containers '
