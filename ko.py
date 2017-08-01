@@ -2094,7 +2094,7 @@ def k8s_test_neutron_int(args):
     else:
         logger.debug(
             'Kubernetes - VIP Keepalive Interface %s is valid' %
-            args.ip)
+            args.vip_ip)
 
 
 def k8s_get_pods(args, namespace):
