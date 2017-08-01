@@ -964,7 +964,7 @@ def k8s_deploy_k8s(args):
          'Run: "watch -d sudo docker ps" in another window')
     demo(args, 'Monitoring Kubernetes',
          'What monitors Kubelet and make sure it is always running? This '
-         'is where we use systemd. Systemd is started as PID 1 so the OS\n'
+         'is where we use systemd.\n Systemd is started as PID 1 so the OS\n'
          'will make sure it is always running, systemd makes sure the '
          'Kubelet is running, and the\nKubelet makes sure our containers '
          'with the control plane components are running.')
@@ -1242,9 +1242,10 @@ def kolla_install_deploy_helm(args):
         else:
             time.sleep(3)
             continue
-        demo(args, 'Check running pods..',
-             'Note that the helm version in server and client is the same.\n'
-             'Tiller is ready to respond to helm chart requests')
+
+    demo(args, 'Check running pods..',
+         'Note that the helm version in server and client is the same.\n'
+         'Tiller is ready to respond to helm chart requests')
 
 
 def k8s_cleanup(args):
