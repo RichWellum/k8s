@@ -555,8 +555,8 @@ def populate_ip_addresses(args):
         r = list(range(2, 253))
         random.shuffle(r)
         for k in r:
-            vip = run_shell(
-                'sudo nmap -sP -PR %s.%s' % (start_ip, k))
+            vip = run_shell(args,
+                            'sudo nmap -sP -PR %s.%s' % (start_ip, k))
             if "Host seems down" in vip:
                 args.vip_ip = start_ip + '.' + str(k)
                 break
