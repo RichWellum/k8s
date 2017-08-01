@@ -1396,7 +1396,7 @@ sudo partprobe $LOOP
 sudo pvcreate -y $LOOP
 sudo vgcreate -y cinder-volumes $LOOP
 """)
-        run_shell(args, 'bash %s' % new)
+    run_shell(args, 'bash %s' % new)
 
 
 def kolla_install_os_client(args):
@@ -1719,8 +1719,9 @@ def kolla_build_micro_charts(args):
          'dependencies (193)\n'
          'This is another step that takes a few minutes')
     if args.demo:
-        print(run_shell(args,
-                        './kolla-kubernetes/tools/helm_build_all.sh /tmp'))
+        print(run_shell(
+            args,
+            './kolla-kubernetes/tools/helm_build_all.sh /tmp'))
     else:
         run_shell(args, './kolla-kubernetes/tools/helm_build_all.sh /tmp')
 
