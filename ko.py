@@ -1292,6 +1292,7 @@ def k8s_cleanup(args):
                 'Kubernetes', 'Remove cinder volumes and data',
                 K8S_CLEANUP_PROGRESS)
             run_shell(args, 'sudo vgremove cinder-volumes -f')
+            run_shell(args, 'sudo losetup -d /dev/loop0')
             run_shell(args, 'sudo rm -rf /data')
 
         if args.complete_cleanup:
