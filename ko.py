@@ -624,8 +624,8 @@ def k8s_wait_for_kube_system(args):
                 print('  *Pod status after %d seconds, pods up %s:6 - '
                       'sleep %d seconds and retry*'
                       % (elapsed_time, cnt, RETRY_INTERVAL))
-                time.sleep(RETRY_INTERVAL)
-                elapsed_time = elapsed_time + RETRY_INTERVAL
+            time.sleep(RETRY_INTERVAL)
+            elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
         else:
             # Dump verbose output in case it helps...
@@ -1466,7 +1466,7 @@ def k8s_check_exit(k8s_only):
         sys.exit(1)
 
 
-def kolla_modify_globals(args, MGMT_INT, MGMT_IP, NEUTRON_INT):
+def kolla_modify_globals(args):
     '''Necessary additions and changes to the global.yml.
 
     Which is based on the users inputs
@@ -1479,7 +1479,7 @@ def kolla_modify_globals(args, MGMT_INT, MGMT_IP, NEUTRON_INT):
     demo(args, 'Kolla uses two files currently to configure',
          'Here we are modifying /etc/kolla/globals.yml\n'
          'We are setting the management interface to "%s" '
-         'and IP to %s\n' % (args.MGMT_INT, args.MGMT_IP) +
+         'and IP to %s\n' % (args.MGMT_INT, args.mgmt_ip) +
          'The interface for neutron(externally bound) "%s"\n'
          % args.NEUTRON_INT +
          'globals.yml is used when we run ansible to generate '
@@ -1490,9 +1490,9 @@ def kolla_modify_globals(args, MGMT_INT, MGMT_IP, NEUTRON_INT):
     run_shell(args,
               "sudo sed -i 's/#network_interface/network_interface/g' "
               "/etc/kolla/globals.yml")
-    run_shell("sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" %
-              args,
-              args.MGMT_IP)
+    run_shell(args,
+              "sudo sed -i 's/10.10.10.254/%s/g' /etc/kolla/globals.yml" %
+              args.mgmt_ip)
     run_shell(args,
               "sudo sed -i 's/eth1/%s/g' /etc/kolla/globals.yml"
               % args.NEUTRON_INT)
@@ -2351,8 +2351,6 @@ def main():
         if args.complete_cleanup:
             k8s_cleanup(args)
             sys.exit(1)
-        else:
-            banner('Continuing with bring-up. YMMV')
 
         k8s_test_neutron_int(args)
         k8s_bringup_kubernetes_cluster(args)
