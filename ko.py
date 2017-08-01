@@ -334,7 +334,7 @@ def banner(description):
     # Final banner
     for c in range(banner):
         print('*', end='')
-    print('\n')  # todo??
+    print('\n')
 
 
 def demo(args, title, description):
@@ -379,10 +379,10 @@ def curl(*args):
     curl_list = [curl_path]
     for arg in args:
         curl_list.append(arg)
-        curl_result = subprocess.Popen(
-            curl_list,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE).communicate()[0]
+    curl_result = subprocess.Popen(
+        curl_list,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE).communicate()[0]
     return curl_result
 
 
@@ -1456,7 +1456,6 @@ def kolla_label_nodes(args, node_list):
     for node in node_list:
         print("  Label the AIO node as '%s'" % node)
         run_shell(args, 'kubectl label node $(hostname) %s=true' % node)
-        # add_one_to_progress()
 
 
 def k8s_check_exit(k8s_only):
@@ -1553,7 +1552,7 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 """)
-        run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
+    run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /etc/kolla/globals.yml file')
@@ -1586,7 +1585,7 @@ def kolla_enable_qemu(args):
 virt_type = qemu
 cpu_mode = none
 """)
-        run_shell(args, 'sudo mv %s %s' % (new, add_to))
+    run_shell(args, 'sudo mv %s %s' % (new, add_to))
 
 
 def kolla_gen_configs(args):
@@ -1972,7 +1971,7 @@ def helm_install_micro_service_chart(args, chart_list):
             chart, KOLLA_FINAL_PROGRESS)
         run_shell(args, 'helm install --debug kolla-kubernetes/helm/microservice/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
-        k8s_wait_for_running_negate(args)
+    k8s_wait_for_running_negate(args)
 
 
 def kolla_create_demo_vm(args):
@@ -2042,10 +2041,10 @@ openstack security group list -f value -c ID | while read SG_ID; do
         --direction ingress $SG_ID
 done
 """)
-        out = run_shell(args,
-                        '.  ~/keystonerc_admin; chmod 766 %s; bash %s' %
-                        (new, new))
-        logger.debug(out)
+    out = run_shell(args,
+                    '.  ~/keystonerc_admin; chmod 766 %s; bash %s' %
+                    (new, new))
+    logger.debug(out)
 
     # Display nova list
     print_progress(
@@ -2136,7 +2135,7 @@ spec:
     - sleep
     - "1000000"
 """)
-        demo(args, 'The busy box yaml is: %s' % name, '')
+    demo(args, 'The busy box yaml is: %s' % name, '')
     if args.demo:
         print(run_shell(args, 'sudo cat ./busybox.yaml'))
 
