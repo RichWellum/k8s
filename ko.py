@@ -491,13 +491,13 @@ def print_versions(args):
     else:
         run_shell(args, 'sudo apt-get install -y docker.io')
 
-    print('\n%s - Networking:' % __file__)
+    print('\nNetworking:')
     print('Management Int:  %s' % args.MGMT_INT)
     print('Management IP:   %s' % args.mgmt_ip)
     print('Neutron Int:     %s' % args.NEUTRON_INT)
     print('VIP Keepalive:   %s' % args.vip_ip)
 
-    print('\n%s - Versions:' % __file__)
+    print('\nVersions:')
     print('Docker version:  %s' % docker_ver(args))
     print('Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
 
@@ -737,8 +737,8 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-        print("(%02d/%02d) %s - %s" % (PROGRESS, finalctr, process, msg))
-        add_one_to_progress()
+    print("(%02d/%02d) %s - %s" % (PROGRESS, finalctr, process, msg))
+    add_one_to_progress()
 
 
 def k8s_install_tools(args):
