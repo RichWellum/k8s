@@ -499,30 +499,30 @@ def print_versions(args):
 
     print('\n%s - Versions:' % __file__)
     print('Docker version:  %s' % docker_ver(args))
-    print('Kolla Image Tag: %s' % tools_versions('kolla'))
+    print('Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
 
-    if tools_versions('helm') == "":
+    if tools_versions(args, 'helm') == "":
         v = "Latest"
     else:
-        v = tools_versions('helm')
+        v = tools_versions(args, 'helm')
         print('Helm version:    %s' % v)
 
-    if tools_versions('kubernetes') == "":
+    if tools_versions(args, 'kubernetes') == "":
         v = "Latest"
     else:
-        v = tools_versions('kubernetes')
+        v = tools_versions(args, 'kubernetes')
         print('K8s version:     %s' % v.rstrip())
 
-    if tools_versions('ansible') == "":
+    if tools_versions(args, 'ansible') == "":
         v = "Latest"
     else:
-        v = tools_versions('ansible')
+        v = tools_versions(args, 'ansible')
         print('Ansible version: %s' % v.rstrip())
 
-    if tools_versions('jinja2') == "":
+    if tools_versions(args, 'jinja2') == "":
         v = "Latest"
     else:
-        v = tools_versions('jinja2')
+        v = tools_versions(args, 'jinja2')
         print('Jinja2 version:  %s' % v.rstrip())
         print('\n')
 
@@ -775,11 +775,11 @@ def k8s_install_tools(args):
     else:
         run_shell(args,
                   'sudo -H pip install ansible==%s' %
-                  tools_versions('ansible'))
+                  tools_versions(args, 'ansible'))
         # Standard jinja2 in Centos7(2.9.6) is broken
         run_shell(args,
                   'sudo -H pip install Jinja2==%s' %
-                  tools_versions('jinja2'))
+                  tools_versions(args, 'jinja2'))
 
 
 def k8s_setup_ntp(args):
@@ -832,8 +832,10 @@ def k8s_install_k8s(args):
 
     demo(args, 'Installing Kubernetes', 'Installing docker ebtables '
          'kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
-         (tools_versions('kubernetes'), tools_versions('kubernetes'),
-          tools_versions('kubernetes'), tools_versions('kubernetes-cni')))
+         (tools_versions(args, 'kubernetes'),
+          tools_versions(args, 'kubernetes'),
+          tools_versions(args, 'kubernetes'),
+          tools_versions(args, 'kubernetes-cni')))
 
     if linux_ver() == 'centos':
         if args.latest_version is True:
@@ -843,9 +845,9 @@ def k8s_install_k8s(args):
         else:
             run_shell(args,
                       'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
-                kubernetes-cni' % (tools_versions('kubernetes'),
-                                   tools_versions('kubernetes'),
-                                   tools_versions('kubernetes')))
+                kubernetes-cni' % (tools_versions(args, 'kubernetes'),
+                                   tools_versions(args, 'kubernetes'),
+                                   tools_versions(args, 'kubernetes')))
     else:
         if args.latest_version is True:
             run_shell(args, 'sudo apt-get install -y ebtables kubelet '
@@ -853,11 +855,11 @@ def k8s_install_k8s(args):
         else:
             run_shell(args, 'sudo apt-get install -y --allow-downgrades '
                       'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00'
-                      'kubernetes-cni' % (tools_versions('kubernetes'),
-                                          tools_versions('kubernetes'),
-                                          tools_versions('kubernetes')))
+                      'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
+                                          tools_versions(args, 'kubernetes'),
+                                          tools_versions(args, 'kubernetes')))
 
-    if tools_versions('kubernetes') == '1.6.3':
+    if tools_versions(args, 'kubernetes') == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
         # 1.6.3 is broken so if user chooses it - use special image
         curl(
