@@ -505,25 +505,25 @@ def print_versions(args):
         v = "Latest"
     else:
         v = tools_versions(args, 'helm')
-        print('Helm version:    %s' % v)
+        print('  Helm version:    %s' % v)
 
     if tools_versions(args, 'kubernetes') == "":
         v = "Latest"
     else:
         v = tools_versions(args, 'kubernetes')
-        print('K8s version:     %s' % v.rstrip())
+        print('  K8s version:     %s' % v.rstrip())
 
     if tools_versions(args, 'ansible') == "":
         v = "Latest"
     else:
         v = tools_versions(args, 'ansible')
-        print('Ansible version: %s' % v.rstrip())
+        print('  Ansible version: %s' % v.rstrip())
 
     if tools_versions(args, 'jinja2') == "":
         v = "Latest"
     else:
         v = tools_versions(args, 'jinja2')
-        print('Jinja2 version:  %s' % v.rstrip())
+        print('  Jinja2 version:  %s' % v.rstrip())
         print('\n')
 
     time.sleep(1)
@@ -601,13 +601,13 @@ def k8s_wait_for_kube_system(args):
     TIMEOUT = 350  # Give k8s 350s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
+    prev_cnt = 0
 
     print('(%02d/%d) Kubernetes - Wait for basic '
           'Kubernetes (6 pods) infrastructure:'
           % (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
-        prev_cnt = 0
         pod_status = run_shell(args,
                                'kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
