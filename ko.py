@@ -482,7 +482,7 @@ def print_versions(args):
         print('  *globals.yaml and cloud.yaml will be editable '
               'with this option*\n')
 
-    print('Linux info:      %s' % linux_ver_det())
+    print('Linux info:        %s' % linux_ver_det())
 
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
@@ -1331,14 +1331,14 @@ def kolla_install_repos(args):
 
     if os.path.exists('./kolla-ansible'):
         run_shell(args, 'sudo rm -rf ./kolla-ansible')
-        run_shell(args, 'git clone http://github.com/openstack/kolla-ansible')
+    run_shell(args, 'git clone http://github.com/openstack/kolla-ansible')
 
     print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
 
     if os.path.exists('./kolla-kubernetes'):
         run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
-        run_shell(args,
-                  'git clone http://github.com/openstack/kolla-kubernetes')
+    run_shell(args,
+              'git clone http://github.com/openstack/kolla-kubernetes')
 
     print_progress(
         'Kolla',
