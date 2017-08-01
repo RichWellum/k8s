@@ -364,7 +364,7 @@ def demo(args, title, description):
     # Final banner
     for c in range(banner):
         print('*', end='')
-        print('\n')
+    print('\n')
 
     if not args.force:
         raw_input('Press Enter to continue with demo...')
