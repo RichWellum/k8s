@@ -324,7 +324,7 @@ def banner(description):
         banner = 100
 
     # First banner
-    print('\n')
+    # print('\n') # todo remove?
     for c in range(banner):
         print('*', end='')
 
