@@ -1956,8 +1956,7 @@ def helm_install_service_chart(args, chart_list):
                   'helm install --debug kolla-kubernetes/helm/service/%s '
                   '--namespace kolla --name %s --values /tmp/cloud.yaml'
                   % (chart, chart))
-        # Can move this out one level and wait for all containers in a list
-        k8s_wait_for_running_negate(args)
+    k8s_wait_for_running_negate(args)
 
 
 def helm_install_micro_service_chart(args, chart_list):
@@ -1971,8 +1970,7 @@ def helm_install_micro_service_chart(args, chart_list):
                   'helm install --debug kolla-kubernetes/helm/microservice/%s '
                   '--namespace kolla --name %s --values /tmp/cloud.yaml'
                   % (chart, chart))
-        # Can move this out one level and wait for all containers in a list
-        k8s_wait_for_running_negate(args)
+    k8s_wait_for_running_negate(args)
 
 
 def kolla_create_demo_vm(args):
