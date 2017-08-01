@@ -487,8 +487,7 @@ def print_versions(args):
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
     if linux_ver() == 'centos':
-        run_shell(
-            'sudo yum install -y docker')
+        run_shell(args, 'sudo yum install -y docker')
     else:
         run_shell(args, 'sudo apt-get install -y docker.io')
 
