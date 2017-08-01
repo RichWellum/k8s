@@ -144,8 +144,9 @@ global PROGRESS
 PROGRESS = 0
 
 global K8S_FINAL_PROGRESS
-K8S_FINAL_PROGRESS = 16
+K8S_FINAL_PROGRESS = 15
 
+# Set these both to 0 as they get set later depending on what is configured
 global KOLLA_FINAL_PROGRESS
 KOLLA_FINAL_PROGRESS = 0
 
@@ -730,10 +731,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
-    print_progress(
-        'Kubernetes',
-        'Update and install base tools',
-        K8S_FINAL_PROGRESS)
+    banner('Kubernetes - Update and install base tools')
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
