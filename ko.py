@@ -492,14 +492,14 @@ def print_versions(args):
         run_shell(args, 'sudo apt-get install -y docker.io')
 
     print('\nNetworking:')
-    print('Management Int:  %s' % args.MGMT_INT)
-    print('Management IP:   %s' % args.mgmt_ip)
-    print('Neutron Int:     %s' % args.NEUTRON_INT)
-    print('VIP Keepalive:   %s' % args.vip_ip)
+    print('  Management Int:  %s' % args.MGMT_INT)
+    print('  Management IP:   %s' % args.mgmt_ip)
+    print('  Neutron Int:     %s' % args.NEUTRON_INT)
+    print('  VIP Keepalive:   %s' % args.vip_ip)
 
     print('\nVersions:')
-    print('Docker version:  %s' % docker_ver(args))
-    print('Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
+    print('  Docker version:  %s' % docker_ver(args))
+    print('  Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
 
     if tools_versions(args, 'helm') == "":
         v = "Latest"
@@ -624,8 +624,8 @@ def k8s_wait_for_kube_system(args):
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
                     print('  *Pod status after %d seconds, pods up %s:6*'
-                          % (elapsed_time, cnt, RETRY_INTERVAL))
-                    prev_cnt = cnt
+                          % (elapsed_time, cnt))
+            prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
