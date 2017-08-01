@@ -333,8 +333,8 @@ def banner(description):
 
     # Final banner
     for c in range(banner):
-        print('*', end='')
-        print('\n')
+        print('*'.rstrip(), end='')
+        print('\n')  # todo??
 
 
 def demo(args, title, description):
