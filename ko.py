@@ -2075,8 +2075,8 @@ done
            'OpenStack Cluster is ready for use')
 
 
-def k8s_test_neutron_int(args):
-    '''Test that the neutron interface is not used'''
+def k8s_test_vip_int(args):
+    '''Test that the vip interface is not used'''
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum install -y nmap')
@@ -2085,7 +2085,7 @@ def k8s_test_neutron_int(args):
 
     truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.vip_ip)
     if re.search('Host is up', truth):
-        print('Kubernetes - Neutron Interface %s is in use, '
+        print('Kubernetes - vip Interface %s is in use, '
               'choose another' % args.vip_ip)
         sys.exit(1)
     else:
@@ -2355,7 +2355,7 @@ def main():
             k8s_cleanup(args)
             sys.exit(1)
 
-        k8s_test_neutron_int(args)
+        k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         kolla_create_demo_vm(args)
