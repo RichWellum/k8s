@@ -713,7 +713,7 @@ def k8s_wait_for_vm(args, vm):
                 raise AbortScriptException(
                     "VM did not come up after {0} 1econds!"
                     .format(elapsed_time))
-            sys.exit(1)
+                sys.exit(1)
             continue
         else:
             print('    *Kubernetes - VM %s is Running*' % vm)
@@ -1959,6 +1959,7 @@ def helm_install_service_chart(args, chart_list):
             chart, KOLLA_FINAL_PROGRESS)
         run_shell(args, 'helm install --debug kolla-kubernetes/helm/service/%s \
         --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        # Can move this out one level and wait for all containers in a list
         k8s_wait_for_running_negate(args)
 
 
@@ -1969,9 +1970,12 @@ def helm_install_micro_service_chart(args, chart_list):
         print_progress(
             'Kolla', "Helm Install micro service chart: \--'%s'--/" %
             chart, KOLLA_FINAL_PROGRESS)
-        run_shell(args, 'helm install --debug kolla-kubernetes/helm/microservice/%s \
-        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
-    k8s_wait_for_running_negate(args)
+        run_shell(args,
+                  'helm install --debug kolla-kubernetes/helm/microservice/%s \
+                  --namespace kolla --name %s --values /tmp/cloud.yaml'
+                  % (chart, chart))
+        # Can move this out one level and wait for all containers in a list
+        k8s_wait_for_running_negate(args)
 
 
 def kolla_create_demo_vm(args):
