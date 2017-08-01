@@ -1245,15 +1245,13 @@ def kolla_install_deploy_helm(args):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell(
-            args,
-            'helm version | grep "%s" | wc -l' %
-            args.version)
+        out = run_shell(args,
+                        'helm version | grep "%s" | wc -l' %
+                        args.helm_version)
         if int(out) == 2:
             print_progress(
                 'Kolla',
-                'Helm successfully installed',
-                KOLLA_FINAL_PROGRESS)
+                'Helm successfully installed', KOLLA_FINAL_PROGRESS)
             break
         else:
             time.sleep(3)
@@ -1271,23 +1269,19 @@ def k8s_cleanup(args):
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
             'Kubernetes',
-            '(Slow!) kubeadm reset',
-            K8S_CLEANUP_PROGRESS,
-            True)
+            '(Slow!) kubeadm reset', K8S_CLEANUP_PROGRESS, True)
         run_shell(args, 'sudo kubeadm reset')
 
         print_progress(
             'Kubernetes',
-            'delete /etc files and dirs',
-            K8S_CLEANUP_PROGRESS)
+            'delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
         run_shell(args, 'sudo rm -rf /etc/kolla*')
         run_shell(args, 'sudo rm -rf /etc/kubernetes')
         run_shell(args, 'sudo rm -rf /etc/kolla-kubernetes')
 
         print_progress(
             'Kubernetes',
-            'delete /var files and dirs',
-            K8S_CLEANUP_PROGRESS)
+            'delete /var files and dirs', K8S_CLEANUP_PROGRESS)
         run_shell(args, 'sudo rm -rf /var/lib/kolla*')
         run_shell(args, 'sudo rm -rf /var/etcd')
         run_shell(args, 'sudo rm -rf /var/run/kubernetes/*')
@@ -1302,8 +1296,7 @@ def k8s_cleanup(args):
 
         if os.path.exists('/data'):
             print_progress(
-                'Kubernetes',
-                'Remove cinder volumes and data',
+                'Kubernetes', 'Remove cinder volumes and data',
                 K8S_CLEANUP_PROGRESS)
             run_shell(args, 'sudo vgremove cinder-volumes -f')
             run_shell(args, 'sudo rm -rf /data')
@@ -2216,8 +2209,8 @@ def k8s_bringup_kubernetes_cluster(args):
         print('Kolla - Building OpenStack on existing Kubernetes cluster')
         return
 
-    k8s_install_tools(args)
     k8s_cleanup(args)
+    k8s_install_tools(args)
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
@@ -2334,9 +2327,6 @@ def main():
     # Start progress on one
     add_one_to_progress()
 
-    # global K8S_FINAL_PROGRESS
-    # K8S_FINAL_PROGRESS = 16
-
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', args.image_tag):
         # Add one for additional docker registry pod bringup
@@ -2361,6 +2351,8 @@ def main():
         if args.complete_cleanup:
             k8s_cleanup(args)
             sys.exit(1)
+        else:
+            banner('Continuing with bring-up. YMMV')
 
         k8s_test_neutron_int(args)
         k8s_bringup_kubernetes_cluster(args)
