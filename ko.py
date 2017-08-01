@@ -607,6 +607,7 @@ def k8s_wait_for_kube_system(args):
           % (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
+        prev_cnt = 0
         pod_status = run_shell(args,
                                'kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
@@ -621,9 +622,10 @@ def k8s_wait_for_kube_system(args):
                 cnt = nlines
 
             if elapsed_time is not 0:
-                print('  *Pod status after %d seconds, pods up %s:6 - '
-                      'sleep %d seconds and retry*'
-                      % (elapsed_time, cnt, RETRY_INTERVAL))
+                if cnt is not prev_cnt:
+                    print('  *Pod status after %d seconds, pods up %s:6*'
+                          % (elapsed_time, cnt, RETRY_INTERVAL))
+                    prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             continue
@@ -1274,14 +1276,14 @@ def k8s_cleanup(args):
 
         print_progress(
             'Kubernetes',
-            'delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
+            'Delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
         run_shell(args, 'sudo rm -rf /etc/kolla*')
         run_shell(args, 'sudo rm -rf /etc/kubernetes')
         run_shell(args, 'sudo rm -rf /etc/kolla-kubernetes')
 
         print_progress(
             'Kubernetes',
-            'delete /var files and dirs', K8S_CLEANUP_PROGRESS)
+            'Delete /var files and dirs', K8S_CLEANUP_PROGRESS)
         run_shell(args, 'sudo rm -rf /var/lib/kolla*')
         run_shell(args, 'sudo rm -rf /var/etcd')
         run_shell(args, 'sudo rm -rf /var/run/kubernetes/*')
@@ -1307,7 +1309,7 @@ def k8s_cleanup(args):
                            K8S_CLEANUP_PROGRESS)
         else:
             print_progress('Kubernetes', 'Cleanup done. Will attempt '
-                           'to proceed with installation. YMMV.',
+                           'to proceed with installation. YMMV.\n',
                            K8S_CLEANUP_PROGRESS)
             clean_progress()
             add_one_to_progress()
@@ -2083,7 +2085,7 @@ def k8s_test_neutron_int(args):
     truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.vip_ip)
     if re.search('Host is up', truth):
         print('Kubernetes - Neutron Interface %s is in use, '
-              'choose another' % args.ip)
+              'choose another' % args.vip_ip)
         sys.exit(1)
     else:
         logger.debug(
