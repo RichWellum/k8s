@@ -1036,18 +1036,18 @@ def k8s_load_kubeadm_creds(args):
 
     if not os.path.exists(kube):
         os.makedirs(kube)
-        run_shell(args, 'sudo -H cp /etc/kubernetes/admin.conf %s' % config)
-        run_shell(args, 'sudo chmod 777 %s' % kube)
-        run_shell(args, 'sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
-        demo(args, 'Verify Kubelet',
-             'Kubelete should be running our control plane components and be\n'
-             'connected to the API server (like any other Kubelet node.\n'
-             'Run "watch -d kubectl get pods --all-namespaces" in another '
-             'window\nNote that the kube-dns-* pod is not ready yet. We do '
-             'not have a network yet')
-        demo(args, 'Verifying the Control Plane Components',
-             'We can see that kubeadm created a /etc/kubernetes/ '
-             'directory so check\nout what is there.')
+    run_shell(args, 'sudo -H cp /etc/kubernetes/admin.conf %s' % config)
+    run_shell(args, 'sudo chmod 777 %s' % kube)
+    run_shell(args, 'sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
+    demo(args, 'Verify Kubelet',
+         'Kubelete should be running our control plane components and be\n'
+         'connected to the API server (like any other Kubelet node.\n'
+         'Run "watch -d kubectl get pods --all-namespaces" in another '
+         'window\nNote that the kube-dns-* pod is not ready yet. We do '
+         'not have a network yet')
+    demo(args, 'Verifying the Control Plane Components',
+         'We can see that kubeadm created a /etc/kubernetes/ '
+         'directory so check\nout what is there.')
     if args.demo:
         print(run_shell(args, 'ls -lh /etc/kubernetes/'))
         demo(args, 'Files created by kubectl',
@@ -1092,7 +1092,7 @@ def k8s_load_kubeadm_creds(args):
              'https://10.240.0.2/version')
         print(run_shell(args, 'curl --cacert /etc/kubernetes/pki/ca.pem '
                         'https://10.240.0.2/version'))
-        print('  Note "kubectl get pods --all-namespaces" should work now')
+    print('  Note "kubectl get pods --all-namespaces" should work now')
 
 
 def k8s_deploy_canal_sdn(args):
@@ -1136,18 +1136,19 @@ def k8s_deploy_canal_sdn(args):
              'operations, and with\n'
              'support for CNI is taking the next step toward a '
              'common ground for\nnetworking.')
-        answer = curl(
-            '-L',
-            'https://raw.githubusercontent.com/projectcalico/canal/master/'
-            'k8s-install/1.6/canal.yaml',
-            '-o', '/tmp/canal.yaml')
-        logger.debug(answer)
-        run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
-        run_shell(args,
-                  'sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
-        run_shell(args, 'kubectl create -f /tmp/canal.yaml')
-        demo(args, 'Wait for CNI to be deployed',
-             'A successfully deployed CNI will result in a valid dns pod')
+    answer = curl(
+        '-L',
+        'https://raw.githubusercontent.com/projectcalico/canal/master/'
+        'k8s-install/1.6/canal.yaml',
+        '-o', '/tmp/canal.yaml')
+    logger.debug(answer)
+    run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
+    run_shell(args,
+              'sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+    run_shell(args, 'kubectl create -f /tmp/canal.yaml')
+    demo(args,
+         'Wait for CNI to be deployed',
+         'A successfully deployed CNI will result in a valid dns pod')
 
 
 def k8s_add_api_server(args):
