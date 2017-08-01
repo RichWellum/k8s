@@ -333,8 +333,8 @@ def banner(description):
 
     # Final banner
     for c in range(banner):
-        print('*'.rstrip(), end='')
-        print('\n')  # todo??
+        print('*', end='')
+    print('\n')  # todo??
 
 
 def demo(args, title, description):
@@ -828,7 +828,7 @@ def k8s_install_k8s(args):
                    'packages', K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo -H pip install --upgrade pip')
-    k8s_create_repo()
+    k8s_create_repo(args)
 
     demo(args, 'Installing Kubernetes', 'Installing docker ebtables '
          'kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
