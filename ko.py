@@ -1625,6 +1625,7 @@ def kolla_gen_secrets(args):
          '"kubectl create secret generic"',
          'Kubernetes Secrets is an object that contains a small amount of\n'
          'sensitive data such as passwords, keys and tokens etc')
+
     run_shell(args,
               'python ./kolla-kubernetes/tools/secret-generator.py create')
 
