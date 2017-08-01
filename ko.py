@@ -2217,20 +2217,20 @@ def k8s_bringup_kubernetes_cluster(args):
 
     k8s_install_tools(args)
     k8s_cleanup(args)
-    k8s_setup_ntp()
-    k8s_turn_things_off()
+    k8s_setup_ntp(args)
+    k8s_turn_things_off(args)
     k8s_install_k8s(args)
-    k8s_setup_dns()
-    k8s_reload_service_files()
-    k8s_start_kubelet()
-    k8s_fix_iptables()
-    k8s_deploy_k8s()
-    k8s_load_kubeadm_creds()
-    k8s_wait_for_kube_system()
+    k8s_setup_dns(args)
+    k8s_reload_service_files(args)
+    k8s_start_kubelet(args)
+    k8s_fix_iptables(args)
+    k8s_deploy_k8s(args)
+    k8s_load_kubeadm_creds(args)
+    k8s_wait_for_kube_system(args)
     k8s_add_api_server(args, args.mgmt_ip)
-    k8s_deploy_canal_sdn()
+    k8s_deploy_canal_sdn(args)
     k8s_wait_for_running_negate(args)
-    k8s_schedule_master_node()
+    k8s_schedule_master_node(args)
     k8s_pause_to_check_nslookup(args)
     k8s_check_exit(args.kubernetes)
     demo(args, 'Congrats - your kubernetes cluster should be up '
@@ -2246,27 +2246,26 @@ def kolla_bring_up_openstack(args):
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
-    kolla_update_rbac()
+    kolla_update_rbac(args)
     kolla_install_deploy_helm(args)
-    kolla_install_repos()
-    kolla_setup_loopback_lvm()
-    kolla_install_os_client()
-    kolla_gen_passwords()
-    kolla_create_namespace()
+    kolla_install_repos(args)
+    kolla_setup_loopback_lvm(args)
+    kolla_install_os_client(args)
+    kolla_gen_passwords(args)
+    kolla_create_namespace(args)
 
     # Label AOI as Compute and Controller nodes
     node_list = ['kolla_compute', 'kolla_controller']
     kolla_label_nodes(args, node_list)
-
     kolla_modify_globals(args)
     kolla_add_to_globals(args)
-    kolla_enable_qemu()
-    kolla_gen_configs()
-    kolla_gen_secrets()
-    kolla_create_config_maps()
-    kolla_resolve_workaround()
-    kolla_build_micro_charts()
-    kolla_verify_helm_images()
+    kolla_enable_qemu(args)
+    kolla_gen_configs(args)
+    kolla_gen_secrets(args)
+    kolla_create_config_maps(args)
+    kolla_resolve_workaround(args)
+    kolla_build_micro_charts(args)
+    kolla_verify_helm_images(args)
     if re.search('5.', args.image_tag):
         kolla_create_cloud_v5(args)
     else:
@@ -2303,18 +2302,18 @@ def kolla_bring_up_openstack(args):
     # Install Helm charts
     chart_list = ['mariadb']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
-    helm_install_service_chart(chart_list)
+    helm_install_service_chart(args, chart_list)
 
     # Install remaining service level charts
     chart_list = ['rabbitmq', 'memcached', 'keystone', 'glance',
                   'cinder-control', 'cinder-volume-lvm', 'horizon',
                   'neutron']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
-    helm_install_service_chart(chart_list)
+    helm_install_service_chart(args, chart_list)
 
     chart_list = ['nova-control', 'nova-compute']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
-    helm_install_service_chart(chart_list)
+    helm_install_service_chart(args, chart_list)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
@@ -2365,8 +2364,8 @@ def main():
         k8s_test_neutron_int(args)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        kolla_create_demo_vm()
-        kubernetes_test_cli()
+        kolla_create_demo_vm(args)
+        kubernetes_test_cli(args)
 
     except Exception:
         print('Exception caught:')
