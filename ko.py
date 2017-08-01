@@ -633,7 +633,7 @@ def k8s_wait_for_kube_system(args):
             raise AbortScriptException(
                 "Kubernetes - did not come up after {0} seconds!"
                 .format(elapsed_time))
-        add_one_to_progress()
+    add_one_to_progress()
 
 
 def k8s_wait_for_running_negate(args, timeout=None):
@@ -1157,7 +1157,7 @@ def k8s_add_api_server(args):
     print_progress('Kubernetes', 'Add API Server', K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo mkdir -p /etc/nodepool/')
-    run_shell(args, 'sudo echo %s > /tmp/primary_node_private' % args.ip)
+    run_shell(args, 'sudo echo %s > /tmp/primary_node_private' % args.mgmt_ip)
     # todo - has a permissions error
     run_shell(args, 'sudo mv -f /tmp/primary_node_private /etc/nodepool')
 
@@ -2228,7 +2228,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
-    k8s_add_api_server(args, args.mgmt_ip)
+    k8s_add_api_server(args)
     k8s_deploy_canal_sdn(args)
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
