@@ -2086,7 +2086,7 @@ def k8s_test_neutron_int(args):
     else:
         run_shell(args, 'sudo apt-get install -y nmap')
 
-    truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.ip)
+    truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.vip_ip)
     if re.search('Host is up', truth):
         print('Kubernetes - Neutron Interface %s is in use, '
               'choose another' % args.ip)
