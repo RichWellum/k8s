@@ -428,8 +428,9 @@ def tools_versions(args, str):
 
     if args.latest_version is True:
         kolla_version = run_shell(
-            "sudo docker images | grep 'kolla/centos-source-glance-api' \
-            | awk '{print $2}'").rstrip()
+            args,
+            "sudo docker images | grep 'kolla/centos-source-glance-api' "
+            "| awk '{print $2}'").rstrip()
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
@@ -538,8 +539,7 @@ def populate_ip_addresses(args):
         r = list(range(2, 253))
         random.shuffle(r)
         for k in r:
-            vip = run_shell(args,
-                            'sudo nmap -sP -PR %s.%s' % (start_ip, k))
+            vip = run_shell(args, 'sudo nmap -sP -PR %s.%s' % (start_ip, k))
             if "Host seems down" in vip:
                 args.vip_ip = start_ip + '.' + str(k)
                 break
@@ -575,8 +575,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
             w.write("""\
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 """)
-            run_shell(args, 'sudo mv ./kubernetes.list %s' % repo)
-            run_shell(args, 'sudo apt-get update')
+        run_shell(args, 'sudo mv ./kubernetes.list %s' % repo)
+        run_shell(args, 'sudo apt-get update')
 
 
 def k8s_wait_for_kube_system(args):
@@ -794,6 +794,7 @@ def k8s_turn_things_off(args):
         'Kubernetes',
         'Turn off firewall and ISCSID',
         K8S_FINAL_PROGRESS)
+
     if linux_ver() == 'centos':
         run_shell(args, 'sudo systemctl stop firewalld')
         run_shell(args, 'sudo systemctl disable firewalld')
@@ -830,16 +831,19 @@ def k8s_install_k8s(args):
                       'kubectl kubernetes-cni')
         else:
             run_shell(args,
-                      'sudo yum install -y ebtables kubelet-%s kubeadm-%s kubectl-%s \
-                kubernetes-cni' % (tools_versions(args, 'kubernetes'),
-                                   tools_versions(args, 'kubernetes'),
-                                   tools_versions(args, 'kubernetes')))
+                      'sudo yum install -y ebtables kubelet-%s '
+                      'kubeadm-%s kubectl-%s kubernetes-cni'
+                      % (tools_versions(args, 'kubernetes'),
+                         tools_versions(args, 'kubernetes'),
+                         tools_versions(args, 'kubernetes')))
     else:
         if args.latest_version is True:
-            run_shell(args, 'sudo apt-get install -y ebtables kubelet '
+            run_shell(args,
+                      'sudo apt-get install -y ebtables kubelet '
                       'kubeadm kubectl kubernetes-cni --allow-downgrades')
         else:
-            run_shell(args, 'sudo apt-get install -y --allow-downgrades '
+            run_shell(args,
+                      'sudo apt-get install -y --allow-downgrades '
                       'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00'
                       'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
                                           tools_versions(args, 'kubernetes'),
@@ -1161,11 +1165,13 @@ def k8s_schedule_master_node(args):
         'Kubernetes', 'Mark master node as schedulable by untainting the node',
         K8S_FINAL_PROGRESS)
 
-    demo(args, 'Running on the master is different though',
+    demo(args,
+         'Running on the master is different though',
          'There is a special annotation on our node '
          'telling Kubernetes not to\n'
          'schedule containers on our master node.')
-    run_shell(args, 'kubectl taint nodes '
+    run_shell(args,
+              'kubectl taint nodes '
               '--all=true node-role.kubernetes.io/master:NoSchedule-')
 
 
@@ -1335,13 +1341,15 @@ def kolla_install_repos(args):
         print_progress('Kolla', 'Copy default kolla-ansible '
                        'configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
-        run_shell(args, 'sudo cp -aR /usr/share/kolla-ansible/etc_'
+        run_shell(args,
+                  'sudo cp -aR /usr/share/kolla-ansible/etc_'
                   'examples/kolla /etc')
     else:
         print_progress('Kolla', 'Copy default kolla-ansible'
                        'configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
-        run_shell(args, 'sudo cp -aR /usr/local/share/kolla-ansible/'
+        run_shell(args,
+                  'sudo cp -aR /usr/local/share/kolla-ansible/'
                   'etc_examples/kolla /etc')
 
     print_progress('Kolla', 'Copy default kolla-kubernetes '
@@ -1599,19 +1607,20 @@ def kolla_gen_configs(args):
          'container and the container then does its thing')
 
     demo(args, 'The command executed is',
-         'cd kolla-kubernetes; sudo ansible-playbook -e \
-         ansible_python_interpreter=/usr/bin/python -e \
-         @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
-         -e CONFIG_DIR=/etc/kolla ./ansible/site.yml')
+         'cd kolla-kubernetes; sudo ansible-playbook -e '
+         'ansible_python_interpreter=/usr/bin/python -e '
+         '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml '
+         '-e CONFIG_DIR=/etc/kolla ./ansible/site.yml')
 
     demo(args, 'This is temporary',
          'The next gen involves creating config maps in helm '
          'charts with overides (sound familiar?)')
 
-    run_shell(args, 'cd kolla-kubernetes; sudo ansible-playbook -e \
-    ansible_python_interpreter=/usr/bin/python -e \
-    @/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml \
-    -e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
+    run_shell(args,
+              'cd kolla-kubernetes; sudo ansible-playbook -e '
+              'ansible_python_interpreter=/usr/bin/python -e '
+              '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml '
+              '-e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
 
 
 def kolla_gen_secrets(args):
@@ -1943,8 +1952,10 @@ def helm_install_service_chart(args, chart_list):
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             chart, KOLLA_FINAL_PROGRESS)
-        run_shell(args, 'helm install --debug kolla-kubernetes/helm/service/%s \
-        --namespace kolla --name %s --values /tmp/cloud.yaml' % (chart, chart))
+        run_shell(args,
+                  'helm install --debug kolla-kubernetes/helm/service/%s '
+                  '--namespace kolla --name %s --values /tmp/cloud.yaml'
+                  % (chart, chart))
         # Can move this out one level and wait for all containers in a list
         k8s_wait_for_running_negate(args)
 
@@ -1957,8 +1968,8 @@ def helm_install_micro_service_chart(args, chart_list):
             'Kolla', "Helm Install micro service chart: \--'%s'--/" %
             chart, KOLLA_FINAL_PROGRESS)
         run_shell(args,
-                  'helm install --debug kolla-kubernetes/helm/microservice/%s \
-                  --namespace kolla --name %s --values /tmp/cloud.yaml'
+                  'helm install --debug kolla-kubernetes/helm/microservice/%s '
+                  '--namespace kolla --name %s --values /tmp/cloud.yaml'
                   % (chart, chart))
         # Can move this out one level and wait for all containers in a list
         k8s_wait_for_running_negate(args)
@@ -1990,8 +2001,8 @@ def kolla_create_demo_vm(args):
 
     demo_net_id = run_shell(
         args,
-        ".  ~/keystonerc_admin; \
-        echo $(openstack network list | awk '/ demo-net / {print $2}')")
+        ".  ~/keystonerc_admin; "
+        "echo $(openstack network list | awk '/ demo-net / {print $2}')")
     logger.debug(demo_net_id)
 
     # Create a demo image
@@ -2000,7 +2011,8 @@ def kolla_create_demo_vm(args):
         'Create a demo vm in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args, '.  ~/keystonerc_admin; openstack server create '
+    out = run_shell(args,
+                    '.  ~/keystonerc_admin; openstack server create '
                     '--image cirros --flavor m1.tiny --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
     logger.debug(out)
@@ -2131,7 +2143,8 @@ spec:
 
     run_shell(args, 'kubectl create -f %s' % name)
     k8s_wait_for_running_negate(args)
-    out = run_shell(args, 'kubectl exec kolla-dns-test -- nslookup '
+    out = run_shell(args,
+                    'kubectl exec kolla-dns-test -- nslookup '
                     'kubernetes | grep -i address | wc -l')
     demo(args, 'Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
@@ -2262,18 +2275,17 @@ def kolla_bring_up_openstack(args):
     # time to come up but then all the other image pulls are very quick.
     if re.search('5.', args.image_tag):
         banner(
-            'Installing docker registry. Slow but needed for 5.x as \
-            images are not on dockerhub yet.')
+            'Installing docker registry. Slow but needed for 5.x as '
+            'images are not on dockerhub yet.')
         print_progress(
             'Kolla', "Helm Install service chart: \--'%s'--/" %
             'registry-deployment', KOLLA_FINAL_PROGRESS)
-
-        run_shell(
-            args,
-            'helm install --debug kolla-kubernetes/helm/microservice/registry-deployment \
-            --namespace kolla --name registry-centos --set distro=centos \
-            --set node_port=30401 --set initial_load=true \
-            --set svc_name=registry-centos')
+        run_shell(args,
+                  'helm install --debug kolla-kubernetes/helm/microservice/'
+                  'registry-deployment --namespace kolla --name '
+                  'registry-centos --set distro=centos '
+                  '--set node_port=30401 --set initial_load=true '
+                  '--set svc_name=registry-centos')
         k8s_wait_for_running_negate(args, 600)
 
     # Set up OVS for the Infrastructure
