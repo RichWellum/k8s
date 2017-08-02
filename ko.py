@@ -460,10 +460,25 @@ def tools_versions(args, str):
     return(tools_dict[str])
 
 
+def hilite(string, status=True, bold=False):
+    '''Hightlite text in green or red (or bold)'''
+    attr = []
+    if status:
+        # green
+        attr.append('32')
+    else:
+        # red
+        attr.append('31')
+    if bold:
+        attr.append('1')
+    return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+
+
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
+    hilite('Testing string for color', False, True)
     if args.edit_config:
         print('  *globals.yaml and cloud.yaml will be editable '
               'with this option*\n')
