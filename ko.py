@@ -19,9 +19,47 @@ ko.py - Kubernetes Openstack
 
 Author: Rich Wellum (richwellum@gmail.com)
 
-This tool provides a method to deploy OpenStack on a Kubernetes Cluster using
-Kolla and Kolla-Kubernetes on bare metal servers or virtual machines. Virtual
-machines supported are Ubuntu and Centos.
+Purpose
+=======
+
+This is a tool to deploy OpenStack on a Kubernetes Cluster using Kolla images
+and Kolla-Kubernetes on bare metal servers or virtual machines.
+
+It sticks to the methods outlined in the kolla-kubernetes Bare Metal
+Deployment Guide:
+
+https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
+
+I wrote this tool as I was learning about kolla-kubernetes, when the overhead
+of writing the same configuration files was leading to KWE
+(Keyboard Warrior Errors). There ARE other tools, not least
+kolla-kubernetes/tools/setup_kube_AIO.sh which runs the same scripts in the
+gates, and also Ansible playbooks currently in review.
+
+Features
+========
+1. Supports both Centos and Ubuntu natively.
+
+2. Requires just a VM with two NIC's, low congnitive overhead.
+
+3. Simplicity to run: 'ko.py int1 int2'
+
+4. Options to change the versions of all the tools, like helm, kubernetes etc.
+
+5. Option to change the version of OpenStack as needed.
+
+6. Easy on the eye output, with optional verbose mode for more information.
+
+7. Contains a demo mode that walks the user through each step with additional
+information and instruction.
+
+8. Verifies it's completeness by generating a VM in the OpenStack Cluster.
+
+9. Leaves the user with a working OpenStack Cluster with all the basic
+services.
+
+10. Lots of options to customize - even edit globals.yaml and cloud.yaml before
+deploying.
 
 Host machine requirements
 =========================
@@ -29,18 +67,17 @@ Host machine requirements
 The host machine must satisfy the following minimum requirements:
 
 - 2 network interfaces
-- 8GB min, 16GB preferred - main memory
+- 8GB min, 16GB preferred RAM
 - 40G min, 80GB preferred disk space
 - 2 CPU's Min, 4 preferred CPU's
-
-Root access to the deployment host machine is required.
+- Root access to the deployment host machine
 
 Prerequisites
 =============
 
-Verify the state of network interfaces. If using a VM spawned on
-OpenStack as the host machine, the state of the second interface will be DOWN
-on booting the VM.
+Verify the state of network interfaces. If using a VM spawned on OpenStack as
+the host machine, the state of the second interface will be DOWN on booting
+the VM.
 
     ip addr show
 
@@ -53,43 +90,6 @@ should not have an IP Address. Verify this with.
 
     ip addr show
 
-Preceding
-=========
-
-This relies heavily on the OpenStack kolla-kubernetes project and in
-particular the Bare Metal Deployment Guide:
-
-https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
-
-However support will be added to also install OpenStack with the openstack-helm
-project.
-
-Purpose
-=======
-
-The purpose of this tool, when there are so many others out there is:
-
-1. Many tools don't support both Centos and Ubuntu with no input
-from the user.
-
-2. I like to play with versions of all the supporting tools, it
-helps when users report issues when they upgrade say helm, or
-docker, or kubernetes.
-
-3. I like the output of my tool - it's succinct and easy to
-follow. Plus the verbose mode is helpful for seeing all the output.
-
-4. Contains a demo mode that walks the user through Kubernetes and OpenStack.
-
-5. This tool verifies it's completeness by generating a VM in the
-OpenStack Cluster.
-
-6. Leaves the user with a working OpenStack Cluster with all the
-basic services.
-
-7. Very simple to run - just requires two NIC's
-
-8. Lots of options to customize - even edit globals.yaml and cloud.yaml
 
 Mandatory Inputs
 ================
