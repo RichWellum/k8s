@@ -464,9 +464,11 @@ def hilite(string, status=True, bold=False):
     '''Hightlite text in green or red (or bold)'''
     attr = []
     if status:
+        print('DEBUG1')
         # green
         attr.append('32')
     else:
+        print('DEBUG2')
         # red
         attr.append('31')
     if bold:
