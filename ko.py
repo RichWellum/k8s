@@ -740,14 +740,14 @@ def k8s_install_tools(args):
         run_shell(args,
                   'sudo yum install -y python-pip python-devel libffi-devel '
                   'gcc openssl-devel sshpass')
-        run_shell(args, 'sudo yum install -y git crudini jq ansible curl')
+        run_shell(args, 'sudo yum install -y git crudini jq ansible curl lvm2')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
         run_shell(args, 'sudo apt-get install -y bridge-utils nmap ')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass')
-        run_shell(args, 'sudo apt-get install -y git gcc crudini jq ansible curl')
+        run_shell(args, 'sudo apt-get install -y git gcc crudini jq ansible curl lvm2')
 
     curl(
         '-L',
