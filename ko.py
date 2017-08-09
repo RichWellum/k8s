@@ -117,6 +117,13 @@ TODO
 4. Add an option to insert a cherry-pick before compiling kolla-kubernetes
 5. Note there are various todo's scattered inline as well.
 
+Recomendations
+==============
+Due to the length the script can run for, recomend disabling sudo timeout:
+
+1. sudo visudo
+2. Add: 'Defaults    timestamp_timeout=-1'
+
 '''
 
 from __future__ import print_function
@@ -624,6 +631,22 @@ def k8s_wait_for_kube_system(args):
     add_one_to_progress()
 
 
+def k8s_wait_for_pod_start(args, chart):
+    '''Wait for a chart to start'''
+
+    while True:
+        chart_up = run_shell(args,
+                             'kubectl get pods --no-headers --all-namespaces'
+                             ' | grep -i "%s" | wc -l' % chart)
+        if int(chart_up) == 0:
+            print('  *Kubernetes - chart %s not started yet*' % chart)
+            time.sleep(5)
+            continue
+        else:
+            print('  *Kubernetes - chart %s is started*' % chart)
+            break
+
+
 def k8s_wait_for_running_negate(args, timeout=None):
     '''Query get pods until only state is Running'''
 
@@ -652,7 +675,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
         not_running = run_shell(
             args,
             'kubectl get pods --no-headers --all-namespaces | '
-            'grep -v "Running" | wc -l')
+            '| grep grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
@@ -1233,6 +1256,7 @@ def kolla_install_deploy_helm(args):
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % args.helm_version)
     run_shell(args, 'sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell(args, 'helm init')
+    k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
     # Check for helm version
     # Todo - replace this to using json path to check for that field
@@ -1957,6 +1981,7 @@ def helm_install_service_chart(args, chart_list):
                   'helm install --debug kolla-kubernetes/helm/service/%s '
                   '--namespace kolla --name %s --values /tmp/cloud.yaml'
                   % (chart, chart))
+        k8s_wait_for_pod_start(args, chart)
     k8s_wait_for_running_negate(args)
 
 
@@ -2227,6 +2252,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_wait_for_kube_system(args)
     k8s_add_api_server(args)
     k8s_deploy_canal_sdn(args)
+    k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     k8s_pause_to_check_nslookup(args)
@@ -2285,6 +2311,7 @@ def kolla_bring_up_openstack(args):
                   'registry-centos --set distro=centos '
                   '--set node_port=30401 --set initial_load=true '
                   '--set svc_name=registry-centos')
+        k8s_wait_for_pod_start(args, 'registry')
         k8s_wait_for_running_negate(args, 600)
 
     # Set up OVS for the Infrastructure
