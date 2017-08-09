@@ -747,7 +747,8 @@ def k8s_install_tools(args):
         run_shell(args, 'sudo apt-get install -y bridge-utils nmap ')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass')
-        run_shell(args, 'sudo apt-get install -y git gcc crudini jq ansible curl lvm2')
+        run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
+                  'ansible curl lvm2')
 
     curl(
         '-L',
