@@ -114,8 +114,9 @@ TODO
 1. Make it work on a baremetal host
 2. Convert to using https://github.com/kubernetes-incubator/client-python
 3. Add option to use a CNI other than canal
-4. Note there are various todo's scattered inline as well.
-5. Add an option to insert a cherry-pick before compiling kolla-kubernetes
+4. Add an option to insert a cherry-pick before compiling kolla-kubernetes
+5. Note there are various todo's scattered inline as well.
+
 '''
 
 from __future__ import print_function
