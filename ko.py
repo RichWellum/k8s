@@ -739,14 +739,14 @@ def k8s_install_tools(args):
         run_shell(args,
                   'sudo yum install -y python-pip python-devel libffi-devel '
                   'gcc openssl-devel sshpass')
-        run_shell(args, 'sudo yum install -y git crudini jq ansible')
+        run_shell(args, 'sudo yum install -y git crudini jq ansible curl')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
         run_shell(args, 'sudo apt-get install -y bridge-utils nmap ')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass')
-        run_shell(args, 'sudo apt-get install -y git gcc crudini jq ansible')
+        run_shell(args, 'sudo apt-get install -y git gcc crudini jq ansible curl')
 
     curl(
         '-L',
@@ -842,7 +842,7 @@ def k8s_install_k8s(args):
         else:
             run_shell(args,
                       'sudo apt-get install -y --allow-downgrades '
-                      'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00'
+                      'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
                       'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
                                           tools_versions(args, 'kubernetes'),
                                           tools_versions(args, 'kubernetes')))
