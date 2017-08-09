@@ -145,7 +145,7 @@ global PROGRESS
 PROGRESS = 0
 
 global K8S_FINAL_PROGRESS
-K8S_FINAL_PROGRESS = 15
+K8S_FINAL_PROGRESS = 0
 
 # Set these both to 0 as they get set later depending on what is configured
 global KOLLA_FINAL_PROGRESS
@@ -2343,6 +2343,13 @@ def main():
         K8S_CLEANUP_PROGRESS = 6
     else:
         K8S_CLEANUP_PROGRESS = 5
+
+    # Ubuntu does not need the selinux step
+    global K8S_FINAL_PROGRESS
+    if linux_ver() == 'centos':
+        K8S_FINAL_PROGRESS = 15
+    else:
+        K8S_FINAL_PROGRESS = 14
 
     set_logging()
     logger.setLevel(level=args.verbose)
