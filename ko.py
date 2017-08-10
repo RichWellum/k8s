@@ -839,7 +839,7 @@ def k8s_install_k8s(args):
     '''
 
     print_progress('Kubernetes',
-                   'Creating kubernetes repo, installing Kubernetes '
+                   'Creating Kubernetes repo, installing Kubernetes '
                    'packages', K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo -H pip install --upgrade pip')
@@ -1121,7 +1121,7 @@ def k8s_deploy_canal_sdn(args):
     # init command must match
     print_progress(
         'Kubernetes', 'Create RBAC and Deploy the Canal CNI driver '
-        'into a pod (deploy a pod network)',
+        '(deploy a pod network)',
         K8S_FINAL_PROGRESS)
 
     answer = curl(
