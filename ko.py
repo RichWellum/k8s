@@ -675,7 +675,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
         not_running = run_shell(
             args,
             'kubectl get pods --no-headers --all-namespaces | '
-            '| grep grep -v "Running" | wc -l')
+            'grep grep -v "Running" | wc -l')
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
