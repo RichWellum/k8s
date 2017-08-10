@@ -760,8 +760,6 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
-    banner('Kubernetes - Update and install base tools')
-
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
         run_shell(args, 'sudo yum install -y epel-release bridge-utils nmap')
