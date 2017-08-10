@@ -634,6 +634,9 @@ def k8s_wait_for_kube_system(args):
 def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
+    if 'cinder' in chart:
+        chart = 'cinder'
+
     print('  Wait for chart %s to be started:')
 
     while True:
