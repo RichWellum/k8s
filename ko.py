@@ -616,7 +616,7 @@ def k8s_wait_for_kube_system(args):
 
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
-                    print('  *Pod status after %d seconds, pods up %s:6*'
+                    print('  *Pod status after %d seconds, pods started %s:6*'
                           % (elapsed_time, cnt))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
@@ -637,7 +637,7 @@ def k8s_wait_for_pod_start(args, chart):
     if 'cinder' in chart:
         chart = 'cinder'
 
-    print('  Wait for chart %s to be started:')
+    print('  Wait for chart "%s" to be started:' % chart)
 
     while True:
         chart_up = run_shell(args,
