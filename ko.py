@@ -761,6 +761,8 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
+    print_progress('Kubernetes', 'Install base tools', K8S_FINAL_PROGRESS)
+
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
         run_shell(args, 'sudo yum install -y epel-release bridge-utils nmap')
@@ -2379,9 +2381,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 15
+        K8S_FINAL_PROGRESS = 16
     else:
-        K8S_FINAL_PROGRESS = 14
+        K8S_FINAL_PROGRESS = 15
 
     set_logging()
     logger.setLevel(level=args.verbose)
