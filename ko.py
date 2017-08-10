@@ -968,7 +968,7 @@ def k8s_deploy_k8s(args):
 
     print_progress(
         'Kubernetes',
-        '(Slow!) Deploying Kubernetes with kubeadm',
+        'Deploying Kubernetes with kubeadm (Slow!)',
         K8S_FINAL_PROGRESS)
 
     demo(args, 'Initializes your Kubernetes Master',
@@ -1291,7 +1291,7 @@ def k8s_cleanup(args):
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
             'Kubernetes',
-            '(Slow!) kubeadm reset', K8S_CLEANUP_PROGRESS, True)
+            'kubeadm reset (Slow!)', K8S_CLEANUP_PROGRESS, True)
         run_shell(args, 'sudo kubeadm reset')
 
         print_progress(
@@ -1397,7 +1397,7 @@ def kolla_setup_loopback_lvm(args):
 
     print_progress(
         'Kolla',
-        '(Slow!) Setup Loopback LVM for Cinder',
+        'Setup Loopback LVM for Cinder (Slow!)',
         KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Loopback LVM for Cinder',
@@ -1726,8 +1726,8 @@ def kolla_build_micro_charts(args):
     '''Build all helm micro charts'''
 
     print_progress('Kolla',
-                   '(Slow!) Build all Helm microcharts, service charts, '
-                   'and metacharts', KOLLA_FINAL_PROGRESS)
+                   'Build all Helm microcharts, service charts, '
+                   'and metacharts (Slow!)', KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Build helm charts',
          'Helm uses a packaging format called charts. '
