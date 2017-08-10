@@ -1124,8 +1124,7 @@ def k8s_deploy_canal_sdn(args):
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
     print_progress(
-        'Kubernetes', 'Deploy the Canal CNI driver '
-        '(deploy a pod network)',
+        'Kubernetes', 'Deploy pod network SDN using Canal CNI',
         K8S_FINAL_PROGRESS)
 
     answer = curl(
