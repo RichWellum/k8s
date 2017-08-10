@@ -1326,7 +1326,8 @@ def k8s_cleanup(args):
 
         if args.complete_cleanup:
             print_progress('Kubernetes', 'Cleanup done. Highly '
-                           'recommend rebooting your host',
+                           'recommend rebooting your host and'
+                           'then doing "sudo kubeadm reset"',
                            K8S_CLEANUP_PROGRESS)
         else:
             print_progress('Kubernetes', 'Cleanup done. Will attempt '
