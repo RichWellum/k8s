@@ -634,16 +634,18 @@ def k8s_wait_for_kube_system(args):
 def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
+    print('  Wait for chart %s to be started:')
+
     while True:
         chart_up = run_shell(args,
                              'kubectl get pods --no-headers --all-namespaces'
                              ' | grep -i "%s" | wc -l' % chart)
         if int(chart_up) == 0:
-            print('  *Kubernetes - chart %s not started yet*' % chart)
-            time.sleep(5)
+            print('    *Kubernetes - chart %s not started yet*' % chart)
+            time.sleep(3)
             continue
         else:
-            print('  *Kubernetes - chart %s is started*' % chart)
+            print('    *Kubernetes - chart %s is started*' % chart)
             break
 
 
