@@ -764,7 +764,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
-    print_progress('Kubernetes', 'Install base tools', K8S_FINAL_PROGRESS)
+    print_progress('Kubernetes', 'Installing base tools', K8S_FINAL_PROGRESS)
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
