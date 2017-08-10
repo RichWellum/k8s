@@ -637,6 +637,9 @@ def k8s_wait_for_pod_start(args, chart):
     if 'cinder' in chart:
         chart = 'cinder'
 
+    if 'nova' in chart:
+        chart = 'nova'
+
     time.sleep(3)
     # print('  Wait for chart "%s" to be started:' % chart)
 
