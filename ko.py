@@ -1370,7 +1370,7 @@ def kolla_install_repos(args):
                   'sudo cp -aR /usr/share/kolla-ansible/etc_'
                   'examples/kolla /etc')
     else:
-        print_progress('Kolla', 'Copy default kolla-ansible'
+        print_progress('Kolla', 'Copy default kolla-ansible '
                        'configuration to /etc',
                        KOLLA_FINAL_PROGRESS)
         run_shell(args,
