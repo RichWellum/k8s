@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright 2017-present, Lenovo
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,8 +14,6 @@
 
 '''
 ko.py - Kubernetes Openstack
-
-Author: Rich Wellum (richwellum@gmail.com)
 
 Purpose
 =======
@@ -139,11 +135,6 @@ import sys
 import tarfile
 import time
 
-
-__author__ = 'Rich Wellum'
-__version__ = '1.0.0'
-__maintainer__ = 'Rich Wellum'
-__email__ = 'rwellum@gmail.com'
 
 logger = logging.getLogger(__name__)
 
@@ -726,12 +717,12 @@ def k8s_wait_for_vm(args, vm):
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
             if elapsed_time > TIMEOUT:
-                # Dump verbose output in case it helps...
-                print(nova_out)
-                raise AbortScriptException(
-                    "VM did not come up after {0} 1econds!"
-                    .format(elapsed_time))
-                sys.exit(1)
+                print('VM %s did not come up after %s seconds!'
+                      'This is probably not in a healthy state'
+                      (vm, elapsed_time))
+                print(run_shell(args,
+                                '.  ~/keystonerc_admin; nova list'))
+                break
             continue
         else:
             print('    *Kubernetes - VM %s is Running*' % vm)
