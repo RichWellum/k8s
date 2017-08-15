@@ -720,8 +720,6 @@ def k8s_wait_for_vm(args, vm):
                 print('VM %s did not come up after %s seconds!'
                       'This is probably not in a healthy state' %
                       (vm, int(elapsed_time)))
-                print(run_shell(args,
-                                '.  ~/keystonerc_admin; nova list'))
                 break
             continue
         else:
