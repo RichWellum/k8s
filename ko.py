@@ -718,7 +718,7 @@ def k8s_wait_for_vm(args, vm):
             elapsed_time = elapsed_time + RETRY_INTERVAL
             if elapsed_time > TIMEOUT:
                 print('VM %s did not come up after %s seconds!'
-                      'This is probably not in a healthy state'
+                      'This is probably not in a healthy state' %
                       (vm, int(elapsed_time)))
                 print(run_shell(args,
                                 '.  ~/keystonerc_admin; nova list'))
