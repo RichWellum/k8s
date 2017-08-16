@@ -1922,24 +1922,19 @@ global:
          daemonset:
            lvm_backends:
            - '%s': 'cinder-volumes'
+    nova:
+      all:
+        image_tag: 5.0.0
+        placement_api_enabled: true
+        cell_enabled: true
+      api:
+        create_cell:
+          job:
+            cell_wait_compute: false
      ironic:
        conductor:
          daemonset:
            selector_key: "kolla_conductor"
-     nova:
-       all:
-         cell_enabled: true
-       api:
-         create_cell:
-           job:
-             cell_wait_compute: false
-       placement_api:
-         all:
-           port_external: true
-       novncproxy:
-         all:
-           port: 6080
-           port_external: true
      openvwswitch:
        all:
          add_port: true
@@ -1960,6 +1955,22 @@ global:
                args.mgmt_ip,
                args.mgmt_ip,
                args.NEUTRON_INT))
+
+        # old nova config
+       #     nova:
+       # all:
+       #   cell_enabled: true
+       # api:
+       #   create_cell:
+       #     job:
+       #       cell_wait_compute: false
+       # placement_api:
+       #   all:
+       #     port_external: true
+       # novncproxy:
+       #   all:
+       #     port: 6080
+       #     port_external: true
 
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
