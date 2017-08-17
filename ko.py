@@ -277,7 +277,7 @@ def run_shell(args, cmd):
         if '1' in out:
             out = 'None'
         if out:
-            sprint('Shell STDOUT output: %s' % out)
+            print('Shell STDOUT output: %s' % out)
         if err:
             print('Shell STDERR output: %s' % err)
 
