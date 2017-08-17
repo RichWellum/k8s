@@ -272,11 +272,7 @@ def run_shell(args, cmd):
             print('DEMO: CMD: "%s"' % cmd)
 
     if args.verbose == 10:  # Hack - debug enabled
-        if out == '0':
-            out = 'None'
-        if out == '1':
-            out = 'None'
-        if out:
+        if out is not '0' and out is not '1':
             print('Shell STDOUT output: %s' % out)
         if err:
             print('Shell STDERR output: %s' % err)
