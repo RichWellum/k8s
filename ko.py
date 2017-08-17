@@ -276,9 +276,9 @@ def run_shell(args, cmd):
 
     if args.verbose == 10:  # Hack - debug enabled
         if str(out) is not '0' and str(out) is not '1' and out:
-            print("Shell STDOUT output: \n'%s'" % out)
+            print("Shell STDOUT output: \n'%s'\n" % out)
         if err:
-            print("Shell STDERR output: \n'%s'" % err)
+            print("Shell STDERR output: \n'%s'\n" % err)
 
     return(out)
 
@@ -1454,7 +1454,7 @@ def kolla_create_namespace(args):
     '''Create a kolla namespace'''
 
     print_progress('Kolla',
-                   'Create a Kubernetes namespace to isolate this '
+                   'Create a Kubernetes namespace "kolla" to isolate this '
                    'Kolla deployment', KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Isolate the Kubernetes namespace',
