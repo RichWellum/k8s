@@ -271,11 +271,12 @@ def run_shell(args, cmd):
         if not re.search('kubectl get pods', cmd):
             print('DEMO: CMD: "%s"' % cmd)
 
+    out = out.rstrip()
     if args.verbose == 10:  # Hack - debug enabled
         if str(out) is not '0' and str(out) is not '1' and out:
-            print('Shell STDOUT output: "%s"' % out.rstrip())
+            print('Shell STDOUT output: "%s"' % out)
         if err:
-            print('Shell STDERR output: "%s"' % err.rstrip())
+            print('Shell STDERR output: "%s"' % err)
 
     return(out)
 
