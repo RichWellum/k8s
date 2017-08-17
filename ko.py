@@ -272,8 +272,12 @@ def run_shell(args, cmd):
             print('DEMO: CMD: "%s"' % cmd)
 
     if args.verbose == 10:  # Hack - debug enabled
+        if '0' in out:
+            out = 'None'
+        if '1' in out:
+            out = 'None'
         if out:
-            print('Shell STDOUT output: %s' % out)
+            sprint('Shell STDOUT output: %s' % out)
         if err:
             print('Shell STDERR output: %s' % err)
 
@@ -865,7 +869,7 @@ def k8s_install_k8s(args):
         else:
             run_shell(args,
                       'sudo apt-get install -y --allow-downgrades '
-                      'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
+                      'ebtables kubelet=%s-01 kubeadm=%s-01 kubectl=%s-01 '
                       'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
                                           tools_versions(args, 'kubernetes'),
                                           tools_versions(args, 'kubernetes')))
