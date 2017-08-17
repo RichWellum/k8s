@@ -1788,7 +1788,9 @@ def kolla_create_cloud(args):
     This works for tag version 4.x
     '''
 
-    print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla',
+                   'Create a cloud.yaml to describe OpenStack Services',
+                   KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Create a cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
