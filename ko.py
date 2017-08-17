@@ -104,6 +104,19 @@ The `neutron_external_interface` variable is the interface that will be used
 for the external bridge in Neutron. Without this bridge the deployment instance
 traffic will be unable to access the rest of the Internet.
 
+To create two interfaces like this in Ubuntu, for example:
+
+Edit /etc/network/ineterfaces:
+
+# The primary network interface
+auto eth0
+iface eth0 inet dhcp
+
+# Neutron network interface (up but no ip address)
+auto eth1
+iface eth1 inet manual
+ifconfig eth1 up
+
 TODO
 ====
 
@@ -635,7 +648,6 @@ def k8s_wait_for_pod_start(args, chart):
         chart = 'nova'
 
     time.sleep(3)
-    # print('  Wait for chart "%s" to be started:' % chart)
 
     while True:
         chart_up = run_shell(args,
@@ -1925,15 +1937,15 @@ global:
          daemonset:
            lvm_backends:
            - '%s': 'cinder-volumes'
-    nova:
-      all:
-        image_tag: 5.0.0
-        placement_api_enabled: true
-        cell_enabled: true
-      api:
-        create_cell:
-          job:
-            cell_wait_compute: false
+     nova:
+       all:
+         image_tag: 5.0.0
+         placement_api_enabled: true
+         cell_enabled: true
+       api:
+         create_cell:
+           job:
+             cell_wait_compute: false
      ironic:
        conductor:
          daemonset:
