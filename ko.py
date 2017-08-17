@@ -273,9 +273,9 @@ def run_shell(args, cmd):
 
     if args.verbose == 10:  # Hack - debug enabled
         if str(out) is not '0' and str(out) is not '1' and out:
-            print('Shell STDOUT output: %s' % out)
+            print('Shell STDOUT output: "%s"' % out)
         if err:
-            print('Shell STDERR output: %s' % err)
+            print('Shell STDERR output: "%s"' % err)
 
     return(out)
 
