@@ -1293,7 +1293,6 @@ def kolla_install_deploy_helm(args):
 def is_running(process):
     '''Check if a process is running'''
     s = run_shell('ps awx')
-    # s = subprocess.Popen([“ps”, “axw”], stdout=subprocess.PIPE)
     for x in s.stdout:
         if re.search(process, x):
             return True
