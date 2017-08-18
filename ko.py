@@ -1303,8 +1303,7 @@ def is_running(args, process):
 def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
-    if args.cleanup is True or args.complete_cleanup is True or is_running(
-            args, 'kubelet'):
+    if args.cleanup is True or args.complete_cleanup is True:
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
@@ -1353,6 +1352,9 @@ def k8s_cleanup(args):
                            K8S_CLEANUP_PROGRESS)
             clean_progress()
             add_one_to_progress()
+
+    # After reboot, kubelet service comes back...
+    run_shell(args, 'sudo kubeadm reset')
 
 
 def kolla_install_repos(args):
