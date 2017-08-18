@@ -1290,9 +1290,9 @@ def kolla_install_deploy_helm(args):
          'Tiller is ready to respond to helm chart requests')
 
 
-def is_running(process):
+def is_running(args, process):
     '''Check if a process is running'''
-    s = run_shell('ps awx')
+    s = run_shell(args, 'ps awx')
     for x in s.stdout:
         if re.search(process, x):
             return True
@@ -1304,7 +1304,7 @@ def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
     if args.cleanup is True or args.complete_cleanup is True or is_running(
-            'kubelet'):
+            args, 'kubelet'):
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
