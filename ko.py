@@ -1290,10 +1290,22 @@ def kolla_install_deploy_helm(args):
          'Tiller is ready to respond to helm chart requests')
 
 
+def is_running(process):
+    '''Check if a process is running'''
+    s = run_shell('ps awx')
+    # s = subprocess.Popen([“ps”, “axw”], stdout=subprocess.PIPE)
+    for x in s.stdout:
+        if re.search(process, x):
+            return True
+        else:
+            return False
+
+
 def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
-    if args.cleanup is True or args.complete_cleanup is True:
+    if args.cleanup is True or args.complete_cleanup is True or is_running(
+            'kubelet'):
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
@@ -1944,6 +1956,10 @@ global:
          image_tag: 5.0.0
          placement_api_enabled: true
          cell_enabled: true
+       novncproxy:
+         all:
+           port: 6080
+           port_external: true
        api:
          create_cell:
            job:
