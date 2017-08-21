@@ -1991,22 +1991,6 @@ global:
                args.mgmt_ip,
                args.NEUTRON_INT))
 
-        # old nova config
-        #     nova:
-        # all:
-        #   cell_enabled: true
-        # api:
-        #   create_cell:
-        #     job:
-        #       cell_wait_compute: false
-        # placement_api:
-        #   all:
-        #     port_external: true
-        # novncproxy:
-        #   all:
-        #     port: 6080
-        #     port_external: true
-
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
 
