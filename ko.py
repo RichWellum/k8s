@@ -2068,10 +2068,10 @@ done
     logger.debug(out)
 
 
-def kolla_create_demo_vm(args):
+def kolla_finalize_os(args):
     '''Final steps now that a working cluster is up.
 
-    Run "runonce" to set everything up.
+    Run "init-runonce" to set everything up.
     Install a demo image.
     Attach a floating ip.
     '''
@@ -2081,7 +2081,8 @@ def kolla_create_demo_vm(args):
 
     out = run_shell(args,
                     '.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
-    logger.debug(out)
+    print(out)
+    # logger.debug(out)
 
     demo_net_id = run_shell(
         args,
@@ -2095,11 +2096,13 @@ def kolla_create_demo_vm(args):
         'Create a demo vm in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
+    time.sleep(10)
     out = run_shell(args,
                     '.  ~/keystonerc_admin; openstack server create '
                     '--image cirros --flavor m1.tiny --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
-    logger.debug(out)
+    print(out)
+    # logger.debug(out)
     k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
@@ -2403,6 +2406,9 @@ def main():
     else:
         KOLLA_FINAL_PROGRESS = 44
 
+    if args.skip_demo:
+        KOLLA_FINAL_PROGRESS -= 4
+
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
         # Add one if we need to clean up LVM
@@ -2434,7 +2440,7 @@ def main():
         kolla_create_keystone_user(args)
         kolla_allow_ingress(args)
         if not args.skip_demo:
-            kolla_create_demo_vm(args)
+            kolla_finalize_os(args)
         kubernetes_test_cli(args)
 
     except Exception:
