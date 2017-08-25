@@ -216,12 +216,12 @@ def parse_args():
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
                         help='Specify a different Kolla image tage to '
                         'the default(4.0.0)')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.5.0',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.5.1',
                         help='Specify a different helm version to the '
-                        'default(2.5.0)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.0',
+                        'default(2.5.1)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.3',
                         help='Specify a different kubernetes version to '
-                        'the default(1.7.0)')
+                        'the default(1.7.3)')
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
                         help='Specify a different kubernetes-cni version '
                         'to the default(0.5.1-00)')
@@ -454,7 +454,7 @@ def tools_versions(args, str):
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
-        versions = ["4.0.0", "2.5.0", "1.7.0", "0.5.1", "2.2.0.0", "2.8.1"]
+        versions = ["4.0.0", "2.5.1", "1.7.3", "0.5.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
