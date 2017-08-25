@@ -264,6 +264,8 @@ def parse_args():
     parser.add_argument('-f', '--force', action='store_true',
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input')
+    parser.add_argument('-sd', '--skip_demo', action='store_true',
+                        help='Do not create a demo VM')
 
     return parser.parse_args()
 
@@ -2027,14 +2029,8 @@ def helm_install_micro_service_chart(args, chart_list):
     k8s_wait_for_running_negate(args)
 
 
-def kolla_create_demo_vm(args):
-    '''Final steps now that a working cluster is up.
-
-    Create a keystone admin user.
-    Run "runonce" to set everything up and then install a demo image.
-    Attach a floating ip
-    '''
-
+def kolla_create_keystone_user(args):
+    '''Create a keystone user'''
     demo(args, 'We now should have a running OpenStack Cluster on Kubernetes!',
          'Lets create a keystone account, create a demo VM, '
          'attach a floating ip\n'
@@ -2047,6 +2043,42 @@ def kolla_create_demo_vm(args):
     run_shell(args, 'sudo rm -f ~/keystonerc_admin')
     run_shell(args,
               'kolla-kubernetes/tools/build_local_admin_keystonerc.sh ext')
+
+
+def kolla_allow_ingress(args):
+    '''Open up ingress rules to access vm'''
+    print_progress(
+        'Kolla',
+        'Allow Ingress by changing neutron rules',
+        KOLLA_FINAL_PROGRESS)
+    new = '/tmp/neutron_rules.sh'
+    with open(new, "w") as w:
+        w.write("""
+openstack security group list -f value -c ID | while read SG_ID; do
+    neutron security-group-rule-create --protocol icmp \
+        --direction ingress $SG_ID
+    neutron security-group-rule-create --protocol tcp \
+        --port-range-min 22 --port-range-max 22 \
+        --direction ingress $SG_ID
+done
+""")
+    out = run_shell(args,
+                    '.  ~/keystonerc_admin; chmod 766 %s; bash %s' %
+                    (new, new))
+    logger.debug(out)
+
+
+def kolla_create_demo_vm(args):
+    '''Final steps now that a working cluster is up.
+
+    Run "runonce" to set everything up.
+    Install a demo image.
+    Attach a floating ip.
+    '''
+    print_progress('Kolla',
+                   'Run init-runonce to create a demo vm',
+                   KOLLA_FINAL_PROGRESS)
+
     out = run_shell(args,
                     '.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
     logger.debug(out)
@@ -2077,27 +2109,6 @@ def kolla_create_demo_vm(args):
     openstack server add floating ip demo1 $(openstack floating ip \
     create public1 -f value -c floating_ip_address)"
     out = run_shell(args, cmd)
-    logger.debug(out)
-
-    # Open up ingress rules to access VM
-    print_progress(
-        'Kolla',
-        'Allow Ingress by changing neutron rules',
-        KOLLA_FINAL_PROGRESS)
-    new = '/tmp/neutron_rules.sh'
-    with open(new, "w") as w:
-        w.write("""
-openstack security group list -f value -c ID | while read SG_ID; do
-    neutron security-group-rule-create --protocol icmp \
-        --direction ingress $SG_ID
-    neutron security-group-rule-create --protocol tcp \
-        --port-range-min 22 --port-range-max 22 \
-        --direction ingress $SG_ID
-done
-""")
-    out = run_shell(args,
-                    '.  ~/keystonerc_admin; chmod 766 %s; bash %s' %
-                    (new, new))
     logger.debug(out)
 
     # Display nova list
@@ -2420,7 +2431,10 @@ def main():
         k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        kolla_create_demo_vm(args)
+        kolla_create_keystone_user(args)
+        kolla_allow_ingress(args)
+        if not args.skip_demo:
+            kolla_create_demo_vm(args)
         kubernetes_test_cli(args)
 
     except Exception:
