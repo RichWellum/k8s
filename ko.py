@@ -2081,7 +2081,7 @@ def kolla_get_neutron_subnet(args):
     # print(run_shell(args, 'sudo dhclient %s -v -r' % args.NEUTRON_INT))
     print(
         subprocess.Popen(
-            "sudo dhclient %s -v -r > & /tmp/dhcp" %
+            "sudo dhclient %s -v -r >& /tmp/dhcp" %
             args.NEUTRON_INT,
             shell=True,
             stdout=subprocess.PIPE).stdout.read())
