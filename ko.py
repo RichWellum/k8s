@@ -2077,7 +2077,7 @@ done
 def kolla_get_neutron_subnet(args):
     '''Find and return a neutron ip address that can be used for a
     floating ip the neutron subnet'''
-    run_shell(args, 'dhclient ens4 -v -r &> /tmp/dhcp')
+    run_shell(args, 'sudo dhclient %s -v -r &> /tmp/dhcp' % args.NEUTRON_INT)
     out = run_shell(
         args,
         "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
