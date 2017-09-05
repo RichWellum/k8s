@@ -108,7 +108,7 @@ traffic will be unable to access the rest of the Internet.
 
 To create two interfaces like this in Ubuntu, for example:
 
-Edit /etc/network/ineterfaces:
+Edit /etc/network/interfaces:
 
 # The primary network interface
 auto eth0
@@ -219,9 +219,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.1',
                         help='Specify a different helm version to the '
                         'default(2.5.1)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.3',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.5',
                         help='Specify a different kubernetes version to '
-                        'the default(1.7.3)')
+                        'the default(1.7.5)')
     parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
                         help='Specify a different kubernetes-cni version '
                         'to the default(0.5.1-00)')
@@ -454,7 +454,7 @@ def tools_versions(args, str):
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
-        versions = ["4.0.0", "2.5.1", "1.7.3", "0.5.1", "2.2.0.0", "2.8.1"]
+        versions = ["4.0.0", "2.5.1", "1.7.5", "0.5.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -877,7 +877,8 @@ def k8s_install_k8s(args):
                          tools_versions(args, 'kubernetes'),
                          tools_versions(args, 'kubernetes')))
     else:
-        if args.latest_version is True:
+        if args.latest_version is True or tools_versions(
+                args, 'kubernetes') == '1.7.5':
             run_shell(args,
                       'sudo apt-get install -y ebtables kubelet '
                       'kubeadm kubectl kubernetes-cni --allow-downgrades')
@@ -1808,7 +1809,7 @@ def kolla_create_cloud(args):
                    'Create a cloud.yaml to describe OpenStack Services',
                    KOLLA_FINAL_PROGRESS)
 
-    demo(args, 'Create a cloud.yaml',
+    demo(args, 'Create a 4.x (Ocata) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
          'It contains a list of global OpenStack services '
          'and key-value pairs, which\n'
@@ -1900,7 +1901,7 @@ def kolla_create_cloud_v5(args):
 
     print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
 
-    demo(args, 'Create a cloud.yaml',
+    demo(args, 'Create a 5.x (Pike) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
          'It contains a list of global OpenStack services '
          'and key-value pairs, which\n'
@@ -2081,8 +2082,7 @@ def kolla_finalize_os(args):
 
     out = run_shell(args,
                     '.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
-    print(out)
-    # logger.debug(out)
+    logger.debug(out)
 
     demo_net_id = run_shell(
         args,
@@ -2101,8 +2101,7 @@ def kolla_finalize_os(args):
                     '.  ~/keystonerc_admin; openstack server create '
                     '--image cirros --flavor m1.tiny --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
-    print(out)
-    # logger.debug(out)
+    logger.debug(out)
     k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
