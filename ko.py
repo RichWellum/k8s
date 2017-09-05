@@ -2089,6 +2089,8 @@ def kolla_get_neutron_subnet(args):
         if "Host seems down" in vip:
             out = subnet + '.' + str(k)
             break
+    print('SUBNET %s' % subnet)
+    print('IP %s' % out)
     return(subnet, out)
 
 
