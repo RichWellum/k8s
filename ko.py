@@ -2079,7 +2079,9 @@ def kolla_get_neutron_subnet(args):
     floating ip the neutron subnet'''
     print('DEBUG: int %s' % args.NEUTRON_INT)
     run_shell(args, 'sudo dhclient %s -v -r >& /tmp/dhcp' % args.NEUTRON_INT)
-    run_shell(args, 'cat /tmp/dhcp')
+    print('DEBUG2')
+    run_shell(args, 'sudo cat /tmp/dhcp')
+    print('DEBUG3')
     time.sleep(1500)
     sys.exit(1)
     out = run_shell(
