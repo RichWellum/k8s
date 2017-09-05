@@ -2091,6 +2091,7 @@ def kolla_get_neutron_subnet(args):
             break
     print('SUBNET %s' % subnet)
     print('IP %s' % out)
+    sys.exit(1)
     return(subnet, out)
 
 
