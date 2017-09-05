@@ -269,6 +269,8 @@ def parse_args():
                         'will proceed without user input')
     parser.add_argument('-sd', '--skip_demo', action='store_true',
                         help='Do not create a demo VM')
+    parser.add_argument('-x', '--xxx', action='store_true',
+                        help='xxx')
 
     return parser.parse_args()
 
@@ -2079,15 +2081,15 @@ def kolla_get_neutron_subnet(args):
     out = run_shell(
         args,
         "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
-    start_ip = out[:out.rfind(".")]
+    subnet = out[:out.rfind(".")]
     r = list(range(2, 253))
     random.shuffle(r)
     for k in r:
-        vip = run_shell(args, 'sudo nmap -sP -PR %s.%s' % (start_ip, k))
+        vip = run_shell(args, 'sudo nmap -sP -PR %s.%s' % (subnet, k))
         if "Host seems down" in vip:
-            out = start_ip + '.' + str(k)
+            out = subnet + '.' + str(k)
             break
-    return(start_ip, out)
+    return(subnet, out)
 
 
 def kolla_setup_neutron(args):
@@ -2595,6 +2597,20 @@ def main():
 
     set_logging()
     logger.setLevel(level=args.verbose)
+
+    if args.xxx:
+        neutron_subnet, neutron_start = kolla_get_neutron_subnet(args)
+        print(neutron_subnet)
+        print(neutron_start)
+        EXT_NET_CIDR = neutron_subnet + '.' + '0' + ',' + '24'
+        EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
+        neutron_subnet, neutron_end = kolla_get_neutron_subnet(args)
+        EXT_NET_RANGE = 'start=%s,end=%s' % (neutron_start, neutron_end)
+        print(EXT_NET_CIDR)
+        print(EXT_NET_GATEWAY)
+        print(EXT_NET_RANGE)
+
+    sys.exit(1)
 
     if args.complete_cleanup is not True:
         print_versions(args)
