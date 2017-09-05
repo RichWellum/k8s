@@ -2072,6 +2072,171 @@ done
     logger.debug(out)
 
 
+def kolla_get_neutron_subnet(args):
+    '''Find and return a neutron ip address that can be used for a
+    floating ip the neutron subnet'''
+    run_shell(args, 'dhclient ens4 -v -r &> /tmp/dhcp')
+    out = run_shell(
+        args,
+        "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+    start_ip = out[:out.rfind(".")]
+    r = list(range(2, 253))
+    random.shuffle(r)
+    for k in r:
+        vip = run_shell(args, 'sudo nmap -sP -PR %s.%s' % (start_ip, k))
+        if "Host seems down" in vip:
+            out = start_ip + '.' + str(k)
+            break
+    return(start_ip, out)
+
+
+def kolla_setup_neutron(args):
+    '''Use kolla-ansible init-runonce logic but with correct networking'''
+
+    neutron_subnet, neutron_start = kolla_get_neutron_subnet(args)
+    EXT_NET_CIDR = neutron_subnet + '.' + '0' + ',' + '24'
+    EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
+    neutron_subnet, neutron_end = kolla_get_neutron_subnet(args)
+    EXT_NET_RANGE = 'start=%s,end=%s' % (neutron_start, neutron_end)
+
+    runonce = '/tmp/runonce'
+    with open(runonce, "w") as w:
+        w.write("""
+#!/bin/bash
+#
+# This script is meant to be run once after running start for the first
+# time.  This script downloads a cirros image and registers it.  Then it
+# configures networking and nova quotas to allow 40 m1.small instances
+# to be created.
+
+IMAGE_URL=http://download.cirros-cloud.net/0.3.5/
+IMAGE=cirros-0.3.5-x86_64-disk.img
+IMAGE_NAME=cirros
+IMAGE_TYPE=linux
+EXT_NET_CIDR='%s'
+EXT_NET_RANGE='%s'
+EXT_NET_GATEWAY='%s'
+
+# Sanitize language settings to avoid commands bailing out
+# with "unsupported locale setting" errors.
+unset LANG
+unset LANGUAGE
+LC_ALL=C
+export LC_ALL
+for i in curl openstack; do
+    if [[ ! $(type ${i} 2>/dev/null) ]]; then
+        if [ "${i}" == 'curl' ]; then
+            echo "Please install ${i} before proceeding"
+        else
+            echo "Please install python-${i}client before proceeding"
+        fi
+        exit
+    fi
+done
+# Move to top level directory
+REAL_PATH=$(python -c "import os,sys;print os.path.realpath('$0')")
+cd "$(dirname "$REAL_PATH")/.."
+
+# Test for credentials set
+if [[ "${OS_USERNAME}" == "" ]]; then
+    echo "No Keystone credentials specified.  Try running source openrc"
+    exit
+fi
+
+# Test to ensure configure script is run only once
+if openstack image list | grep -q cirros; then
+    echo "This tool should only be run once per deployment."
+    exit
+fi
+
+echo Downloading glance image.
+if ! [ -f "${IMAGE}" ]; then
+    curl -L -o ./${IMAGE} ${IMAGE_URL}/${IMAGE}
+fi
+echo Creating glance image.
+openstack image create --disk-format qcow2 --container-format bare --public \
+    --property os_type=${IMAGE_TYPE} --file ./${IMAGE} ${IMAGE_NAME}
+
+echo Configuring neutron.
+openstack network create --external --provider-physical-network physnet1 \
+    --provider-network-type flat public1
+openstack subnet create --no-dhcp \
+    --allocation-pool ${EXT_NET_RANGE} --network public1 \
+    --subnet-range ${EXT_NET_CIDR} --gateway ${EXT_NET_GATEWAY} public1-subnet
+
+openstack network create --provider-network-type vxlan demo-net
+openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
+    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
+
+openstack router create demo-router
+openstack router add subnet demo-router demo-subnet
+openstack router set --external-gateway public1 demo-router
+
+# Get admin user and tenant IDs
+ADMIN_USER_ID=$(openstack user list | awk '/ admin / {print $2}')
+ADMIN_PROJECT_ID=$(openstack project list | awk '/ admin / {print $2}')
+ADMIN_SEC_GROUP=$(openstack security group list --project \
+        ${ADMIN_PROJECT_ID} | awk '/ default / {print $2}')
+
+# Sec Group Config
+openstack security group rule create --ingress --ethertype IPv4 \
+    --protocol icmp ${ADMIN_SEC_GROUP}
+openstack security group rule create --ingress --ethertype IPv4 \
+    --protocol tcp --dst-port 22 ${ADMIN_SEC_GROUP}
+# Open heat-cfn so it can run on a different host
+openstack security group rule create --ingress --ethertype IPv4 \
+    --protocol tcp --dst-port 8000 ${ADMIN_SEC_GROUP}
+openstack security group rule create --ingress --ethertype IPv4 \
+    --protocol tcp --dst-port 8080 ${ADMIN_SEC_GROUP}
+
+if [ ! -f ~/.ssh/id_rsa.pub ]; then
+    echo Generating ssh key.
+    ssh-keygen -t rsa -f ~/.ssh/id_rsa
+fi
+if [ -r ~/.ssh/id_rsa.pub ]; then
+    echo Configuring nova public key and quotas.
+    openstack keypair create --public-key ~/.ssh/id_rsa.pub mykey
+fi
+
+# Increase the quota to allow 40 m1.small instances to be created
+
+# 40 instances
+openstack quota set --instances 40 ${ADMIN_PROJECT_ID}
+
+# 40 cores
+openstack quota set --cores 40 ${ADMIN_PROJECT_ID}
+
+# 96GB ram
+openstack quota set --ram 96000 ${ADMIN_PROJECT_ID}
+
+# add default flavors, if they don't already exist
+if ! openstack flavor list | grep -q m1.tiny; then
+    openstack flavor create --id 1 --ram 512 --disk 1 --vcpus 1 m1.tiny
+    openstack flavor create --id 2 --ram 2048 --disk 20 --vcpus 1 m1.small
+    openstack flavor create --id 3 --ram 4096 --disk 40 --vcpus 2 m1.medium
+    openstack flavor create --id 4 --ram 8192 --disk 80 --vcpus 4 m1.large
+    openstack flavor create --id 5 --ram 16384 --disk 160 --vcpus 8 m1.xlarge
+fi
+
+DEMO_NET_ID=$(openstack network list | awk '/ demo-net / {print $2}')
+
+cat << EOF
+
+Done.
+
+To deploy a demo instance, run:
+
+openstack server create \\
+    --image ${IMAGE_NAME} \\
+    --flavor m1.tiny \\
+    --key-name mykey \\
+    --nic net-id=${DEMO_NET_ID} \\
+    demo1
+EOF
+        """ % (EXT_NET_CIDR, EXT_NET_RANGE, EXT_NET_GATEWAY))
+        run_shell(args, 'sudo chmod 777 /tmp/runonce')
+
+
 def kolla_finalize_os(args):
     '''Final steps now that a working cluster is up.
 
@@ -2084,7 +2249,7 @@ def kolla_finalize_os(args):
                    KOLLA_FINAL_PROGRESS)
 
     out = run_shell(args,
-                    '.  ~/keystonerc_admin; kolla-ansible/tools/init-runonce')
+                    '.  ~/keystonerc_admin; /tmp/runonce')
     logger.debug(out)
 
     demo_net_id = run_shell(
@@ -2192,7 +2357,7 @@ def k8s_pause_to_check_nslookup(args):
          'If it does not then this deployment will not work.')
     name = './busybox.yaml'
     with open(name, "w") as w:
-        w.write("""\
+        w.write("""
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2445,6 +2610,7 @@ def main():
         kolla_create_keystone_user(args)
         kolla_allow_ingress(args)
         if not args.skip_demo:
+            kolla_setup_neutron(args)
             kolla_finalize_os(args)
         kubernetes_test_cli(args)
 
