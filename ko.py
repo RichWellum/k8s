@@ -2080,6 +2080,7 @@ def kolla_get_neutron_subnet(args):
     print('DEBUG: int %s' % args.NEUTRON_INT)
     run_shell(args, 'sudo dhclient %s -v -r >& /tmp/dhcp' % args.NEUTRON_INT)
     run_shell(args, 'cat /tmp/dhcp')
+    time.sleep(1500)
     sys.exit(1)
     out = run_shell(
         args,
