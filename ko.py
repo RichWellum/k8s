@@ -2081,7 +2081,9 @@ def kolla_get_neutron_subnet(args):
     out = run_shell(
         args,
         "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+    print('DEBUG out %s' % out)
     subnet = out[:out.rfind(".")]
+    print('DEBUG subnet %s' % subnet)
     r = list(range(2, 253))
     random.shuffle(r)
     for k in r:
