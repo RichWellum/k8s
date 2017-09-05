@@ -2078,8 +2078,11 @@ def kolla_get_neutron_subnet(args):
     '''Find and return a neutron ip address that can be used for a
     floating ip the neutron subnet'''
     print('DEBUG: int %s' % args.NEUTRON_INT)
-    run_shell(args, 'sudo dhclient %s -v -r >& /tmp/dhcp' % args.NEUTRON_INT)
-    print('DEBUG2')
+    out = run_shell(args, 'sudo dhclient %s -v -r' % args.NEUTRON_INT)
+    out2 = run_shell(
+        args,
+        "cat %s | grep DHCPRELEASE | awk '{ print $5 }'" % out)
+    print('DEBUG2: out2 %s' % out2)
     run_shell(args, 'sudo cat /tmp/dhcp')
     print('DEBUG3')
     time.sleep(1500)
