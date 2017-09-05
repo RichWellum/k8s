@@ -877,8 +877,7 @@ def k8s_install_k8s(args):
                          tools_versions(args, 'kubernetes'),
                          tools_versions(args, 'kubernetes')))
     else:
-        if args.latest_version is True or tools_versions(
-                args, 'kubernetes') == '1.7.5':
+        if args.latest_version is True:
             run_shell(args,
                       'sudo apt-get install -y ebtables kubelet '
                       'kubeadm kubectl kubernetes-cni --allow-downgrades')
