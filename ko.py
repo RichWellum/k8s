@@ -243,7 +243,7 @@ def parse_args():
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, '
                         'do not install OpenStack')
-    parser.add_argument('-it', '--install_tools', action='store_true',
+    parser.add_argument('-to', '--tools_only', action='store_true',
                         help='Do not install Kubernetes or OpenStack, '
                         'useful for preparing a multi-node minion')
     parser.add_argument('-os', '--openstack', action='store_true',
@@ -2452,7 +2452,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
-    if args.install_tools:
+    if args.tools_only:
         banner('Kubernetes tools installed')
         sys.exit(1)
     k8s_setup_dns(args)
