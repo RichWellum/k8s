@@ -2607,23 +2607,22 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    if args.xxx:
-        neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
+    # if args.xxx:
+    #     neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
 
-        print(neutron_subnet)
-        print(neutron_start)
-        print(octet)
-        EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
-        EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
-        # neutron_subnet, neutron_end = kolla_get_neutron_subnet(args)
-        neutron_end = octet + 10
-        EXT_NET_RANGE = 'start=%s,end=%s' % (
-            neutron_start, neutron_subnet + '.' + str(neutron_end))
-        print(EXT_NET_CIDR)
-        print(EXT_NET_GATEWAY)
-        print(EXT_NET_RANGE)
+    #     print(neutron_subnet)
+    #     print(neutron_start)
+    #     print(octet)
+    #     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
+    #     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
+    #     neutron_end = octet + 10
+    #     EXT_NET_RANGE = 'start=%s,end=%s' % (
+    #         neutron_start, neutron_subnet + '.' + str(neutron_end))
+    #     print(EXT_NET_CIDR)
+    #     print(EXT_NET_GATEWAY)
+    #     print(EXT_NET_RANGE)
 
-    sys.exit(1)
+    # sys.exit(1)
 
     if args.complete_cleanup is not True:
         print_versions(args)
