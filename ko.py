@@ -243,6 +243,9 @@ def parse_args():
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, '
                         'do not install OpenStack')
+    parser.add_argument('-it', '--install_tools', action='store_true',
+                        help='Do not install Kubernetes or OpenStack, '
+                        'useful for preparing a multi-node minion')
     parser.add_argument('-os', '--openstack', action='store_true',
                         help='Build OpenStack on an existing '
                         'Kubernetes Cluster')
@@ -882,6 +885,7 @@ def k8s_install_k8s(args):
                       'sudo apt-get install -y ebtables kubelet '
                       'kubeadm kubectl kubernetes-cni --allow-downgrades')
         else:
+            # todo - this breaks when ubuntu steps up a revision to -01 etc
             run_shell(args,
                       'sudo apt-get install -y --allow-downgrades '
                       'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
@@ -2283,6 +2287,9 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
+    if args.install_tools:
+        banner('Kubernetes tools installed')
+        sys.exit(1)
     k8s_setup_dns(args)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
