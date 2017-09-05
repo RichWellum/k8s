@@ -2079,9 +2079,10 @@ def kolla_get_neutron_subnet(args):
     floating ip the neutron subnet'''
     print('DEBUG: int %s' % args.NEUTRON_INT)
     out = run_shell(args, 'sudo dhclient %s -v -r' % args.NEUTRON_INT)
+    run_shell(args, 'echo %s > /tmp/dhcp' % out)
     out2 = run_shell(
         args,
-        "cat %s | grep DHCPRELEASE | awk '{ print $5 }'" % out)
+        "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
     print('DEBUG2: out2 %s' % out2)
     run_shell(args, 'sudo cat /tmp/dhcp')
     print('DEBUG3')
