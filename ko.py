@@ -2475,7 +2475,9 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
     if args.create_minion:
-        banner('Kubernetes tools installed')
+        run_shell(args, 'sudo systemctl enable kubelet.service')
+        run_shell(args, 'sudo systemctl enable docker.service')
+        banner('Kubernetes tools installed, minion ready')
         sys.exit(1)
     k8s_setup_dns(args)
     k8s_reload_service_files(args)
