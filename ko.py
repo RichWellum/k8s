@@ -2077,18 +2077,22 @@ done
 def kolla_get_neutron_subnet(args):
     '''Find and return a neutron ip address that can be used for a
     floating ip the neutron subnet'''
-    run_shell(
-        args,
-        'sudo dhclient %s -v -r > /tmp/dhcp 2>&1' %
-        args.NEUTRON_INT)
 
-    out = run_shell(
-        args,
-        "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+    for k in range(1, 11):
+        run_shell(
+            args,
+            'sudo dhclient %s -v -r > /tmp/dhcp 2>&1' %
+            args.NEUTRON_INT)
+
+        out = run_shell(
+            args,
+            "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+
+        if out is not None:
+            break
     if out is None:
         print('Kolla - no neutron subnet found, continuing but \
         openstack likley not healthy')
-        sys.exit(1)
 
     subnet = out[:out.rfind(".")]
     print('DEBUG subnet %s' % subnet)
