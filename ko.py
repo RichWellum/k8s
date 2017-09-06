@@ -2270,6 +2270,7 @@ def kolla_finalize_os(args):
 
     out = run_shell(args,
                     '.  ~/keystonerc_admin; /tmp/runonce')
+    print(out)
     logger.debug(out)
 
     demo_net_id = run_shell(
@@ -2290,6 +2291,7 @@ def kolla_finalize_os(args):
                     '--image cirros --flavor m1.tiny --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
     logger.debug(out)
+    print(out)
     k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
@@ -2592,9 +2594,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', args.image_tag):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 45
+        KOLLA_FINAL_PROGRESS = 46
     else:
-        KOLLA_FINAL_PROGRESS = 44
+        KOLLA_FINAL_PROGRESS = 45
 
     if args.skip_demo:
         KOLLA_FINAL_PROGRESS -= 4
