@@ -2085,6 +2085,11 @@ def kolla_get_neutron_subnet(args):
     out = run_shell(
         args,
         "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+    if out is None:
+        print('Kolla - no neutron subnet found, continuing but \
+        openstack likley not healthy')
+        sys.exit(1)
+
     subnet = out[:out.rfind(".")]
     print('DEBUG subnet %s' % subnet)
     r = list(range(2, 253))
