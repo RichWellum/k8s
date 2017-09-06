@@ -2077,6 +2077,26 @@ done
     logger.debug(out)
 
 
+def kolla_get_mgmt_subnet(args):
+    '''Grab an address to access a demo vm
+
+    Return the subnet, actual ip address and the last octet to start the DHCP
+    range'''
+
+    subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
+    r = list(range(2, 253))
+    random.shuffle(r)
+    for k in r:
+        vip = run_shell(args, 'sudo nmap -sP -PR %s.%s' % (subnet, k))
+        if "Host seems down" in vip:
+            ip = subnet + '.' + str(k)
+            break
+    print('DEBUG SUBNET %s' % subnet)
+    print('DEBUG IP %s' % ip)
+    print('DEBUG Octet %s' % k)
+    return(subnet, ip, k)
+
+
 def kolla_get_neutron_subnet(args):
     '''Find and return a neutron ip address that can be used for a
     floating ip the neutron subnet'''
@@ -2098,7 +2118,6 @@ def kolla_get_neutron_subnet(args):
         openstack likley not healthy')
 
     subnet = out[:out.rfind(".")]
-    print('DEBUG subnet %s' % subnet)
     r = list(range(2, 253))
     random.shuffle(r)
     for k in r:
@@ -2106,8 +2125,6 @@ def kolla_get_neutron_subnet(args):
         if "Host seems down" in vip:
             out = subnet + '.' + str(k)
             break
-    print('DEBUG SUBNET %s' % subnet)
-    print('DEBUG IP %s' % out)
     return(subnet, out, k)
 
 
@@ -2115,9 +2132,9 @@ def kolla_setup_neutron(args):
     '''Use kolla-ansible init-runonce logic but with correct networking'''
 
     neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
+    neutron_subnet, neutron_start, octet = kolla_get_mgmt_subnet(args)
     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
-    # neutron_subnet, neutron_end, octet = kolla_get_neutron_subnet(args)
     neutron_end = octet + 10
     EXT_NET_RANGE = 'start=%s,end=%s' % (
         neutron_start, neutron_subnet + '.' + str(neutron_end))
@@ -2172,24 +2189,27 @@ if openstack image list | grep -q cirros; then
     exit
 fi
 
-echo Downloading glance image.
 if ! [ -f "${IMAGE}" ]; then
     curl -L -o ./${IMAGE} ${IMAGE_URL}/${IMAGE}
 fi
-echo Creating glance image.
+
 openstack image create --disk-format qcow2 --container-format bare --public \
     --property os_type=${IMAGE_TYPE} --file ./${IMAGE} ${IMAGE_NAME}
 
-echo Configuring neutron.
 openstack network create --external --provider-physical-network physnet1 \
     --provider-network-type flat public1
-openstack subnet create --no-dhcp \
+openstack subnet create --dhcp \
     --allocation-pool ${EXT_NET_RANGE} --network public1 \
     --subnet-range ${EXT_NET_CIDR} --gateway ${EXT_NET_GATEWAY} public1-subnet
 
+# Create a subnet to provider network
+#openstack subnet create demo-subnet --network public1 --dhcp \
+#    --allocation-pool start=10.240.43.239,end=10.240.43.250 --gateway \
+#    10.240.43.254 --subnet-range 10.240.43.0/24
+
 openstack network create --provider-network-type vxlan demo-net
-openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
-    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
+#openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
+#    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
 
 openstack router create demo-router
 openstack router add subnet demo-router demo-subnet
@@ -2241,7 +2261,7 @@ if ! openstack flavor list | grep -q m1.tiny; then
     openstack flavor create --id 5 --ram 16384 --disk 160 --vcpus 8 m1.xlarge
 fi
 
-DEMO_NET_ID=$(openstack network list | awk '/ demo-net / {print $2}')
+DEMO_NET_ID=$(openstack network list | awk '/ public1 / {print $2}')
 
 cat << EOF
 
@@ -2262,12 +2282,12 @@ EOF
 def kolla_finalize_os(args):
     '''Final steps now that a working cluster is up.
 
-    Run "init-runonce" to set everything up.
+    Run "runonce" to set everything up.
     Install a demo image.
     Attach a floating ip.
     '''
     print_progress('Kolla',
-                   'Run init-runonce to create a demo vm',
+                   'Create a demo vm',
                    KOLLA_FINAL_PROGRESS)
 
     out = run_shell(
@@ -2279,7 +2299,7 @@ def kolla_finalize_os(args):
     demo_net_id = run_shell(
         args,
         ".  ~/keystonerc_admin; "
-        "echo $(openstack network list | awk '/ demo-net / {print $2}')")
+        "echo $(openstack network list | awk '/ public1 / {print $2}')")
     logger.debug(demo_net_id)
 
     # Create a demo image
@@ -2288,7 +2308,6 @@ def kolla_finalize_os(args):
         'Create a demo vm in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    time.sleep(10)
     out = run_shell(args,
                     '.  ~/keystonerc_admin; openstack server create '
                     '--image cirros --flavor m1.tiny --key-name mykey '
