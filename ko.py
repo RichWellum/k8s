@@ -2269,7 +2269,7 @@ def kolla_finalize_os(args):
 
     out = run_shell(
         args,
-        '.  ~/keystonerc_admin; chmod 777 ./runonce; ./runonce)')
+        '.  ~/keystonerc_admin; chmod 777 ./runonce; ./runonce')
     print(out)
     logger.debug(out)
 
