@@ -269,8 +269,6 @@ def parse_args():
                         'will proceed without user input')
     parser.add_argument('-sd', '--skip_demo', action='store_true',
                         help='Do not create a demo VM')
-    parser.add_argument('-x', '--xxx', action='store_true',
-                        help='xxx')
 
     return parser.parse_args()
 
@@ -2477,6 +2475,7 @@ def k8s_bringup_kubernetes_cluster(args):
     if args.create_minion:
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
+        run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes tools installed, minion ready')
         sys.exit(1)
     k8s_setup_dns(args)
@@ -2617,25 +2616,11 @@ def main():
     else:
         K8S_FINAL_PROGRESS = 15
 
+    if args.create_minion:
+        K8S_FINAL_PROGRESS = 5
+
     set_logging()
     logger.setLevel(level=args.verbose)
-
-    # if args.xxx:
-    #     neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
-
-    #     print(neutron_subnet)
-    #     print(neutron_start)
-    #     print(octet)
-    #     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
-    #     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
-    #     neutron_end = octet + 10
-    #     EXT_NET_RANGE = 'start=%s,end=%s' % (
-    #         neutron_start, neutron_subnet + '.' + str(neutron_end))
-    #     print(EXT_NET_CIDR)
-    #     print(EXT_NET_GATEWAY)
-    #     print(EXT_NET_RANGE)
-
-    # sys.exit(1)
 
     if args.complete_cleanup is not True:
         print_versions(args)
