@@ -2267,7 +2267,9 @@ def kolla_finalize_os(args):
                    'Run init-runonce to create a demo vm',
                    KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args, '.  ~/keystonerc_admin; ./runonce)')
+    out = run_shell(
+        args,
+        '.  ~/keystonerc_admin; chmod 777 ./runonce; ./runonce)')
     print(out)
     logger.debug(out)
 
