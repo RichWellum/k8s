@@ -243,7 +243,7 @@ def parse_args():
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, '
                         'do not install OpenStack')
-    parser.add_argument('-to', '--tools_only', action='store_true',
+    parser.add_argument('-cm', '--create_minion', action='store_true',
                         help='Do not install Kubernetes or OpenStack, '
                         'useful for preparing a multi-node minion')
     parser.add_argument('-os', '--openstack', action='store_true',
@@ -2119,7 +2119,7 @@ def kolla_setup_neutron(args):
     EXT_NET_RANGE = 'start=%s,end=%s' % (
         neutron_start, neutron_subnet + '.' + str(neutron_end))
 
-    runonce = '/tmp/runonce'
+    runonce = './runonce'
     with open(runonce, "w") as w:
         w.write("""
 #!/bin/bash
@@ -2254,7 +2254,6 @@ openstack server create \\
     demo1
 EOF
         """ % (EXT_NET_CIDR, EXT_NET_RANGE, EXT_NET_GATEWAY))
-        run_shell(args, 'sudo chmod 777 /tmp/runonce')
 
 
 def kolla_finalize_os(args):
@@ -2268,8 +2267,7 @@ def kolla_finalize_os(args):
                    'Run init-runonce to create a demo vm',
                    KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args,
-                    '.  ~/keystonerc_admin; /tmp/runonce')
+    out = run_shell(args, '.  ~/keystonerc_admin; ./runonce)')
     print(out)
     logger.debug(out)
 
@@ -2474,7 +2472,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
-    if args.tools_only:
+    if args.create_minion:
         banner('Kubernetes tools installed')
         sys.exit(1)
     k8s_setup_dns(args)
