@@ -546,6 +546,11 @@ def populate_ip_addresses(args):
     the users system
     '''
 
+    if linux_ver() == 'centos':
+        run_shell(args, 'sudo yum install -y nmap')
+    else:
+        run_shell(args, 'sudo apt-get install -y nmap')
+
     # Populate Management IP Address
     if args.mgmt_ip is 'None':
         mgt = run_shell(
@@ -781,7 +786,7 @@ def k8s_install_tools(args):
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
-        run_shell(args, 'sudo yum install -y epel-release bridge-utils nmap')
+        run_shell(args, 'sudo yum install -y epel-release bridge-utils')
         run_shell(args,
                   'sudo yum install -y python-pip python-devel libffi-devel '
                   'gcc openssl-devel sshpass')
@@ -789,7 +794,7 @@ def k8s_install_tools(args):
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
-        run_shell(args, 'sudo apt-get install -y bridge-utils nmap ')
+        run_shell(args, 'sudo apt-get install -y bridge-utils')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass')
         run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
@@ -2333,11 +2338,6 @@ def kolla_finalize_os(args):
 
 def k8s_test_vip_int(args):
     '''Test that the vip interface is not used'''
-
-    if linux_ver() == 'centos':
-        run_shell(args, 'sudo yum install -y nmap')
-    else:
-        run_shell(args, 'sudo apt-get install -y nmap')
 
     truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.vip_ip)
     if re.search('Host is up', truth):
