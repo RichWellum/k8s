@@ -122,11 +122,10 @@ ifconfig eth1 up
 TODO
 ====
 
-1. Make it work on a baremetal host
-2. Convert to using https://github.com/kubernetes-incubator/client-python
-3. Add option to use a CNI other than canal
-4. Add an option to insert a cherry-pick before compiling kolla-kubernetes
-5. Note there are various todo's scattered inline as well.
+1. Convert to using https://github.com/kubernetes-incubator/client-python
+2. Add option to use a CNI other than canal
+3. Add an option to insert a cherry-pick before compiling kolla-kubernetes
+4. Note there are various todo's scattered inline as well.
 
 Recomendations
 ==============
@@ -590,7 +589,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 """)
-            # todo: add -H to all sudo's see if it works in both envs
+        # todo: add -H to all sudo's see if it works in both envs
         run_shell(args, 'sudo mv ./kubernetes.repo %s' % repo)
     else:
         run_shell(args,
@@ -2233,11 +2232,10 @@ openstack security group rule create --ingress --ethertype IPv4 \
     --protocol tcp --dst-port 8080 ${ADMIN_SEC_GROUP}
 
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
-    echo Generating ssh key.
     ssh-keygen -t rsa -f ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa.pub
 fi
 if [ -r ~/.ssh/id_rsa.pub ]; then
-    echo Configuring nova public key and quotas.
     openstack keypair create --public-key ~/.ssh/id_rsa.pub mykey
 fi
 
@@ -2271,7 +2269,7 @@ To deploy a demo instance, run:
 
 openstack server create \\
     --image ${IMAGE_NAME} \\
-    --flavor m1.tiny \\
+    --flavor m1.small \\
     --key-name mykey \\
     --nic net-id=${DEMO_NET_ID} \\
     demo1
@@ -2293,7 +2291,7 @@ def kolla_finalize_os(args):
     out = run_shell(
         args,
         '.  ~/keystonerc_admin; chmod 777 ./runonce; ./runonce')
-    print(out)
+    # print(out)
     logger.debug(out)
 
     demo_net_id = run_shell(
@@ -2310,10 +2308,10 @@ def kolla_finalize_os(args):
 
     out = run_shell(args,
                     '.  ~/keystonerc_admin; openstack server create '
-                    '--image cirros --flavor m1.tiny --key-name mykey '
+                    '--image cirros --flavor m1.small --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
     logger.debug(out)
-    print(out)
+    # print(out)
     k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
