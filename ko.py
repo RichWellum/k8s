@@ -2207,9 +2207,9 @@ openstack subnet create --dhcp \
 #openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
 #    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
 
-#openstack router create demo-router
-#openstack router add subnet demo-router demo-subnet
-#openstack router set --external-gateway public1 demo-router
+openstack router create demo-router
+openstack router add subnet demo-router demo-subnet
+openstack router set --external-gateway public1 demo-router
 
 # Get admin user and tenant IDs
 ADMIN_USER_ID=$(openstack user list | awk '/ admin / {print $2}')
