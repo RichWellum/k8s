@@ -2203,9 +2203,9 @@ openstack subnet create --dhcp \
     --allocation-pool ${EXT_NET_RANGE} --network public1 \
     --subnet-range ${EXT_NET_CIDR} --gateway ${EXT_NET_GATEWAY} public1-subnet
 
-#openstack network create --provider-network-type vxlan demo-net
-#openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
-#    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
+openstack network create --provider-network-type vxlan demo-net
+openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
+    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
 
 openstack router create demo-router
 openstack router add subnet demo-router demo-subnet
