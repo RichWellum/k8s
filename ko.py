@@ -2197,22 +2197,19 @@ openstack image create --disk-format qcow2 --container-format bare --public \
 
 openstack network create --external --provider-physical-network physnet1 \
     --provider-network-type flat public1
+
+# Create a subnet to provider network
 openstack subnet create --dhcp \
     --allocation-pool ${EXT_NET_RANGE} --network public1 \
     --subnet-range ${EXT_NET_CIDR} --gateway ${EXT_NET_GATEWAY} public1-subnet
 
-# Create a subnet to provider network
-#openstack subnet create demo-subnet --network public1 --dhcp \
-#    --allocation-pool start=10.240.43.239,end=10.240.43.250 --gateway \
-#    10.240.43.254 --subnet-range 10.240.43.0/24
-
-openstack network create --provider-network-type vxlan demo-net
+#openstack network create --provider-network-type vxlan demo-net
 #openstack subnet create --subnet-range 10.0.0.0/24 --network demo-net \
 #    --gateway 10.0.0.1 --dns-nameserver 8.8.8.8 demo-subnet
 
-openstack router create demo-router
-openstack router add subnet demo-router demo-subnet
-openstack router set --external-gateway public1 demo-router
+#openstack router create demo-router
+#openstack router add subnet demo-router demo-subnet
+#openstack router set --external-gateway public1 demo-router
 
 # Get admin user and tenant IDs
 ADMIN_USER_ID=$(openstack user list | awk '/ admin / {print $2}')
