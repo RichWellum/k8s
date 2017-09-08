@@ -2269,7 +2269,7 @@ To deploy a demo instance, run:
 
 openstack server create \\
     --image ${IMAGE_NAME} \\
-    --flavor m1.small \\
+    --flavor m1.tiny \\
     --key-name mykey \\
     --nic net-id=${DEMO_NET_ID} \\
     demo1
@@ -2285,7 +2285,7 @@ def kolla_finalize_os(args):
     Attach a floating ip.
     '''
     print_progress('Kolla',
-                   'Create a demo vm',
+                   'Configure Neutron, pull images',
                    KOLLA_FINAL_PROGRESS)
 
     out = run_shell(
@@ -2303,12 +2303,12 @@ def kolla_finalize_os(args):
     # Create a demo image
     print_progress(
         'Kolla',
-        'Create a demo vm in our OpenStack cluster',
+        'Create a demo VM in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
     out = run_shell(args,
                     '.  ~/keystonerc_admin; openstack server create '
-                    '--image cirros --flavor m1.small --key-name mykey '
+                    '--image cirros --flavor m1.tiny --key-name mykey '
                     '--nic net-id=%s demo1' % demo_net_id.rstrip())
     logger.debug(out)
     # print(out)
