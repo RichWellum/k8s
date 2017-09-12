@@ -2303,11 +2303,14 @@ def kolla_finalize_os(args):
         'Create a demo VM in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    create_demo = '.  ~/keystonerc_admin; openstack server create --image cirros --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
-    print('To create a dmeo vm do')
-    print(create_demo)
+    create_demo_vm = '.  ~/keystonerc_admin; openstack server ' \
+        'create --image cirros --flavor m1.tiny --key-name mykey ' \
+        '--nic net-id=%s demo1' % demo_net_id.rstrip()
+    print('To create a demo image VM do:')
+    print(create_demo_vm)
 
-    logger.debug(out)
+    # For now, only suggest a demo VM and floating ip
+    #
     # out = run_shell(args,
     #                 '.  ~/keystonerc_admin; openstack server create '
     #                 '--image cirros --flavor m1.tiny --key-name mykey '
@@ -2316,7 +2319,7 @@ def kolla_finalize_os(args):
     # k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
-    print_progress('Kolla', 'Create floating ip', KOLLA_FINAL_PROGRESS)
+    # print_progress('Kolla', 'Create floating ip', KOLLA_FINAL_PROGRESS)
 
     # cmd = ".  ~/keystonerc_admin; \
     # openstack server add floating ip demo1 $(openstack floating ip \
@@ -2613,9 +2616,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', args.image_tag):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 46
-    else:
         KOLLA_FINAL_PROGRESS = 45
+    else:
+        KOLLA_FINAL_PROGRESS = 44
 
     if args.skip_demo:
         KOLLA_FINAL_PROGRESS -= 4
