@@ -2303,30 +2303,34 @@ def kolla_finalize_os(args):
         'Create a demo VM in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args,
-                    '.  ~/keystonerc_admin; openstack server create '
-                    '--image cirros --flavor m1.tiny --key-name mykey '
-                    '--nic net-id=%s demo1' % demo_net_id.rstrip())
+    create_demo = '.  ~/keystonerc_admin; openstack server create --image cirros --flavor m1.tiny --key-name mykey --nic net-id=%s demo1' % demo_net_id.rstrip()
+    print('To create a dmeo vm do')
+    print(create_demo)
+
     logger.debug(out)
-    # print(out)
-    k8s_wait_for_vm(args, 'demo1')
+    # out = run_shell(args,
+    #                 '.  ~/keystonerc_admin; openstack server create '
+    #                 '--image cirros --flavor m1.tiny --key-name mykey '
+    #                 '--nic net-id=%s demo1' % demo_net_id.rstrip())
+    # logger.debug(out)
+    # k8s_wait_for_vm(args, 'demo1')
 
     # Create a floating ip
     print_progress('Kolla', 'Create floating ip', KOLLA_FINAL_PROGRESS)
 
-    cmd = ".  ~/keystonerc_admin; \
-    openstack server add floating ip demo1 $(openstack floating ip \
-    create public1 -f value -c floating_ip_address)"
-    out = run_shell(args, cmd)
-    logger.debug(out)
+    # cmd = ".  ~/keystonerc_admin; \
+    # openstack server add floating ip demo1 $(openstack floating ip \
+    # create public1 -f value -c floating_ip_address)"
+    # out = run_shell(args, cmd)
+    # logger.debug(out)
 
-    # Display nova list
-    print_progress(
-        'Kolla',
-        'nova list to see floating IP and demo VM',
-        KOLLA_FINAL_PROGRESS)
+    # # Display nova list
+    # print_progress(
+    #     'Kolla',
+    #     'nova list to see floating IP and demo VM',
+    #     KOLLA_FINAL_PROGRESS)
 
-    print(run_shell(args, '.  ~/keystonerc_admin; nova list'))
+    # print(run_shell(args, '.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
 
     # Suggest Horizon logon info
