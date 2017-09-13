@@ -2637,7 +2637,7 @@ def main():
 
     # todo: Remove
     kolla_get_host_subnet(args)
-    sys.sleep(1000)
+    time.sleep(1000)
 
     # Start progress on one
     add_one_to_progress()
