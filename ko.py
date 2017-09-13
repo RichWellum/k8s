@@ -2085,7 +2085,8 @@ def kolla_get_host_subnet(args):
     # Grab default route
     default = run_shell(
         args,
-        "ip route | grep default | grep %s | awk '{ print $3 }'" % args.MGMT_INT)
+        "ip route | grep default | grep %s | awk '{ print $3 }'" %
+        args.MGMT_INT)
     subnet = default[:default.rfind(".")]
     # subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
     r = list(range(2, 253))
@@ -2156,7 +2157,7 @@ def kolla_setup_neutron(args):
     '''Use kolla-ansible init-runonce logic but with correct networking'''
 
     # neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
-    neutron_subnet, neutron_start, octet = kolla_get_mgmt_subnet(args)
+    neutron_subnet, neutron_start, octet = kolla_get_host_subnet(args)
     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
     neutron_end = octet + 10
@@ -2634,10 +2635,6 @@ def main():
 
     # Populate IP Addresses
     populate_ip_addresses(args)
-
-    # todo: Remove
-    kolla_get_host_subnet(args)
-    time.sleep(1000)
 
     # Start progress on one
     add_one_to_progress()
