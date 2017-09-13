@@ -2632,12 +2632,12 @@ def main():
     # Force sudo early on
     run_shell(args, 'sudo -v')
 
+    # Populate IP Addresses
+    populate_ip_addresses(args)
+
     # todo: Remove
     kolla_get_host_subnet(args)
     sys.sleep(1000)
-
-    # Populate IP Addresses
-    populate_ip_addresses(args)
 
     # Start progress on one
     add_one_to_progress()
