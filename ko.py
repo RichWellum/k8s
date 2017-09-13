@@ -1606,6 +1606,7 @@ enable_kibana: "no"
 glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
+enable_neutron_provider_networks: "yes"
 """)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
