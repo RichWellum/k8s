@@ -2085,7 +2085,7 @@ def kolla_get_host_subnet(args):
     # Grab default route
     default = run_shell(
         args,
-        "ip route | grep default | grep %s | awk '{ print $3 }'" % args.mgmt_ip)
+        "ip route | grep default | grep %s | awk '{ print $3 }'" % args.MGMT_IP)
     subnet = default[:default.rfind(".")]
     # subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
     r = list(range(2, 253))
