@@ -2344,7 +2344,7 @@ def kolla_finalize_os(args):
     logger.debug(out)
     k8s_wait_for_vm(args, 'demo1')
 
-    Create a floating ip
+    # Create a floating ip
     print_progress('Kolla', 'Create floating ip', KOLLA_FINAL_PROGRESS)
 
     cmd = ".  ~/keystonerc_admin; \
