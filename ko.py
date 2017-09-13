@@ -1393,6 +1393,7 @@ def kolla_install_repos(args):
     run_shell(args,
               'git clone http://github.com/openstack/kolla-kubernetes')
 
+    pause_tool_execution('DEBUG123XXX')  # todo remove
     print_progress(
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
