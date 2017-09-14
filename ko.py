@@ -306,14 +306,19 @@ def run_shell(args, cmd):
 
 def add_line(file, marker, addition):
     '''Add a line addition, below line marker in file file'''
-    with open(file, "r") as in_file:
-        buf = in_file.readlines()
+    for line in open(file).readlines():
+        print(line, end="")
+        if line.startswith(marker):
+            print(addtion)
 
-    with open(file, "w") as out_file:
-        for line in buf:
-            if line == marker:
-                line = line + "%s\n" % addition
-                out_file.write(line)
+    # with open(file, "r") as in_file:
+    #     buf = in_file.readlines()
+
+    # with open(file, "w") as out_file:
+    #     for line in buf:
+    #         if line == marker:
+    #             line = line + "%s\n" % addition
+    #             out_file.write(line)
 
 
 def untar(fname):
