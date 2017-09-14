@@ -1415,11 +1415,11 @@ def kolla_install_repos(args):
     run_shell(args,
               'git clone http://github.com/openstack/kolla-kubernetes')
 
-    # Add flat_network
-    print(run_shell(args,
-                    "sudo sed -i 's/flat_networks = */flat_networks = "
-                    "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
-                    "templates/ml2_conf.ini.j2"))
+    # Add flat_network todo
+    # print(run_shell(args,
+    #                 "sudo sed -i 's/flat_networks = */flat_networks = "
+    #                 "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
+    #                 "templates/ml2_conf.ini.j2"))
 
     pause_tool_execution('DEBUG123XXX')  # todo remove
     print_progress(
