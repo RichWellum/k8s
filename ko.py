@@ -304,6 +304,18 @@ def run_shell(args, cmd):
     return(out)
 
 
+def add_line(file, marker, addition):
+    '''Add a line addition, below line marker in file file'''
+    with open(file, "r") as in_file:
+        buf = in_file.readlines()
+
+    with open(file, "w") as out_file:
+        for line in buf:
+            if line == marker:
+                line = line + "%s\n" % addition
+                out_file.write(line)
+
+
 def untar(fname):
     '''Untar a tarred and compressed file'''
 
@@ -1395,6 +1407,12 @@ def kolla_install_repos(args):
     run_shell(args,
               'git clone http://github.com/openstack/kolla-kubernetes')
 
+    # Add flat_network
+    add_line(
+        './kolla-kubernetes/ansible/roles/neutron/templates/ml2_conf.ini.j2',
+        '[ml2_type_flat]',
+        'flat_networks = physnet1')
+
     pause_tool_execution('DEBUG123XXX')  # todo remove
     print_progress(
         'Kolla',
@@ -1609,6 +1627,7 @@ enable_kibana: "no"
 glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
+enable_neutron_provider_networks: "yes"
 """)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
@@ -2148,7 +2167,7 @@ def kolla_get_neutron_subnet(args):
             break
     if out is None:
         print('Kolla - no neutron subnet found, continuing but \
-        openstack likley not healthy')
+        openstack likely not healthy')
 
     subnet = out[:out.rfind(".")]
     r = list(range(2, 253))
