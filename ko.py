@@ -268,6 +268,8 @@ def parse_args():
                         'will proceed without user input')
     parser.add_argument('-sd', '--skip_demo', action='store_true',
                         help='Do not create a demo VM')
+    parser.add_argument('-dm', '--dev_mode', action='store_true',
+                        help='For developers only')
 
     return parser.parse_args()
 
@@ -2166,10 +2168,13 @@ def kolla_setup_neutron(args):
     # neutron_subnet, neutron_start, octet = kolla_get_host_subnet(args)
     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
-    neutron_end = octet + 10
+    # Because I don't own these - only use one that I know is safe
+    neutron_end = octet + 1
     EXT_NET_RANGE = 'start=%s,end=%s' % (
         neutron_start, neutron_subnet + '.' + str(neutron_end))
 
+    print('DEBUG: CIDR=%s, GW=%s, range=%s' %
+          (EXT_NET_CIDR, EXT_NET_GATEWAY, EXT_NET_RANGE))
     runonce = './runonce'
     with open(runonce, "w") as w:
         w.write("""
@@ -2641,6 +2646,10 @@ def main():
 
     # Populate IP Addresses
     populate_ip_addresses(args)
+
+    if args.dev_mode:
+        kolla_setup_neutron()
+        sys.exit(1)
 
     # Start progress on one
     add_one_to_progress()
