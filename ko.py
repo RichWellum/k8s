@@ -1607,7 +1607,6 @@ enable_kibana: "no"
 glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
-enable_neutron_provider_networks: "yes"
 """)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
@@ -1888,8 +1887,13 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.image_tag, args.mgmt_ip, args.MGMT_INT, args.vip_ip,
-               args.mgmt_ip, args.mgmt_ip, args.NEUTRON_INT))
+        """ % (args.image_tag,
+               args.mgmt_ip,
+               args.MGMT_INT,
+               args.vip_ip,
+               args.mgmt_ip,
+               args.mgmt_ip,
+               args.NEUTRON_INT))
 
     if args.edit_config is True:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
