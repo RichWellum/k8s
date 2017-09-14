@@ -2162,9 +2162,9 @@ def kolla_get_neutron_subnet(args):
 def kolla_setup_neutron(args):
     '''Use kolla-ansible init-runonce logic but with correct networking'''
 
-    # neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
-    neutron_subnet, neutron_start, octet = kolla_get_host_subnet(args)
-    EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '22'
+    neutron_subnet, neutron_start, octet = kolla_get_neutron_subnet(args)
+    # neutron_subnet, neutron_start, octet = kolla_get_host_subnet(args)
+    EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
     neutron_end = octet + 10
     EXT_NET_RANGE = 'start=%s,end=%s' % (
