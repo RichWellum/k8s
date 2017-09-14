@@ -671,6 +671,9 @@ def k8s_wait_for_kube_system(args):
 def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
+    # No-op as issue not seen and very slow
+    return
+
     if 'cinder' in chart:
         chart = 'cinder'
 
@@ -1414,14 +1417,9 @@ def kolla_install_repos(args):
 
     # Add flat_network
     print(run_shell(args,
-                    'sudo sed -i s/"flat_networks = *"/"flat_networks = '
-                    'physnet1"/g ./kolla-kubernetes/ansible/roles/neutron/'
-                    'templates/ml2_conf.ini.j2'))
-
-    # add_line(
-    #     './kolla-kubernetes/ansible/roles/neutron/templates/ml2_conf.ini.j2',
-    #     '[ml2_type_flat]',
-    #     'flat_networks = physnet1')
+                    "sudo sed -i 's/flat_networks = */flat_networks = "
+                    "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
+                    "templates/ml2_conf.ini.j2"))
 
     pause_tool_execution('DEBUG123XXX')  # todo remove
     print_progress(
