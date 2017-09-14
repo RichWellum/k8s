@@ -2118,12 +2118,12 @@ def kolla_get_host_subnet(args):
     range'''
 
     # Grab default route
-    default = run_shell(
-        args,
-        "ip route | grep default | grep %s | awk '{ print $3 }'" %
-        args.MGMT_INT)
-    subnet = default[:default.rfind(".")]
-    # subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
+    # default = run_shell(
+    #     args,
+    #     "ip route | grep default | grep %s | awk '{ print $3 }'" %
+    #     args.MGMT_INT)
+    # subnet = default[:default.rfind(".")]
+    subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
     r = list(range(2, 253))
     random.shuffle(r)
     for k in r:
@@ -2134,6 +2134,7 @@ def kolla_get_host_subnet(args):
     print('DEBUG SUBNET %s' % subnet)
     print('DEBUG IP %s' % ip)
     print('DEBUG Octet %s' % k)
+    time.sleep(25)
     return(subnet, ip, k)
 
 
