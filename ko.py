@@ -2648,7 +2648,7 @@ def main():
     populate_ip_addresses(args)
 
     if args.dev_mode:
-        kolla_setup_neutron()
+        kolla_setup_neutron(args)
         sys.exit(1)
 
     # Start progress on one
