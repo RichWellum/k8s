@@ -309,7 +309,7 @@ def add_line(file, marker, addition):
     for line in open(file).readlines():
         print(line, end="")
         if line.startswith(marker):
-            print(addtion)
+            print(addition)
 
     # with open(file, "r") as in_file:
     #     buf = in_file.readlines()
