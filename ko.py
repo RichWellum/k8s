@@ -2118,12 +2118,11 @@ def kolla_get_host_subnet(args):
     range'''
 
     # Grab default route
-    # default = run_shell(
-    #     args,
-    #     "ip route | grep default | grep %s | awk '{ print $3 }'" %
-    #     args.MGMT_INT)
-    # subnet = default[:default.rfind(".")]
-    subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
+    default = run_shell(
+        args,
+        "ip route | grep default | grep %s | awk '{ print $3 }'" %
+        args.MGMT_INT)
+    subnet = default[:default.rfind(".")]
     r = list(range(2, 253))
     random.shuffle(r)
     for k in r:
@@ -2676,8 +2675,16 @@ def main():
     populate_ip_addresses(args)
 
     if args.dev_mode:
-        kolla_setup_neutron(args)
-        sys.exit(1)
+        subnet, start, octet = kolla_get_host_subnet(args)
+        print('DEV: HOST: subnet=%s, start=%s, octet=%s' %
+              (subnet, start, octet))
+        subnet, start, octet = kolla_get_mgmt_subnet(args)
+        print('DEV: MGMT: subnet=%s, start=%s, octet=%s' %
+              (subnet, start, octet))
+        subnet, start, octet = kolla_get_neutron_subnet(args)
+        print('DEV: NEUTRON: subnet=%s, start=%s, octet=%s' %
+              (subnet, start, octet))
+        pause_tool_execution('Check networking now....')
 
     # Start progress on one
     add_one_to_progress()
