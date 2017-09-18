@@ -2192,12 +2192,14 @@ def kolla_setup_neutron(args):
     EXT_NET_CIDR = neutron_subnet + '.' + '0' + '/' + '24'
     EXT_NET_GATEWAY = neutron_subnet + '.' + '1'
     # Because I don't own these - only use one that I know is safe
-    neutron_end = octet + 1
+    neutron_end = octet + 10
     EXT_NET_RANGE = 'start=%s,end=%s' % (
         neutron_start, neutron_subnet + '.' + str(neutron_end))
 
-    print('DEBUG: CIDR=%s, GW=%s, range=%s' %
-          (EXT_NET_CIDR, EXT_NET_GATEWAY, EXT_NET_RANGE))
+    if args.dev_mode:
+        print('DEV: CIDR=%s, GW=%s, range=%s' %
+              (EXT_NET_CIDR, EXT_NET_GATEWAY, EXT_NET_RANGE))
+
     runonce = './runonce'
     with open(runonce, "w") as w:
         w.write("""
