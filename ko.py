@@ -1421,7 +1421,6 @@ def kolla_install_repos(args):
     #                 "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
     #                 "templates/ml2_conf.ini.j2"))
 
-    pause_tool_execution('DEBUG123XXX')  # todo remove
     print_progress(
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
@@ -2130,10 +2129,6 @@ def kolla_get_host_subnet(args):
         if "Host seems down" in vip:
             ip = subnet + '.' + str(k)
             break
-    print('DEBUG SUBNET %s' % subnet)
-    print('DEBUG IP %s' % ip)
-    print('DEBUG Octet %s' % k)
-    time.sleep(25)
     return(subnet, ip, k)
 
 
@@ -2151,28 +2146,29 @@ def kolla_get_mgmt_subnet(args):
         if "Host seems down" in vip:
             ip = subnet + '.' + str(k)
             break
-    print('DEBUG SUBNET %s' % subnet)
-    print('DEBUG IP %s' % ip)
-    print('DEBUG Octet %s' % k)
     return(subnet, ip, k)
 
 
 def kolla_get_neutron_subnet(args):
     '''Find and return a neutron ip address that can be used for a
-    floating ip the neutron subnet'''
+    floating ip the neutron subnet
 
-    for k in range(1, 11):
-        run_shell(
-            args,
-            'sudo dhclient %s -v -r > /tmp/dhcp 2>&1' %
-            args.NEUTRON_INT)
+    Because the neutron interface does not have an ip address. briefly ask
+    DHCP for one, then release it after extracting the lease'''
 
-        out = run_shell(
-            args,
-            "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+    # -v -r doesn't seem to work - so run seperately
+    run_shell(args,
+              'sudo dhclient %s -v > /tmp/dhcp 2>&1' %
+              args.NEUTRON_INT)
 
-        if out is not None:
-            break
+    run_shell(args,
+              'sudo dhclient %s -r > /tmp/dhcp_r 2>&1' %
+              args.NEUTRON_INT)
+
+    out = run_shell(
+        args,
+        "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+
     if out is None:
         print('Kolla - no neutron subnet found, continuing but \
         openstack likely not healthy')
@@ -2676,14 +2672,14 @@ def main():
 
     if args.dev_mode:
         subnet, start, octet = kolla_get_host_subnet(args)
-        print('DEV: HOST: subnet=%s, start=%s, octet=%s' %
-              (subnet, start, octet))
+        print('DEV: HOST: subnet=%s, start=%s' %
+              (subnet, start))
         subnet, start, octet = kolla_get_mgmt_subnet(args)
-        print('DEV: MGMT: subnet=%s, start=%s, octet=%s' %
-              (subnet, start, octet))
+        print('DEV: MGMT: subnet=%s, start=%s' %
+              (subnet, start))
         subnet, start, octet = kolla_get_neutron_subnet(args)
-        print('DEV: NEUTRON: subnet=%s, start=%s, octet=%s' %
-              (subnet, start, octet))
+        print('DEV: NEUTRON: subnet=%s, start=%s' %
+              (subnet, start))
         pause_tool_execution('Check networking now....')
 
     # Start progress on one
