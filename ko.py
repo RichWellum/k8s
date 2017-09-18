@@ -2167,7 +2167,7 @@ def kolla_get_neutron_subnet(args):
 
     out = run_shell(
         args,
-        "cat /tmp/dhcp | grep DHCPRELEASE | awk '{ print $5 }'")
+        "cat /tmp/dhcp | grep -i 'bound to ' | awk '{ print $3 }'")
 
     if out is None:
         print('Kolla - no neutron subnet found, continuing but \
@@ -2678,7 +2678,7 @@ def main():
         print('DEV: MGMT: subnet=%s, start=%s' %
               (subnet, start))
         subnet, start, octet = kolla_get_neutron_subnet(args)
-        print('DEV: NEUTRON: subnet=%s, start=%s' %
+        print('DEV: NTRN: subnet=%s, start=%s' %
               (subnet, start))
         pause_tool_execution('Check networking now....')
 
