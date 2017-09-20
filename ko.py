@@ -311,15 +311,6 @@ def add_line(file, marker, addition):
         if line.startswith(marker):
             print(addition)
 
-    # with open(file, "r") as in_file:
-    #     buf = in_file.readlines()
-
-    # with open(file, "w") as out_file:
-    #     for line in buf:
-    #         if line == marker:
-    #             line = line + "%s\n" % addition
-    #             out_file.write(line)
-
 
 def untar(fname):
     '''Untar a tarred and compressed file'''
