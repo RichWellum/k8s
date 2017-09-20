@@ -634,7 +634,7 @@ def k8s_wait_for_kube_system(args):
     prev_cnt = 0
 
     print('(%02d/%d) Kubernetes - Wait for basic '
-          'Kubernetes (6 pods) infrastructure:'
+          'Kubernetes (6 pods) infrastructure'
           % (PROGRESS, K8S_FINAL_PROGRESS))
 
     while True:
@@ -2150,8 +2150,8 @@ def kolla_get_mgmt_subnet(args):
 
 
 def kolla_get_neutron_subnet(args):
-    '''Find and return a neutron ip address that can be used for a
-    floating ip the neutron subnet
+    '''Find and return a neutron ip address that can be used for the
+    neutron subnet
 
     Because the neutron interface does not have an ip address. briefly ask
     DHCP for one, then release it after extracting the lease'''
