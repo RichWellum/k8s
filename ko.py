@@ -644,8 +644,9 @@ def k8s_wait_for_kube_system(args):
 
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
-                    print('  *Pod status after %d seconds, pods started %s:6*'
-                          % (elapsed_time, cnt))
+                    print(
+                        '\r  *Pod status after %d seconds, pods started %s:6*'
+                        % (elapsed_time, cnt))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -718,7 +719,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('    *%02d pod(s) are not in Running state*' %
+                print('\r    *%02d pod(s) are not in Running state*' %
                       int(not_running))
                 time.sleep(RETRY_INTERVAL)
                 elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -2680,7 +2681,6 @@ def main():
         subnet, start, octet = kolla_get_neutron_subnet(args)
         print('DEV: NTRN: subnet=%s, start=%s' %
               (subnet, start))
-        pause_tool_execution('Check networking now....')
 
     # Start progress on one
     add_one_to_progress()
