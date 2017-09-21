@@ -645,8 +645,8 @@ def k8s_wait_for_kube_system(args):
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
                     print(
-                        '\r  *Pod status after %d seconds, pods started %s:6*'
-                        % (elapsed_time, cnt))
+                        "\r  *Running pod status after %d seconds %s:6*",
+                        end='' % (elapsed_time, cnt))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -719,8 +719,8 @@ def k8s_wait_for_running_negate(args, timeout=None):
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print('\r    *%02d pod(s) are not in Running state*' %
-                      int(not_running))
+                print("\r    *%02d pod(s) are not in Running state*",
+                      end='' % int(not_running))
                 time.sleep(RETRY_INTERVAL)
                 elapsed_time = elapsed_time + RETRY_INTERVAL
                 prev_not_running = not_running
