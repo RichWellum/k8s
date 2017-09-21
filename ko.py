@@ -1416,6 +1416,10 @@ def kolla_install_repos(args):
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
         KOLLA_FINAL_PROGRESS)
+
+    if args.dev_mode:
+        pause_tool_execution('DEV: Edit kolla-kubernetes now')
+
     run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if linux_ver() == 'centos':
@@ -2627,6 +2631,9 @@ def kolla_bring_up_openstack(args):
     chart_list = ['openvswitch']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(args, chart_list)
+
+    # Bring up br-ex for keepalived to bind VIP to it
+    run_shell(args, 'sudo ifconfig br-ex up')
 
     chart_list = ['keepalived-daemonset']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
