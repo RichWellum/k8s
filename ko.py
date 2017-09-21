@@ -623,6 +623,7 @@ def k8s_wait_for_kube_system(args):
     RETRY_INTERVAL = 10
     elapsed_time = 0
     prev_cnt = 0
+    base_pods = 6
 
     print('(%02d/%d) Kubernetes - Wait for basic '
           'Kubernetes (6 pods) infrastructure'
@@ -633,7 +634,9 @@ def k8s_wait_for_kube_system(args):
                                'kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
         if nlines == 6:
-            print('  *All pods %s/6 are started, continuing*' % nlines)
+            print(
+                '  *All pods %s/%s are started, continuing*' %
+                (nlines, base_pods))
             run_shell(args, 'kubectl get pods -n kube-system')
             break
         elif elapsed_time < TIMEOUT:
@@ -645,8 +648,8 @@ def k8s_wait_for_kube_system(args):
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
                     print(
-                        "  *Running pod status after %d seconds %s:6*\r"
-                        % (elapsed_time, cnt))
+                        "  \r*Running pod(s) status after %d seconds %s:%s*"
+                        % (elapsed_time, cnt, base_pods))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
             elapsed_time = elapsed_time + RETRY_INTERVAL
