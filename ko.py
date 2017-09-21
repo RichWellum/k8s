@@ -648,7 +648,7 @@ def k8s_wait_for_kube_system(args):
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
                     print(
-                        "  \r*Running pod(s) status after %d seconds %s:%s*"
+                        "  *Running pod(s) status after %d seconds %s:%s*"
                         % (elapsed_time, cnt, base_pods))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
@@ -722,7 +722,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
 
         if int(not_running) != 0:
             if prev_not_running != not_running:
-                print("    *%02d pod(s) are not in Running state*\r"
+                print("    *%02d pod(s) are not in Running state*"
                       % int(not_running))
                 time.sleep(RETRY_INTERVAL)
                 elapsed_time = elapsed_time + RETRY_INTERVAL
@@ -730,7 +730,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
             continue
         else:
             print('    *All pods are in Running state*')
-            time.sleep(5)
+            time.sleep(1)
             break
 
         if elapsed_time > TIMEOUT:
@@ -1311,7 +1311,7 @@ def kolla_install_deploy_helm(args):
                 'Helm successfully installed', KOLLA_FINAL_PROGRESS)
             break
         else:
-            time.sleep(3)
+            time.sleep(1)
             continue
 
     demo(args, 'Check running pods..',
