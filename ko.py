@@ -2637,6 +2637,7 @@ def kolla_bring_up_openstack(args):
     kolla_resolve_workaround(args)
     kolla_build_micro_charts(args)
     kolla_verify_helm_images(args)
+
     version = kolla_set_version(args)
 
     if 'ocata' in version:
@@ -2644,9 +2645,10 @@ def kolla_bring_up_openstack(args):
     else:
         kolla_create_cloud(args)
 
-    # For OpenStack Pike (5.x) - because images are not on dockerhub have
-    # to run them from a docker registry running as a pod. This takes a long
-    # time to come up but then all the other image pulls are very quick.
+    # For OpenStack Pike (5.x) and above - because images are not on
+    # dockerhub have to run them from a docker registry running as a pod.
+    # This takes a long time to come up but then all the other image
+    # pulls are very quick.
     if 'ocata' not in version:
         banner(
             'Installing docker registry. Slow but needed for 5.x as '
