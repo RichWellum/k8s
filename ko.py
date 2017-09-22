@@ -214,7 +214,7 @@ def parse_args():
                         'if requested.')
     parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
                         help='Specify a different Kolla image tage to '
-                        'the default(4.0.0)')
+                        'the default(4.0.0), note: 6.0.0 will use master')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.1',
                         help='Specify a different helm version to the '
                         'default(2.5.1)')
@@ -2589,10 +2589,15 @@ def kolla_set_version(args):
     the solution for versions beyond 4.x is to use the regularly
     published tarball images. To do this we deplay a registry which
     downloads the appropriate tarball. To do this we use a parameter
-    (branch="pike") in the command line when registry gets deployed'''
+    (branch="pike") in the command line when registry gets deployed
+
+    A little hacky but I consider 5.x Pile and 6.x Master. That will shift
+    but hopefully by the time that is an issue we will have proper dockerhub
+    iamges.
+    '''
 
     str = ""
-    if re.search('master', args.image_tag):
+    if re.search('6.', args.image_tag):
         str = 'master'
     elif re.search('5.', args.image_tag):
         str = 'pike'
