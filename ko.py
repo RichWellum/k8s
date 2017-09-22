@@ -1421,9 +1421,6 @@ def kolla_install_repos(args):
         'Install kolla-ansible and kolla-kubernetes',
         KOLLA_FINAL_PROGRESS)
 
-    if args.dev_mode:
-        pause_tool_execution('DEV: Edit kolla-kubernetes now')
-
     run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if linux_ver() == 'centos':
