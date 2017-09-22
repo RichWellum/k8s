@@ -1827,7 +1827,7 @@ def kolla_verify_helm_images(args):
         sys.exit(1)
 
 
-def kolla_create_cloud(args):
+def kolla_create_cloud_v4(args):
     '''Generate the cloud.yml file
 
     Which works with the globals.yml file to define your cluster networking.
@@ -1926,7 +1926,7 @@ global:
         print(run_shell(args, 'sudo cat /tmp/cloud.yaml'))
 
 
-def kolla_create_cloud_v5(args):
+def kolla_create_cloud(args):
     '''Generate the cloud.yml file
 
     Which works with the globals.yml file to define your cluster networking.
@@ -2640,9 +2640,9 @@ def kolla_bring_up_openstack(args):
     version = kolla_set_version(args)
 
     if 'ocata' in version:
-        kolla_create_cloud(args)
+        kolla_create_cloud_v4(args)
     else:
-        kolla_create_cloud_v5(args)
+        kolla_create_cloud(args)
 
     # For OpenStack Pike (5.x) - because images are not on dockerhub have
     # to run them from a docker registry running as a pod. This takes a long
