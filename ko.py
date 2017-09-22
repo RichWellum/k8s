@@ -2647,7 +2647,7 @@ def kolla_bring_up_openstack(args):
     # For OpenStack Pike (5.x) - because images are not on dockerhub have
     # to run them from a docker registry running as a pod. This takes a long
     # time to come up but then all the other image pulls are very quick.
-    if 'ocata' in version:
+    if 'ocata' not in version:
         banner(
             'Installing docker registry. Slow but needed for 5.x as '
             'images are not on dockerhub yet.')
