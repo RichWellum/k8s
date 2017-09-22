@@ -2594,6 +2594,7 @@ def kolla_set_version(args):
     '''
 
     str = ""
+
     if re.search('6.', args.image_tag):
         str = 'master'
     elif re.search('5.', args.image_tag):
