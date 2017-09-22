@@ -2604,6 +2604,8 @@ def kolla_set_version(args):
     if args.dev_mode:
         print('DEV: Version: %s' % str)
 
+    return(str)
+
 
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
