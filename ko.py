@@ -1841,7 +1841,7 @@ def kolla_create_cloud(args):
     '''
 
     print_progress('Kolla',
-                   'Create a cloud.yaml to describe OpenStack Services',
+                   'Create a version 4 cloud.yaml',
                    KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Create a 4.x (Ocata) cloud.yaml',
@@ -1936,10 +1936,13 @@ def kolla_create_cloud_v5(args):
 
     This uses most of the user options.
 
-    This works for tag version 4.x
+    This works for tag versions 5+
     '''
 
-    print_progress('Kolla', 'Create a cloud.yaml', KOLLA_FINAL_PROGRESS)
+    print_progress(
+        'Kolla',
+        'Create a version 5+ cloud.yaml',
+        KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Create a 5.x (Pike) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
@@ -2578,6 +2581,28 @@ def k8s_bringup_kubernetes_cluster(args):
          'and running now', '')
 
 
+def kolla_set_version(args):
+    '''Set the image label depending on user inputs
+
+    Kolla doesn't publish images to dockerhub very often at this point
+    there is only Ocata, 4.0.0. While new infrastructure is due soon,
+    the solution for versions beyond 4.x is to use the regularly
+    published tarball images. To do this we deplay a registry which
+    downloads the appropriate tarball. To do this we use a parameter
+    (branch="pike") in the command line when registry gets deployed'''
+
+    str = ""
+    if re.search('master', args.image_tag):
+        str = 'master'
+    elif re.search('5.', args.image_tag):
+        str = 'pike'
+    else:
+        str = 'ocata'  # Really a no-op
+
+    if args.dev_mode:
+        print('DEV: Version: %s' % str)
+
+
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
 
@@ -2607,7 +2632,9 @@ def kolla_bring_up_openstack(args):
     kolla_resolve_workaround(args)
     kolla_build_micro_charts(args)
     kolla_verify_helm_images(args)
-    if re.search('5.', args.image_tag):
+    version = kolla_set_version(args)
+
+    if 'ocata' in version:
         kolla_create_cloud_v5(args)
     else:
         kolla_create_cloud(args)
@@ -2615,7 +2642,7 @@ def kolla_bring_up_openstack(args):
     # For OpenStack Pike (5.x) - because images are not on dockerhub have
     # to run them from a docker registry running as a pod. This takes a long
     # time to come up but then all the other image pulls are very quick.
-    if re.search('5.', args.image_tag):
+    if 'ocata' in version:
         banner(
             'Installing docker registry. Slow but needed for 5.x as '
             'images are not on dockerhub yet.')
@@ -2627,7 +2654,7 @@ def kolla_bring_up_openstack(args):
                   'registry-deployment --namespace kolla --name '
                   'registry-centos --set distro=centos '
                   '--set node_port=30401 --set initial_load=true '
-                  '--set svc_name=registry-centos')
+                  '--set svc_name=registry-centos --set branch=%s' % version)
         k8s_wait_for_pod_start(args, 'registry')
         k8s_wait_for_running_negate(args, 600)
 
