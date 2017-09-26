@@ -2595,9 +2595,12 @@ def kolla_set_version(args):
 
     str = ""
 
-    if re.search('6.', args.image_tag):
+    # So this is a little hacky. Current master tarball is labelled 5.0.0
+    # because the images don't have a label yet. Current Pike images are 5.0.1
+    # - so this provides a way of differenting them.
+    if re.search('5.0', args.image_tag):
         str = 'master'
-    elif re.search('5.', args.image_tag):
+    elif re.search('5.1', args.image_tag):
         str = 'pike'
     else:
         str = 'ocata'  # Really a no-op
