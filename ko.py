@@ -1416,6 +1416,9 @@ def kolla_install_repos(args):
     #                 "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
     #                 "templates/ml2_conf.ini.j2"))
 
+    if args.dev_mode:
+        pause_tool_execution('DEV: edit kolla-kubernetes now')
+
     print_progress(
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
