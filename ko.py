@@ -843,11 +843,10 @@ def k8s_install_k8s(args):
     k8s_create_repo(args)
 
     demo(args, 'Installing Kubernetes', 'Installing docker ebtables '
-         'kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni-%s' %
+         'kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni' %
          (tools_versions(args, 'kubernetes'),
           tools_versions(args, 'kubernetes'),
-          tools_versions(args, 'kubernetes'),
-          tools_versions(args, 'kubernetes-cni')))
+          tools_versions(args, 'kubernetes')))
 
     if linux_ver() == 'centos':
         run_shell(args,
