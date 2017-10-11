@@ -212,9 +212,9 @@ def parse_args():
                         help='Try to install all the latest versions of '
                         'tools, overidden by individual tool versions '
                         'if requested.')
-    parser.add_argument('-it', '--image_tag', type=str, default='4.0.0',
+    parser.add_argument('-it', '--image_tag', type=str, default='master',
                         help='Specify a different Kolla image tage to '
-                        'the default(4.0.0), note: 6.0.0 will use master')
+                        'the default(master)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.5.1',
                         help='Specify a different helm version to the '
                         'default(2.5.1)')
@@ -466,7 +466,7 @@ def tools_versions(args, str):
         versions = [kolla_version, "", "", "", "", ""]
     else:
         # This should match up with the defaults set in parse_args
-        versions = ["4.0.0", "2.5.1", "1.7.5", "0.5.1", "2.2.0.0", "2.8.1"]
+        versions = ["master", "2.5.1", "1.7.5", "0.5.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -1914,7 +1914,7 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.image_tag,
+        """ % (kolla_get_image_tag(args),
                args.mgmt_ip,
                args.MGMT_INT,
                args.vip_ip,
@@ -2001,7 +2001,6 @@ global:
            - '%s': 'cinder-volumes'
      nova:
        all:
-         image_tag: 5.0.0
          placement_api_enabled: true
          cell_enabled: true
        novncproxy:
@@ -2025,14 +2024,14 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (args.image_tag,
+        """ % (kolla_get_image_tag(args),
                args.mgmt_ip,
                args.MGMT_INT,
                args.vip_ip,
-               args.image_tag,
-               args.image_tag,
-               args.image_tag,
-               args.image_tag,
+               kolla_get_image_tag(args),
+               kolla_get_image_tag(args),
+               kolla_get_image_tag(args),
+               kolla_get_image_tag(args),
                args.mgmt_ip,
                args.mgmt_ip,
                args.NEUTRON_INT))
@@ -2581,7 +2580,7 @@ def k8s_bringup_kubernetes_cluster(args):
          'and running now', '')
 
 
-def kolla_set_version(args):
+def kolla_get_image_tag(args):
     '''Set the image label depending on user inputs
 
     Kolla doesn't publish images to dockerhub very often at this point
@@ -2590,10 +2589,6 @@ def kolla_set_version(args):
     published tarball images. To do this we deplay a registry which
     downloads the appropriate tarball. To do this we use a parameter
     (branch="pike") in the command line when registry gets deployed
-
-    A little hacky but I consider 5.x Pile and 6.x Master. That will shift
-    but hopefully by the time that is an issue we will have proper dockerhub
-    iamges.
     '''
 
     str = ""
@@ -2601,12 +2596,15 @@ def kolla_set_version(args):
     # So this is a little hacky. Current master tarball is labelled 5.0.0
     # because the images don't have a label yet. Current Pike images are 5.0.1
     # - so this provides a way of differenting them.
-    if re.search('5.0', args.image_tag):
-        str = 'master'
-    elif re.search('5.1', args.image_tag):
-        str = 'pike'
+    if re.search('master', args.image_tag):
+        str = '5.0.0'
+    elif re.search('pike', args.image_tag):
+        str = '5.0.1'
+    elif re.search('ocata', args.image_tag):
+        str = '4.0.0'
     else:
-        str = 'ocata'  # Really a no-op
+        print('Invalid version %s' % args.image_tag)
+        sys.exit(1)
 
     if args.dev_mode:
         print('DEV: Version: %s' % str)
@@ -2644,9 +2642,7 @@ def kolla_bring_up_openstack(args):
     kolla_build_micro_charts(args)
     kolla_verify_helm_images(args)
 
-    version = kolla_set_version(args)
-
-    if 'ocata' in version:
+    if 'ocata' in args.image_tag:
         kolla_create_cloud_v4(args)
     else:
         kolla_create_cloud(args)
@@ -2729,7 +2725,7 @@ def main():
     add_one_to_progress()
 
     global KOLLA_FINAL_PROGRESS
-    if re.search('5.', args.image_tag):
+    if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
         KOLLA_FINAL_PROGRESS = 45
     else:
