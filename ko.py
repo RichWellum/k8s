@@ -208,22 +208,18 @@ def parse_args():
                         help='Provide own Keepalived VIP, used with '
                         'keepalived, should be an unused IP on management '
                         'NIC subnet, E.g: 10.240.83.112')
-    parser.add_argument('-lv', '--latest_version', action='store_true',
-                        help='Try to install all the latest versions of '
-                        'tools, overidden by individual tool versions '
-                        'if requested.')
     parser.add_argument('-it', '--image_tag', type=str, default='master',
                         help='Specify a different Kolla image tage to '
                         'the default(master)')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.5.1',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
-                        'default(2.5.1)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.7.5',
+                        'default(2.6.2)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.0',
                         help='Specify a different kubernetes version to '
-                        'the default(1.7.5)')
-    parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
-                        help='Specify a different kubernetes-cni version '
-                        'to the default(0.5.1-00)')
+                        'the default(1.8.0)')
+    # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
+    #                     help='Specify a different kubernetes-cni version '
+    #                     'to the default(0.5.1-00)')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.2.0.0',
                         help='Specify a different ansible version to '
@@ -445,8 +441,6 @@ def tools_versions(args, str):
 
     User can then overide each individual tool.
 
-    The user can overide all with '-latest_version' and live on the wild side.
-
     Return a Version for a string.
     '''
 
@@ -458,15 +452,8 @@ def tools_versions(args, str):
         "ansible",
         "jinja2"]
 
-    if args.latest_version is True:
-        kolla_version = run_shell(
-            args,
-            "sudo docker images | grep 'kolla/centos-source-glance-api' "
-            "| awk '{print $2}'").rstrip()
-        versions = [kolla_version, "", "", "", "", ""]
-    else:
-        # This should match up with the defaults set in parse_args
-        versions = ["master", "2.5.1", "1.7.5", "0.5.1", "2.2.0.0", "2.8.1"]
+    # This should match up with the defaults set in parse_args
+    versions = ["master", "2.6.2", "1.8.0", "0.5.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -474,19 +461,18 @@ def tools_versions(args, str):
         tools_dict[tools[i]] = versions[i]
 
     # Now overide based on user input - first
-    if args.latest_version is not True:
-        if tools_dict["kolla"] is not args.image_tag:
-            tools_dict["kolla"] = args.image_tag
-        if tools_dict["helm"] is not args.helm_version:
-            tools_dict["helm"] = args.helm_version
-        if tools_dict["kubernetes"] is not args.k8s_version:
-            tools_dict["kubernetes"] = args.k8s_version
-        if tools_dict["kubernetes-cni"] is not args.cni_version:
-            tools_dict["kubernetes-cni"] = args.cni_version
-        if tools_dict["ansible"] is not args.ansible_version:
-            tools_dict["ansible"] = args.ansible_version
-        if tools_dict["jinja2"] is not args.jinja2_version:
-            tools_dict["jinja2"] = args.jinja2_version
+    if tools_dict["kolla"] is not args.image_tag:
+        tools_dict["kolla"] = args.image_tag
+    if tools_dict["helm"] is not args.helm_version:
+        tools_dict["helm"] = args.helm_version
+    if tools_dict["kubernetes"] is not args.k8s_version:
+        tools_dict["kubernetes"] = args.k8s_version
+    if tools_dict["kubernetes-cni"] is not args.cni_version:
+        tools_dict["kubernetes-cni"] = args.cni_version
+    if tools_dict["ansible"] is not args.ansible_version:
+        tools_dict["ansible"] = args.ansible_version
+    if tools_dict["jinja2"] is not args.jinja2_version:
+        tools_dict["jinja2"] = args.jinja2_version
 
     return(tools_dict[str])
 
@@ -517,31 +503,12 @@ def print_versions(args):
     print('\nVersions:')
     print('  Docker version:  %s' % docker_ver(args))
     print('  Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
-
-    if tools_versions(args, 'helm') == "":
-        v = "Latest"
-    else:
-        v = tools_versions(args, 'helm')
-        print('  Helm version:    %s' % v)
-
-    if tools_versions(args, 'kubernetes') == "":
-        v = "Latest"
-    else:
-        v = tools_versions(args, 'kubernetes')
-        print('  K8s version:     %s' % v.rstrip())
-
-    if tools_versions(args, 'ansible') == "":
-        v = "Latest"
-    else:
-        v = tools_versions(args, 'ansible')
-        print('  Ansible version: %s' % v.rstrip())
-
-    if tools_versions(args, 'jinja2') == "":
-        v = "Latest"
-    else:
-        v = tools_versions(args, 'jinja2')
-        print('  Jinja2 version:  %s' % v.rstrip())
-        print('\n')
+    print('  Helm version:    %s' % tools_versions(args, 'helm'))
+    print('  K8s version:     %s'
+          % tools_versions(args, 'kubernetes').rstrip())
+    print('  Ansible version: %s' % tools_versions(args, 'ansible').rstrip())
+    print('  Jinja2 version:  %s' % tools_versions(args, 'jinja2').rstrip())
+    print('\n')
 
     time.sleep(1)
 
@@ -819,17 +786,13 @@ def k8s_install_tools(args):
         'https://bootstrap.pypa.io/get-pip.py',
         '-o', '/tmp/get-pip.py')
     run_shell(args, 'sudo python /tmp/get-pip.py')
-    if args.latest_version is True:
-        run_shell(args, 'sudo -H pip install ansible')
-        run_shell(args, 'sudo -H pip install Jinja2')
-    else:
-        run_shell(args,
-                  'sudo -H pip install ansible==%s' %
-                  tools_versions(args, 'ansible'))
-        # Standard jinja2 in Centos7(2.9.6) is broken
-        run_shell(args,
-                  'sudo -H pip install Jinja2==%s' %
-                  tools_versions(args, 'jinja2'))
+    run_shell(args,
+              'sudo -H pip install ansible==%s' %
+              tools_versions(args, 'ansible'))
+    # Standard jinja2 in Centos7(2.9.6) is broken
+    run_shell(args,
+              'sudo -H pip install Jinja2==%s' %
+              tools_versions(args, 'jinja2'))
 
 
 def k8s_setup_ntp(args):
@@ -889,30 +852,20 @@ def k8s_install_k8s(args):
           tools_versions(args, 'kubernetes-cni')))
 
     if linux_ver() == 'centos':
-        if args.latest_version is True:
-            run_shell(args,
-                      'sudo yum install -y ebtables kubelet kubeadm '
-                      'kubectl kubernetes-cni')
-        else:
-            run_shell(args,
-                      'sudo yum install -y ebtables kubelet-%s '
-                      'kubeadm-%s kubectl-%s kubernetes-cni'
-                      % (tools_versions(args, 'kubernetes'),
-                         tools_versions(args, 'kubernetes'),
-                         tools_versions(args, 'kubernetes')))
+        run_shell(args,
+                  'sudo yum install -y ebtables kubelet-%s '
+                  'kubeadm-%s kubectl-%s kubernetes-cni'
+                  % (tools_versions(args, 'kubernetes'),
+                     tools_versions(args, 'kubernetes'),
+                     tools_versions(args, 'kubernetes')))
     else:
-        if args.latest_version is True:
-            run_shell(args,
-                      'sudo apt-get install -y ebtables kubelet '
-                      'kubeadm kubectl kubernetes-cni --allow-downgrades')
-        else:
-            # todo - this breaks when ubuntu steps up a revision to -01 etc
-            run_shell(args,
-                      'sudo apt-get install -y --allow-downgrades '
-                      'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
-                      'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
-                                          tools_versions(args, 'kubernetes'),
-                                          tools_versions(args, 'kubernetes')))
+        # todo - this breaks when ubuntu steps up a revision to -01 etc
+        run_shell(args,
+                  'sudo apt-get install -y --allow-downgrades '
+                  'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
+                  'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
+                                      tools_versions(args, 'kubernetes'),
+                                      tools_versions(args, 'kubernetes')))
 
     if tools_versions(args, 'kubernetes') == '1.6.3':
         print('Kubernetes - 1.6.3 workaround')
@@ -2651,7 +2604,7 @@ def kolla_bring_up_openstack(args):
     # dockerhub have to run them from a docker registry running as a pod.
     # This takes a long time to come up but then all the other image
     # pulls are very quick.
-    if 'ocata' not in version:
+    if 'ocata' not in args.image_tag:
         banner(
             'Installing docker registry. Slow but needed for 5.x as '
             'images are not on dockerhub yet.')
@@ -2663,7 +2616,8 @@ def kolla_bring_up_openstack(args):
                   'registry-deployment --namespace kolla --name '
                   'registry-centos --set distro=centos '
                   '--set node_port=30401 --set initial_load=true '
-                  '--set svc_name=registry-centos --set branch=%s' % version)
+                  '--set svc_name=registry-centos --set branch=%s'
+                  % args.image_tag)
         k8s_wait_for_pod_start(args, 'registry')
         k8s_wait_for_running_negate(args, 600)
 
