@@ -194,7 +194,7 @@ def parse_args():
         '- 40G min, 80GB preferred - disk space\n'
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it 5.0.0\n')
+        epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -it pike\n')
     parser.add_argument('MGMT_INT',
                         help='The interface to which Kolla binds '
                         'API services, E.g: eth0')
@@ -216,7 +216,8 @@ def parse_args():
                         'default(2.6.2)')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.0',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.0)')
+                        'the default(1.8.0) - note 1.8.0 is the minimum '
+                        'supported')
     # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
     #                     help='Specify a different kubernetes-cni version '
     #                     'to the default(0.5.1-00)')
@@ -867,17 +868,6 @@ def k8s_install_k8s(args):
                                       tools_versions(args, 'kubernetes'),
                                       tools_versions(args, 'kubernetes')))
 
-    if tools_versions(args, 'kubernetes') == '1.6.3':
-        print('Kubernetes - 1.6.3 workaround')
-        # 1.6.3 is broken so if user chooses it - use special image
-        curl(
-            '-L',
-            'https://github.com/sbezverk/kubelet--45613/raw/master/kubelet.gz',
-            '-o', '/tmp/kubelet.gz')
-        run_shell(args, 'sudo gunzip -d /tmp/kubelet.gz')
-        run_shell(args, 'sudo mv -f /tmp/kubelet /usr/bin/kubelet')
-        run_shell(args, 'sudo chmod +x /usr/bin/kubelet')
-
 
 def k8s_setup_dns(args):
     '''DNS services'''
@@ -1116,7 +1106,7 @@ def k8s_deploy_canal_sdn(args):
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        'k8s-install/1.6/rbac.yaml',
+        'k8s-install/1.7/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
     logger.debug(answer)
     run_shell(args, 'kubectl create -f /tmp/rbac.yaml')
@@ -1146,7 +1136,7 @@ def k8s_deploy_canal_sdn(args):
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        'k8s-install/1.6/canal.yaml',
+        'k8s-install/1.7/canal.yaml',
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
     run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
@@ -1211,7 +1201,7 @@ def kolla_update_rbac(args):
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
-apiVersion: rbac.authorization.k8s.io/v1alpha1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: cluster-admin
@@ -1228,10 +1218,10 @@ subjects:
   name: system:unauthenticated
 """)
     if args.demo:
-        print(run_shell(args, 'kubectl replace -f /tmp/rbac'))
+        print(run_shell(args, 'kubectl apply -f /tmp/rbac'))
         demo(args, 'Note the cluster-admin has been replaced', '')
     else:
-        run_shell(args, 'kubectl replace -f /tmp/rbac')
+        run_shell(args, 'kubectl apply -f /tmp/rbac')
 
 
 def kolla_install_deploy_helm(args):
@@ -1362,12 +1352,6 @@ def kolla_install_repos(args):
         run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
     run_shell(args,
               'git clone http://github.com/openstack/kolla-kubernetes')
-
-    # Add flat_network todo
-    # print(run_shell(args,
-    #                 "sudo sed -i 's/flat_networks = */flat_networks = "
-    #                 "physnet1/g' ./kolla-kubernetes/ansible/roles/neutron/"
-    #                 "templates/ml2_conf.ini.j2"))
 
     if args.dev_mode:
         pause_tool_execution('DEV: edit kolla-kubernetes now')
@@ -1726,12 +1710,13 @@ def kolla_create_config_maps(args):
 
 
 def kolla_resolve_workaround(args):
-    '''Resolve.Conf workaround'''
+    '''Resolve.conf workaround'''
 
-    print('(%02d/%d) Kolla - Enable resolv.conf workaround' %
-          (PROGRESS, KOLLA_FINAL_PROGRESS))
-    add_one_to_progress()
-    run_shell(args, './kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
+    if args.k8s_version != "1.8.0":
+        print('(%02d/%d) Kolla - Enable resolv.conf workaround' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        add_one_to_progress()
+        run_shell(args, './kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
 
 
 def kolla_build_micro_charts(args):
@@ -1815,7 +1800,6 @@ global:
        base_distro: "centos"
        install_type: "source"
        tunnel_interface: "%s"
-       resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
      keepalived:
@@ -1917,7 +1901,6 @@ global:
        base_distro: "centos"
        install_type: source
        tunnel_interface: "%s"
-       resolve_conf_net_host_workaround: true
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
        kolla_toolbox_image_tag: %s
@@ -2681,9 +2664,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 45
-    else:
         KOLLA_FINAL_PROGRESS = 44
+    else:
+        KOLLA_FINAL_PROGRESS = 43
 
     if args.skip_demo:
         KOLLA_FINAL_PROGRESS -= 4
