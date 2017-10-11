@@ -449,12 +449,11 @@ def tools_versions(args, str):
         "kolla",
         "helm",
         "kubernetes",
-        "kubernetes-cni",
         "ansible",
         "jinja2"]
 
     # This should match up with the defaults set in parse_args
-    versions = ["master", "2.6.2", "1.8.0", "0.5.1", "2.2.0.0", "2.8.1"]
+    versions = ["master", "2.6.2", "1.8.0", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -468,8 +467,6 @@ def tools_versions(args, str):
         tools_dict["helm"] = args.helm_version
     if tools_dict["kubernetes"] is not args.k8s_version:
         tools_dict["kubernetes"] = args.k8s_version
-    if tools_dict["kubernetes-cni"] is not args.cni_version:
-        tools_dict["kubernetes-cni"] = args.cni_version
     if tools_dict["ansible"] is not args.ansible_version:
         tools_dict["ansible"] = args.ansible_version
     if tools_dict["jinja2"] is not args.jinja2_version:
