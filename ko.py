@@ -494,8 +494,8 @@ def print_versions(args):
 
     print('\nNetworking:')
     print('  Management Int:  %s' % args.MGMT_INT)
-    print('  Management IP:   %s' % args.mgmt_ip)
     print('  Neutron Int:     %s' % args.NEUTRON_INT)
+    print('  Management IP:   %s' % args.mgmt_ip)
     print('  VIP Keepalive:   %s' % args.vip_ip)
 
     print('\nVersions:')
