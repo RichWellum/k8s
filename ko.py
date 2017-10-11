@@ -499,13 +499,13 @@ def print_versions(args):
     print('  VIP Keepalive:   %s' % args.vip_ip)
 
     print('\nVersions:')
-    print('  Docker version:  %s' % docker_ver(args))
-    print('  Kolla Image Tag: %s' % tools_versions(args, 'kolla'))
-    print('  Helm version:    %s' % tools_versions(args, 'helm'))
-    print('  K8s version:     %s'
+    print('  Docker version  :  %s' % docker_ver(args))
+    print('  Openstack version: %s' % tools_versions(args, 'kolla'))
+    print('  Helm version:      %s' % tools_versions(args, 'helm'))
+    print('  K8s version:       %s'
           % tools_versions(args, 'kubernetes').rstrip())
-    print('  Ansible version: %s' % tools_versions(args, 'ansible').rstrip())
-    print('  Jinja2 version:  %s' % tools_versions(args, 'jinja2').rstrip())
+    print('  Ansible version:   %s' % tools_versions(args, 'ansible').rstrip())
+    print('  Jinja2 version:    %s' % tools_versions(args, 'jinja2').rstrip())
     print('\n')
 
     time.sleep(1)
