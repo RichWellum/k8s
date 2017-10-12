@@ -208,9 +208,9 @@ def parse_args():
                         help='Provide own Keepalived VIP, used with '
                         'keepalived, should be an unused IP on management '
                         'NIC subnet, E.g: 10.240.83.112')
-    parser.add_argument('-it', '--image_tag', type=str, default='master',
-                        help='Specify a different Kolla image tage to '
-                        'the default(master)')
+    parser.add_argument('-iv', '--image_version', type=str, default='master',
+                        help='Specify a different Kolla image version to '
+                        'the default (master)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
                         'default(2.6.2)')
@@ -461,8 +461,8 @@ def tools_versions(args, str):
         tools_dict[tools[i]] = versions[i]
 
     # Now overide based on user input - first
-    if tools_dict["kolla"] is not args.image_tag:
-        tools_dict["kolla"] = args.image_tag
+    if tools_dict["kolla"] is not args.image_version:
+        tools_dict["kolla"] = args.image_version
     if tools_dict["helm"] is not args.helm_version:
         tools_dict["helm"] = args.helm_version
     if tools_dict["kubernetes"] is not args.k8s_version:
@@ -2528,14 +2528,14 @@ def kolla_get_image_tag(args):
     # So this is a little hacky. Current master tarball is labelled 5.0.0
     # because the images don't have a label yet. Current Pike images are 5.0.1
     # - so this provides a way of differenting them.
-    if re.search('master', args.image_tag):
+    if re.search('master', args.image_version):
         str = '5.0.0'
-    elif re.search('pike', args.image_tag):
+    elif re.search('pike', args.image_version):
         str = '5.0.1'
-    elif re.search('ocata', args.image_tag):
+    elif re.search('ocata', args.image_version):
         str = '4.0.0'
     else:
-        print('Invalid version %s' % args.image_tag)
+        print('Invalid version %s' % args.image_version)
         sys.exit(1)
 
     if args.dev_mode:
@@ -2574,7 +2574,7 @@ def kolla_bring_up_openstack(args):
     kolla_build_micro_charts(args)
     kolla_verify_helm_images(args)
 
-    if 'ocata' in args.image_tag:
+    if 'ocata' in args.image_version:
         kolla_create_cloud_v4(args)
     else:
         kolla_create_cloud(args)
@@ -2583,7 +2583,7 @@ def kolla_bring_up_openstack(args):
     # dockerhub have to run them from a docker registry running as a pod.
     # This takes a long time to come up but then all the other image
     # pulls are very quick.
-    if 'ocata' not in args.image_tag:
+    if 'ocata' not in args.image_version:
         banner(
             'Installing docker registry. Slow but needed for 5.x as '
             'images are not on dockerhub yet.')
@@ -2596,7 +2596,7 @@ def kolla_bring_up_openstack(args):
                   'registry-centos --set distro=centos '
                   '--set node_port=30401 --set initial_load=true '
                   '--set svc_name=registry-centos --set branch=%s'
-                  % args.image_tag)
+                  % args.image_version)
         k8s_wait_for_pod_start(args, 'registry')
         k8s_wait_for_running_negate(args, 600)
 
