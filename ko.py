@@ -2353,15 +2353,20 @@ def kolla_finalize_os(args):
 def k8s_test_vip_int(args):
     '''Test that the vip interface is not used'''
 
-    truth = run_shell(args, 'sudo nmap -sP -PR %s | grep Host' % args.vip_ip)
-    if re.search('Host is up', truth):
-        print('Kubernetes - vip Interface %s is in use, '
-              'choose another' % args.vip_ip)
-        sys.exit(1)
-    else:
-        logger.debug(
-            'Kubernetes - VIP Keepalive Interface %s is valid' %
+    # Allow the vip address to be the same as the mgmt_ip
+    if args.vip_ip != args.mgmt_ip:
+        truth = run_shell(
+            args,
+            'sudo nmap -sP -PR %s | grep Host' %
             args.vip_ip)
+        if re.search('Host is up', truth):
+            print('Kubernetes - vip Interface %s is in use, '
+                  'choose another' % args.vip_ip)
+            sys.exit(1)
+        else:
+            logger.debug(
+                'Kubernetes - VIP Keepalive Interface %s is valid' %
+                args.vip_ip)
 
 
 def k8s_get_pods(args, namespace):
