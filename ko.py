@@ -585,7 +585,7 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 def k8s_wait_for_kube_system(args):
     '''Wait for basic k8s to come up'''
 
-    TIMEOUT = 350  # Give k8s 350s to come up
+    TIMEOUT = 2000  # Give k8s 2000 s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
     prev_cnt = 0
