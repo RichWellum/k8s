@@ -500,8 +500,8 @@ def print_versions(args):
 
     print('\nVersions:')
     print('  Docker version  :  %s' % docker_ver(args))
-    print('  Openstack version: %s(%s)' %
-          (tools_versions(args, 'kolla')), kolla_get_image_tag(args))
+    print('  Openstack version: %s(%s)' % (tools_versions(args, 'kolla'),
+                                           kolla_get_image_tag(args)))
     print('  Helm version:      %s' % tools_versions(args, 'helm'))
     print('  K8s version:       %s'
           % tools_versions(args, 'kubernetes').rstrip())
