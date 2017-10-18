@@ -766,7 +766,7 @@ def k8s_install_tools(args):
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
-        run_shell(args, 'sudo yum install -y epel-release bridge-utils')
+        run_shell(args, 'sudo yum install -y qemu epel-release bridge-utils')
         run_shell(args,
                   'sudo yum install -y python-pip python-devel libffi-devel '
                   'gcc openssl-devel sshpass')
@@ -774,7 +774,7 @@ def k8s_install_tools(args):
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
-        run_shell(args, 'sudo apt-get install -y bridge-utils')
+        run_shell(args, 'sudo apt-get install -y qemu bridge-utils')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass')
         run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
