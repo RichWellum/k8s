@@ -2584,7 +2584,8 @@ def kolla_bring_up_openstack(args):
     kolla_verify_helm_images(args)
 
     if 'ocata' in args.image_version:
-        kolla_create_cloud_v4(args)
+        # kolla_create_cloud_v4(args)
+        kolla_create_cloud(args)
     else:
         kolla_create_cloud(args)
 
