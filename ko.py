@@ -263,8 +263,8 @@ def parse_args():
     parser.add_argument('-f', '--force', action='store_true',
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input')
-    parser.add_argument('-sd', '--skip_demo', action='store_true',
-                        help='Do not create a demo VM')
+    parser.add_argument('-cn', '--create_network', action='store_true',
+                        help='Try to create a OpenStack network model')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='For developers only')
 
@@ -2277,6 +2277,9 @@ def kolla_finalize_os(args):
     Install a demo image.
     Attach a floating ip.
     '''
+
+    kolla_setup_neutron(args)
+
     print_progress('Kolla',
                    'Configure Neutron, pull images',
                    KOLLA_FINAL_PROGRESS)
@@ -2656,9 +2659,10 @@ def main():
         subnet, start, octet = kolla_get_mgmt_subnet(args)
         print('DEV: MGMT: subnet=%s, start=%s' %
               (subnet, start))
-        subnet, start, octet = kolla_get_neutron_subnet(args)
-        print('DEV: NTRN: subnet=%s, start=%s' %
-              (subnet, start))
+        if args.create_network:
+            subnet, start, octet = kolla_get_neutron_subnet(args)
+            print('DEV: NTRN: subnet=%self, start=%s' %
+                  (subnet, start))
 
     # Start progress on one
     add_one_to_progress()
@@ -2670,8 +2674,8 @@ def main():
     else:
         KOLLA_FINAL_PROGRESS = 43
 
-    if args.skip_demo:
-        KOLLA_FINAL_PROGRESS -= 4
+    if args.create_network:
+        KOLLA_FINAL_PROGRESS += 4
 
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
@@ -2706,8 +2710,7 @@ def main():
         kolla_bring_up_openstack(args)
         kolla_create_keystone_user(args)
         kolla_allow_ingress(args)
-        if not args.skip_demo:
-            kolla_setup_neutron(args)
+        if args.create_network:
             kolla_finalize_os(args)
         kubernetes_test_cli(args)
 
