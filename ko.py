@@ -208,9 +208,9 @@ def parse_args():
                         help='Provide own Keepalived VIP, used with '
                         'keepalived, should be an unused IP on management '
                         'NIC subnet, E.g: 10.240.83.112')
-    parser.add_argument('-iv', '--image_version', type=str, default='pike',
+    parser.add_argument('-iv', '--image_version', type=str, default='ocata',
                         help='Specify a different Kolla image version to '
-                        'the default (pike)')
+                        'the default (ocata)')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
                         'default(2.6.2)')
@@ -453,7 +453,8 @@ def tools_versions(args, str):
         "jinja2"]
 
     # This should match up with the defaults set in parse_args
-    versions = ["pike", "2.6.2", "1.8.1", "2.2.0.0", "2.8.1"]
+    #            kolla    helm     k8s      ansible    jinja2
+    versions = ["ocata", "2.6.2", "1.8.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
