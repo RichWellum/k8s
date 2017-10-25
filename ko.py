@@ -129,11 +129,18 @@ TODO
 
 Recomendations
 ==============
-Due to the length the script can run for, recomend disabling sudo timeout:
+1. Due to the length the script can run for, recomend disabling sudo timeout:
 
-1. sudo visudo
-2. Add: 'Defaults    timestamp_timeout=-1'
+sudo visudo
+Add: 'Defaults    timestamp_timeout=-1'
 
+2. Due to the length of time the script can run for, I recomend using nohup
+
+E.g. nohup python -u k8s.py eth0 eth1
+
+Then in another window:
+
+tail -f nohup.out
 '''
 
 from __future__ import print_function
