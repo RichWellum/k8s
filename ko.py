@@ -2277,7 +2277,6 @@ def kolla_finalize_os(args):
     Install a demo image.
     Attach a floating ip.
     '''
-    kolla_create_keystone_user(args)
     kolla_allow_ingress(args)
     kolla_setup_neutron(args)
 
@@ -2336,7 +2335,10 @@ def kolla_finalize_os(args):
     print(run_shell(args, '.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
 
-    # Suggest Horizon logon info
+
+def kolla_final_messages(args):
+    '''Setup horizon and print success message'''
+
     address = run_shell(args, "kubectl get svc horizon --namespace kolla "
                         "--no-headers | awk '{print $3}'")
     username = run_shell(
@@ -2709,8 +2711,10 @@ def main():
         k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
+        kolla_create_keystone_user(args)
         if args.create_network:
             kolla_finalize_os(args)
+        kolla_final_messages(args)
         kubernetes_test_cli(args)
 
     except Exception:
