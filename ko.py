@@ -214,9 +214,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
                         'default(2.6.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.0',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.1',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.0) - note 1.8.0 is the minimum '
+                        'the default(1.8.1) - note 1.8.0 is the minimum '
                         'supported')
     # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
     #                     help='Specify a different kubernetes-cni version '
@@ -453,7 +453,7 @@ def tools_versions(args, str):
         "jinja2"]
 
     # This should match up with the defaults set in parse_args
-    versions = ["pike", "2.6.2", "1.8.0", "2.2.0.0", "2.8.1"]
+    versions = ["pike", "2.6.2", "1.8.1", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -1707,9 +1707,9 @@ def kolla_create_config_maps(args):
 
 
 def kolla_resolve_workaround(args):
-    '''Resolve.conf workaround'''
+    '''Resolve.conf pre 1.8.x workaround'''
 
-    if args.k8s_version != "1.8.0":
+    if not re.search('1.8', args.k8s_version):
         print('(%02d/%d) Kolla - Enable resolv.conf workaround' %
               (PROGRESS, KOLLA_FINAL_PROGRESS))
         add_one_to_progress()
