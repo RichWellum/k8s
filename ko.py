@@ -2277,7 +2277,8 @@ def kolla_finalize_os(args):
     Install a demo image.
     Attach a floating ip.
     '''
-
+    kolla_create_keystone_user(args)
+    kolla_allow_ingress(args)
     kolla_setup_neutron(args)
 
     print_progress('Kolla',
@@ -2708,8 +2709,6 @@ def main():
         k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
-        kolla_create_keystone_user(args)
-        kolla_allow_ingress(args)
         if args.create_network:
             kolla_finalize_os(args)
         kubernetes_test_cli(args)
