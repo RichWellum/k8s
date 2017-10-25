@@ -770,6 +770,10 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
+    # Reset kubeadm if it's anew installation
+    if not args.openstack:
+        run_shell(args, 'sudo kubeadm reset')
+
     print_progress('Kubernetes', 'Installing base tools', K8S_FINAL_PROGRESS)
 
     if linux_ver() == 'centos':
@@ -2557,9 +2561,6 @@ def kolla_get_image_tag(args):
     else:
         print('Invalid version %s' % args.image_version)
         sys.exit(1)
-
-    if args.dev_mode:
-        print('DEV: Version: %s' % str)
 
     return(str)
 
