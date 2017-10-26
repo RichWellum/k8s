@@ -2282,14 +2282,13 @@ EOF
         """ % (EXT_NET_CIDR, EXT_NET_RANGE, EXT_NET_GATEWAY))
 
 
-def kolla_finalize_os(args):
+def kolla_nw_and_images(args):
     '''Final steps now that a working cluster is up.
 
     Run "runonce" to set everything up.
     Install a demo image.
     Attach a floating ip.
     '''
-    kolla_allow_ingress(args)
     kolla_setup_neutron(args)
 
     print_progress('Kolla',
@@ -2299,7 +2298,6 @@ def kolla_finalize_os(args):
     out = run_shell(
         args,
         '.  ~/keystonerc_admin; chmod 777 ./runonce; ./runonce')
-    # print(out)
     logger.debug(out)
 
     demo_net_id = run_shell(
@@ -2721,8 +2719,9 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         kolla_bring_up_openstack(args)
         kolla_create_keystone_user(args)
+        kolla_allow_ingress(args)
         if args.create_network:
-            kolla_finalize_os(args)
+            kolla_nw_and_images(args)
         kolla_final_messages(args)
         kubernetes_test_cli(args)
 
