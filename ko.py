@@ -2682,9 +2682,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 40
-    else:
         KOLLA_FINAL_PROGRESS = 39
+    else:
+        KOLLA_FINAL_PROGRESS = 38
 
     if args.create_network:
         KOLLA_FINAL_PROGRESS += 6
