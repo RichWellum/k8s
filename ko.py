@@ -1297,7 +1297,7 @@ def k8s_cleanup(args):
             'Delete /etc files and dirs', K8S_CLEANUP_PROGRESS)
         run_shell(args, 'sudo rm -rf /etc/kolla*')
         run_shell(args, 'sudo rm -rf /etc/kubernetes')
-        run_shell(args, 'sudo rm -rf /etc/kolla-kubernetes')
+        # run_shell(args, 'sudo rm -rf /etc/kolla-kubernetes') #todo remove
 
         print_progress(
             'Kubernetes',
@@ -1357,10 +1357,10 @@ def kolla_install_repos(args):
 
     print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
 
-    if os.path.exists('./kolla-kubernetes'):
-        run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
-    run_shell(args,
-              'git clone http://github.com/openstack/kolla-kubernetes')
+    # if os.path.exists('./kolla-kubernetes'):
+    # run_shell(args, 'sudo rm -rf ./kolla-kubernetes') #todo remove
+    # run_shell(args,
+    # 'git clone http://github.com/openstack/kolla-kubernetes')
 
     if args.dev_mode:
         pause_tool_execution('DEV: edit kolla-kubernetes now')
