@@ -273,7 +273,7 @@ def parse_args():
     parser.add_argument('-cn', '--create_network', action='store_true',
                         help='Try to create a OpenStack network model')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
-                        help='For developers only')
+                        help='Adds option to modify kolla and more info')
     parser.add_argument('-ng', '--no_git', action='store_true',
                         help='Select this to not overide downloaded git repos')
 
