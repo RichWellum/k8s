@@ -1345,7 +1345,9 @@ def kolla_install_repos(args):
     For sanity I just delete a repo if already exists
     '''
     if args.no_git:
-        print('(%02d/%d) Kolla - Not cloning kolla repos' %
+        add_one_to_progress()
+        print('(%02d/%d) Kolla - Not cloning kolla repos to preserve existing '
+              'content' %
               (PROGRESS, KOLLA_FINAL_PROGRESS))
 
     if not args.no_git:
