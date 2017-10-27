@@ -874,7 +874,7 @@ def k8s_install_k8s(args):
         # todo - this breaks when ubuntu steps up a revision to -01 etc
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
-                  'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
+                  'ebtables kubelet=%s-01 kubeadm=%s-01 kubectl=%s-01 '
                   'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
                                       tools_versions(args, 'kubernetes'),
                                       tools_versions(args, 'kubernetes')))
