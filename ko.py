@@ -275,7 +275,7 @@ def parse_args():
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='Adds option to modify kolla and more info')
     parser.add_argument('-ng', '--no_git', action='store_true',
-                        help='Select this to not overide downloaded git repos')
+                        help='Select this to not override git repos')
 
     return parser.parse_args()
 
@@ -1344,6 +1344,10 @@ def kolla_install_repos(args):
 
     For sanity I just delete a repo if already exists
     '''
+    if args.no_git:
+        print('(%02d/%d) Kolla - Not cloning kolla repos' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
+
     if not args.no_git:
         print('(%02d/%d) Kolla - Clone kolla-ansible' %
               (PROGRESS, KOLLA_FINAL_PROGRESS))
