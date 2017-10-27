@@ -274,6 +274,8 @@ def parse_args():
                         help='Try to create a OpenStack network model')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='For developers only')
+    parser.add_argument('-ng', '--no_git', action='store_true',
+                        help='Select this to not overide downloaded git repos')
 
     return parser.parse_args()
 
@@ -1342,28 +1344,29 @@ def kolla_install_repos(args):
 
     For sanity I just delete a repo if already exists
     '''
+    if not args.no_git:
+        print('(%02d/%d) Kolla - Clone kolla-ansible' %
+              (PROGRESS, KOLLA_FINAL_PROGRESS))
+        add_one_to_progress()
 
-    print('(%02d/%d) Kolla - Clone kolla-ansible' %
-          (PROGRESS, KOLLA_FINAL_PROGRESS))
-    add_one_to_progress()
+        demo(args, 'Git cloning repos, then using pip to install them',
+             'http://github.com/openstack/kolla-ansible\n'
+             'http://github.com/openstack/kolla-kubernetes')
 
-    demo(args, 'Git cloning repos, then using pip to install them',
-         'http://github.com/openstack/kolla-ansible\n'
-         'http://github.com/openstack/kolla-kubernetes')
+        if os.path.exists('./kolla-ansible'):
+            run_shell(args, 'sudo rm -rf ./kolla-ansible')
+        print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
+        run_shell(args, 'git clone http://github.com/openstack/kolla-ansible')
 
-    if os.path.exists('./kolla-ansible'):
-        run_shell(args, 'sudo rm -rf ./kolla-ansible')
-    run_shell(args, 'git clone http://github.com/openstack/kolla-ansible')
+        if os.path.exists('./kolla-kubernetes'):
+            run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
+            print_progress('Kolla', 'Clone kolla-kubernetes',
+                           KOLLA_FINAL_PROGRESS)
+         run_shell(args,
+                  'git clone http://github.com/openstack/kolla-kubernetes')
 
-    print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
-
-    if os.path.exists('./kolla-kubernetes'):
-        run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
-    run_shell(args,
-              'git clone http://github.com/openstack/kolla-kubernetes')
-
-    if args.dev_mode:
-        pause_tool_execution('DEV: edit kolla-kubernetes now')
+        if args.dev_mode:
+            pause_tool_execution('DEV: edit kolla-kubernetes now')
 
     print_progress(
         'Kolla',
@@ -2688,6 +2691,9 @@ def main():
 
     if args.create_network:
         KOLLA_FINAL_PROGRESS += 6
+
+    if args.no_git:
+        KOLLA_FINAL_PROGRESS -= 1
 
     global K8S_CLEANUP_PROGRESS
     if os.path.exists('/data'):
