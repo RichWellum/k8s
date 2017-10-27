@@ -221,9 +221,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
                         'default(2.6.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.1',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.2',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.1) - note 1.8.0 is the minimum '
+                        'the default(1.8.2) - note 1.8.0 is the minimum '
                         'supported')
     # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
     #                     help='Specify a different kubernetes-cni version '
@@ -463,7 +463,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.6.2", "1.8.1", "2.2.0.0", "2.8.1"]
+    versions = ["ocata", "2.6.2", "1.8.2", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -874,7 +874,7 @@ def k8s_install_k8s(args):
         # todo - this breaks when ubuntu steps up a revision to -01 etc
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
-                  'ebtables kubelet=%s-01 kubeadm=%s-01 kubectl=%s-01 '
+                  'ebtables kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 '
                   'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
                                       tools_versions(args, 'kubernetes'),
                                       tools_versions(args, 'kubernetes')))
