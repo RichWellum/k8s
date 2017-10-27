@@ -1359,8 +1359,8 @@ def kolla_install_repos(args):
 
     if os.path.exists('./kolla-kubernetes'):
         run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
-        run_shell(args,
-                  'git clone http://github.com/openstack/kolla-kubernetes')
+    run_shell(args,
+              'git clone http://github.com/openstack/kolla-kubernetes')
 
     if args.dev_mode:
         pause_tool_execution('DEV: edit kolla-kubernetes now')
