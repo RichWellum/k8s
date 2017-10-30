@@ -276,6 +276,9 @@ def parse_args():
                         help='Adds option to modify kolla and more info')
     parser.add_argument('-ng', '--no_git', action='store_true',
                         help='Select this to not override git repos')
+    parser.add_argument('-bd', '--base_distro', type=str, default='centos',
+                        help='Specify a base container image to '
+                        'the default(centos)')
 
     return parser.parse_args()
 
@@ -1814,7 +1817,7 @@ global:
        image_tag: "%s"
        kube_logger: false
        external_vip: "%s"
-       base_distro: "centos"
+       base_distro: "%s"
        install_type: "source"
        tunnel_interface: "%s"
        kolla_kubernetes_external_subnet: 24
@@ -1870,6 +1873,7 @@ global:
          port_external: true
         """ % (kolla_get_image_tag(args),
                args.mgmt_ip,
+               args.base_distro,
                args.MGMT_INT,
                args.vip_ip,
                args.mgmt_ip,
@@ -1915,7 +1919,7 @@ global:
        image_tag: "%s"
        kube_logger: false
        external_vip: "%s"
-       base_distro: "centos"
+       base_distro: "%s"
        install_type: source
        tunnel_interface: "%s"
        ceph_backend: false
@@ -1981,6 +1985,7 @@ global:
          port_external: true
         """ % (kolla_get_image_tag(args),
                args.mgmt_ip,
+               args.base_distro,
                args.MGMT_INT,
                args.vip_ip,
                kolla_get_image_tag(args),
@@ -2622,10 +2627,10 @@ def kolla_bring_up_openstack(args):
         run_shell(args,
                   'helm install --debug kolla-kubernetes/helm/microservice/'
                   'registry-deployment --namespace kolla --name '
-                  'registry-centos --set distro=centos '
+                  'registry-%s --set distro=%s '
                   '--set node_port=30401 --set initial_load=true '
                   '--set svc_name=registry-centos --set branch=%s'
-                  % args.image_version)
+                  % (args.base_distro, args.base_distro, args.image_version))
         k8s_wait_for_pod_start(args, 'registry')
         k8s_wait_for_running_negate(args, 600)
 
