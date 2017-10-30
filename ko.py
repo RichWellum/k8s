@@ -1362,14 +1362,14 @@ def kolla_install_repos(args):
         if os.path.exists('./kolla-ansible'):
             run_shell(args, 'sudo rm -rf ./kolla-ansible')
         print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
-        run_shell(args, 'git clone http://github.com/openstack/kolla-ansible')
+        run_shell(args,
+                  'git clone http://github.com/openstack/kolla-ansible')
 
         if os.path.exists('./kolla-kubernetes'):
             run_shell(args, 'sudo rm -rf ./kolla-kubernetes')
-            print_progress('Kolla', 'Clone kolla-kubernetes',
-                           KOLLA_FINAL_PROGRESS)
-            run_shell(args,
-                      'git clone http://github.com/openstack/kolla-kubernetes')
+        print_progress('Kolla', 'Clone kolla-kubernetes', KOLLA_FINAL_PROGRESS)
+        run_shell(args,
+                  'git clone http://github.com/openstack/kolla-kubernetes')
 
         if args.dev_mode:
             pause_tool_execution('DEV: edit kolla-kubernetes now')
