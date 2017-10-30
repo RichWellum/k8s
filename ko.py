@@ -721,7 +721,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
 def k8s_wait_for_vm(args, vm):
     """Wait for a vm to be listed as running in nova list"""
 
-    TIMEOUT = 100
+    TIMEOUT = 50
     RETRY_INTERVAL = 5
 
     print("  Kubernetes - Wait for VM %s to be in running state:" % vm)
