@@ -520,6 +520,7 @@ def print_versions(args):
           % tools_versions(args, 'kubernetes').rstrip())
     print('  Ansible version:   %s' % tools_versions(args, 'ansible').rstrip())
     print('  Jinja2 version:    %s' % tools_versions(args, 'jinja2').rstrip())
+    print('  Base version:      %s' % args.base_distro)
     print('\n')
 
     time.sleep(1)
