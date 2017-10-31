@@ -792,7 +792,7 @@ def k8s_install_tools(args):
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
-        run_shell(args, 'sudo apt-get install -y qemu bridge-utils ')
+        run_shell(args, 'sudo apt-get install -y qemu bridge-utils parted ')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass apt-transport-https')
         run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
@@ -2641,7 +2641,7 @@ def kolla_bring_up_openstack(args):
     helm_install_service_chart(args, chart_list)
 
     # Bring up br-ex for keepalived to bind VIP to it
-    # run_shell(args, 'sudo ifconfig br-ex up')
+    run_shell(args, 'sudo ifconfig br-ex up')
 
     # chart_list = ['keepalived-daemonset']
     # demo(args, 'Install %s Helm Chart' % chart_list, '')
