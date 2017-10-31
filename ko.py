@@ -794,7 +794,8 @@ def k8s_install_tools(args):
                   '--allow-downgrades --no-install-recommends')
         run_shell(args, 'sudo apt-get install -y qemu bridge-utils parted ')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
-                  'libssl-dev python-pip sshpass apt-transport-https')
+                  'libssl-dev python-pip sshpass')
+        # 'libssl-dev python-pip sshpass apt-transport-https')
         run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
                   'ansible curl lvm2')
 
