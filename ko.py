@@ -647,7 +647,7 @@ def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
     # No-op as issue not seen and very slow
-    return
+    # return
 
     if 'cinder' in chart:
         chart = 'cinder'
@@ -2015,7 +2015,7 @@ def helm_install_service_chart(args, chart_list):
                   'helm install --debug kolla-kubernetes/helm/service/%s '
                   '--namespace kolla --name %s --values /tmp/cloud.yaml'
                   % (chart, chart))
-    k8s_wait_for_pod_start(args, chart)
+        k8s_wait_for_pod_start(args, chart)
     k8s_wait_for_running_negate(args)
 
 
