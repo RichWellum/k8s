@@ -647,7 +647,7 @@ def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
     # No-op as issue not seen and very slow
-    # return
+    return
 
     if 'cinder' in chart:
         chart = 'cinder'
