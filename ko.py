@@ -910,7 +910,7 @@ def k8s_setup_dns(args):
     file.write('[Service]\n')
     file.write('Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"\n')
     file.write('Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"\n')
-    file.close(ftc_c)
+    file.close
     ftc = '/etc/systemd/system/kubelet.service.d/90-local-extras.conf'
     run_shell(args, 'sudo cp %s %s' % (ftc_c, ftc))
 
