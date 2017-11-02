@@ -903,6 +903,17 @@ def k8s_setup_dns(args):
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
               '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
 
+    # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
+    ftc_c = '/tmp/90-local-extras.conf'
+    run_shell(args, 'sudo chmod 777 %s' % ftc_c)
+    file = open(ftc_c, 'w+')
+    file.write('[Service]\n')
+    file.write('Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"\n')
+    file.write('Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"\n')
+    file.close(ftc_c)
+    ftc = '/etc/systemd/system/kubelet.service.d/90-local-extras.conf'
+    run_shell(args, 'sudo cp %s %s' % (ftc_c, ftc))
+
 
 def k8s_reload_service_files(args):
     '''Service files where modified so bring them up again'''
