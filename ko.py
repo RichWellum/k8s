@@ -1817,6 +1817,9 @@ def kolla_create_cloud_v4(args):
                    'Create a version 4 cloud.yaml',
                    KOLLA_FINAL_PROGRESS)
 
+    if args.no_git:
+        return
+
     demo(args, 'Create a 4.x (Ocata) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
          'It contains a list of global OpenStack services '
@@ -1916,6 +1919,9 @@ def kolla_create_cloud(args):
         'Kolla',
         'Create a version 5+ cloud.yaml',
         KOLLA_FINAL_PROGRESS)
+
+    if args.no_git:
+        return
 
     demo(args, 'Create a 5.x (Pike) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
