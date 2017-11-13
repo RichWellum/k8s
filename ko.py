@@ -895,11 +895,11 @@ def k8s_setup_dns(args):
               'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
     run_shell(
         args,
-        'sudo echo "Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
+        'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
         '>> /tmp/10-kubeadm.conf')
     run_shell(
         args,
-        'sudo echo "Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false" '
+        'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false" '
         '>> /tmp/10-kubeadm.conf')
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
               '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
