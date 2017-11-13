@@ -214,9 +214,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.6.2',
                         help='Specify a different helm version to the '
                         'default(2.6.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.2',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.3',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.2) - note 1.8.0 is the minimum '
+                        'the default(1.8.3) - note 1.8.0 is the minimum '
                         'supported')
     # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
     #                     help='Specify a different kubernetes-cni version '
@@ -459,7 +459,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.6.2", "1.8.2", "2.2.0.0", "2.8.1"]
+    versions = ["ocata", "2.6.2", "1.8.3", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -898,14 +898,13 @@ def k8s_setup_dns(args):
 
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     ftc_c = '/tmp/90-local-extras.conf'
-    run_shell(args, 'sudo chmod 777 %s' % ftc_c)
     with open(ftc_c, "w") as w:
         w.write("""\
 [Service]
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd
 Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false
 """)
-
+    run_shell(args, 'sudo chmod 777 %s' % ftc_c)
     ftc = '/etc/systemd/system/kubelet.service.d/90-local-extras.conf'
     run_shell(args, 'sudo cp %s %s' % (ftc_c, ftc))
 
