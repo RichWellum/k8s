@@ -879,7 +879,7 @@ def k8s_install_k8s(args):
 
 
 def k8s_setup_dns(args):
-    '''DNS services'''
+    '''DNS services and kubectl fixups'''
 
     print_progress(
         'Kubernetes', 'Start docker and setup the DNS server with '
@@ -893,6 +893,7 @@ def k8s_setup_dns(args):
     run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell(args,
               'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
+
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     run_shell(
         args,
