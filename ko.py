@@ -907,6 +907,8 @@ Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false
     run_shell(args, 'sudo chmod 777 %s' % ftc_c)
     ftc = '/etc/systemd/system/kubelet.service.d/90-local-extras.conf'
     run_shell(args, 'sudo cp %s %s' % (ftc_c, ftc))
+    run_shell(args, 'systemctl daemon-reload')
+    run_shell(args, 'systemctl restart kubelet')
 
 
 def k8s_reload_service_files(args):
