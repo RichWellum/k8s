@@ -797,13 +797,19 @@ def k8s_install_tools(args):
         'https://bootstrap.pypa.io/get-pip.py',
         '-o', '/tmp/get-pip.py')
     run_shell(args, 'sudo python /tmp/get-pip.py')
+
     run_shell(args,
               'sudo -H pip install ansible==%s' %
               tools_versions(args, 'ansible'))
+
     # Standard jinja2 in Centos7(2.9.6) is broken
     run_shell(args,
               'sudo -H pip install Jinja2==%s' %
               tools_versions(args, 'jinja2'))
+
+    # https://github.com/ansible/ansible/issues/26670
+    run_shell(args, 'sudo -H pip uninstall pyOpenSSL')
+    run_shell(args, 'sudo -H pip install pyOpenSSL')
 
 
 def k8s_setup_ntp(args):
