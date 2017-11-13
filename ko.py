@@ -2088,7 +2088,8 @@ def kolla_get_host_subnet(args):
     '''Grab an address to access a demo vm
 
     Return the subnet, actual ip address and the last octet to start the DHCP
-    range'''
+    range
+    '''
 
     # Grab default route
     default = run_shell(
@@ -2110,7 +2111,8 @@ def kolla_get_mgmt_subnet(args):
     '''Grab an address to access a demo vm
 
     Return the subnet, actual ip address and the last octet to start the DHCP
-    range'''
+    range
+    '''
 
     subnet = args.mgmt_ip[:args.mgmt_ip.rfind(".")]
     r = list(range(2, 253))
@@ -2124,11 +2126,13 @@ def kolla_get_mgmt_subnet(args):
 
 
 def kolla_get_neutron_subnet(args):
-    '''Find and return a neutron ip address that can be used for the
-    neutron subnet
+    '''Find and return a neutron ip address
 
-    Because the neutron interface does not have an ip address. briefly ask
-    DHCP for one, then release it after extracting the lease'''
+    That can be used for the neutron subnet
+
+    Because the neutron interface does not have an ip address. Briefly ask
+    DHCP for one, then release it after extracting the lease
+    '''
 
     # -v -r doesn't seem to work - so run seperately
     run_shell(args,
