@@ -28,12 +28,6 @@ Deployment Guide:
 
 https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
 
-I wrote this tool as I was learning about kolla-kubernetes, when the overhead
-of writing the same configuration files was leading to KWE
-(Keyboard Warrior Errors). There ARE other tools, not least
-kolla-kubernetes/tools/setup_kube_AIO.sh which runs the same scripts in the
-gates, and also Ansible playbooks currently in review.
-
 Features
 ========
 1. Supports both Centos and Ubuntu natively.
@@ -124,8 +118,7 @@ TODO
 
 1. Convert to using https://github.com/kubernetes-incubator/client-python
 2. Add option to use a CNI other than canal
-3. Add an option to insert a cherry-pick before compiling kolla-kubernetes
-4. Note there are various todo's scattered inline as well.
+3. Note there are various todo's scattered inline as well.
 
 Recomendations
 ==============
@@ -134,7 +127,7 @@ Recomendations
 sudo visudo
 Add: 'Defaults    timestamp_timeout=-1'
 
-2. Due to the length of time the script can run for, I recomend using nohup
+2. Due to the length of time the script can run for, I recommend using nohup
 
 E.g. nohup python -u k8s.py eth0 eth1
 
@@ -1184,7 +1177,6 @@ def k8s_add_api_server(args):
 
     run_shell(args, 'sudo mkdir -p /etc/nodepool/')
     run_shell(args, 'sudo echo %s > /tmp/primary_node_private' % args.mgmt_ip)
-    # todo - has a permissions error
     run_shell(args, 'sudo mv -f /tmp/primary_node_private /etc/nodepool')
 
 
