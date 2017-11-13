@@ -893,6 +893,7 @@ def k8s_setup_dns(args):
     run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
     run_shell(args,
               'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
+    # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     run_shell(
         args,
         'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
@@ -903,20 +904,6 @@ def k8s_setup_dns(args):
         '>> /tmp/10-kubeadm.conf')
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
               '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
-
-    # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
-#     ftc_c = '/tmp/90-local-extras.conf'
-#     with open(ftc_c, "w") as w:
-#         w.write("""\
-# [Service]
-# Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd
-# Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false
-# """)
-#     run_shell(args, 'sudo chmod 777 %s' % ftc_c)
-#     ftc = '/etc/systemd/system/kubelet.service.d/90-local-extras.conf'
-#     run_shell(args, 'sudo cp %s %s' % (ftc_c, ftc))
-#     run_shell(args, 'sudo systemctl daemon-reload')
-#     run_shell(args, 'sudo systemctl restart kubelet')
 
 
 def k8s_reload_service_files(args):
