@@ -498,6 +498,7 @@ def print_versions(args):
     # need the version anyway
 
     # Note later versions of ubuntu require a change:
+    # https://github.com/moby/moby/issues/15651
     # sudo vi /lib/systemd/system/docker.service
     # ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS -s overlay2
     # sudo systemctl daemon-reload
