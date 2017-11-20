@@ -1921,6 +1921,8 @@ def kolla_create_cloud(args):
     if args.no_git:
         return
 
+    image_tag = kolla_get_image_tag(args)
+
     demo(args, 'Create a 5.x (Pike) cloud.yaml',
          'cloud.yaml is the partner to globals.yml\n'
          'It contains a list of global OpenStack services '
@@ -2003,15 +2005,15 @@ global:
        all:
          port_external: true
         """ % (args.docker_repo,
-               kolla_get_image_tag(args),
+               image_tag,
                args.mgmt_ip,
                args.base_distro,
                args.MGMT_INT,
                args.vip_ip,
-               kolla_get_image_tag(args),
-               kolla_get_image_tag(args),
-               kolla_get_image_tag(args),
-               kolla_get_image_tag(args),
+               image_tag,
+               image_tag,
+               image_tag,
+               image_tag,
                args.mgmt_ip,
                args.mgmt_ip,
                args.NEUTRON_INT))
