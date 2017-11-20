@@ -812,7 +812,7 @@ def k8s_install_tools(args):
               tools_versions(args, 'jinja2'))
 
     # https://github.com/ansible/ansible/issues/26670
-    run_shell(args, 'sudo -H pip uninstall pyOpenSSL')
+    run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
     run_shell(args, 'sudo -H pip install pyOpenSSL')
 
 
