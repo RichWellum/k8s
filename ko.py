@@ -272,6 +272,9 @@ def parse_args():
     parser.add_argument('-bd', '--base_distro', type=str, default='centos',
                         help='Specify a base container image to '
                         'the default(centos)')
+    parser.add_argument('-dr', '--docker_repo', type=str, default='lokolla',
+                        help='Specify a different docker repo '
+                        'the default(lokolla)')
 
     return parser.parse_args()
 
@@ -1931,7 +1934,7 @@ global:
    kolla:
      all:
        docker_registry: 127.0.0.1:30401
-       docker_namespace: lokolla
+       docker_namespace: %s
        image_tag: "%s"
        kube_logger: false
        external_vip: "%s"
@@ -1999,7 +2002,8 @@ global:
      horizon:
        all:
          port_external: true
-        """ % (kolla_get_image_tag(args),
+        """ % (args.docker_repo,
+               kolla_get_image_tag(args),
                args.mgmt_ip,
                args.base_distro,
                args.MGMT_INT,
@@ -2637,22 +2641,27 @@ def kolla_bring_up_openstack(args):
     # dockerhub have to run them from a docker registry running as a pod.
     # This takes a long time to come up but then all the other image
     # pulls are very quick.
+    # If the user has supplied their own dockernhub account then assume self
+    # built images and use that account
     if 'ocata' not in args.image_version:
-        banner(
-            'Installing docker registry. Slow but needed for 5.x as '
-            'images are not on dockerhub yet.')
-        print_progress(
-            'Kolla', "Helm Install service chart: \--'%s'--/" %
-            'registry-deployment', KOLLA_FINAL_PROGRESS)
-        run_shell(args,
-                  'helm install --debug kolla-kubernetes/helm/microservice/'
-                  'registry-deployment --namespace kolla --name '
-                  'registry-%s --set distro=%s '
-                  '--set node_port=30401 --set initial_load=true '
-                  '--set svc_name=registry-centos --set branch=%s'
-                  % (args.base_distro, args.base_distro, args.image_version))
-        k8s_wait_for_pod_start(args, 'registry')
-        k8s_wait_for_running_negate(args, 600)
+        if 'lokolla' not in args.docker_registry:
+            banner(
+                'Installing docker registry. Slow but needed for 5.x as '
+                'images are not on dockerhub yet.')
+            print_progress(
+                'Kolla', "Helm Install service chart: \--'%s'--/" %
+                'registry-deployment', KOLLA_FINAL_PROGRESS)
+            run_shell(args,
+                      'helm install --debug '
+                      'kolla-kubernetes/helm/microservice/'
+                      'registry-deployment --namespace kolla --name '
+                      'registry-%s --set distro=%s '
+                      '--set node_port=30401 --set initial_load=true '
+                      '--set svc_name=registry-centos --set branch=%s'
+                      % (args.base_distro, args.base_distro,
+                         args.image_version))
+            k8s_wait_for_pod_start(args, 'registry')
+            k8s_wait_for_running_negate(args, 600)
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
