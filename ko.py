@@ -105,13 +105,13 @@ To create two interfaces like this in Ubuntu, for example:
 Edit /etc/network/interfaces:
 
 # The primary network interface
-auto eth0
-iface eth0 inet dhcp
+auto ens3
+iface ens3 inet dhcp
 
 # Neutron network interface (up but no ip address)
-auto eth1
-iface eth1 inet manual
-ifconfig eth1 up
+auto ens4
+iface ens4 inet manual
+ifconfig ens4 up
 
 TODO
 ====
@@ -2655,7 +2655,7 @@ def kolla_bring_up_openstack(args):
     # If the user has supplied their own dockernhub account then assume self
     # built images and use that account
     if 'ocata' not in args.image_version:
-        if 'lokolla' not in args.docker_repo:
+        if 'lokolla' in args.docker_repo:
             banner(
                 'Installing docker registry. Slow but needed for 5.x as '
                 'images are not on dockerhub yet.')
