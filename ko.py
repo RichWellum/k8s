@@ -214,9 +214,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.7.2',
                         help='Specify a different helm version to the '
                         'default(2.7.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.3',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.4',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.3) - note 1.8.0 is the minimum '
+                        'the default(1.8.4) - note 1.8.0 is the minimum '
                         'supported')
     # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
     #                     help='Specify a different kubernetes-cni version '
@@ -462,7 +462,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.8.3", "2.2.0.0", "2.8.1"]
+    versions = ["ocata", "2.7.2", "1.8.4", "2.2.0.0", "2.8.1"]
 
     tools_dict = {}
     # Generate dictionary
@@ -496,6 +496,13 @@ def print_versions(args):
 
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
+
+    # Note later versions of ubuntu require a change:
+    # sudo vi /lib/systemd/system/docker.service
+    # ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS -s overlay2
+    # sudo systemctl daemon-reload
+    # sudo systemctl restart docker
+    # sudo docker info
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum install -y docker')
     else:
