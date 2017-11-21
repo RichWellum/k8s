@@ -2655,7 +2655,7 @@ def kolla_bring_up_openstack(args):
     # If the user has supplied their own dockernhub account then assume self
     # built images and use that account
     if 'ocata' not in args.image_version:
-        if 'lokollaa' in args.docker_repo:  # temp hack to ignore todo
+        if 'lokolla' in args.docker_repo:
             banner(
                 'Installing docker registry. Slow but needed for 5.x as '
                 'images are not on dockerhub yet.')
@@ -2675,7 +2675,7 @@ def kolla_bring_up_openstack(args):
             k8s_wait_for_running_negate(args, 600)
 
     # Remove registry from cloud.yaml if user own registry
-    if 'lokollaa' not in args.docker_repo:  # also todo
+    if 'lokolla' not in args.docker_repo:
         run_shell(args,
                   "sed -i '/docker_registry: 127.0.0.1:30401/d' "
                   "/tmp/cloud.yaml")
