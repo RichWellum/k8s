@@ -2675,7 +2675,7 @@ def kolla_bring_up_openstack(args):
             k8s_wait_for_running_negate(args, 600)
 
     # Remove registry from cloud.yaml if user own registry
-    if 'lokolla' not in args.docker_repo:
+    if 'lokollaa' not in args.docker_repo:  # also todo
         run_shell(args,
                   "sed -i '/docker_registry: 127.0.0.1:30401/d' "
                   "/tmp/cloud.yaml")
