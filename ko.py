@@ -1173,7 +1173,7 @@ def k8s_deploy_canal_sdn(args):
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        'k8s-install/1.7/canal.yaml',
+        'k8s-install/1.7/canal.yaml', g
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
     run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
@@ -2655,7 +2655,7 @@ def kolla_bring_up_openstack(args):
     # If the user has supplied their own dockernhub account then assume self
     # built images and use that account
     if 'ocata' not in args.image_version:
-        if 'lokolla' in args.docker_repo:
+        if 'lokollaa' in args.docker_repo:  # temp hack to ignore this code todo
             banner(
                 'Installing docker registry. Slow but needed for 5.x as '
                 'images are not on dockerhub yet.')
