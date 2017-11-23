@@ -510,24 +510,25 @@ def print_versions(args):
         run_shell(args, 'sudo apt-get install -y docker.io')
 
     print('\nNetworking Info:')
-    print('  Management Int:  %s' % args.MGMT_INT)
-    print('  Neutron Int:     %s' % args.NEUTRON_INT)
-    print('  Management IP:   %s' % args.mgmt_ip)
-    print('  VIP Keepalive:   %s' % args.vip_ip)
+    print('  Management Int:     %s' % args.MGMT_INT)
+    print('  Neutron Int:        %s' % args.NEUTRON_INT)
+    print('  Management IP:      %s' % args.mgmt_ip)
+    print('  VIP Keepalive:      %s' % args.vip_ip)
 
     print('\nTool Versions:')
-    print('  Docker version:    %s' % docker_ver(args))
-    print('  Helm version:      %s' % tools_versions(args, 'helm'))
-    print('  K8s version:       %s'
+    print('  Docker version:     %s' % docker_ver(args))
+    print('  Helm version:       %s' % tools_versions(args, 'helm'))
+    print('  K8s version:        %s'
           % tools_versions(args, 'kubernetes').rstrip())
-    print('  Ansible version:   %s' % tools_versions(args, 'ansible').rstrip())
-    print('  Jinja2 version:    %s' % tools_versions(args, 'jinja2').rstrip())
+    print('  Ansible version:    %s' %
+          tools_versions(args, 'ansible').rstrip())
+    print('  Jinja2 version:     %s' % tools_versions(args, 'jinja2').rstrip())
 
     print('\nOpenStack Versions:')
-    print('  Openstack version: %s (%s)' % (tools_versions(args, 'kolla'),
-                                            kolla_get_image_tag(args)))
-    print('  Base image version:%s' % args.base_distro)
-    print('  Docker repo:       %s' % args.docker_repo)
+    print('  Openstack version:  %s (%s)' % (tools_versions(args, 'kolla'),
+                                             kolla_get_image_tag(args)))
+    print('  Base image version: %s' % args.base_distro)
+    print('  Docker repo:        %s' % args.docker_repo)
     print('\n')
 
 
