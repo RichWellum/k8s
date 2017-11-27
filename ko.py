@@ -1630,25 +1630,36 @@ def kolla_enable_qemu(args):
     '''Some configurations need qemu'''
 
     print_progress('Kolla', 'Enable qemu', KOLLA_FINAL_PROGRESS)
-    # todo - as per gate:
-    # sudo crudini --set /etc/kolla/nova-compute/nova.conf
-    # libvirt virt_type qemu
-    # sudo crudini --set /etc/kolla/nova-compute/nova.conf
-    # libvirt cpu_mode none
-    # sudo crudini --set /etc/kolla/keystone/keystone.conf
-    # cache enabled False
+    run_shell(
+        args,
+        'sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
+        'virt_type qemu')
+    run_shell(
+        args,
+        'sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
+        'cpu_mode none')
+    UUID = run_shell(args,
+                     "awk '{if($1 == \"cinder_rbd_secret_uuid: \")"
+                     "{print $2}}' /etc/kolla/passwords.yml")
+    run_shell(
+        args,
+        'crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
+        'rbd_secret_uuid %s' % UUID)
+    run_shell(
+        args,
+        'crudini --set /etc/kolla/keystone/keystone.conf cache enabled False')
 
-    run_shell(args, 'sudo mkdir -p /etc/kolla/config')
+#     run_shell(args, 'sudo mkdir -p /etc/kolla/config')
 
-    new = '/tmp/add'
-    add_to = '/etc/kolla/config/nova.conf'
-    with open(new, "w") as w:
-        w.write("""
-[libvirt]
-virt_type = qemu
-cpu_mode = none
-""")
-    run_shell(args, 'sudo mv %s %s' % (new, add_to))
+#     new = '/tmp/add'
+#     add_to = '/etc/kolla/config/nova.conf'
+#     with open(new, "w") as w:
+#         w.write("""
+# [libvirt]
+# virt_type = qemu
+# cpu_mode = none
+# """)
+#     run_shell(args, 'sudo mv %s %s' % (new, add_to))
 
 
 def kolla_gen_configs(args):
