@@ -1965,7 +1965,7 @@ global:
        install_type: source
        tunnel_interface: "%s"
        ceph_backend: false
-       libvirt_tcp: true
+       libvirt_tcp: false
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
        kolla_toolbox_image_tag: %s
