@@ -1627,9 +1627,9 @@ enable_neutron_provider_networks: "yes"
 
 
 def kolla_enable_qemu(args):
-    '''Some configurations need qemu'''
+    '''Set libvirt type to QEMU'''
 
-    print_progress('Kolla', 'Enable qemu', KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Set libvirt type to QEMU', KOLLA_FINAL_PROGRESS)
     run_shell(
         args,
         'sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
@@ -1965,7 +1965,7 @@ global:
        install_type: source
        tunnel_interface: "%s"
        ceph_backend: false
-       libvirt_tcp: false
+       libvirt_tcp: true
        kolla_kubernetes_external_subnet: 24
        kolla_kubernetes_external_vip: %s
        kolla_toolbox_image_tag: %s
