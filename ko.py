@@ -1653,7 +1653,7 @@ def kolla_enable_qemu(args):
         args,
         'crudini --set /etc/kolla/keystone/keystone.conf cache enabled False')
 
-    # disable some crap
+    # https://bugs.launchpad.net/kolla/+bug/1687459
     run_shell(args,
               'sudo service libvirt-bin stop')
     run_shell(args,
