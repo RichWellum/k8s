@@ -250,10 +250,12 @@ def parse_args():
                         'in kubernetes cluster')
     # parser.add_argument('-l,', '--cloud', type=int, default=3,
     # help='optionally change cloud network config files from default(3)')
-    parser.add_argument('-ec', '--edit_config', action='store_true',
+    parser.add_argument('-eg', '--edit_globals', action='store_true',
                         help='Pause to allow the user to edit the '
-                        'global.yaml and the cloud.yaml '
-                        'files - for custom configuration')
+                        'globals.yaml file - for custom configuration')
+    parser.add_argument('-ec', '--edit_cloud', action='store_true',
+                        help='Pause to allow the user to edit the '
+                        'cloud.yaml file - for custom configuration')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='Turn on verbose messages')
@@ -488,9 +490,11 @@ def print_versions(args):
     '''Print out versions of all the various tools needed'''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster:')
-    if args.edit_config:
-        print('  *globals.yaml and cloud.yaml will be editable '
-              'with this option*\n')
+    if args.edit_globals:
+        print('  *globals.yaml will be editable with this option*\n')
+
+    if args.edit_cloud:
+        print('  *cloud.yaml will be editable with this option*\n')
 
     print('Linux info:        %s' % linux_ver_det())
 
@@ -1617,7 +1621,7 @@ enable_neutron_provider_networks: "yes"
 """)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
-    if args.edit_config is True:
+    if args.edit_globals:
         pause_tool_execution('Pausing to edit the /etc/kolla/globals.yml file')
 
     demo(args, 'We have also added some basic config that is not defaulted',
@@ -1917,7 +1921,7 @@ global:
                args.mgmt_ip,
                args.NEUTRON_INT))
 
-    if args.edit_config is True:
+    if args.edit_cloud:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
 
     if args.demo:
@@ -2039,7 +2043,7 @@ global:
                args.mgmt_ip,
                args.NEUTRON_INT))
 
-    if args.edit_config is True:
+    if args.edit_cloud:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
 
     if args.demo:
