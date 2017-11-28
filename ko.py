@@ -248,8 +248,6 @@ def parse_args():
     parser.add_argument('-n', '--nslookup', action='store_true',
                         help='Pause for the user to manually test nslookup '
                         'in kubernetes cluster')
-    # parser.add_argument('-l,', '--cloud', type=int, default=3,
-    # help='optionally change cloud network config files from default(3)')
     parser.add_argument('-eg', '--edit_globals', action='store_true',
                         help='Pause to allow the user to edit the '
                         'globals.yaml file - for custom configuration')
@@ -786,7 +784,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
-    # Reset kubeadm if it's anew installation
+    # Reset kubeadm if it's a new installation
     if not args.openstack:
         run_shell(args, 'sudo kubeadm reset')
 
@@ -1660,18 +1658,6 @@ def kolla_enable_qemu(args):
               'sudo update-rc.d libvirt-bin disable')
     run_shell(args,
               'sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd')
-
-#     run_shell(args, 'sudo mkdir -p /etc/kolla/config')
-
-#     new = '/tmp/add'
-#     add_to = '/etc/kolla/config/nova.conf'
-#     with open(new, "w") as w:
-#         w.write("""
-# [libvirt]
-# virt_type = qemu
-# cpu_mode = none
-# """)
-#     run_shell(args, 'sudo mv %s %s' % (new, add_to))
 
 
 def kolla_gen_configs(args):
