@@ -1653,6 +1653,14 @@ def kolla_enable_qemu(args):
         args,
         'crudini --set /etc/kolla/keystone/keystone.conf cache enabled False')
 
+    # disable some crap
+    run_shell(args,
+              'sudo service libvirt-bin stop')
+    run_shell(args,
+              'sudo update-rc.d libvirt-bin disable')
+    run_shell(args,
+              'sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd')
+
 #     run_shell(args, 'sudo mkdir -p /etc/kolla/config')
 
 #     new = '/tmp/add'
