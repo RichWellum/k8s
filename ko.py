@@ -2685,10 +2685,6 @@ def kolla_bring_up_openstack(args):
                   "sed -i '/docker_registry: 127.0.0.1:30401/d' "
                   "/tmp/cloud.yaml")
 
-    # pause_tool_execution('Check code NOW!!!')
-    # kolla_enable_qemu(args)
-    # pause_tool_execution('Finish Check code NOW!!!')
-
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
