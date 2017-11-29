@@ -1645,11 +1645,12 @@ def kolla_enable_qemu(args):
                      "{print $2}}' /etc/kolla/passwords.yml")
     run_shell(
         args,
-        'crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
+        'sudo crudini --set /etc/kolla/nova-compute/nova.conf libvirt '
         'rbd_secret_uuid %s' % UUID)
     run_shell(
         args,
-        'crudini --set /etc/kolla/keystone/keystone.conf cache enabled False')
+        'sudo crudini --set /etc/kolla/keystone/keystone.conf cache '
+        'enabled False')
 
     # https://bugs.launchpad.net/kolla/+bug/1687459
     run_shell(args,
@@ -2639,7 +2640,9 @@ def kolla_bring_up_openstack(args):
     kolla_label_nodes(args, node_list)
     kolla_modify_globals(args)
     kolla_add_to_globals(args)
-    # kolla_enable_qemu(args)
+    pause_tool_execution('Check code NOW!!!')
+    kolla_enable_qemu(args)
+    pause_tool_execution('Finish Check code NOW!!!')
     kolla_gen_configs(args)
     kolla_gen_secrets(args)
     kolla_create_config_maps(args)
@@ -2684,9 +2687,9 @@ def kolla_bring_up_openstack(args):
                   "sed -i '/docker_registry: 127.0.0.1:30401/d' "
                   "/tmp/cloud.yaml")
 
-    pause_tool_execution('Check code NOW!!!')
-    kolla_enable_qemu(args)
-    pause_tool_execution('Finish Check code NOW!!!')
+    # pause_tool_execution('Check code NOW!!!')
+    # kolla_enable_qemu(args)
+    # pause_tool_execution('Finish Check code NOW!!!')
 
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
