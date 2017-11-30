@@ -1156,7 +1156,7 @@ def k8s_deploy_canal_sdn(args):
             w.write("""\
                 - name: IPALLOC_RANGE
                   value: 10.0.0.0/16
- """)
+""")
         run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
         pause_tool_execution('edit now')
         run_shell(args, "sed '/fieldPath: spec.nodeName/ r "
