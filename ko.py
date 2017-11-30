@@ -519,7 +519,7 @@ def print_versions(args):
     print('  Neutron Int:        %s' % args.NEUTRON_INT)
     print('  Management IP:      %s' % args.mgmt_ip)
     print('  VIP Keepalive:      %s' % args.vip_ip)
-    print('  CNI/SDN      :      %s' % args.cni)
+    print('  CNI/SDN:            %s' % args.cni)
 
     print('\nTool Versions:')
     print('  Docker version:     %s' % docker_ver(args))
@@ -1144,13 +1144,23 @@ def k8s_deploy_canal_sdn(args):
         print_progress(
             'Kubernetes', 'Deploy pod network SDN using Weave CNI',
             K8S_FINAL_PROGRESS)
-        weave = run_shell(args,
-                          "echo $(kubectl version | base64 | tr -d '\n')")
+        weave_ver = run_shell(args,
+                              "echo $(kubectl version | base64 | tr -d '\n')")
+        weave_yaml = curl(
+            '-L',
+            'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
+            '-o', '/tmp/weave.yaml')
+        print(weave_yaml)
+        pause_tool_execution('edit %s now' % weave_yaml)
+
         run_shell(
             args,
-            'kubectl apply -f '
-            '"https://cloud.weave.works/k8s/net?k8s-version=%s"' %
-            weave)
+            'kubectl apply -f %s' % weave_yaml)
+        # run_shell(
+        #     args,
+        #     'kubectl apply -f '
+        #     '"https://cloud.weave.works/k8s/net?k8s-version=%s"' %
+        #     weave)
         return
 
     # The ip range in canal.yaml,
