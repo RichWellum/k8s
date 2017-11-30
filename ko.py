@@ -144,7 +144,6 @@ import os
 import platform
 import random
 import re
-from ruamel.yaml import YAML
 import subprocess
 import sys
 import tarfile
