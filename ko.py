@@ -1140,18 +1140,22 @@ def k8s_load_kubeadm_creds(args):
 def k8s_deploy_canal_sdn(args):
     '''SDN/CNI Driver of choice is Canal'''
 
-    # The ip range in canal.yaml,
-    # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
-    # init command must match
-
     if args.cni == 'weave':
-        run_shell(args,
-                  'kubectl apply -f "https://cloud.weave.works/k8s/net?k8s'
-                  '-version=$(kubectl version | base64 | tr -d \'\n\')"')
         print_progress(
             'Kubernetes', 'Deploy pod network SDN using Weave CNI',
             K8S_FINAL_PROGRESS)
+        weave = run_shell(args,
+                          "echo $(kubectl version | base64 | tr -d '\n')")
+        run_shell(
+            args,
+            'kubectl apply -f '
+            '"https://cloud.weave.works/k8s/net?k8s-version=%s"' %
+            weave)
         return
+
+    # The ip range in canal.yaml,
+    # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
+    # init command must match
 
     print_progress(
         'Kubernetes', 'Deploy pod network SDN using Canal CNI',
