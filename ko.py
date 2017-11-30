@@ -1151,6 +1151,7 @@ def k8s_deploy_cni(args):
             'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
             '-o', '/tmp/weave.yaml')
 
+        # Don't allow Weave Net to crunch ip's used by k8s
         name = '/tmp/ipalloc.txt'
         with open(name, "w") as w:
             w.write("""\
