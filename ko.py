@@ -275,6 +275,9 @@ def parse_args():
     parser.add_argument('-dr', '--docker_repo', type=str, default='lokolla',
                         help='Specify a different docker repo '
                         'the default(lokolla)')
+    parser.add_argument('-cni', '--cni', type=str, default='canal',
+                        help='Specify a different CNI/SDN '
+                        'the default(canal)')
 
     return parser.parse_args()
 
@@ -516,6 +519,7 @@ def print_versions(args):
     print('  Neutron Int:        %s' % args.NEUTRON_INT)
     print('  Management IP:      %s' % args.mgmt_ip)
     print('  VIP Keepalive:      %s' % args.vip_ip)
+    print('  CNI/SDN      :      %s' % args.cni)
 
     print('\nTool Versions:')
     print('  Docker version:     %s' % docker_ver(args))
@@ -1139,6 +1143,14 @@ def k8s_deploy_canal_sdn(args):
     # The ip range in canal.yaml,
     # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
     # init command must match
+
+    if args.cni == 'weave':
+        run_shell(args, 'sudo kubectl apply -f https://git.io/weave-kube-1.6')
+        print_progress(
+            'Kubernetes', 'Deploy pod network SDN using Weave CNI',
+            K8S_FINAL_PROGRESS)
+        return
+
     print_progress(
         'Kubernetes', 'Deploy pod network SDN using Canal CNI',
         K8S_FINAL_PROGRESS)
