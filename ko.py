@@ -1159,7 +1159,7 @@ def k8s_deploy_canal_sdn(args):
 """)
         run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
         pause_tool_execution('edit now')
-        run_shell(args, "sed '/fieldPath: spec.nodeName/ r "
+        run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
                   "/tmp/ipalloc.txt' /tmp/weave.yaml")
         # containers:
         #   - name: weave
