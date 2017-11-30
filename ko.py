@@ -1145,7 +1145,9 @@ def k8s_deploy_canal_sdn(args):
     # init command must match
 
     if args.cni == 'weave':
-        run_shell(args, 'sudo kubectl apply -f https://git.io/weave-kube-1.6')
+        run_shell(args,
+                  'kubectl apply -f "https://cloud.weave.works/k8s/net?k8s'
+                  '-version=$(kubectl version | base64 | tr -d \'\n\')"')
         print_progress(
             'Kubernetes', 'Deploy pod network SDN using Weave CNI',
             K8S_FINAL_PROGRESS)
