@@ -2142,6 +2142,11 @@ done
 def kolla_pike_workaround(args):
     '''An issue in Pike with nova that needs to be fixed
 
+    I believe this is because we are using the simple cell setup which is
+    really an upgrade scenario. Kolla-Ansible does not do this.
+
+    https://docs.openstack.org/nova/latest/user/cells.html#step-by-step-for-common-use-cases
+
     Meantime fix it here'''
 
     if not re.search('pike', args.image_version):
