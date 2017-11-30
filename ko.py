@@ -1137,8 +1137,8 @@ def k8s_load_kubeadm_creds(args):
     print('  Note "kubectl get pods --all-namespaces" should work now')
 
 
-def k8s_deploy_canal_sdn(args):
-    '''SDN/CNI Driver of choice is Canal'''
+def k8s_deploy_cni(args):
+    '''Deploy CNI/SDN to K8s cluster'''
 
     if args.cni == 'weave':
         print_progress(
@@ -1158,25 +1158,18 @@ def k8s_deploy_canal_sdn(args):
                   value: 10.0.0.0/16
 """)
         run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
-        pause_tool_execution('edit now')
         run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
                   "/tmp/ipalloc.txt' /tmp/weave.yaml")
-        # containers:
-        #   - name: weave
-        #     env:
-        #       - name: IPALLOC_RANGE
-        #         value: 10.0.0.0/16
-        pause_tool_execution('edit now')
 
         run_shell(
             args,
             'kubectl apply -f /tmp/weave.yaml')
         return
 
+    # If not weave then canal...
     # The ip range in canal.yaml,
-    # /etc/kubernetes/manifests/kube-controller-manager.yaml and the kubeadm
-    # init command must match
-
+    # /etc/kubernetes/manifests/kube-controller-manager.yaml
+    # and the kubeadm init command must match
     print_progress(
         'Kubernetes', 'Deploy pod network SDN using Canal CNI',
         K8S_FINAL_PROGRESS)
@@ -2617,7 +2610,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
     k8s_add_api_server(args)
-    k8s_deploy_canal_sdn(args)
+    k8s_deploy_cni(args)
     k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
