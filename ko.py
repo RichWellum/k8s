@@ -2139,6 +2139,20 @@ done
     logger.debug(out)
 
 
+def kolla_pike_workaround(args):
+    '''An issue in Pike that needs to be fixed
+
+    Meantime fix it here'''
+
+    run_shell(args,
+              'kubectl exec -it nova-conductor-0 -n kolla nova-manage db sync')
+    run_shell(args,
+              'kubectl exec -it nova-conductor-0 -n kolla nova-manage '
+              'cell_v2 discover_hosts')
+    run_shell(args,
+              'kubectl delete pod nova-scheduler-0 -n kolla')
+
+
 def kolla_get_host_subnet(args):
     '''Grab an address to access a demo vm
 
@@ -2821,6 +2835,7 @@ def main():
         kolla_bring_up_openstack(args)
         kolla_create_keystone_user(args)
         kolla_allow_ingress(args)
+        kolla_pike_workaround(args)
         if args.create_network:
             kolla_nw_and_images(args)
         kolla_final_messages(args)
