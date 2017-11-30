@@ -1155,7 +1155,7 @@ def k8s_deploy_canal_sdn(args):
 
         run_shell(
             args,
-            'kubectl apply -f %s' % weave_yaml)
+            'kubectl apply -f /tmp/weave.yaml')
         # run_shell(
         #     args,
         #     'kubectl apply -f '
