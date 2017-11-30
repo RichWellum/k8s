@@ -1433,6 +1433,13 @@ def kolla_install_repos(args):
         if args.dev_mode:
             pause_tool_execution('DEV: edit kolla-kubernetes now')
 
+        # Cherry pick libvirt fix - todo remove
+        run_shell(args,
+                  'cd ./kolla-kubernetes; '
+                  'git fetch git://git.openstack.org/openstack/'
+                  'kolla-kubernetes refs/changes/90/523490/4 && '
+                  'git cherry-pick FETCH_HEAD')
+
     print_progress(
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
