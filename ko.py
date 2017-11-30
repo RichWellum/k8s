@@ -1146,7 +1146,7 @@ def k8s_deploy_canal_sdn(args):
             K8S_FINAL_PROGRESS)
         weave_ver = run_shell(args,
                               "echo $(kubectl version | base64 | tr -d '\n')")
-        weave_yaml = curl(
+        curl(
             '-L',
             'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
             '-o', '/tmp/weave.yaml')
@@ -1157,6 +1157,7 @@ def k8s_deploy_canal_sdn(args):
                 - name: IPALLOC_RANGE
                   value: 10.0.0.0/16
  """)
+        run_shell(args. 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
         pause_tool_execution('edit %s now' % weave_yaml)
         run_shell(args, "sed '/fieldPath: spec.nodeName/ r "
                   "/tmp/ipalloc.txt' /tmp/weave.yaml")
@@ -1170,11 +1171,6 @@ def k8s_deploy_canal_sdn(args):
         run_shell(
             args,
             'kubectl apply -f /tmp/weave.yaml')
-        # run_shell(
-        #     args,
-        #     'kubectl apply -f '
-        #     '"https://cloud.weave.works/k8s/net?k8s-version=%s"' %
-        #     weave)
         return
 
     # The ip range in canal.yaml,
