@@ -2140,9 +2140,12 @@ done
 
 
 def kolla_pike_workaround(args):
-    '''An issue in Pike that needs to be fixed
+    '''An issue in Pike with nova that needs to be fixed
 
     Meantime fix it here'''
+
+    if not re.search('pike', args.image_version):
+        return
 
     run_shell(args,
               'kubectl exec -it nova-conductor-0 -n kolla nova-manage db sync')
@@ -2151,6 +2154,7 @@ def kolla_pike_workaround(args):
               'cell_v2 discover_hosts')
     run_shell(args,
               'kubectl delete pod nova-scheduler-0 -n kolla')
+    k8s_wait_for_running_negate(args)
 
 
 def kolla_get_host_subnet(args):
