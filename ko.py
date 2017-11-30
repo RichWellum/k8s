@@ -144,6 +144,7 @@ import os
 import platform
 import random
 import re
+from ruamel.yaml import YAML
 import subprocess
 import sys
 import tarfile
@@ -1150,7 +1151,21 @@ def k8s_deploy_canal_sdn(args):
             '-L',
             'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
             '-o', '/tmp/weave.yaml')
-        print(weave_yaml)
+
+        name = '/tmp/ipalloc.txt'
+        with open(name, "w") as w:
+            w.write("""\
+                - name: IPALLOC_RANGE
+                  value: 10.0.0.0/16
+ """)
+        pause_tool_execution('edit %s now' % weave_yaml)
+        run_shell(args, "sed '/fieldPath: spec.nodeName/ r "
+                  "/tmp/ipalloc.txt' /tmp/weave.yaml")
+        # containers:
+        #   - name: weave
+        #     env:
+        #       - name: IPALLOC_RANGE
+        #         value: 10.0.0.0/16
         pause_tool_execution('edit %s now' % weave_yaml)
 
         run_shell(
