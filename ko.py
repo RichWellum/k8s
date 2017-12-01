@@ -2691,6 +2691,61 @@ def kolla_get_image_tag(args):
     return(str)
 
 
+def kolla_install_fluentd(args):
+    '''Install fluentd log collection'''
+
+    print_progress('Kolla', 'Install Fluentd container', KOLLA_FINAL_PROGRESS)
+
+    name = '/tmp/fluentd_values.yaml'
+    with open(name, "w") as w:
+        w.write("""\
+# Minikube stores its logs in a seperate directory.
+# enable if started in minikube.
+on_minikube: false
+
+image:
+  fluent_bit:
+    repository: fluent/fluent-bit
+    tag: 0.12.7
+  pullPolicy: Always
+
+backend:
+  type: forward
+  forward:
+    host: fluentd
+    port: 24284
+  es:
+    host: elasticsearch
+    port: 9200
+
+env: []
+
+resources:
+  limits:
+    memory: 100Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
+# Node tolerations for fluent-bit scheduling to nodes with taints
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+##
+tolerations: []
+#- key: "key"
+#  operator: "Equal|Exists"
+#  value: "value"
+#  effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+
+# Node labels for fluent-bit pod assignment
+# Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+""")
+
+    run_shell(args,
+              'helm install --name my-release -f values.yaml stable/fluent-bit')
+
+
 def kolla_bring_up_openstack(args):
     '''Install OpenStack with Kolla'''
 
@@ -2786,6 +2841,8 @@ def kolla_bring_up_openstack(args):
     demo(args, 'Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(args, chart_list)
 
+    kolla_install_fluentd(args)
+
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
 
@@ -2819,9 +2876,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 40
+        KOLLA_FINAL_PROGRESS = 41
     else:
-        KOLLA_FINAL_PROGRESS = 39
+        KOLLA_FINAL_PROGRESS = 40
 
     if args.create_network:
         KOLLA_FINAL_PROGRESS += 6
