@@ -1440,6 +1440,17 @@ def kolla_install_repos(args):
                   'kolla-kubernetes refs/changes/90/523490/4 && '
                   'git cherry-pick FETCH_HEAD')
 
+        # Cherry fix fluentd feature - todo remove
+        # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
+        # helm install --name my-release -f values.yaml stable/fluent-bit
+        # Maybe add debug mode to just dump the logs to a file stream:
+        # http://fluentbit.io/documentation/current/configuration/file.html
+        run_shell(args,
+                  'cd .kolla-kubernetes; '
+                  'git fetch git://git.openstack.org/openstack/'
+                  'kolla-kubernetes refs/changes/49/458649/10 && '
+                  'git cherry-pick FETCH_HEAD')
+
     print_progress(
         'Kolla',
         'Install kolla-ansible and kolla-kubernetes',
