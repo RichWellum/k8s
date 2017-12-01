@@ -2743,7 +2743,7 @@ nodeSelector: {}
 """)
 
     run_shell(args,
-              'helm install --name my-release -f values.yaml stable/fluent-bit')
+              'helm install --name my-release -f %s stable/fluent-bit' % name)
 
 
 def kolla_bring_up_openstack(args):
