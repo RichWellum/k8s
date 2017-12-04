@@ -270,7 +270,7 @@ def parse_args():
                         'previously downloaded')
     parser.add_argument('-bd', '--base_distro', type=str, default='centos',
                         help='Specify a base container image to '
-                        'the default(centos)', like "ubuntu")
+                        'the default(centos), like "ubuntu"')
     parser.add_argument('-dr', '--docker_repo', type=str, default='lokolla',
                         help='Specify a different docker repo '
                         'the default(lokolla), for exampe "rwellum" has '
