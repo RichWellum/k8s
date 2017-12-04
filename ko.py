@@ -218,9 +218,6 @@ def parse_args():
                         help='Specify a different kubernetes version to '
                         'the default(1.8.4) - note 1.8.0 is the minimum '
                         'supported')
-    # parser.add_argument('-cv', '--cni_version', type=str, default='0.5.1-00',
-    #                     help='Specify a different kubernetes-cni version '
-    #                     'to the default(0.5.1-00)')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.2.0.0',
                         help='Specify a different ansible version to '
@@ -264,20 +261,26 @@ def parse_args():
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input')
     parser.add_argument('-cn', '--create_network', action='store_true',
-                        help='Try to create a OpenStack network model')
+                        help='Try to create a OpenStack network model, '
+                        'configure neutron, download and install a test VM')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='Adds option to modify kolla and more info')
     parser.add_argument('-ng', '--no_git', action='store_true',
-                        help='Select this to not override git repos')
+                        help='Select this to not override git repos '
+                        'previously downloaded')
     parser.add_argument('-bd', '--base_distro', type=str, default='centos',
                         help='Specify a base container image to '
-                        'the default(centos)')
+                        'the default(centos)', like "ubuntu")
     parser.add_argument('-dr', '--docker_repo', type=str, default='lokolla',
                         help='Specify a different docker repo '
-                        'the default(lokolla)')
+                        'the default(lokolla), for exampe "rwellum" has '
+                        'the latest pike images')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
-                        help='Specify a different CNI/SDN '
-                        'the default(canal)')
+                        help='Specify a different CNI/SDN to'
+                        'the default(canal), like "weave"')
+    parser.add_argument('-l', '--logs', action='store_true',
+                        help='Experimental, installs a patch set and runs '
+                        'fluentd container to gather logs.')
 
     return parser.parse_args()
 
@@ -1431,24 +1434,25 @@ def kolla_install_repos(args):
                   'git clone http://github.com/openstack/kolla-kubernetes')
 
         if args.dev_mode:
-            pause_tool_execution('DEV: edit kolla-kubernetes now')
+            pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
+        # Cherry pick libvirt fix - todo remove when merged
+        run_shell(args,
+                  'cd ./kolla-kubernetes; '
+                  'git fetch git://git.openstack.org/openstack/'
+                  'kolla-kubernetes refs/changes/90/523490/4 && '
+                  'git cherry-pick FETCH_HEAD')
+
+        # Cherry fix fluentd feature - todo remove
+        # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
+        # helm install --name my-release -f values.yaml stable/fluent-bit
+        # Maybe add debug mode to just dump the logs to a file stream:
+        # http://fluentbit.io/documentation/current/configuration/file.html
+        if args.logs:
             run_shell(args,
                       'git config --global user.email "test@gmail.com"')
             run_shell(args,
                       'git config --global user.name "Test Testing"')
-            # Cherry pick libvirt fix - todo remove
-            run_shell(args,
-                      'cd ./kolla-kubernetes; '
-                      'git fetch git://git.openstack.org/openstack/'
-                      'kolla-kubernetes refs/changes/90/523490/4 && '
-                      'git cherry-pick FETCH_HEAD')
-
-            # Cherry fix fluentd feature - todo remove
-            # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
-            # helm install --name my-release -f values.yaml stable/fluent-bit
-            # Maybe add debug mode to just dump the logs to a file stream:
-            # http://fluentbit.io/documentation/current/configuration/file.html
             run_shell(args,
                       'cd ./kolla-kubernetes; '
                       'git fetch git://git.openstack.org/openstack/'
