@@ -295,7 +295,7 @@ def run_shell(args, cmd):
     '''
 
     if args.dry_run:
-        banner(args)
+        banner(cmd)
         return
 
     p = subprocess.Popen(
