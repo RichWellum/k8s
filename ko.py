@@ -2689,15 +2689,7 @@ def k8s_bringup_kubernetes_cluster(args):
 
 
 def kolla_get_image_tag(args):
-    '''Set the image label depending on user inputs
-
-    Kolla doesn't publish images to dockerhub very often at this point
-    there is only Ocata, 4.0.0. While new infrastructure is due soon,
-    the solution for versions beyond 4.x is to use the regularly
-    published tarball images. To do this we deplay a registry which
-    downloads the appropriate tarball. To do this we use a parameter
-    (branch="pike") in the command line when registry gets deployed
-    '''
+    '''Set the image label depending on user inputs'''
 
     str = ""
 
@@ -2707,7 +2699,13 @@ def kolla_get_image_tag(args):
     if re.search('master', args.image_version):
         str = '5.0.0'
     elif re.search('pike', args.image_version):
-        str = '5.0.1'
+        if args.docker_namespace == 'kolla':
+            # From pike onwards - rolling changes are all tag 'pike'
+            str = 'pike'
+        else:
+            # Todo: This is a little hacky and maybe should be an input variable
+            # in the future. Also I could tag my own images more clearly.
+            str = '5.0.1'
     elif re.search('ocata', args.image_version):
         str = '4.0.0'
     else:
