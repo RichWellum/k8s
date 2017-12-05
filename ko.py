@@ -281,6 +281,8 @@ def parse_args():
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Experimental, installs a patch set and runs '
                         'fluentd container to gather logs.')
+    parser.add_argument('-drr', '--dry_run', action='store_true',
+                        help='Dry run commands only.')
 
     return parser.parse_args()
 
@@ -291,6 +293,10 @@ def run_shell(args, cmd):
     Print the output and errors if debug is enabled
     Not using logger.debug as a bit noisy for this info
     '''
+
+    if args.dry_run:
+        banner(args)
+        retrun
 
     p = subprocess.Popen(
         cmd,
@@ -500,8 +506,6 @@ def print_versions(args):
     if args.edit_cloud:
         print('  *cloud.yaml will be editable with this option*\n')
 
-    print('Linux info:        %s' % linux_ver_det())
-
     # This a good place to install docker - as it's always needed and we
     # need the version anyway
 
@@ -516,6 +520,8 @@ def print_versions(args):
         run_shell(args, 'sudo yum install -y docker')
     else:
         run_shell(args, 'sudo apt-get install -y docker.io')
+
+    print('\nLinux Host Info:    %s' % linux_ver_det())
 
     print('\nNetworking Info:')
     print('  Management Int:     %s' % args.MGMT_INT)
@@ -2184,17 +2190,21 @@ def kolla_pike_workaround(args):
 
     Meantime fix it here'''
 
-    if not re.search('pike', args.image_version):
-        return
+    if re.search('pike', args.image_version):
+        print_progress(
+            'Kolla',
+            'Fix Nova, various issues, nova scheduler pod will be restarted',
+            KOLLA_FINAL_PROGRESS)
 
-    run_shell(args,
-              'kubectl exec -it nova-conductor-0 -n kolla nova-manage db sync')
-    run_shell(args,
-              'kubectl exec -it nova-conductor-0 -n kolla nova-manage '
-              'cell_v2 discover_hosts')
-    run_shell(args,
-              'kubectl delete pod nova-scheduler-0 -n kolla')
-    k8s_wait_for_running_negate(args)
+        run_shell(args,
+                  'kubectl exec -it nova-conductor-0 -n kolla '
+                  'nova-manage db sync')
+        run_shell(args,
+                  'kubectl exec -it nova-conductor-0 -n kolla nova-manage '
+                  'cell_v2 discover_hosts')
+        run_shell(args,
+                  'kubectl delete pod nova-scheduler-0 -n kolla')
+        k8s_wait_for_return unning_negate(args)
 
 
 def kolla_get_host_subnet(args):
@@ -2434,6 +2444,10 @@ def kolla_nw_and_images(args):
     Install a demo image.
     Attach a floating ip.
     '''
+
+    if not args.create_network:
+        return
+
     kolla_setup_neutron(args)
 
     print_progress('Kolla',
@@ -2898,7 +2912,7 @@ def main():
         KOLLA_FINAL_PROGRESS = 40
 
     if args.create_network:
-        KOLLA_FINAL_PROGRESS += 6
+        KOLLA_FINAL_PROGRESS += 4
 
     if args.no_git:
         KOLLA_FINAL_PROGRESS -= 1
@@ -2937,8 +2951,7 @@ def main():
         kolla_create_keystone_user(args)
         kolla_allow_ingress(args)
         kolla_pike_workaround(args)
-        if args.create_network:
-            kolla_nw_and_images(args)
+        kolla_nw_and_images(args)
         kolla_final_messages(args)
         kubernetes_test_cli(args)
 
