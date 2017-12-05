@@ -2699,7 +2699,7 @@ def kolla_get_image_tag(args):
     if re.search('master', args.image_version):
         str = '5.0.0'
     elif re.search('pike', args.image_version):
-        if args.docker_namespace == 'kolla':
+        if args.docker_repo == 'kolla':
             # From pike onwards - rolling changes are all tag 'pike'
             str = 'pike'
         else:
