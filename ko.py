@@ -296,7 +296,7 @@ def run_shell(args, cmd):
 
     if args.dry_run:
         banner(args)
-        retrun
+        return
 
     p = subprocess.Popen(
         cmd,
@@ -2204,7 +2204,7 @@ def kolla_pike_workaround(args):
                   'cell_v2 discover_hosts')
         run_shell(args,
                   'kubectl delete pod nova-scheduler-0 -n kolla')
-        k8s_wait_for_return unning_negate(args)
+        k8s_wait_for_running_negate(args)
 
 
 def kolla_get_host_subnet(args):
