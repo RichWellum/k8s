@@ -281,8 +281,6 @@ def parse_args():
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Experimental, installs a patch set and runs '
                         'fluentd container to gather logs.')
-    parser.add_argument('-drr', '--dry_run', action='store_true',
-                        help='Dry run commands only.')
 
     return parser.parse_args()
 
@@ -293,10 +291,6 @@ def run_shell(args, cmd):
     Print the output and errors if debug is enabled
     Not using logger.debug as a bit noisy for this info
     '''
-
-    if args.dry_run:
-        banner(cmd)
-        return
 
     p = subprocess.Popen(
         cmd,
