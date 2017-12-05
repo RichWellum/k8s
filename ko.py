@@ -538,7 +538,16 @@ def print_versions(args):
                                              kolla_get_image_tag(args)))
     print('  Base image version: %s' % args.base_distro)
     print('  Docker repo:        %s' % args.docker_repo)
+
+    print('\nOther Info:')
+    print('  Logging enabled:    %s' % args.logs)
+    print('  Dev mode enabled:   %s' % args.dev_mode)
+    print('  Create Network:     %s' % args.create_network)
+    print('  Demo mode:          %s' % args.demo)
+    print('  Edit Cloud:         %s' % args.edit_cloud)
+    print('  Edit Globals:       %s' % args.edit_globals)
     print('\n')
+    time.sleep(2)
 
 
 def populate_ip_addresses(args):
