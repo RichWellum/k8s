@@ -2788,7 +2788,6 @@ def kolla_bring_up_openstack(args):
     kolla_gen_passwords(args)
     kolla_create_namespace(args)
 
-    # Label AOI as Compute and Controller nodes
     node_list = ['kolla_compute', 'kolla_controller']
     kolla_label_nodes(args, node_list)
     kolla_modify_globals(args)
@@ -2810,6 +2809,7 @@ def kolla_bring_up_openstack(args):
     # dockerhub have to run them from a docker registry running as a pod.
     # This takes a long time to come up but then all the other image
     # pulls are very quick.
+
     # If the user has supplied their own dockernhub account then assume self
     # built images and use that account
     if 'ocata' not in args.image_version:
@@ -2894,6 +2894,10 @@ def main():
             subnet, start, octet = kolla_get_neutron_subnet(args)
             print('DEV: NTRN: subnet=%self, start=%s' %
                   (subnet, start))
+
+    #
+    # Setup globals
+    #
 
     # Start progress on one
     add_one_to_progress()
