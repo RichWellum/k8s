@@ -260,8 +260,8 @@ def parse_args():
     parser.add_argument('-f', '--force', action='store_true',
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input')
-    parser.add_argument('-cn', '--create_network', action='store_true',
-                        help='Try to create a OpenStack network model, '
+    parser.add_argument('-nn', '--no_network', action='store_true',
+                        help='Do not try to create a OpenStack network model, '
                         'configure neutron, download and install a test VM')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='Adds option to modify kolla and more info')
@@ -542,7 +542,7 @@ def print_versions(args):
     print('\nOther Info:')
     print('  Logging enabled:    %s' % args.logs)
     print('  Dev mode enabled:   %s' % args.dev_mode)
-    print('  Create Network:     %s' % args.create_network)
+    print('  No Network:         %s' % args.no_network)
     print('  Demo mode:          %s' % args.demo)
     print('  Edit Cloud:         %s' % args.edit_cloud)
     print('  Edit Globals:       %s' % args.edit_globals)
@@ -2439,7 +2439,7 @@ def kolla_nw_and_images(args):
     Attach a floating ip.
     '''
 
-    if not args.create_network:
+    if args.no_network:
         return
 
     kolla_setup_neutron(args)
@@ -2890,7 +2890,7 @@ def main():
         subnet, start, octet = kolla_get_mgmt_subnet(args)
         print('DEV: MGMT: sub<net=%s, start=%s' %
               (subnet, start))
-        if args.create_network:
+        if not args.no_network:
             subnet, start, octet = kolla_get_neutron_subnet(args)
             print('DEV: NTRN: subnet=%self, start=%s' %
                   (subnet, start))
@@ -2901,12 +2901,12 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 41
+        KOLLA_FINAL_PROGRESS = 45
     else:
-        KOLLA_FINAL_PROGRESS = 40
+        KOLLA_FINAL_PROGRESS = 44
 
-    if args.create_network:
-        KOLLA_FINAL_PROGRESS += 4
+    if args.no_network:
+        KOLLA_FINAL_PROGRESS -= 4
 
     if args.no_git:
         KOLLA_FINAL_PROGRESS -= 1
