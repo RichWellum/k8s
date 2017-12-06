@@ -1445,13 +1445,6 @@ def kolla_install_repos(args):
         if args.dev_mode:
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
-        # Cherry pick libvirt fix - todo remove when merged
-        # run_shell(args,
-        #           'cd ./kolla-kubernetes; '
-        #           'git fetch git://git.openstack.org/openstack/'
-        #           'kolla-kubernetes refs/changes/90/523490/4 && '
-        #           'git cherry-pick FETCH_HEAD')
-
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
         # helm install --name my-release -f values.yaml stable/fluent-bit
