@@ -2737,7 +2737,7 @@ backend:
     host: fluentd
     port: 24284
   es:
-    host: elasticsearch
+    host: 10.240.42.43
     port: 9200
 
 env: []
