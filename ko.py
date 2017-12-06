@@ -466,6 +466,7 @@ def tools_versions(args, str):
         "ansible",
         "jinja2"]
 
+    # todo: ansible 2.4.2.0) and Jinja2 (2.10)
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
     versions = ["ocata", "2.7.2", "1.8.4", "2.2.0.0", "2.8.1"]
@@ -2732,7 +2733,7 @@ image:
   pullPolicy: Always
 
 backend:
-  type: forward
+  type: es
   forward:
     host: fluentd
     port: 24284
