@@ -1446,11 +1446,11 @@ def kolla_install_repos(args):
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
         # Cherry pick libvirt fix - todo remove when merged
-        run_shell(args,
-                  'cd ./kolla-kubernetes; '
-                  'git fetch git://git.openstack.org/openstack/'
-                  'kolla-kubernetes refs/changes/90/523490/4 && '
-                  'git cherry-pick FETCH_HEAD')
+        # run_shell(args,
+        #           'cd ./kolla-kubernetes; '
+        #           'git fetch git://git.openstack.org/openstack/'
+        #           'kolla-kubernetes refs/changes/90/523490/4 && '
+        #           'git cherry-pick FETCH_HEAD')
 
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
@@ -2715,8 +2715,13 @@ def kolla_get_image_tag(args):
     return(str)
 
 
-def kolla_install_fluentd(args):
-    '''Install fluentd log collection'''
+def kolla_install_logging(args):
+    '''Install log collection
+
+    Experimental to test out various centralized logging options'''
+
+    if not args.logs:
+        return
 
     print_progress('Kolla', 'Install Fluentd container', KOLLA_FINAL_PROGRESS)
 
@@ -2841,7 +2846,7 @@ def kolla_bring_up_openstack(args):
     demo(args, 'Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(args, chart_list)
 
-    kolla_install_fluentd(args)
+    kolla_install_logging(args)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
