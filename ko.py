@@ -1449,7 +1449,6 @@ def kolla_install_repos(args):
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
         if args.cinder_wip:
-            pause_tool_execution('Start cinder wip')
             vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
                 'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
             new = '/tmp/cinder_wip'
@@ -1478,11 +1477,7 @@ storwize_svc_volpool_name = Pool0
 
 enabled_backends=lvmdriver-1,v3700,lenovo-b
 """ % vd)
-            cmd = 'cat %s | sudo tee -a %s' % (new, add_to)
-            pause_tool_execution(cmd)
             run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
-
-            pause_tool_execution('End cinder wip - check file now')
 
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
