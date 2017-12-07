@@ -1478,6 +1478,8 @@ storwize_svc_volpool_name = Pool0
 
 enabled_backends=lvmdriver-1,v3700,lenovo-b
 """ % vd)
+            cmd = 'cat %s | sudo tee -a %s' % (new, add_to)
+            pause_tool_execution(cmd)
             run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
             pause_tool_execution('End cinder wip - check file now')
