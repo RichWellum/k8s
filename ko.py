@@ -1450,11 +1450,14 @@ def kolla_install_repos(args):
 
         if args.cinder_wip:
             pause_tool_execution('Start cinder wip')
-            cinder_wip = '/tmp/cinder_wip'
             vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.'
             'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
-            with open(cinder_wip, "w") as w:
+            new = '/tmp/cinder_wip'
+            add_to = 'kolla-kubernetes/ansible'
+            '/roles/cinder/templates/cinder.conf.j2'
+            with open(new, "w") as w:
                 w.write("""
+
 [lenovo-b]
 lenovo_backend_name = B
 volume_backend_name = lenovo-b
@@ -1475,9 +1478,8 @@ storwize_svc_volpool_name = Pool0
 
 enabled_backends=lvmdriver-1,v3700,lenovo-b
 """ % vd)
-            run_shell(args,
-                      'sudo cat %s >> kolla-ansible/ansible'
-                      '/roles/cinder/templates/cinder.conf.j2' % cinder_wip)
+            run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
+
             pause_tool_execution('End cinder wip - check file now')
 
         # Cherry fix fluentd feature - todo remove
