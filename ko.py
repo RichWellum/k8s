@@ -1450,11 +1450,11 @@ def kolla_install_repos(args):
 
         if args.cinder_wip:
             pause_tool_execution('Start cinder wip')
-            vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.'
-            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
+            vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
+                'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
             new = '/tmp/cinder_wip'
-            add_to = 'kolla-kubernetes/ansible'
-            '/roles/cinder/templates/cinder.conf.j2'
+            add_to = 'kolla-kubernetes/ansible' \
+                '/roles/cinder/templates/cinder.conf.j2'
             with open(new, "w") as w:
                 w.write("""
 
