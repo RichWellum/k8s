@@ -219,12 +219,12 @@ def parse_args():
                         'the default(1.8.4) - note 1.8.0 is the minimum '
                         'supported')
     parser.add_argument('-av', '--ansible_version', type=str,
-                        default='2.2.0.0',
+                        default='2.4.2.0',
                         help='Specify a different ansible version to '
-                        'the default(2.2.0.0)')
-    parser.add_argument('-jv', '--jinja2_version', type=str, default='2.8.1',
+                        'the default(2.4.2.0)')
+    parser.add_argument('-jv', '--jinja2_version', type=str, default='2.10',
                         help='Specify a different jinja2 version to '
-                        'the default(2.8.1)')
+                        'the default(2.10)')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster '
                         'before creating a new one. Because LVM is not '
@@ -466,10 +466,9 @@ def tools_versions(args, str):
         "ansible",
         "jinja2"]
 
-    # todo: ansible 2.4.2.0) and Jinja2 (2.10)
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.8.4", "2.2.0.0", "2.8.1"]
+    versions = ["ocata", "2.7.2", "1.8.4", "2.4.2.0", "2.10"]
 
     tools_dict = {}
     # Generate dictionary
