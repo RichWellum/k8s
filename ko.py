@@ -281,6 +281,9 @@ def parse_args():
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Experimental, installs a patch set and runs '
                         'fluentd container to gather logs.')
+    parser.add_argument('-cw', '--cinder_wip', action='store_true',
+                        help='Experimental, add specific configs to '
+                        'cinder.conf')
 
     return parser.parse_args()
 
@@ -1445,6 +1448,36 @@ def kolla_install_repos(args):
         if args.dev_mode:
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
+        if args.cinder_wip:
+            cinder_wip = '/tmp/cinder_wip'
+            vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.'
+            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
+            with open(cinder_wip, "w") as w:
+                w.write("""
+[lenovo-b]
+lenovo_backend_name = B
+volume_backend_name = lenovo-b
+volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
+san_ip = 10.240.40.50
+san_login = manage
+san_password = !manage
+lenovo_iscsi_ips = 10.240.41.148
+
+[v3700]
+volume_backend_name = v3700
+volume_driver = %s
+san_ip = 10.240.40.71
+san_login = superuser
+san_password = Teamw0rk
+storwize_svc_iscsi_chap_enabled = False
+storwize_svc_volpool_name = Pool0
+
+enabled_backends=lvmdriver-1,v3700,lenovo-b
+                """ % vd)
+            run_shell(args,
+                      'sudo cat %s >> kolla-ansible/ansible'
+                      '/roles/cinder/templates/cinder.conf.j2')
+
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
         # helm install --name my-release -f values.yaml stable/fluent-bit
@@ -2486,7 +2519,7 @@ def kolla_nw_and_images(args):
     # Display nova list
     print_progress(
         'Kolla',
-        'nova list to see floating IP and demo VM',
+        '"nova list" to see floating IP and demo VM',
         KOLLA_FINAL_PROGRESS)
 
     print(run_shell(args, '.  ~/keystonerc_admin; nova list'))
@@ -2690,14 +2723,16 @@ def kolla_get_image_tag(args):
     # because the images don't have a label yet. Current Pike images are 5.0.1
     # - so this provides a way of differenting them.
     if re.search('master', args.image_version):
-        str = '5.0.0'
+        str = 'master'
     elif re.search('pike', args.image_version):
         if args.docker_repo == 'kolla':
             # From pike onwards - rolling changes are all tag 'pike'
             str = 'pike'
         else:
-            # Todo: This is a little hacky and maybe should be an input variable
-            # in the future. Also I could tag my own images more clearly.
+            # Assumption this is a repo the author has created. So this is
+            # hacky as I am building pike and tagging them 5.0.1
+            # Might be better to input the tag and have a image version to tag
+            # function.
             str = '5.0.1'
     elif re.search('ocata', args.image_version):
         str = '4.0.0'
