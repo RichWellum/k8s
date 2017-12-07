@@ -1449,6 +1449,7 @@ def kolla_install_repos(args):
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
         if args.cinder_wip:
+            pause_tool_execution('Start cinder wip')
             cinder_wip = '/tmp/cinder_wip'
             vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.'
             'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
@@ -1473,10 +1474,11 @@ storwize_svc_iscsi_chap_enabled = False
 storwize_svc_volpool_name = Pool0
 
 enabled_backends=lvmdriver-1,v3700,lenovo-b
-                """ % vd)
+""" % vd)
             run_shell(args,
                       'sudo cat %s >> kolla-ansible/ansible'
                       '/roles/cinder/templates/cinder.conf.j2' % cinder_wip)
+            pause_tool_execution('End cinder wip - check file now')
 
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
