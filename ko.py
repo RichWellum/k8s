@@ -1476,7 +1476,7 @@ enabled_backends=lvmdriver-1,v3700,lenovo-b
                 """ % vd)
             run_shell(args,
                       'sudo cat %s >> kolla-ansible/ansible'
-                      '/roles/cinder/templates/cinder.conf.j2')
+                      '/roles/cinder/templates/cinder.conf.j2' % cinder_wip)
 
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
