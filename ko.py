@@ -1474,8 +1474,6 @@ san_login = superuser
 san_password = Teamw0rk
 storwize_svc_iscsi_chap_enabled = False
 storwize_svc_volpool_name = Pool0
-
-enabled_backends=lvmdriver-1,v3700,lenovo-b
 """ % vd)
             run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
