@@ -2333,8 +2333,8 @@ def kolla_setup_neutron(args):
 # configures networking and nova quotas to allow 40 m1.small instances
 # to be created.
 
-IMAGE_URL=http://download.cirros-cloud.net/0.3.5/
-IMAGE=cirros-0.3.5-x86_64-disk.img
+IMAGE_URL=http://download.cirros-cloud.net/0.4.0/
+IMAGE=cirros-0.4.0-x86_64-disk.img
 IMAGE_NAME=cirros
 IMAGE_TYPE=linux
 EXT_NET_CIDR='%s'
