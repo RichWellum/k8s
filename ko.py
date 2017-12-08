@@ -2082,6 +2082,7 @@ global:
        api:
          all:
            port_external: "true"
+           enabled_backends: "lvmdriver-1,v3700,lenovo-b"
        volume_lvm:
          all:
            element_name: cinder-volume
