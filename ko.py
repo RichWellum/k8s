@@ -517,6 +517,7 @@ def print_versions(args):
         run_shell(args, 'sudo yum install -y docker')
     else:
         run_shell(args, 'sudo apt-get install -y docker.io')
+        run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
     print('\nLinux Host Info:    %s' % linux_ver_det())
 
@@ -1775,43 +1776,6 @@ def kolla_gen_configs(args):
               '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml '
               '-e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
 
-    # Correct way to do this is modify cinder/mail.yaml to add new drivers
-    # For now just add this to cinder.conf after this config file has been
-    # generated
-    if args.cinder_wip:
-        cinder_rem = 'enabled_backends = lvm-1'
-        cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-        cinder_cnf = '/etc/kolla/cinder-volume/cinder.conf'
-        run_shell(args,
-                  'sudo sed -i s/%s/%s/g %s'
-                  % (cinder_rem, cinder_add, cinder_cnf))
-
-        vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
-            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
-        new = '/tmp/cinder_wip'
-        with open(new, "w") as w:
-            w.write("""
-
-[lenovo-b]
-lenovo_backend_name = B
-volume_backend_name = lenovo-b
-volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
-san_ip = 10.240.40.50
-san_login = manage
-san_password = !manage
-lenovo_iscsi_ips = 10.240.41.148
-
-[v3700]
-volume_backend_name = v3700
-volume_driver = %s
-san_ip = 10.240.40.71
-san_login = superuser
-san_password = Teamw0rk
-storwize_svc_iscsi_chap_enabled = False
-storwize_svc_volpool_name = Pool0
-""" % vd)
-            run_shell(args, 'cat %s | sudo tee -a %s' % (new, cinder_cnf))
-
 
 def kolla_gen_secrets(args):
     '''Generate Kubernetes secrets'''
@@ -1870,6 +1834,43 @@ def kolla_create_config_maps(args):
     demo(args, 'Lets look at a configmap',
          'kubectl get configmap -n kolla; kubectl describe '
          'configmap -n kolla XYZ')
+
+    # Correct way to do this is modify cinder/mail.yaml to add new drivers
+    # For now just add this to cinder.conf after this config file has been
+    # generated
+    if args.cinder_wip:
+        cinder_rem = 'enabled_backends = lvm-1'
+        cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
+        cinder_cnf = '/etc/kolla/cinder-volume/cinder.conf'
+        run_shell(args,
+                  'sudo sed -i s/%s/%s/g %s'
+                  % (cinder_rem, cinder_add, cinder_cnf))
+
+        vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
+            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
+        new = '/tmp/cinder_wip'
+        with open(new, "w") as w:
+            w.write("""
+
+[lenovo-b]
+lenovo_backend_name = B
+volume_backend_name = lenovo-b
+volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
+san_ip = 10.240.40.50
+san_login = manage
+san_password = !manage
+lenovo_iscsi_ips = 10.240.41.148
+
+[v3700]
+volume_backend_name = v3700
+volume_driver = %s
+san_ip = 10.240.40.71
+san_login = superuser
+san_password = Teamw0rk
+storwize_svc_iscsi_chap_enabled = False
+storwize_svc_volpool_name = Pool0
+""" % vd)
+        run_shell(args, 'cat %s | sudo tee -a %s' % (new, cinder_cnf))
 
 
 def kolla_resolve_workaround(args):
