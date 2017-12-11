@@ -1476,7 +1476,7 @@ san_login = manage
 san_password = !manage
 lenovo_iscsi_ips = 10.240.41.148
 
- [v3700]
+[v3700]
 volume_backend_name = v3700
 volume_driver = %s
 san_ip = 10.240.40.71
