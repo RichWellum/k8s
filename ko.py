@@ -1458,35 +1458,6 @@ def kolla_install_repos(args):
         if args.dev_mode:
             pause_tool_execution('DEV: edit kolla-kubernetes repo now')
 
-        if args.cinder_wip:
-            vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
-                'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
-            new = '/tmp/cinder_wip'
-            add_to = 'kolla-kubernetes/ansible' \
-                '/roles/cinder/templates/cinder.conf.j2'
-            with open(new, "w") as w:
-                w.write("""
-
-[lenovo-b]
-lenovo_backend_name = B
-volume_backend_name = lenovo-b
-volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
-san_ip = 10.240.40.50
-san_login = manage
-san_password = !manage
-lenovo_iscsi_ips = 10.240.41.148
-
-[v3700]
-volume_backend_name = v3700
-volume_driver = %s
-san_ip = 10.240.40.71
-san_login = superuser
-san_password = Teamw0rk
-storwize_svc_iscsi_chap_enabled = False
-storwize_svc_volpool_name = Pool0
-""" % vd)
-            run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
-
         # Cherry fix fluentd feature - todo remove
         # https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
         # helm install --name my-release -f values.yaml stable/fluent-bit
@@ -1676,10 +1647,6 @@ def kolla_add_to_globals(args):
         'Add default config to globals.yml',
         KOLLA_FINAL_PROGRESS)
 
-    cinder_add = ''
-    if args.cinder_wip:
-        cinder_add = 'enabled_backends: "lvmdriver-1,v3700,lenovo-b"'
-
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
 
@@ -1723,7 +1690,7 @@ cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 enable_neutron_provider_networks: "yes"
 %s
-""" % cinder_add)
+""")
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
     if args.edit_globals:
@@ -1808,6 +1775,43 @@ def kolla_gen_configs(args):
               'ansible_python_interpreter=/usr/bin/python -e '
               '@/etc/kolla/globals.yml -e @/etc/kolla/passwords.yml '
               '-e CONFIG_DIR=/etc/kolla ./ansible/site.yml; cd ..')
+
+    # Correct way to do this is modify cinder/mail.yaml to add new drivers
+    # For now just add this to cinder.conf after this config file has been
+    # generated
+    if args.cinder_wip:
+        cinder_rem = 'enabled_backends = lvm-1'
+        cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
+        cinder_cnf = '/etc/kolla/cinder-volume/cinder.conf'
+        run_shell(args,
+                  'sudo sed -i s/%s/%s/g %s'
+                  % (cinder_rem, cinder_add, cinder_cnf))
+
+        vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
+            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
+        new = '/tmp/cinder_wip'
+        with open(new, "w") as w:
+            w.write("""
+
+[lenovo-b]
+lenovo_backend_name = B
+volume_backend_name = lenovo-b
+volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
+san_ip = 10.240.40.50
+san_login = manage
+san_password = !manage
+lenovo_iscsi_ips = 10.240.41.148
+
+[v3700]
+volume_backend_name = v3700
+volume_driver = %s
+san_ip = 10.240.40.71
+san_login = superuser
+san_password = Teamw0rk
+storwize_svc_iscsi_chap_enabled = False
+storwize_svc_volpool_name = Pool0
+""" % vd)
+            run_shell(args, 'cat %s | sudo tee -a %s' % (new, cinder_cnf))
 
 
 def kolla_gen_secrets(args):
