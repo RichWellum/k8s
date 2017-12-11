@@ -214,9 +214,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.7.2',
                         help='Specify a different helm version to the '
                         'default(2.7.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.4',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.5',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.4) - note 1.8.0 is the minimum '
+                        'the default(1.8.5) - note 1.8.0 is the minimum '
                         'supported')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.4.2.0',
@@ -471,7 +471,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.8.4", "2.4.2.0", "2.10"]
+    versions = ["ocata", "2.7.2", "1.8.5", "2.4.2.0", "2.10"]
 
     tools_dict = {}
     # Generate dictionary
@@ -1689,7 +1689,6 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 enable_neutron_provider_networks: "yes"
-%s
 """)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
