@@ -516,8 +516,8 @@ def print_versions(args):
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum install -y docker')
     else:
-        run_shell(args, 'sudo apt-get install -y docker.io')
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
+        run_shell(args, 'sudo apt-get install -y docker.io')
 
     print('\nLinux Host Info:    %s' % linux_ver_det())
 
@@ -1842,6 +1842,9 @@ def kolla_create_config_maps(args):
         cinder_rem = 'enabled_backends = lvm-1'
         cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
         cinder_cnf = '/etc/kolla/cinder-volume/cinder.conf'
+        cmd = 'sudo sed -i s/%s/%s/g %s' % (cinder_rem, cinder_add, cinder_cnf)
+        print(cmd)
+        pause_tool_execution('test command now')
         run_shell(args,
                   'sudo sed -i s/%s/%s/g %s'
                   % (cinder_rem, cinder_add, cinder_cnf))
