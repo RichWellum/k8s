@@ -1466,7 +1466,7 @@ san_login = manage
 san_password = !manage
 lenovo_iscsi_ips = 10.240.41.148
 
-[v3700]
+ [v3700]
 volume_backend_name = v3700
 volume_driver = %s
 san_ip = 10.240.40.71
@@ -1666,6 +1666,9 @@ def kolla_add_to_globals(args):
         'Add default config to globals.yml',
         KOLLA_FINAL_PROGRESS)
 
+    if args.cinder_wip:
+        cinder_add = "enabled_backends=lvmdriver-1,v3700,lenovo-b"
+
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
 
@@ -1708,7 +1711,8 @@ glance_backend_ceph: "no"
 cinder_backend_ceph: "no"
 nova_backend_ceph: "no"
 enable_neutron_provider_networks: "yes"
-""")
+%s
+""" % cinder_add)
     run_shell(args, 'cat %s | sudo tee -a %s' % (new, add_to))
 
     if args.edit_globals:
