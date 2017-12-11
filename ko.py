@@ -1676,9 +1676,9 @@ def kolla_add_to_globals(args):
         'Add default config to globals.yml',
         KOLLA_FINAL_PROGRESS)
 
-    cinder_add = ""
+    cinder_add = ''
     if args.cinder_wip:
-        cinder_add = "enabled_backends=lvmdriver-1,v3700,lenovo-b"
+        cinder_add = 'enabled_backends: "lvmdriver-1,v3700,lenovo-b"'
 
     new = '/tmp/add'
     add_to = '/etc/kolla/globals.yml'
@@ -2095,7 +2095,6 @@ global:
        api:
          all:
            port_external: "true"
-           enabled_backends: "lvmdriver-1,v3700,lenovo-b"
        volume_lvm:
          all:
            element_name: cinder-volume
