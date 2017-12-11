@@ -1676,6 +1676,7 @@ def kolla_add_to_globals(args):
         'Add default config to globals.yml',
         KOLLA_FINAL_PROGRESS)
 
+    cinder_add = ""
     if args.cinder_wip:
         cinder_add = "enabled_backends=lvmdriver-1,v3700,lenovo-b"
 
