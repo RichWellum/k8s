@@ -1888,10 +1888,11 @@ storwize_svc_iscsi_chap_enabled = False
 storwize_svc_volpool_name = Pool0
 
 """ % vd)
-    run_shell(args,
-              # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
-              "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
-              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
+    run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_cnf))
+
+    # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
+    # "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
+    # "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
     pause_tool_execution('check /tmp/cinder.yaml now')
     # run_shell(args,
     #           'kubectl apply -f /tmp/cinder.yaml')
