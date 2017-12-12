@@ -1867,8 +1867,6 @@ def cinder_wip(args):
     add = '/tmp/cinder_wip'
     with open(add, "w") as w:
         w.write("""
-[DEFAULT]
-enabled_backends = lvmdriver-1,v3700,lenovo-b
 
 [lenovo-b]
 lenovo_backend_name = B
