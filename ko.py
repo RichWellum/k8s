@@ -1851,7 +1851,7 @@ def cinder_wip(args):
         return
 
     add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-    cinder_conf_j2 = '/tmp/kolla-kubernetes/ansible/roles/cinder/' \
+    cinder_conf_j2 = './kolla-kubernetes/ansible/roles/cinder/' \
         'templates/cinder.conf.j2'
 
     run_shell(args,
