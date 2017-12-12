@@ -1888,7 +1888,9 @@ storwize_svc_volpool_name = Pool0
 
 """ % vd)
     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
-    pause_tool_execution('check %s now' % to)
+    banner('cinder.conf.j2')
+    run_shell(args, 'cat %s' % to)
+    # pause_tool_execution('check %s now' % to)
 
 
 def kolla_resolve_workaround(args):
