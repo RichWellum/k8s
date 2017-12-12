@@ -1861,24 +1861,23 @@ def kolla_create_config_maps(args):
         add = '/tmp/cinder_wip'
         with open(add, "w") as w:
             w.write("""
+    [lenovo-b]
+    lenovo_backend_name = B
+    volume_backend_name = lenovo-b
+    volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
+    san_ip = 10.240.40.50
+    san_login = manage
+    san_password = !manage
+    lenovo_iscsi_ips = 10.240.41.148
 
-[lenovo-b]
-lenovo_backend_name = B
-volume_backend_name = lenovo-b
-volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
-san_ip = 10.240.40.50
-san_login = manage
-san_password = !manage
-lenovo_iscsi_ips = 10.240.41.148
-
-[v3700]
-volume_backend_name = v3700
-volume_driver = %s
-san_ip = 10.240.40.71
-san_login = superuser
-san_password = Teamw0rk
-storwize_svc_iscsi_chap_enabled = False
-storwize_svc_volpool_name = Pool0
+    [v3700]
+    volume_backend_name = v3700
+    volume_driver = %s
+    san_ip = 10.240.40.71
+    san_login = superuser
+    san_password = Teamw0rk
+    storwize_svc_iscsi_chap_enabled = False
+    storwize_svc_volpool_name = Pool0
 """ % vd)
         # run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_cnf))
         run_shell(args,
