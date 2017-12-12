@@ -1482,6 +1482,8 @@ def kolla_install_repos(args):
 
     run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
+    cinder_wip(args)
+
     if linux_ver() == 'centos':
         print_progress('Kolla', 'Copy default kolla-ansible '
                        'configuration to /etc',
@@ -1835,6 +1837,8 @@ def kolla_create_config_maps(args):
          'kubectl get configmap -n kolla; kubectl describe '
          'configmap -n kolla XYZ')
 
+
+def cinder_wip(args):
     # Correct way to do this is modify cinder/mail.yaml to add new drivers
     # For now just add this to cinder.conf after this config file has been
     # generated
@@ -1843,50 +1847,54 @@ def kolla_create_config_maps(args):
     # 9:30 PM or kubectl get configmap xxx -o yaml > foo.yaml
     # 9:30 PM tweak the file, and kubectl apply -f foo.yaml
     # 9:31 PM (or use -o json and you can use jq to tweak it programatically)
-    if args.cinder_wip:
-        run_shell(args,
-                  'kubectl get configmap cinder-volume -n kolla -o yaml > '
-                  '/tmp/cinder.yaml')
-        cinder_rem = 'enabled_backends = lvm-1'
-        cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-        # cinder_cnf='/etc/kolla/cinder-volume/cinder.conf'
-        cinder_cnf = '/tmp/cinder.yaml'
+    if not args.cinder_wip:
+        return
+    # run_shell(args,
+    #           'kubectl get configmap cinder-volume -n kolla -o yaml > '
+    #           '/tmp/cinder.yaml')
+    # cinder_rem = 'enabled_backends = lvm-1'
+    cinder_rem = 'enabled_backends = {already existing backends},' \
+        '10.57.120.14_cinder-volumes,10.57.120.13_local-volumes'
+    cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
+    # cinder_cnf='/etc/kolla/cinder-volume/cinder.conf'
+    # cinder_cnf = '/tmp/cinder.yaml'
+    cinder_cnf = '/etc/kolla-kubernetes/kolla-kubernetes.yml'
 
-        run_shell(args,
-                  "sudo sed -i s/'%s'/'%s'/g %s"
-                  % (cinder_rem, cinder_add, cinder_cnf))
+    run_shell(args,
+              "sudo sed -i s/'%s'/'%s'/g %s"
+              % (cinder_rem, cinder_add, cinder_cnf))
 
-        vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
-            'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
-        add = '/tmp/cinder_wip'
-        with open(add, "w") as w:
-            w.write("""
-    [lenovo-b]
-    lenovo_backend_name = B
-    volume_backend_name = lenovo-b
-    volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
-    san_ip = 10.240.40.50
-    san_login = manage
-    san_password = !manage
-    lenovo_iscsi_ips = 10.240.41.148
+    vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
+        'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
+    add = '/tmp/cinder_wip'
+    with open(add, "w") as w:
+        w.write("""
+[lenovo-b]
+lenovo_backend_name = B
+volume_backend_name = lenovo-b
+volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
+san_ip = 10.240.40.50
+san_login = manage
+san_password = !manage
+lenovo_iscsi_ips = 10.240.41.148
 
-    [v3700]
-    volume_backend_name = v3700
-    volume_driver = %s
-    san_ip = 10.240.40.71
-    san_login = superuser
-    san_password = Teamw0rk
-    storwize_svc_iscsi_chap_enabled = False
-    storwize_svc_volpool_name = Pool0
+[v3700]
+volume_backend_name = v3700
+volume_driver = %s
+san_ip = 10.240.40.71
+san_login = superuser
+san_password = Teamw0rk
+storwize_svc_iscsi_chap_enabled = False
+storwize_svc_volpool_name = Pool0
 
 """ % vd)
-        # run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_cnf))
-        run_shell(args,
-                  "sed -n -i -e '/config.json:/r %s' -e 1x -e "
-                  "'2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
-        pause_tool_execution('check /tmp/cinder.yaml now')
-        run_shell(args,
-                  'kubectl apply -f /tmp/cinder.yaml')
+    run_shell(args,
+              # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
+              "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
+              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
+    pause_tool_execution('check /tmp/cinder.yaml now')
+    # run_shell(args,
+    #           'kubectl apply -f /tmp/cinder.yaml')
 
 
 def kolla_resolve_workaround(args):
