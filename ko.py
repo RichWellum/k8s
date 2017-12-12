@@ -1855,10 +1855,13 @@ def cinder_wip(args):
     # cinder_rem = 'enabled_backends = lvm-1'
     cinder_rem = '#enabled_backends = {already existing backends},' \
         '10.57.120.14_cinder-volumes,10.57.120.13_local-volumes'
-    cinder_add = 'enabled_backends: lvmdriver-1,v3700,lenovo-b'
+    cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
     # cinder_cnf='/etc/kolla/cinder-volume/cinder.conf'
     # cinder_cnf = '/tmp/cinder.yaml'
     cinder_cnf = '/etc/kolla-kubernetes/kolla-kubernetes.yml'
+
+    run_shell(args,
+              "sudo sed -i s/#[DEFAULT]/[DEFAULT]/g %s" % cinder_cnf)
 
     run_shell(args,
               "sudo sed -i s/'%s'/'%s'/g %s"
