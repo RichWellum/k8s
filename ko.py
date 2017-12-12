@@ -1850,13 +1850,18 @@ def cinder_wip(args):
     if not args.cinder_wip:
         return
 
+    # Change enabled_backends
     add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
+    rem = "enabled_backends = {{ cinder_enabled_backends|map(" \
+        "attribute='name')|join(',') }}"
     to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
-
     run_shell(args,
-              "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
-              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
+              "sudo sed -i s/'%s'/'%s'/g %s" (rem, add, to))
+    # run_shell(args,
+    #           "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
+    #           "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
 
+    # Add new sections
     vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
         'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
     add = '/tmp/cinder_wip'
