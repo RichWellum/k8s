@@ -1502,8 +1502,6 @@ def kolla_install_repos(args):
                    KOLLA_FINAL_PROGRESS)
     run_shell(args, 'sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
 
-    cinder_wip(args)
-
 
 def kolla_setup_loopback_lvm(args):
     '''Setup a loopback LVM for Cinder
@@ -1799,6 +1797,8 @@ def kolla_gen_secrets(args):
 def kolla_create_config_maps(args):
     '''Generate the Kolla config map'''
 
+    cinder_wip(args)
+
     print_progress(
         'Kolla',
         'Create and register the Kolla config maps',
@@ -1849,23 +1849,14 @@ def cinder_wip(args):
     # 9:31 PM (or use -o json and you can use jq to tweak it programatically)
     if not args.cinder_wip:
         return
-    # run_shell(args,
-    #           'kubectl get configmap cinder-volume -n kolla -o yaml > '
-    #           '/tmp/cinder.yaml')
-    # cinder_rem = 'enabled_backends = lvm-1'
-    cinder_rem = '#enabled_backends = {already existing backends},' \
-        '10.57.120.14_cinder-volumes,10.57.120.13_local-volumes'
-    cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-    # cinder_cnf='/etc/kolla/cinder-volume/cinder.conf'
-    # cinder_cnf = '/tmp/cinder.yaml'
-    cinder_cnf = '/etc/kolla-kubernetes/kolla-kubernetes.yml'
+
+    add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
+    cinder_conf_j2 = '/tmp/kolla-kubernetes/ansible/roles/cinder/' \
+        'templates/cinder.conf.j2'
 
     run_shell(args,
-              "sudo sed -i s/#[DEFAULT]/[DEFAULT]/g %s" % cinder_cnf)
-
-    run_shell(args,
-              "sudo sed -i s/'%s'/'%s'/g %s"
-              % (cinder_rem, cinder_add, cinder_cnf))
+              "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
+              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_conf_j2))
 
     vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
         'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
@@ -1891,14 +1882,8 @@ storwize_svc_iscsi_chap_enabled = False
 storwize_svc_volpool_name = Pool0
 
 """ % vd)
-    run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_cnf))
-
-    # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
-    # "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
-    # "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
+    run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_conf_j2))
     pause_tool_execution('check /tmp/cinder.yaml now')
-    # run_shell(args,
-    #           'kubectl apply -f /tmp/cinder.yaml')
 
 
 def kolla_resolve_workaround(args):
