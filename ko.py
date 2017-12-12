@@ -1878,6 +1878,7 @@ def kolla_create_config_maps(args):
     san_password = Teamw0rk
     storwize_svc_iscsi_chap_enabled = False
     storwize_svc_volpool_name = Pool0
+
 """ % vd)
         # run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_cnf))
         run_shell(args,
