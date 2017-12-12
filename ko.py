@@ -1853,7 +1853,7 @@ def cinder_wip(args):
     #           'kubectl get configmap cinder-volume -n kolla -o yaml > '
     #           '/tmp/cinder.yaml')
     # cinder_rem = 'enabled_backends = lvm-1'
-    cinder_rem = 'enabled_backends = {already existing backends},' \
+    cinder_rem = '#enabled_backends = {already existing backends},' \
         '10.57.120.14_cinder-volumes,10.57.120.13_local-volumes'
     cinder_add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
     # cinder_cnf='/etc/kolla/cinder-volume/cinder.conf'
@@ -1890,7 +1890,7 @@ storwize_svc_volpool_name = Pool0
 """ % vd)
     run_shell(args,
               # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
-              "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
+              "sed -n -i -e '/#iscsi_protocol = iscsi/r %s' -e "
               "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
     pause_tool_execution('check /tmp/cinder.yaml now')
     # run_shell(args,
