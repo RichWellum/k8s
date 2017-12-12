@@ -1864,7 +1864,7 @@ def cinder_wip(args):
               "sudo sed -i s/'%s'/'%s'/g %s"
               % (cinder_rem, cinder_add, cinder_cnf))
 
-    vd = 'volume_driver = cinder.volume.drivers.ibm.storwize_svc.' \
+    vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
         'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
     add = '/tmp/cinder_wip'
     with open(add, "w") as w:
@@ -1890,7 +1890,7 @@ storwize_svc_volpool_name = Pool0
 """ % vd)
     run_shell(args,
               # "sed -n -i -e '/config.json:/r %s' -e 1x -e "
-              "sed -n -i -e '/#iscsi_protocol = iscsi/r %s' -e "
+              "sed -n -i -e '/#[10.57.120.14_cinder-volumes]/r %s' -e "
               "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_cnf))
     pause_tool_execution('check /tmp/cinder.yaml now')
     # run_shell(args,
