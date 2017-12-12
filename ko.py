@@ -1482,8 +1482,6 @@ def kolla_install_repos(args):
 
     run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
-    cinder_wip(args)
-
     if linux_ver() == 'centos':
         print_progress('Kolla', 'Copy default kolla-ansible '
                        'configuration to /etc',
@@ -1503,6 +1501,8 @@ def kolla_install_repos(args):
                    'configuration to /etc',
                    KOLLA_FINAL_PROGRESS)
     run_shell(args, 'sudo cp -aR kolla-kubernetes/etc/kolla-kubernetes /etc')
+
+    cinder_wip(args)
 
 
 def kolla_setup_loopback_lvm(args):
