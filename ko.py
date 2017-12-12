@@ -1851,18 +1851,20 @@ def cinder_wip(args):
         return
 
     add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-    cinder_conf_j2 = './kolla-kubernetes/ansible/roles/cinder/' \
-        'templates/cinder.conf.j2'
+    to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
 
     run_shell(args,
               "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
-              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, cinder_conf_j2))
+              "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
 
     vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
         'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
     add = '/tmp/cinder_wip'
     with open(add, "w") as w:
         w.write("""
+[DEFAULT]
+enabled_backends = lvmdriver-1,v3700,lenovo-b
+
 [lenovo-b]
 lenovo_backend_name = B
 volume_backend_name = lenovo-b
@@ -1882,8 +1884,8 @@ storwize_svc_iscsi_chap_enabled = False
 storwize_svc_volpool_name = Pool0
 
 """ % vd)
-    run_shell(args, 'cat %s | sudo tee -a %s' % (add, cinder_conf_j2))
-    pause_tool_execution('check /tmp/cinder.yaml now')
+    run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
+    pause_tool_execution('check %s now' % to)
 
 
 def kolla_resolve_workaround(args):
