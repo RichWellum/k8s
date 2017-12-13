@@ -1855,8 +1855,11 @@ def cinder_wip(args):
     rem = "enabled_backends = {{ cinder_enabled_backends|map(" \
         "attribute='name')|join(',') }}"
     to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
+    cmd = 'sudo sed -i s/"%s"/"%s"/g %s' % (rem, add, to)
+    print('DEBUG: %s' % cmd)
     run_shell(args,
-              "sudo sed -i s/'%s'/'%s'/g %s" % (rem, add, to))
+              'sudo sed -i s/"%s"/"%s"/g %s' % (rem, add, to))
+    pause_tool_execution('Check now')
     # run_shell(args,
     #           "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
     #           "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
