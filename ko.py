@@ -2156,9 +2156,6 @@ global:
     if args.cinder_wip:
         # Cloud.yaml remove backend because replacing with own
         rem = 'cinder-volumes'
-        # cmd = "sudo sed -i 's/%s/d' %s" % (rem, cloud)
-        # print(cmd)
-        # pause_tool_execution(cmd)
         run_shell(args,
                   "sudo sed -i '/%s/d' %s" % (rem, cloud))
 
