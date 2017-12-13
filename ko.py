@@ -1480,6 +1480,8 @@ def kolla_install_repos(args):
         'Install kolla-ansible and kolla-kubernetes',
         KOLLA_FINAL_PROGRESS)
 
+    cinder_wip(args)
+
     run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if linux_ver() == 'centos':
@@ -1797,8 +1799,6 @@ def kolla_gen_secrets(args):
 def kolla_create_config_maps(args):
     '''Generate the Kolla config map'''
 
-    cinder_wip(args)
-
     print_progress(
         'Kolla',
         'Create and register the Kolla config maps',
@@ -1856,7 +1856,7 @@ def cinder_wip(args):
         "attribute='name')|join(',') }}"
     to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
     run_shell(args,
-              "sudo sed -i s/'%s'/'%s'/g %s" (rem, add, to))
+              "sudo sed -i s/'%s'/'%s'/g %s" % (rem, add, to))
     # run_shell(args,
     #           "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
     #           "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
