@@ -1839,32 +1839,20 @@ def kolla_create_config_maps(args):
 
 
 def cinder_wip(args):
-    # Correct way to do this is modify cinder/mail.yaml to add new drivers
-    # For now just add this to cinder.conf after this config file has been
-    # generated
-    #     it is uploaded but not used yet.
-    # 9:30 PM can kubectl edit configmap xxxx
-    # 9:30 PM or kubectl get configmap xxx -o yaml > foo.yaml
-    # 9:30 PM tweak the file, and kubectl apply -f foo.yaml
-    # 9:31 PM (or use -o json and you can use jq to tweak it programatically)
+    '''Experimental code that is not done in the correct way'''
+
     if not args.cinder_wip:
         return
 
-    # Change enabled_backends
+    # Update enabled backends
     add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
     rem = "enabled_backends = {{ cinder_enabled_backends|map(" \
         "attribute='name')|join(',') }}"
     to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
-    cmd = 'sudo sed -i s/"%s"/"%s"/g %s' % (rem, add, to)
-    print('DEBUG: %s' % cmd)
     run_shell(args,
               'sudo sed -i s/"%s"/"%s"/g %s' % (rem, add, to))
-    pause_tool_execution('Check now')
-    # run_shell(args,
-    #           "sed -n -i -e '/[oslo_messaging_notifications]/r %s' -e "
-    #           "1x -e '2,${x;p}' -e '${x;p}' %s" % (add, to))
 
-    # Add new sections
+    # Add new backend sections
     vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
         'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
     add = '/tmp/cinder_wip'
@@ -2166,6 +2154,12 @@ global:
                args.mgmt_ip,
                args.mgmt_ip,
                args.NEUTRON_INT))
+
+    if args.cinder_wip:
+        # Cloud.yaml remove backend because replacing with own
+        rem = 'cinder-volumes'
+        run_shell(args,
+                  "sudo sed -i 's/%s/d' %s" % (rem, cloud))
 
     if args.edit_cloud:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
