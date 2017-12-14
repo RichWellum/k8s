@@ -1404,7 +1404,7 @@ def k8s_cleanup(args):
                        K8S_CLEANUP_PROGRESS)
         # Clean up docker containers
         run_shell(args,
-                  "sudo docker rm -f $(sudo docker ps -q -f 'status=exited')")
+                  "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
         run_shell(args,
                   "sudo docker rmi -f $(sudo docker images "
                   "-q -f 'dangling=true')")
