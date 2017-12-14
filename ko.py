@@ -1404,17 +1404,17 @@ def k8s_cleanup(args):
                        K8S_CLEANUP_PROGRESS)
         # Clean up docker containers
         run_shell(args,
-                  "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
+                  "sudo docker rm -f $(sudo docker ps -q -f 'status=exited')")
         run_shell(args,
-                  "sudo docker rmi $(sudo docker images "
+                  "sudo docker rmi -f $(sudo docker images "
                   "-q -f 'dangling=true')")
         run_shell(args,
-                  "sudo docker volume rm $(sudo docker volume "
+                  "sudo docker volume rm -f $(sudo docker volume "
                   "ls -qf dangling=true)")
 
         # Remove docker images on system
         run_shell(args,
-                  "sudo docker rmi $(docker images -a -q)")
+                  "sudo docker rmi -f $(sudo docker images -a -q -f)")
 
         if args.complete_cleanup:
             print_progress('Kubernetes', 'Cleanup done. Highly '
@@ -2531,10 +2531,10 @@ def kolla_nw_and_images(args):
         'Create a demo VM in our OpenStack cluster',
         KOLLA_FINAL_PROGRESS)
 
-    create_demo_vm = '.  ~/keystonerc_admin; openstack server ' \
+    create_demo_vm = '  .  ~/keystonerc_admin; openstack server ' \
         'create --image cirros --flavor m1.tiny --key-name mykey ' \
         '--nic net-id=%s test' % demo_net_id.rstrip()
-    print('To create a demo image VM do:')
+    print('  To create a demo image VM do:')
     print(create_demo_vm)
 
     # For now, only suggest a demo VM and floating ip
