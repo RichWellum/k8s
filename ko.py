@@ -1400,7 +1400,9 @@ def k8s_cleanup(args):
             run_shell(args, 'sudo losetup -d /dev/loop0')
             run_shell(args, 'sudo rm -rf /data')
 
-        # Clean up docker
+        print_progress('Kubernetes', 'cleanup docker containers and images',
+                       K8S_CLEANUP_PROGRESS)
+        # Clean up docker containers
         run_shell(args,
                   "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
         run_shell(args,
@@ -1409,6 +1411,10 @@ def k8s_cleanup(args):
         run_shell(args,
                   "sudo docker volume rm $(sudo docker volume "
                   "ls -qf dangling=true)")
+
+        # Remove docker images on system
+        run_shell(args,
+                  "sudo docker rmi $(docker images -a -q)")
 
         if args.complete_cleanup:
             print_progress('Kubernetes', 'Cleanup done. Highly '
@@ -2966,9 +2972,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 16
+        K8S_FINAL_PROGRESS = 17
     else:
-        K8S_FINAL_PROGRESS = 15
+        K8S_FINAL_PROGRESS = 16
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
