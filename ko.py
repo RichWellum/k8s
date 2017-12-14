@@ -1414,7 +1414,7 @@ def k8s_cleanup(args):
 
         # Remove docker images on system
         run_shell(args,
-                  "sudo docker rmi -f $(sudo docker images -a -q)")
+                  "sudo docker rmi $(sudo docker images -a -q)")
 
         if args.complete_cleanup:
             print_progress('Kubernetes', 'Cleanup done. Highly '
