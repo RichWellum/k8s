@@ -2809,16 +2809,13 @@ image:
   pullPolicy: Always
 
 backend:
-  type: kafka
+  type: forward
   forward:
-    host: fluentd
-    port: 24284
+    host: kafka
+    port: 90902
   es:
     host: 10.240.42.43
     port: 9200
-  kafka:
-    host: 10.240.42.43
-    port: 9092
 
 env: []
 
