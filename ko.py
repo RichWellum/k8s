@@ -2847,7 +2847,7 @@ def kolla_bring_up_openstack(args):
 
     global KOLLA_FINAL_PROGRESS
 
-    banner('Kolla - install OpenStack:')
+    banner('Kolla - build and prepare OpenStack:')
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
@@ -2875,6 +2875,8 @@ def kolla_bring_up_openstack(args):
         kolla_create_cloud_v4(args)
     else:
         kolla_create_cloud(args)
+
+    banner('Kolla - deploy OpenStack:')
 
     # If the user has supplied their own dockernhub account then assume self
     # built images and use that account
