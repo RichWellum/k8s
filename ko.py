@@ -2785,7 +2785,10 @@ def kolla_get_image_tag(args):
 def kolla_install_logging(args):
     '''Install log collection
 
-    Experimental to test out various centralized logging options'''
+    Experimental to test out various centralized logging options
+
+    https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
+    '''
 
     if not args.logs:
         return
@@ -2806,13 +2809,16 @@ image:
   pullPolicy: Always
 
 backend:
-  type: es
+  type: kafka
   forward:
     host: fluentd
     port: 24284
   es:
     host: 10.240.42.43
     port: 9200
+  kafka:
+    host: 10.240.42.43
+    port: 9092
 
 env: []
 
