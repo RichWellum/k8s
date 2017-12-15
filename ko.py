@@ -2895,9 +2895,9 @@ def kolla_bring_up_openstack(args):
     # Bring up br-ex for keepalived to bind VIP to it
     run_shell(args, 'sudo ifconfig br-ex up')
 
-    chart_list = ['keepalived-daemonset']
-    demo(args, 'Install %s Helm Chart' % chart_list, '')
-    helm_install_micro_service_chart(args, chart_list)
+    # chart_list = ['keepalived-daemonset']
+    # demo(args, 'Install %s Helm Chart' % chart_list, '')
+    # helm_install_micro_service_chart(args, chart_list)
 
     # Install Helm charts
     chart_list = ['mariadb']
