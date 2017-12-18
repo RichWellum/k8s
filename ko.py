@@ -898,8 +898,7 @@ def k8s_install_k8s(args):
     '''
 
     print_progress('Kubernetes',
-                   'Creating Kubernetes repo, installing Kubernetes '
-                   'packages',
+                   'Create Kubernetes repo and install Kubernetes ',
                    K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo -H pip install --upgrade pip')
@@ -1929,7 +1928,7 @@ storwize_svc_volpool_name = Pool0
     run_shell(args,
               'cd ./kolla-kubernetes; '
               'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
-              'refs/changes/24/528724/7 && git cherry-pick FETCH_HEAD')
+              'refs/changes/24/528724/8 && git cherry-pick FETCH_HEAD')
 
     # add v3 end points
 #     l1 = 'cinder_v3_admin_endpoint: "{{ admin_protocol }}://' \
@@ -2990,6 +2989,20 @@ def kolla_bring_up_openstack(args):
     helm_install_service_chart(args, chart_list)
 
     kolla_install_logging(args)
+
+    if args.cinder_wip:
+        # Add v3 keystone end points
+        chart_list = ['cinder-create-keystone-endpoint-adminv3-job',
+                      'cinder-create-keystone-endpoint-internalv3-job',
+                      'cinder-create-keystone-endpoint-publicv3-job',
+                      'cinder-create-keystone-servicev3-job']
+        helm_install_service_chart(args, chart_list)
+        horizon = run_shell(args,
+                            "kubectl get pods --all-namespaces | grep horizon "
+                            "| awk '{print $2}'")
+        run_shell(args,
+                  'kubectl delete pod %s -n kolla' % horizon)
+        k8s_wait_for_running_negate(args)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
