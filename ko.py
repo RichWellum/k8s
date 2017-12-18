@@ -1887,14 +1887,14 @@ storwize_svc_volpool_name = Pool0
     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
 
     # Cherry pick Cinder v3 api fixes
-    run_shell(args,
-              'git config --global user.email "test@gmail.com"')
-    run_shell(args,
-              'git config --global user.name "Test Testing"')
-    run_shell(args,
-              'cd ./kolla-kubernetes; '
-              'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
-              'refs/changes/24/528724/3 && git cherry-pick FETCH_HEAD')
+    # run_shell(args,
+    #           'git config --global user.email "test@gmail.com"')
+    # run_shell(args,
+    #           'git config --global user.name "Test Testing"')
+    # run_shell(args,
+    #           'cd ./kolla-kubernetes; '
+    #           'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
+    #           'refs/changes/24/528724/3 && git cherry-pick FETCH_HEAD')
 
     # add v3 end points
 #     l1 = 'cinder_v3_admin_endpoint: "{{ admin_protocol }}://' \
@@ -2274,23 +2274,31 @@ def kolla_pike_workaround(args):
 
     https://docs.openstack.org/nova/latest/user/cells.html#step-by-step-for-common-use-cases
 
+    Probably we have a job for doing this already.
+
     Meantime fix it here'''
 
-    if re.search('pike', args.image_version):
+    if not re.search('ocata', args.image_version):
         print_progress(
             'Kolla',
             'Fix Nova, various issues, nova scheduler pod will be restarted',
             KOLLA_FINAL_PROGRESS)
 
-        run_shell(args,
-                  'kubectl exec -it nova-conductor-0 -n kolla '
-                  'nova-manage db sync')
-        run_shell(args,
-                  'kubectl exec -it nova-conductor-0 -n kolla nova-manage '
-                  'cell_v2 discover_hosts')
-        run_shell(args,
-                  'kubectl delete pod nova-scheduler-0 -n kolla')
-        k8s_wait_for_running_negate(args)
+        chart_list = ['nova-cell0-create-db-job']
+        helm_install_micro_service_chart(args, chart_list)
+
+        chart_list = ['nova-api-create-simple-cell-job']
+        helm_install_micro_service_chart(args, chart_list)
+
+        # run_shell(args,
+        #           'kubectl exec -it nova-conductor-0 -n kolla '
+        #           'nova-manage db sync')
+        # run_shell(args,
+        #           'kubectl exec -it nova-conductor-0 -n kolla '
+        #           'nova-manage cell_v2 discover_hosts')
+        # run_shell(args,
+        #           'kubectl delete pod nova-scheduler-0 -n kolla')
+        # k8s_wait_for_running_negate(args)
 
 
 def kolla_get_host_subnet(args):
