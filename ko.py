@@ -1916,16 +1916,6 @@ storwize_svc_volpool_name = Pool0
 #     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
 
 
-def kolla_resolve_workaround(args):
-    '''Resolve.conf pre 1.8.x workaround'''
-
-    if not re.search('1.8', args.k8s_version):
-        print('(%02d/%d) Kolla - Enable resolv.conf workaround' %
-              (PROGRESS, KOLLA_FINAL_PROGRESS))
-        add_one_to_progress()
-        run_shell(args, './kolla-kubernetes/tools/setup-resolv-conf.sh kolla')
-
-
 def kolla_build_micro_charts(args):
     '''Build all helm micro charts'''
 
@@ -2908,7 +2898,6 @@ def kolla_bring_up_openstack(args):
     kolla_enable_qemu(args)
     kolla_gen_secrets(args)
     kolla_create_config_maps(args)
-    kolla_resolve_workaround(args)
     kolla_build_micro_charts(args)
     kolla_verify_helm_images(args)
 
