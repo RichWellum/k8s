@@ -1488,7 +1488,8 @@ def kolla_install_repos(args):
 
     cinder_wip(args)
 
-    run_shell(args, 'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
+    run_shell(args,
+              'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
     if linux_ver() == 'centos':
         print_progress('Kolla', 'Copy default kolla-ansible '
@@ -1894,7 +1895,7 @@ storwize_svc_volpool_name = Pool0
     run_shell(args,
               'cd ./kolla-kubernetes; '
               'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
-              'refs/changes/24/528724/1 && git cherry-pick FETCH_HEAD')
+              'refs/changes/24/528724/2 && git cherry-pick FETCH_HEAD')
 
     # add v3 end points
 #     l1 = 'cinder_v3_admin_endpoint: "{{ admin_protocol }}://' \
