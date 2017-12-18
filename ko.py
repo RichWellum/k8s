@@ -214,9 +214,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.7.2',
                         help='Specify a different helm version to the '
                         'default(2.7.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.8.5',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.9.0',
                         help='Specify a different kubernetes version to '
-                        'the default(1.8.5) - note 1.8.0 is the minimum '
+                        'the default(1.9.0) - note 1.8.0 is the minimum '
                         'supported')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.4.2.0',
@@ -471,7 +471,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.8.5", "2.4.2.0", "2.10"]
+    versions = ["ocata", "2.7.2", "1.9.0", "2.4.2.0", "2.10"]
 
     tools_dict = {}
     # Generate dictionary
@@ -1031,7 +1031,7 @@ def k8s_deploy_k8s(args):
          'exactly what kubeadm sets us up to do.\n'
          'We run:\n'
          'kubeadm init --pod-network-cidr=10.1.0.0/16 '
-         '--service-cidr=10.3.3.0/24 --skip-preflight-checks '
+         '--service-cidr=10.3.3.0/24 --ignore-preflight-errors=all '
          'and check output\n'
          'Run: "watch -d sudo docker ps" in another window')
     demo(args, 'Monitoring Kubernetes',
@@ -1044,7 +1044,8 @@ def k8s_deploy_k8s(args):
     if args.demo:
         print(run_shell(args,
                         'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
-                        '--service-cidr=10.3.3.0/24 --skip-preflight-checks'))
+                        '--service-cidr=10.3.3.0/24 '
+                        '--ignore-preflight-errors=all'))
         demo(args, 'What happened?',
              'We can see above that kubeadm created the necessary '
              'certificates for\n'
@@ -1069,7 +1070,8 @@ def k8s_deploy_k8s(args):
     else:
         out = run_shell(args,
                         'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
-                        '--service-cidr=10.3.3.0/24 --skip-preflight-checks')
+                        '--service-cidr=10.3.3.0/24 '
+                        '--ignore-preflight-errors=all')
         # Even in no-verbose mode, we need to display the join command to
         # enabled multi-node
         for line in out.splitlines():
