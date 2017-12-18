@@ -2582,10 +2582,7 @@ def kolla_nw_and_images(args):
     logger.debug(out)
 
     # Display nova list
-    print_progress(
-        'Kolla',
-        '"nova list" to see floating IP and demo VM',
-        KOLLA_FINAL_PROGRESS)
+    print_progress('Kolla', 'Demo VM Info', KOLLA_FINAL_PROGRESS)
 
     print(run_shell(args, '.  ~/keystonerc_admin; nova list'))
     # todo: ssh execute to ip address and ping google
