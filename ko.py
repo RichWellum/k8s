@@ -2996,7 +2996,7 @@ def kolla_bring_up_openstack(args):
                       'cinder-create-keystone-endpoint-internalv3-job',
                       'cinder-create-keystone-endpoint-publicv3-job',
                       'cinder-create-keystone-servicev3-job']
-        helm_install_service_chart(args, chart_list)
+        helm_install_micro_service_chart(args, chart_list)
         horizon = run_shell(args,
                             "kubectl get pods --all-namespaces | grep horizon "
                             "| awk '{print $2}'")
