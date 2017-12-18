@@ -1366,8 +1366,7 @@ def k8s_cleanup(args):
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
         print_progress(
-            'Kubernetes',
-            'kubeadm reset (Slow!)', K8S_CLEANUP_PROGRESS, True)
+            'Kubernetes', 'kubeadm reset', K8S_CLEANUP_PROGRESS, True)
         run_shell(args, 'sudo kubeadm reset')
 
         print_progress(
