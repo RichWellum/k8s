@@ -2284,21 +2284,22 @@ def kolla_pike_workaround(args):
             'Fix Nova, various issues, nova scheduler pod will be restarted',
             KOLLA_FINAL_PROGRESS)
 
-        chart_list = ['nova-cell0-create-db-job']
-        helm_install_micro_service_chart(args, chart_list)
+        # todo: get these jobs to work
+        # chart_list = ['nova-cell0-create-db-job']
+        # helm_install_micro_service_chart(args, chart_list)
 
-        chart_list = ['nova-api-create-simple-cell-job']
-        helm_install_micro_service_chart(args, chart_list)
+        # chart_list = ['nova-api-create-simple-cell-job']
+        # helm_install_micro_service_chart(args, chart_list)
 
-        # run_shell(args,
-        #           'kubectl exec -it nova-conductor-0 -n kolla '
-        #           'nova-manage db sync')
-        # run_shell(args,
-        #           'kubectl exec -it nova-conductor-0 -n kolla '
-        #           'nova-manage cell_v2 discover_hosts')
-        # run_shell(args,
-        #           'kubectl delete pod nova-scheduler-0 -n kolla')
-        # k8s_wait_for_running_negate(args)
+        run_shell(args,
+                  'kubectl exec -it nova-conductor-0 -n kolla '
+                  'nova-manage db sync')
+        run_shell(args,
+                  'kubectl exec -it nova-conductor-0 -n kolla '
+                  'nova-manage cell_v2 discover_hosts')
+        run_shell(args,
+                  'kubectl delete pod nova-scheduler-0 -n kolla')
+        k8s_wait_for_running_negate(args)
 
 
 def kolla_get_host_subnet(args):
