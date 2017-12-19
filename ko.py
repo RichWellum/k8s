@@ -2856,8 +2856,8 @@ on_minikube: false
 
 image:
   fluent_bit:
-    repository: fluent/fluent-bit
-    tag: 0.12.10
+    repository: fluent/fluent-bit-kafka-dev
+    tag: 0.4
   pullPolicy: Always
 
 backend:
