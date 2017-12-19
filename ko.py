@@ -2872,6 +2872,7 @@ backend:
     host: 10.240.42.43
     port: 9092
     topic: test
+    broker: 10.240.42.43:9092
 
 env: []
 
