@@ -280,10 +280,12 @@ def parse_args():
                         'the default(canal), like "weave"')
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Experimental, installs a patch set and runs '
-                        'fluentd container to gather logs.')
+                        'fluent-bit container to gather logs.')
     parser.add_argument('-cw', '--cinder_wip', action='store_true',
                         help='Experimental, add specific configs to '
                         'cinder.conf')
+    parser.add_argument('-fw', '--fw', action='store_true',
+                        help='Experimental2 fluent-bit')
 
     return parser.parse_args()
 
@@ -2842,7 +2844,7 @@ def kolla_install_logging(args):
         return
 
     print_progress('Kolla',
-                   'Install Fluentd container',
+                   'Install Fluent-bit container',
                    KOLLA_FINAL_PROGRESS)
 
     name = '/tmp/fluentd_values.yaml'
@@ -2859,7 +2861,7 @@ image:
   pullPolicy: Always
 
 backend:
-  type: es
+  type: kafka
   forward:
     host: fluentd
     port: 24284
@@ -2869,7 +2871,7 @@ backend:
   kafka:
     host: 10.240.42.43
     port: 9092
-    topic:
+    topic: test
 
 env: []
 
@@ -2895,8 +2897,14 @@ tolerations: []
 nodeSelector: {}
 """)
 
-    run_shell(args,
-              'helm install --name my-release -f %s stable/fluent-bit' % name)
+    if args.fw:
+        chart = '/home/ubuntu/charts/stable/fluent-bit'
+        run_shell(args,  # new location
+                  'helm install --name my-release -f %s %s' % (name, chart))
+    else:
+        run_shell(args,
+                  'helm install --name my-release -f %s stable/fluent-bit' % name)
+    k8s_wait_for_running_negate(args)
 
 
 def kolla_bring_up_openstack(args):
