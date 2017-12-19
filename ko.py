@@ -1928,24 +1928,7 @@ storwize_svc_volpool_name = Pool0
     run_shell(args,
               'cd ./kolla-kubernetes; '
               'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
-              'refs/changes/24/528724/8 && git cherry-pick FETCH_HEAD')
-
-    # add v3 end points
-#     l1 = 'cinder_v3_admin_endpoint: "{{ admin_protocol }}://' \
-#         '{{ kolla_internal_fqdn }}:{{ cinder_api_port }}/\v3/%(tenant_id)s"'
-#     l2 = 'cinder_v3_internal_endpoint: "{{ internal_protocol }}:' \
-#         '//{{ kolla_internal_fqdn }}:{{ cinder_api_port }}/v3/%(tenant_id)s"'
-#     l3 = 'cinder_v3_public_endpoint: "{{ public_protocol }}://' \
-#         '{{ kolla_external_fqdn }}:{{ cinder_api_port }}/v3/%(tenant_id)s"'
-#     to = './kolla-kubernetes/ansible/roles/cinder/defaults/main.yml'
-#     add = '/tmp/cinder_v3'
-#     with open(add, "w") as w:
-#         w.write("""
-# %s
-# %s
-# %s
-# """ % (l1, l2, l3))
-#     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
+              'refs/changes/24/528724/9 && git cherry-pick FETCH_HEAD')
 
 
 def kolla_build_micro_charts(args):
