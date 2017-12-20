@@ -1411,7 +1411,7 @@ def k8s_cleanup(args):
                        'delete /tmp',
                        K8S_CLEANUP_PROGRESS)
 
-        run_shell(args, 'sudo rm -rf /tmp/*')
+        run_shell(args, 'pushd /tmp; sudo rm !(*.tgz); popd')
 
         if os.path.exists('/data'):
             print_progress('Kubernetes',
@@ -1939,6 +1939,12 @@ def kolla_build_micro_charts(args):
     print_progress('Kolla',
                    'Build all Helm charts (Slow!)',
                    KOLLA_FINAL_PROGRESS)
+
+    out = run_shell(args, 'ls /tmp | grep ".tgz" | wc -l')
+    if int(out) > 190 and not args.force:
+        print('  Found %s helm charts will not generate again '
+              '(-f over-ride) % out')
+        return
 
     demo(args, 'Build helm charts',
          'Helm uses a packaging format called charts. '
@@ -2889,7 +2895,7 @@ resources:
 tolerations: []
 #- key: "key"
 #  operator: "Equal|Exists"
-#  value: "value"
+#  value: "value":q
 #  effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
 # Node labels for fluent-bit pod assignment
@@ -2904,7 +2910,8 @@ nodeSelector: {}
                   'helm install --name my-release -f %s %s' % (name, chart))
     else:
         run_shell(args,
-                  'helm install --name my-release -f %s stable/fluent-bit' % name)
+                  'helm install --name my-release -f %s '
+                  'stable/fluent-bit' % name)
     k8s_wait_for_running_negate(args)
 
 
