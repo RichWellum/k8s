@@ -1411,7 +1411,7 @@ def k8s_cleanup(args):
                        'delete /tmp',
                        K8S_CLEANUP_PROGRESS)
 
-        run_shell(args, 'pushd /tmp; sudo rm !(*.tgz); popd')
+        run_shell(args, 'pushd /tmp; sudo rm -rf !(*.tgz); popd')
 
         if os.path.exists('/data'):
             print_progress('Kubernetes',
@@ -2895,7 +2895,7 @@ resources:
 tolerations: []
 #- key: "key"
 #  operator: "Equal|Exists"
-#  value: "value":q
+#  value: "value"
 #  effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
 # Node labels for fluent-bit pod assignment
@@ -2996,12 +2996,31 @@ def kolla_bring_up_openstack(args):
                       'cinder-create-keystone-endpoint-publicv3-job',
                       'cinder-create-keystone-servicev3-job']
         helm_install_micro_service_chart(args, chart_list)
+
+        # Restart horizon pod to get new api endpoints
         horizon = run_shell(args,
                             "kubectl get pods --all-namespaces | grep horizon "
                             "| awk '{print $2}'")
         run_shell(args,
                   'kubectl delete pod %s -n kolla' % horizon)
         k8s_wait_for_running_negate(args)
+
+        # Some updates needed to cinderclient todo - move this to using docker
+        # horizon = run_shell(args,
+        #                     "kubectl get pods --all-namespaces | grep horizon "
+        #                     "| awk '{print $2}'")
+
+        # run_shell(args,
+        #           'kubectl exec -it %s pip install --upgrade '
+        #           'python-cinderclient -n kolla' % horizon)
+
+        # cinder = run_shell(args,
+        #                    "kubectl get pods --all-namespaces | grep "
+        #                    "cinder-volume "
+        #                    "| awk '{print $2}'")
+        # run_shell(args,
+        #           'kubectl exec -it %s pip install --upgrade '
+        #           'python-cinderclient -n kolla' % cinder)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
