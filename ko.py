@@ -3005,22 +3005,20 @@ def kolla_bring_up_openstack(args):
                   'kubectl delete pod %s -n kolla' % horizon)
         k8s_wait_for_running_negate(args)
 
-        # Some updates needed to cinderclient todo - move this to using docker
-        # horizon = run_shell(args,
-        #                     "kubectl get pods --all-namespaces | grep horizon "
-        #                     "| awk '{print $2}'")
+        # Some updates needed to cinderclient
+        horizon = run_shell(args,
+                            "sudo docker ps | grep horizon | grep kolla_start "
+                            "| awk '{print $1}'")
+        run_shell(args,
+                  'sudo docker exec -i %s pip install --upgrade '
+                  'python-cinderclient -n kolla' % horizon)
 
-        # run_shell(args,
-        #           'kubectl exec -it %s pip install --upgrade '
-        #           'python-cinderclient -n kolla' % horizon)
-
-        # cinder = run_shell(args,
-        #                    "kubectl get pods --all-namespaces | grep "
-        #                    "cinder-volume "
-        #                    "| awk '{print $2}'")
-        # run_shell(args,
-        #           'kubectl exec -it %s pip install --upgrade '
-        #           'python-cinderclient -n kolla' % cinder)
+        cinder = run_shell(args,
+                           "sudo docker ps | grep cinder-volume | "
+                           "grep kolla_start | awk '{print $1}'")
+        run_shell(args,
+                  'sudo docker exec -i %s pip install --upgrade '
+                  'python-cinderclient -n kolla' % cinder)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
