@@ -259,7 +259,8 @@ def parse_args():
                         'offer to move on')
     parser.add_argument('-f', '--force', action='store_true',
                         help='When used in conjunction with --demo - it '
-                        'will proceed without user input')
+                        'will proceed without user input. Also will force '
+                        'regeneration of helm charts.')
     parser.add_argument('-nn', '--no_network', action='store_true',
                         help='Do not try to create a OpenStack network model, '
                         'configure neutron, download and install a test VM')
