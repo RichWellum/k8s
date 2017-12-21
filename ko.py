@@ -2844,6 +2844,14 @@ def kolla_install_logging(args):
     Experimental to test out various centralized logging options
 
     https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
+
+    Kafka can be added, but it's only availble in a dev iamge.
+
+    repository: fluent/fluent-bit-kafka-dev
+    tag: 0.4
+
+    Note that bot changes to the forwarder and kafka require changes to the helm
+    chart.
     '''
 
     if not args.logs:
@@ -2862,15 +2870,16 @@ on_minikube: false
 
 image:
   fluent_bit:
-    repository: fluent/fluent-bit-kafka-dev
-    tag: 0.4
+    repository: fluent/fluent-bit
+    tag: 0.12.10
   pullPolicy: Always
 
 backend:
-  type: kafka
+  type: forward
   forward:
     host: fluentd
     port: 24284
+    time_as_integer: on
   es:
     host: 10.240.42.43
     port: 9200
