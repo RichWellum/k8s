@@ -1411,7 +1411,7 @@ def k8s_cleanup(args):
                        'delete /tmp',
                        K8S_CLEANUP_PROGRESS)
 
-        # run_shell(args, 'pushd /tmp; sudo rm -rf !(*.tgz); popd')
+        run_shell(args, 'sudo rm -rf /tmp/*')
 
         if os.path.exists('/data'):
             print_progress('Kubernetes',
@@ -1824,8 +1824,7 @@ def kolla_gen_secrets(args):
     '''Generate Kubernetes secrets'''
 
     print_progress('Kolla',
-                   'Generate the Kubernetes secrets and register '
-                   'them with Kubernetes',
+                   'Generate secrets and register them with Kubernetes',
                    KOLLA_FINAL_PROGRESS)
 
     demo(args,
@@ -1842,7 +1841,7 @@ def kolla_create_config_maps(args):
     '''Generate the Kolla config map'''
 
     print_progress('Kolla',
-                   'Create and register the Kolla config maps',
+                   'Generate and register the Kolla config maps',
                    KOLLA_FINAL_PROGRESS)
 
     demo(args, 'Create Kolla Config Maps',
@@ -1966,7 +1965,8 @@ def kolla_build_micro_charts(args):
             args,
             'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm'))
     else:
-        run_shell(args, 'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
+        run_shell(args,
+                  'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
 
     demo(args, 'Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; '
@@ -2930,7 +2930,7 @@ def kolla_bring_up_openstack(args):
 
     global KOLLA_FINAL_PROGRESS
 
-    banner('Kolla - build and prepare OpenStack:')
+    banner('Kolla - build and prepare OpenStack')
     clean_progress()
     # Start Kolla deployment
     add_one_to_progress()
