@@ -1940,7 +1940,8 @@ def kolla_build_micro_charts(args):
                    'Build all Helm charts (Slow!)',
                    KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args, 'ls /tmp | grep ".tgz" | wc -l')
+    run_shell(args, 'sudo mkdir -p ./helm')
+    out = run_shell(args, 'ls ./helm | grep ".tgz" | wc -l')
     if int(out) > 190 and not args.force:
         print('  Found %s helm charts, will not generate again '
               '(-f over-ride) % out')
@@ -1963,9 +1964,9 @@ def kolla_build_micro_charts(args):
     if args.demo:
         print(run_shell(
             args,
-            './kolla-kubernetes/tools/helm_build_all.sh /tmp'))
+            './kolla-kubernetes/tools/helm_build_all.sh ./helm'))
     else:
-        run_shell(args, './kolla-kubernetes/tools/helm_build_all.sh /tmp')
+        run_shell(args, './kolla-kubernetes/tools/helm_build_all.sh ./helm')
 
     demo(args, 'Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; '
@@ -1979,7 +1980,7 @@ def kolla_verify_helm_images(args):
                    'Verify number of helm images',
                    KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args, 'ls /tmp | grep ".tgz" | wc -l')
+    out = run_shell(args, 'ls ./helm | grep ".tgz" | wc -l')
     if int(out) > 190:
         print('  %s Helm images created' % int(out))
     else:
