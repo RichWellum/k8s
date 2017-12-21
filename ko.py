@@ -1942,7 +1942,7 @@ def kolla_build_micro_charts(args):
 
     out = run_shell(args, 'ls /tmp | grep ".tgz" | wc -l')
     if int(out) > 190 and not args.force:
-        print('  Found %s helm charts will not generate again '
+        print('  Found %s helm charts, will not generate again '
               '(-f over-ride) % out')
         return
 
@@ -2850,8 +2850,8 @@ def kolla_install_logging(args):
     repository: fluent/fluent-bit-kafka-dev
     tag: 0.4
 
-    Note that bot changes to the forwarder and kafka require changes to the helm
-    chart.
+    Note that bot changes to the forwarder and kafka require changes to
+    the helm chart.
     '''
 
     if not args.logs:
