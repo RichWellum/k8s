@@ -1964,9 +1964,9 @@ def kolla_build_micro_charts(args):
     if args.demo:
         print(run_shell(
             args,
-            './kolla-kubernetes/tools/helm_build_all.sh ./helm'))
+            'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm'))
     else:
-        run_shell(args, './kolla-kubernetes/tools/helm_build_all.sh ./helm')
+        run_shell(args, 'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
 
     demo(args, 'Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; '
