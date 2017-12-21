@@ -259,8 +259,7 @@ def parse_args():
                         'offer to move on')
     parser.add_argument('-f', '--force', action='store_true',
                         help='When used in conjunction with --demo - it '
-                        'will proceed without user input. Also will force '
-                        'regeneration of helm charts.')
+                        'will proceed without user input.')
     parser.add_argument('-nn', '--no_network', action='store_true',
                         help='Do not try to create a OpenStack network model, '
                         'configure neutron, download and install a test VM')
@@ -1941,13 +1940,6 @@ def kolla_build_micro_charts(args):
                    KOLLA_FINAL_PROGRESS)
 
     run_shell(args, 'sudo mkdir -p ./helm')
-    out = run_shell(args, 'ls ./helm | grep ".tgz" | wc -l')
-    if int(out) > 190 and not args.force:
-        print('  Found %s helm charts, will not generate again '
-              '(-f over-ride)' % out)
-        run_shell(args, 'helm repo index "./helm"')
-        run_shell(args, 'helm repo update')
-        return
 
     demo(args, 'Build helm charts',
          'Helm uses a packaging format called charts. '
