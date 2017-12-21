@@ -1944,7 +1944,9 @@ def kolla_build_micro_charts(args):
     out = run_shell(args, 'ls ./helm | grep ".tgz" | wc -l')
     if int(out) > 190 and not args.force:
         print('  Found %s helm charts, will not generate again '
-              '(-f over-ride) % out')
+              '(-f over-ride)' % out)
+        run_shell(args, 'helm repo index "./helm"')
+        run_shell(args, 'helm repo update')
         return
 
     demo(args, 'Build helm charts',
