@@ -1411,7 +1411,7 @@ def k8s_cleanup(args):
                        'delete /tmp',
                        K8S_CLEANUP_PROGRESS)
 
-        run_shell(args, 'pushd /tmp; sudo rm -rf !(*.tgz); popd')
+        # run_shell(args, 'pushd /tmp; sudo rm -rf !(*.tgz); popd')
 
         if os.path.exists('/data'):
             print_progress('Kubernetes',
