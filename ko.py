@@ -1380,7 +1380,7 @@ def k8s_cleanup(args):
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
 
         print_progress('Kubernetes',
-                       'kubeadm reset',
+                       'Kubeadm reset',
                        K8S_CLEANUP_PROGRESS,
                        True)
 
@@ -1408,7 +1408,7 @@ def k8s_cleanup(args):
         run_shell(args, 'sudo rm -rf /var/run/lock/kubelet.lock')
 
         print_progress('Kubernetes',
-                       'delete /tmp',
+                       'Delete /tmp',
                        K8S_CLEANUP_PROGRESS)
 
         run_shell(args, 'sudo rm -rf /tmp/*')
@@ -1423,7 +1423,7 @@ def k8s_cleanup(args):
             run_shell(args, 'sudo rm -rf /data')
 
         print_progress('Kubernetes',
-                       'cleanup docker containers and images',
+                       'Cleanup docker containers and images',
                        K8S_CLEANUP_PROGRESS)
 
         # Clean up docker containers
@@ -2873,7 +2873,7 @@ image:
 backend:
   type: forward
   forward:
-    host: fluentd
+    host: 10.240.42.43
     port: 24284
     time_as_integer: on
   es:
@@ -3082,9 +3082,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 17
-    else:
         K8S_FINAL_PROGRESS = 16
+    else:
+        K8S_FINAL_PROGRESS = 15
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
