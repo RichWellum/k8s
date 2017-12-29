@@ -1885,7 +1885,7 @@ def cinder_wip(args):
     if not args.cinder_wip:
         return
 
-    # Update enabled backends
+    # Update enabled backends - todo: lenovo only code
     add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
     rem = "enabled_backends = {{ cinder_enabled_backends|map(" \
         "attribute='name')|join(',') }}"
@@ -1921,7 +1921,8 @@ storwize_svc_volpool_name = Pool0
 """ % vd)
     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
 
-    # Cherry pick Cinder v3 api fixes
+    # Cherry pick Cinder v3 api fixes - todo: pike and above - remove when
+    # merged
     run_shell(args,
               'git config --global user.email "test@gmail.com"')
     run_shell(args,
@@ -1936,7 +1937,7 @@ def kolla_build_micro_charts(args):
     '''Build all helm micro charts'''
 
     print_progress('Kolla',
-                   'Build all Helm charts (Slow!)',
+                   'Build and register all Helm charts (Slow!)',
                    KOLLA_FINAL_PROGRESS)
 
     run_shell(args, 'sudo mkdir -p ./helm')
@@ -2196,6 +2197,7 @@ global:
 
     if args.cinder_wip:
         # Cloud.yaml remove backend because replacing with own
+        # todo: lenovo code only
         rem = 'cinder-volumes'
         run_shell(args,
                   "sudo sed -i '/%s/d' %s" % (rem, cloud))
@@ -2850,6 +2852,7 @@ def kolla_install_logging(args):
     the helm chart.
     '''
 
+    # todo: for forward need to commit code to github.
     if not args.logs:
         return
 
@@ -2995,7 +2998,7 @@ def kolla_bring_up_openstack(args):
     kolla_install_logging(args)
 
     if args.cinder_wip:
-        # Add v3 keystone end points
+        # Add v3 keystone end points - todo: pike and above
         chart_list = ['cinder-create-keystone-endpoint-adminv3-job',
                       'cinder-create-keystone-endpoint-internalv3-job',
                       'cinder-create-keystone-endpoint-publicv3-job',
@@ -3010,7 +3013,7 @@ def kolla_bring_up_openstack(args):
                   'kubectl delete pod %s -n kolla' % horizon)
         k8s_wait_for_running_negate(args)
 
-        # Some updates needed to cinderclient
+        # Some updates needed to cinderclient - todo: pike only
         horizon = run_shell(args,
                             "sudo docker ps | grep horizon | grep kolla_start "
                             "| awk '{print $1}'")
