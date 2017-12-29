@@ -3015,15 +3015,15 @@ def kolla_bring_up_openstack(args):
                             "sudo docker ps | grep horizon | grep kolla_start "
                             "| awk '{print $1}'")
         run_shell(args,
-                  'sudo docker exec -i %s pip install --upgrade '
-                  'python-cinderclient -n kolla' % horizon)
+                  'sudo docker exec -tu root -i %s pip install --upgrade '
+                  'python-cinderclient' % horizon)
 
         cinder = run_shell(args,
                            "sudo docker ps | grep cinder-volume | "
                            "grep kolla_start | awk '{print $1}'")
         run_shell(args,
-                  'sudo docker exec -i %s pip install --upgrade '
-                  'python-cinderclient -n kolla' % cinder)
+                  'sudo docker exec -tu root -i %s pip install --upgrade '
+                  'python-cinderclient' % cinder)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
