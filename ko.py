@@ -2912,7 +2912,8 @@ nodeSelector: {}
 """)
 
     if args.fw:
-        chart = '/home/ubuntu/charts/stable/fluent-bit'
+        # WIP fluent-bit chart with time_as_integer added
+        chart = '/home/lusac/charts/stable/fluent-bit'
         run_shell(args,  # new location
                   'helm install --name my-release -f %s %s' % (name, chart))
     else:
