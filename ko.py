@@ -630,7 +630,7 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 def k8s_wait_for_kube_system(args):
     '''Wait for basic k8s to come up'''
 
-    TIMEOUT = 2000  # Give k8s 2000 s to come up
+    TIMEOUT = 2000  # Give k8s 2000s to come up
     RETRY_INTERVAL = 10
     elapsed_time = 0
     prev_cnt = 0
@@ -677,7 +677,7 @@ def k8s_wait_for_kube_system(args):
 def k8s_wait_for_pod_start(args, chart):
     '''Wait for a chart to start'''
 
-    # No-op as issue not seen and very slow
+    # Useful for debugging issues when Service fails to start
     return
 
     if 'cinder' in chart:
@@ -827,8 +827,7 @@ def k8s_install_tools(args):
                   '--allow-downgrades --no-install-recommends')
         run_shell(args, 'sudo apt-get install -y qemu bridge-utils')
         run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
-                  'libssl-dev python-pip sshpass')
-        # 'libssl-dev python-pip sshpass apt-transport-https')
+                  'libssl-dev python-pip sshpass apt-transport-https')
         run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
                   'ansible curl lvm2')
 
@@ -853,7 +852,7 @@ def k8s_install_tools(args):
 
 
 def k8s_setup_ntp(args):
-    '''Setup NTP - this caused issues when doing it on a VM'''
+    '''Setup NTP'''
 
     print_progress('Kubernetes',
                    'Setup NTP',
@@ -2876,7 +2875,7 @@ image:
 backend:
   type: forward
   forward:
-    host: 10.240.42.43
+    host: 10.240.42.51
     port: 24284
     time_as_integer: on
   es:
