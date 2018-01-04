@@ -946,6 +946,7 @@ def k8s_setup_dns(args):
               'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
 
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
+    # https://stackoverflow.com/questions/46726216/kubelet-fails-to-get-cgroup-stats-for-docker-and-kubelet-services
     run_shell(
         args,
         'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
@@ -954,6 +955,12 @@ def k8s_setup_dns(args):
         args,
         'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false" '
         '>> /tmp/10-kubeadm.conf')
+    run_shell(
+        args,
+        'sudo echo Environment="KUBELET_DOS_ARGS=--runtime-cgroups=/systemd'
+        '/system.slice --kubelet-cgroups=/systemd/system.slice --hostname-'
+        'override=$(hostname) --fail-swap-on=false" >> /tmp/10-kubeadm.conf')
+
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
               '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
 
@@ -1939,8 +1946,6 @@ def kolla_build_micro_charts(args):
                    'Build and register all Helm charts (Slow!)',
                    KOLLA_FINAL_PROGRESS)
 
-    run_shell(args, 'sudo mkdir -p ./helm')
-
     demo(args, 'Build helm charts',
          'Helm uses a packaging format called charts. '
          'A chart is a collection of\n'
@@ -1958,11 +1963,11 @@ def kolla_build_micro_charts(args):
     if args.demo:
         print(run_shell(
             args,
-            'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm'))
+            './kolla-kubernetes/tools/helm_build_all.sh /tmp'))
     else:
         run_shell(
             args,
-            'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
+            './kolla-kubernetes/tools/helm_build_all.sh /tmp')
 
     demo(args, 'Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; '
@@ -1976,7 +1981,7 @@ def kolla_verify_helm_images(args):
                    'Verify number of helm images',
                    KOLLA_FINAL_PROGRESS)
 
-    out = run_shell(args, 'ls ./helm | grep ".tgz" | wc -l')
+    out = run_shell(args, 'ls /tmp | grep ".tgz" | wc -l')
     if int(out) > 190:
         print('  %s Helm images created' % int(out))
     else:
