@@ -276,7 +276,7 @@ def parse_args():
                         'the default(kolla), for example "rwellum" has '
                         'the latest pike images')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
-                        help='Specify a different CNI/SDN to'
+                        help='Specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Experimental, installs a patch set and runs '
@@ -499,7 +499,7 @@ def tools_versions(args, str):
 def print_versions(args):
     '''Print out versions of all the various tools needed'''
 
-    banner('Kubernetes - Bring up a Kubernetes Cluster:')
+    banner('Kubernetes - Bring up a Kubernetes Cluster')
     if args.edit_globals:
         print('  *globals.yaml will be editable with this option*\n')
 
@@ -1962,7 +1962,7 @@ def kolla_build_micro_charts(args):
     else:
         run_shell(
             args,
-            'sudo nice --20 ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
+            'sudo ./kolla-kubernetes/tools/helm_build_all.sh ./helm')
 
     demo(args, 'Lets look at these helm charts',
          'helm list; helm search | grep local | wc -l; '
@@ -2848,7 +2848,7 @@ def kolla_install_logging(args):
     repository: fluent/fluent-bit-kafka-dev
     tag: 0.4
 
-    Note that bot changes to the forwarder and kafka require changes to
+    Note that both changes to the forwarder and kafka require changes to
     the helm chart.
     '''
 
@@ -2883,6 +2883,7 @@ backend:
     host: 10.240.42.43
     port: 9200
   kafka:
+    # See dev image note above
     host: 10.240.42.43
     port: 9092
     topics: test
