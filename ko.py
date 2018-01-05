@@ -538,15 +538,16 @@ def print_versions(args):
           % tools_versions(args, 'kubernetes').rstrip())
     print('  Ansible version:    %s' %
           tools_versions(args, 'ansible').rstrip())
-    print('  Jinja2 version:     %s' % tools_versions(args, 'jinja2').rstrip())
+    print('  Jinja2 version:     %s' %
+          tools_versions(args, 'jinja2').rstrip())
 
     print('\nOpenStack Versions:')
-    print('  Openstack version:  %s (%s)' % (tools_versions(args, 'kolla'),
-                                             kolla_get_image_tag(args)))
     print('  Base image version: %s' % args.base_distro)
     print('  Docker repo:        %s' % args.docker_repo)
+    print('  Openstack version:  %s' % tools_versions(args, 'kolla'))
+    print('  Image Tag version:  %s' % kolla_get_image_tag(args))
 
-    print('\nOther Info:')
+    print('\nOptions:')
     print('  Logging enabled:    %s' % args.logs)
     print('  Dev mode enabled:   %s' % args.dev_mode)
     print('  No Network:         %s' % args.no_network)
@@ -1926,17 +1927,6 @@ storwize_svc_volpool_name = Pool0
 
 """ % vd)
     run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
-
-    # Cherry pick Cinder v3 api fixes - todo: pike and above - remove when
-    # merged
-    run_shell(args,
-              'git config --global user.email "test@gmail.com"')
-    run_shell(args,
-              'git config --global user.name "Test Testing"')
-    run_shell(args,
-              'cd ./kolla-kubernetes; '
-              'git fetch git://git.openstack.org/openstack/kolla-kubernetes '
-              'refs/changes/24/528724/9 && git cherry-pick FETCH_HEAD')
 
 
 def kolla_build_micro_charts(args):
