@@ -225,14 +225,6 @@ def parse_args():
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.10',
                         help='Specify a different jinja2 version to '
                         'the default(2.10)')
-    parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='YMMV: Cleanup existing Kubernetes cluster '
-                        'before creating a new one. Because LVM is not '
-                        'cleaned up, space will be used up. '
-                        '"-cc" is far more reliable but requires a reboot')
-    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster '
-                        'then exit, rebooting host is advised')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, '
                         'do not install OpenStack')
@@ -279,13 +271,15 @@ def parse_args():
                         help='Specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
     parser.add_argument('-l', '--logs', action='store_true',
-                        help='Experimental, installs a patch set and runs '
-                        'fluent-bit container to gather logs.')
-    parser.add_argument('-cw', '--cinder_wip', action='store_true',
-                        help='Experimental, add specific configs to '
-                        'cinder.conf')
-    parser.add_argument('-fw', '--fw', action='store_true',
-                        help='Experimental2 fluent-bit')
+                        help='Install fluent-bit container')
+    parser.add_argument('-c', '--cleanup', action='store_true',
+                        help='YMMV: Cleanup existing Kubernetes cluster '
+                        'before creating a new one. Because LVM is not '
+                        'cleaned up, space will be used up. '
+                        '"-cc" is far more reliable but requires a reboot')
+    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
+                        help='Cleanup existing Kubernetes cluster '
+                        'then exit, rebooting host is advised')
 
     return parser.parse_args()
 
@@ -1507,8 +1501,6 @@ def kolla_install_repos(args):
                    'Install kolla-ansible and kolla-kubernetes',
                    KOLLA_FINAL_PROGRESS)
 
-    cinder_wip(args)
-
     run_shell(args,
               'sudo -H pip install -U kolla-ansible/ kolla-kubernetes/')
 
@@ -1870,49 +1862,6 @@ def kolla_create_config_maps(args):
          'configmap -n kolla XYZ')
 
 
-def cinder_wip(args):
-    '''Experimental code that is not done in the correct way'''
-
-    if not args.cinder_wip:
-        return
-
-    # Update enabled backends - todo: lenovo only code
-    add = 'enabled_backends = lvmdriver-1,v3700,lenovo-b'
-    rem = "enabled_backends = {{ cinder_enabled_backends|map(" \
-        "attribute='name')|join(',') }}"
-    to = './kolla-kubernetes/ansible/roles/cinder/templates/cinder.conf.j2'
-    run_shell(args,
-              'sudo sed -i s/"%s"/"%s"/g %s' % (rem, add, to))
-
-    # Add new backend sections
-    vd = 'cinder.volume.drivers.ibm.storwize_svc.' \
-        'storwize_svc_iscsi.StorwizeSVCISCSIDriver'
-    add = '/tmp/cinder_wip'
-    with open(add, "w") as w:
-        w.write("""
-
-[lenovo-b]
-lenovo_backend_name = B
-volume_backend_name = lenovo-b
-volume_driver = cinder.volume.drivers.lenovo.lenovo_iscsi.LenovoISCSIDriver
-san_ip = 10.240.40.50
-san_login = manage
-san_password = !manage
-lenovo_iscsi_ips = 10.240.41.148
-
-[v3700]
-volume_backend_name = v3700
-volume_driver = %s
-san_ip = 10.240.40.71
-san_login = superuser
-san_password = Teamw0rk
-storwize_svc_iscsi_chap_enabled = False
-storwize_svc_volpool_name = Pool0
-
-""" % vd)
-    run_shell(args, 'cat %s | sudo tee -a %s' % (add, to))
-
-
 def kolla_build_micro_charts(args):
     '''Build all helm micro charts'''
 
@@ -2173,13 +2122,6 @@ global:
                args.mgmt_ip,
                args.mgmt_ip,
                args.NEUTRON_INT))
-
-    if args.cinder_wip:
-        # Cloud.yaml remove backend because replacing with own
-        # todo: lenovo code only
-        rem = 'cinder-volumes'
-        run_shell(args,
-                  "sudo sed -i '/%s/d' %s" % (rem, cloud))
 
     if args.edit_cloud:
         pause_tool_execution('Pausing to edit the /tmp/cloud.yaml file')
@@ -2822,7 +2764,7 @@ def kolla_install_logging(args):
 
     https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
 
-    Kafka can be added, but it's only availble in a dev iamge.
+    Kafka can be added, but it's only available in a dev image.
 
     repository: fluent/fluent-bit-kafka-dev
     tag: 0.4
@@ -2855,18 +2797,17 @@ image:
 backend:
   type: forward
   forward:
-    host: 10.240.42.51
+    host: fluentd
     port: 24284
-    time_as_integer: on
   es:
-    host: 10.240.42.43
+    host: elasticsearch
     port: 9200
   kafka:
     # See dev image note above
-    host: 10.240.42.43
+    host: kafka
     port: 9092
     topics: test
-    brokers: 10.240.42.43:9092
+    brokers: kafka:9092
 
 env: []
 
@@ -2892,15 +2833,12 @@ tolerations: []
 nodeSelector: {}
 """)
 
-    if args.fw:
-        # WIP fluent-bit chart with time_as_integer added
-        chart = '/home/lusac/charts/stable/fluent-bit'
-        run_shell(args,  # new location
-                  'helm install --name my-release -f %s %s' % (name, chart))
-    else:
-        run_shell(args,
-                  'helm install --name my-release -f %s '
-                  'stable/fluent-bit' % name)
+    print_progress('Kubernetes',
+                   'Install fluent-bit log aggregator',
+                   KOLLA_FINAL_PROGRESS)
+    run_shell(args,
+              'helm install --name my-release -f %s '
+              'stable/fluent-bit' % name)
     k8s_wait_for_running_negate(args)
 
 
@@ -2976,10 +2914,12 @@ def kolla_bring_up_openstack(args):
     demo(args, 'Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(args, chart_list)
 
-    kolla_install_logging(args)
+    # Add v3 keystone end points
+    if not re.search('ocata', args.image_version):
+        print_progress('Kolla',
+                       'Install Cinder V3 API',
+                       KOLLA_FINAL_PROGRESS)
 
-    if args.cinder_wip:
-        # Add v3 keystone end points - todo: pike and above
         chart_list = ['cinder-create-keystone-endpoint-adminv3-job',
                       'cinder-create-keystone-endpoint-internalv3-job',
                       'cinder-create-keystone-endpoint-publicv3-job',
@@ -3008,6 +2948,9 @@ def kolla_bring_up_openstack(args):
         run_shell(args,
                   'sudo docker exec -tu root -i %s pip install --upgrade '
                   'python-cinderclient' % cinder)
+
+    # Install logging container
+    kolla_install_logging(args)
 
     namespace_list = ['kube-system', 'kolla']
     k8s_get_pods(args, namespace_list)
@@ -3046,9 +2989,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 45
+        KOLLA_FINAL_PROGRESS = 47
     else:
-        KOLLA_FINAL_PROGRESS = 44
+        KOLLA_FINAL_PROGRESS = 46
 
     if args.no_network:
         KOLLA_FINAL_PROGRESS -= 4
