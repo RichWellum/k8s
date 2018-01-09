@@ -228,6 +228,15 @@ def parse_args():
     parser.add_argument('-jv', '--jinja2_version', type=str, default='2.10',
                         help='Specify a different jinja2 version to '
                         'the default(2.10)')
+    parser.add_argument('-dr', '--docker_repo', type=str, default='kolla',
+                        help='Specify a different docker repo from '
+                        'the default(kolla), for example "rwellum" has '
+                        'the latest pike images')
+    parser.add_argument('-cni', '--cni', type=str, default='canal',
+                        help='Specify a different CNI/SDN to '
+                        'the default(canal), like "weave"')
+    parser.add_argument('-l', '--logs', action='store_true',
+                        help='Install fluent-bit container')
     parser.add_argument('-k8s', '--kubernetes', action='store_true',
                         help='Stop after bringing up kubernetes, '
                         'do not install OpenStack')
@@ -237,9 +246,6 @@ def parse_args():
     parser.add_argument('-os', '--openstack', action='store_true',
                         help='Build OpenStack on an existing '
                         'Kubernetes Cluster')
-    parser.add_argument('-n', '--nslookup', action='store_true',
-                        help='Pause for the user to manually test nslookup '
-                        'in kubernetes cluster')
     parser.add_argument('-eg', '--edit_globals', action='store_true',
                         help='Pause to allow the user to edit the '
                         'globals.yaml file - for custom configuration')
@@ -266,15 +272,6 @@ def parse_args():
     parser.add_argument('-bd', '--base_distro', type=str, default='centos',
                         help='Specify a base container image to '
                         'the default(centos), like "ubuntu"')
-    parser.add_argument('-dr', '--docker_repo', type=str, default='kolla',
-                        help='Specify a different docker repo from '
-                        'the default(kolla), for example "rwellum" has '
-                        'the latest pike images')
-    parser.add_argument('-cni', '--cni', type=str, default='canal',
-                        help='Specify a different CNI/SDN to '
-                        'the default(canal), like "weave"')
-    parser.add_argument('-l', '--logs', action='store_true',
-                        help='Install fluent-bit container')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster '
                         'before creating a new one. Because LVM is not '
@@ -2595,7 +2592,7 @@ def k8s_get_pods(args, namespace):
         print(final)
 
 
-def k8s_pause_to_check_nslookup(args):
+def k8s_check_nslookup(args):
     '''Create a test pod and query nslookup against kubernetes
 
     Only seems to work in the default namespace
@@ -2639,13 +2636,6 @@ spec:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
         banner("Kubernetes Cluster is up and running")
-
-    if args.nslookup:
-        print('Kubernetes - Run the following to create a pod to '
-              'test kubernetes nslookup')
-        print('Kubernetes - kubectl run -i -t $(uuidgen) '
-              '--image=busybox --restart=Never')
-        pause_tool_execution('Check "nslookup kubernetes" now')
 
 
 def kubernetes_test_cli(args):
@@ -2725,7 +2715,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
-    k8s_pause_to_check_nslookup(args)
+    k8s_check_nslookup(args)
     k8s_check_exit(args.kubernetes)
     demo(args, 'Congrats - your kubernetes cluster should be up '
          'and running now', '')
