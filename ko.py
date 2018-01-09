@@ -45,7 +45,7 @@ Features
 7. Contains a demo mode that walks the user through each step with additional
 information and instruction.
 
-8. Verifies it's completeness by generating a VM in the OpenStack Cluster.
+8. Verifies its completeness by generating a VM in the OpenStack Cluster.
 
 9. Leaves the user with a working OpenStack Cluster with all the basic
 services.
@@ -312,15 +312,6 @@ def run_shell(args, cmd):
             print("Shell STDERR output: \n'%s'\n" % err)
 
     return(out)
-
-
-def add_line(file, marker, addition):
-    '''Add a line addition, below line marker in file file'''
-
-    for line in open(file).readlines():
-        print(line, end="")
-        if line.startswith(marker):
-            print(addition)
 
 
 def untar(fname):
