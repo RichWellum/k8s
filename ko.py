@@ -117,8 +117,7 @@ TODO
 ====
 
 1. Convert to using https://github.com/kubernetes-incubator/client-python
-2. Add option to use a CNI other than canal
-3. Note there are various todo's scattered inline as well.
+2. Note there are various todo's scattered inline as well.
 
 Recomendations
 ==============
@@ -2773,7 +2772,6 @@ def kolla_install_logging(args):
     the helm chart.
     '''
 
-    # todo: for forward need to commit code to github.
     if not args.logs:
         return
 
@@ -2934,7 +2932,7 @@ def kolla_bring_up_openstack(args):
                   'kubectl delete pod %s -n kolla' % horizon)
         k8s_wait_for_running_negate(args)
 
-        # Some updates needed to cinderclient - todo: pike only
+        # Some updates needed to cinderclient
         horizon = run_shell(args,
                             "sudo docker ps | grep horizon | grep kolla_start "
                             "| awk '{print $1}'")
