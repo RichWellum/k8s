@@ -294,8 +294,7 @@ def parse_args():
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input.')
     parser.add_argument('-nn', '--no_network', action='store_true',
-                        help='Do not try to create a OpenStack network model, '
-                        'configure neutron, download and install a test VM')
+                        help='Do not run init-runonce, no networking created.')
     parser.add_argument('-dm', '--dev_mode', action='store_true',
                         help='Adds option to modify kolla and more info')
     parser.add_argument('-ng', '--no_git', action='store_true',
