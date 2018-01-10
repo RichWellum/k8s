@@ -15,7 +15,7 @@
 # limitations under the License.
 
 '''
-ko.py - Kubernetes Openstack
+ko.py - Kolla Kubernetes Openstack deployer
 
 Purpose
 =======
@@ -28,17 +28,27 @@ Deployment Guide:
 
 https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
 
+This tool exists primarily to:
+
+1. Provide an easy way to run kolla-kubernetes which is a development project
+to deploy Kolla OpenStack images on a Kubernetes Cluster.
+
+2. Ease development of kolla-kubernetes.
+
+3. Provide an OpenStack environment that is Production Level.
+
 Features
 ========
 1. Supports both Centos and Ubuntu natively.
 
-2. Requires just a VM with two NIC's, low congnitive overhead.
-
-3. Simplicity to run: 'ko.py int1 int2'
+2. Requires just a VM with two NIC's, low congnitive overhead:
+'ko.py int1 int2'.
 
 4. Options to change the versions of all the tools, like helm, kubernetes etc.
 
-5. Option to change the version of OpenStack as needed.
+5. Options to change the image version (openstack release) and image tag
+(micro-version) of OpenStack as needed. The user can quickly play with Ocata,
+or Pike or Master(Queens).
 
 6. Easy on the eye output, with optional verbose mode for more information.
 
@@ -52,6 +62,23 @@ services.
 
 10. Lots of options to customize - even edit globals.yaml and cloud.yaml before
 deploying.
+
+11. Cleans up previous deployment with --cc option
+
+12. Select a different docker registry to the default (kolla) to run with
+custom images.
+
+13. Select between Canal and Weave CNI's for inter-pod communications.
+
+14. Optionally installs a fluent-bit container for log aggregation to ELK.
+
+15. Option to create a kubernetes minion to add to existing deployment.
+
+16. Option to create a kubernetes cluster only - no OpenStack - but another
+option to install OpenStack over an existing Kubernetes cluster.
+
+17. Option to not overwrite kolla-kubenetes directory for development of
+kolla-kubernetes code.
 
 Host machine requirements
 =========================
@@ -133,6 +160,11 @@ E.g. nohup python -u k8s.py eth0 eth1
 Then in another window:
 
 tail -f nohup.out
+
+3. Can be run remotely with:
+
+curl https://raw.githubusercontent.com/RichWellum/k8s/master/ko.py \
+| python - ens3 ens4 --image_version master -cni weave
 '''
 
 from __future__ import print_function
