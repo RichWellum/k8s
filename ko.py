@@ -2880,15 +2880,6 @@ def kolla_bring_up_openstack(args):
 
     banner('Kolla - deploy OpenStack:')
 
-    # If the user has supplied their own dockernhub account then assume self
-    # built images and use that account
-
-    # Remove registry from cloud.yaml if user own registry
-    # if 'lokolla' not in args.docker_repo:
-    #     run_shell(args,
-    #               "sed -i '/docker_registry: 127.0.0.1:30401/d' "
-    #               "/tmp/cloud.yaml")
-
     # Set up OVS for the Infrastructure
     chart_list = ['openvswitch']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
