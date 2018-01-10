@@ -217,9 +217,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.7.2',
                         help='Specify a different helm version to the '
                         'default(2.7.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.9.0',
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.9.1',
                         help='Specify a different kubernetes version to '
-                        'the default(1.9.0) - note 1.8.0 is the minimum '
+                        'the default(1.9.1) - note 1.8.0 is the minimum '
                         'supported')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.4.2.0',
@@ -459,7 +459,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.9.0", "2.4.2.0", "2.10"]
+    versions = ["ocata", "2.7.2", "1.9.1", "2.4.2.0", "2.10"]
 
     tools_dict = {}
     # Generate dictionary
@@ -482,7 +482,10 @@ def tools_versions(args, str):
 
 
 def print_versions(args):
-    '''Print out versions of all the various tools needed'''
+    '''Print out lots of information
+
+    Tool versions, networking, user options and more
+    '''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster')
     if args.edit_globals:
@@ -2883,39 +2886,42 @@ def kolla_bring_up_openstack(args):
     helm_install_service_chart(args, chart_list)
 
     # Add v3 keystone end points
-    if not re.search('ocata', args.image_version):
-        print_progress('Kolla',
-                       'Install Cinder V3 API',
-                       KOLLA_FINAL_PROGRESS)
+    if args.dev_mode:
+        if not re.search('ocata', args.image_version):
+            print_progress('Kolla',
+                           'Install Cinder V3 API',
+                           KOLLA_FINAL_PROGRESS)
 
-        chart_list = ['cinder-create-keystone-endpoint-adminv3-job',
-                      'cinder-create-keystone-endpoint-internalv3-job',
-                      'cinder-create-keystone-endpoint-publicv3-job',
-                      'cinder-create-keystone-servicev3-job']
-        helm_install_micro_service_chart(args, chart_list)
+            chart_list = ['cinder-create-keystone-endpoint-adminv3-job',
+                          'cinder-create-keystone-endpoint-internalv3-job',
+                          'cinder-create-keystone-endpoint-publicv3-job',
+                          'cinder-create-keystone-servicev3-job']
+            helm_install_micro_service_chart(args, chart_list)
 
-        # Restart horizon pod to get new api endpoints
-        horizon = run_shell(args,
-                            "kubectl get pods --all-namespaces | grep horizon "
-                            "| awk '{print $2}'")
-        run_shell(args,
-                  'kubectl delete pod %s -n kolla' % horizon)
-        k8s_wait_for_running_negate(args)
+            # Restart horizon pod to get new api endpoints
+            horizon = run_shell(
+                args,
+                "kubectl get pods --all-namespaces | grep horizon "
+                "| awk '{print $2}'")
+            run_shell(args,
+                      'kubectl delete pod %s -n kolla' % horizon)
+            k8s_wait_for_running_negate(args)
 
-        # Some updates needed to cinderclient
-        horizon = run_shell(args,
-                            "sudo docker ps | grep horizon | grep kolla_start "
-                            "| awk '{print $1}'")
-        run_shell(args,
-                  'sudo docker exec -tu root -i %s pip install --upgrade '
-                  'python-cinderclient' % horizon)
+            # Some updates needed to cinderclient
+            horizon = run_shell(
+                args,
+                "sudo docker ps | grep horizon | grep kolla_start "
+                "| awk '{print $1}'")
+            run_shell(args,
+                      'sudo docker exec -tu root -i %s pip install --upgrade '
+                      'python-cinderclient' % horizon)
 
-        cinder = run_shell(args,
-                           "sudo docker ps | grep cinder-volume | "
-                           "grep kolla_start | awk '{print $1}'")
-        run_shell(args,
-                  'sudo docker exec -tu root -i %s pip install --upgrade '
-                  'python-cinderclient' % cinder)
+            cinder = run_shell(args,
+                               "sudo docker ps | grep cinder-volume | "
+                               "grep kolla_start | awk '{print $1}'")
+            run_shell(args,
+                      'sudo docker exec -tu root -i %s pip install --upgrade '
+                      'python-cinderclient' % cinder)
 
     # Install logging container
     kolla_install_logging(args)
