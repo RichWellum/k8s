@@ -1422,15 +1422,15 @@ def k8s_cleanup(args):
         run_shell(args,
                   "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
         run_shell(args,
-                  "sudo docker rmi $(sudo docker images "
-                  "-q -f 'dangling=true')")
+                  "sudo docker rmi $(sudo docker images -q -f "
+                  "'dangling=true')")
         run_shell(args,
                   "sudo docker volume rm -f $(sudo docker volume "
                   "ls -qf dangling=true)")
 
         # Remove docker images on system
         run_shell(args,
-                  "sudo docker rmi $(sudo docker images -a -q)")
+                  "sudo docker rmi -f $(sudo docker images -a -q)")
 
         if args.complete_cleanup:
             print_progress('Kubernetes',
@@ -2749,10 +2749,6 @@ def kolla_install_logging(args):
     if not args.logs:
         return
 
-    print_progress('Kolla',
-                   'Install Fluent-bit container',
-                   KOLLA_FINAL_PROGRESS)
-
     name = '/tmp/fluentd_values.yaml'
     with open(name, "w") as w:
         w.write("""\
@@ -2805,7 +2801,7 @@ tolerations: []
 nodeSelector: {}
 """)
 
-    print_progress('Kubernetes',
+    print_progress('Kolla',
                    'Install fluent-bit log aggregator',
                    KOLLA_FINAL_PROGRESS)
     run_shell(args,
@@ -2961,9 +2957,9 @@ def main():
     global KOLLA_FINAL_PROGRESS
     if re.search('5.', kolla_get_image_tag(args)):
         # Add one for additional docker registry pod bringup
-        KOLLA_FINAL_PROGRESS = 47
-    else:
         KOLLA_FINAL_PROGRESS = 46
+    else:
+        KOLLA_FINAL_PROGRESS = 45
 
     if args.no_network:
         KOLLA_FINAL_PROGRESS -= 4
