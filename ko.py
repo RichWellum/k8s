@@ -2235,9 +2235,8 @@ def kolla_pike_workaround(args):
 
     https://docs.openstack.org/nova/latest/user/cells.html#step-by-step-for-common-use-cases
 
-    Probably we have a job for doing this already.
-
-    Meantime fix it here'''
+    The chart jobs are commented out below but that didn't fix it for me.
+    '''
 
     if not re.search('ocata', args.image_version):
         print_progress('Kolla',
