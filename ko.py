@@ -193,7 +193,7 @@ def parse_args():
         '- 40G min, 80GB preferred - disk space\n'
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: k8s.py eth0 eth1 -kv 1.6.2 -hv 2.4.2 -iv pike\n')
+        epilog='E.g.: ko.py eth0 eth1 -iv master -cni weave --logs\n')
     parser.add_argument('MGMT_INT',
                         help='The interface to which Kolla binds '
                         'API services, E.g: eth0')
