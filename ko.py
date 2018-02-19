@@ -246,12 +246,12 @@ def parse_args():
                         help='Specify a different Kolla tag version to '
                         'the default which is the same as the image_version '
                         'by default')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.7.2',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.8.1',
                         help='Specify a different helm version to the '
-                        'default(2.7.2)')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.9.1',
+                        'default(2.8.1)')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.9.3',
                         help='Specify a different kubernetes version to '
-                        'the default(1.9.1) - note 1.8.0 is the minimum '
+                        'the default(1.9.3) - note 1.8.0 is the minimum '
                         'supported')
     parser.add_argument('-av', '--ansible_version', type=str,
                         default='2.4.2.0',
@@ -490,7 +490,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #            kolla    helm     k8s      ansible    jinja2
-    versions = ["ocata", "2.7.2", "1.9.1", "2.4.2.0", "2.10"]
+    versions = ["ocata", "2.8.1", "1.9.3", "2.4.2.0", "2.10"]
 
     tools_dict = {}
     # Generate dictionary
