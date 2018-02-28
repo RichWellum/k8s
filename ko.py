@@ -1466,6 +1466,10 @@ def k8s_cleanup(args):
         run_shell(args,
                   "sudo docker rmi -f $(sudo docker images -a -q)")
 
+        run_shell(args,
+                  "docker container stop $(docker container ls -a -q) "
+                  "&& docker system prune -a -f --volumes")
+
         if args.complete_cleanup:
             print_progress('Kubernetes',
                            'Cleanup done. Highly recommend rebooting '
