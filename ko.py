@@ -842,6 +842,8 @@ def k8s_install_tools(args):
                   'sudo yum install -y python-pip python-devel libffi-devel '
                   'gcc openssl-devel sshpass')
         run_shell(args, 'sudo yum install -y git crudini jq ansible curl lvm2')
+        # Disable swap as not supported. TODO: check with ubuntu
+        run_shell(args, 'sudo swapoff -a')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
