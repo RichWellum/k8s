@@ -2886,6 +2886,9 @@ def kolla_bring_up_openstack(args):
     banner('Kolla - deploy OpenStack:')
 
     # Set up OVS for the Infrastructure
+    if args.dev_mode:
+        pause_tool_execution('DEV: add services now: "helm install --debug kolla-kubernetes/helm/service/%s --namespace kolla --name %s --values /tmp/cloud.yaml"')
+
     chart_list = ['openvswitch']
     demo(args, 'Install %s Helm Chart' % chart_list, '')
     helm_install_service_chart(args, chart_list)
