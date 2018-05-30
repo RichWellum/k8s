@@ -1154,26 +1154,26 @@ def k8s_install_deploy_helm(args):
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
-        out = run_shell(args,
-                        'helm version | grep "%s" | wc -l' %
-                        args.helm_version)
-        print('DEBUG3')
-        if int(out) == 2:
-            print('DEBUG4')
-            print_progress('Kubernetes',
-                           'Helm successfully installed',
-                           K8S_FINAL_PROGRESS)
-            print('DEBUG5')
-            out = run_shell(args, 'kubectl get pods --all-namespaces')
-            print(out)
-            print('  You can now join any number of machines by '
-                  'running the following on each node as root:')
-            print(JOIN_CMD)
-            break
-        else:
-            print(int(out))
-            time.sleep(1)
-            continue
+        # run_shell(args,
+        #           'helm version | grep "%s" | wc -l' %
+        #           args.helm_version)
+        # print('DEBUG3')
+        # if int(out) == 2:
+        #     print('DEBUG4')
+        print_progress('Kubernetes',
+                       'Helm successfully installed',
+                       K8S_FINAL_PROGRESS)
+        print('DEBUG5')
+        out = run_shell(args, 'kubectl get pods --all-namespaces')
+        print(out)
+        print('  You can now join any number of machines by '
+              'running the following on each node as root:')
+        print(JOIN_CMD)
+        break
+        # else:
+        #     print(int(out))
+        #     time.sleep(1)
+        #     continue
 
     demo(args, 'Check running pods..',
          'Note that the helm version in server and client is the same.\n'
