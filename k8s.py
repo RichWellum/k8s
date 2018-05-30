@@ -636,8 +636,7 @@ def k8s_install_tools(args):
     '''Basic tools needed for first pass'''
 
     # Reset kubeadm if it's a new installation
-    if not args.openstack:
-        run_shell(args, 'sudo kubeadm reset')
+    run_shell(args, 'sudo kubeadm reset')
 
     print_progress('Kubernetes',
                    'Installing environment',
