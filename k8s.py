@@ -1535,7 +1535,7 @@ def main():
     if linux_ver() == 'centos':
         K8S_FINAL_PROGRESS = 16
     else:
-        K8S_FINAL_PROGRESS = 15
+        K8S_FINAL_PROGRESS = 16
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
