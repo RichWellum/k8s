@@ -1419,10 +1419,6 @@ def k8s_bringup_kubernetes_cluster(args):
     Explicitly using the Canal CNI for now
     '''
 
-    if args.openstack:
-        print('Kolla - Building OpenStack on existing Kubernetes cluster')
-        return
-
     k8s_cleanup(args)
     k8s_install_tools(args)
     k8s_setup_ntp(args)
