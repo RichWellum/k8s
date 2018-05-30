@@ -434,8 +434,6 @@ def print_versions(args):
     print('\nLinux Host Info:    %s' % linux_ver_det())
 
     print('\nNetworking Info:')
-    print('  Management Int:     %s' % args.MGMT_INT)
-    print('  Management IP:      %s' % args.mgmt_ip)
     print('  CNI/SDN:            %s' % args.cni)
 
     print('\nTool Versions:')
