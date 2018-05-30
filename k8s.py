@@ -608,6 +608,8 @@ def k8s_install_tools(args):
     # Reset kubeadm if it's a new installation
     # run_shell(args, 'sudo kubeadm reset')
 
+    banner('Kubernetes - Install and Update Environment')
+
     print_progress('Kubernetes',
                    'Installing environment',
                    K8S_FINAL_PROGRESS)
@@ -821,8 +823,10 @@ def k8s_fix_iptables(args):
 def k8s_deploy_k8s(args):
     '''Start the kubernetes master'''
 
+    banner('Kubernetes - Begin Deployment')
+
     print_progress('Kubernetes',
-                   'Deploying Kubernetes with kubeadm (Slow!)',
+                   'Deploying Kubernetes with kubeadm',
                    K8S_FINAL_PROGRESS)
 
     demo(args, 'Initializes your Kubernetes Master',
