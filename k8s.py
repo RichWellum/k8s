@@ -894,12 +894,9 @@ def k8s_deploy_k8s(args):
         # enabled multi-node
         for line in out.splitlines():
             if re.search('kubeadm join', line):
-                print('  You can now join any number of machines by '
-                      'running the following on each node as root:')
                 line += ' ' * 2
                 global JOIN_CMD
                 JOIN_CMD = line
-                print(line)
 
 
 def k8s_load_kubeadm_creds(args):
@@ -1518,7 +1515,7 @@ def main():
     if linux_ver() == 'centos':
         K8S_FINAL_PROGRESS = 16
     else:
-        K8S_FINAL_PROGRESS = 16
+        K8S_FINAL_PROGRESS = 15
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
