@@ -444,11 +444,7 @@ def print_versions(args):
 
     print('\nOptions:')
     print('  Logging enabled:    %s' % args.logs)
-    print('  Dev mode enabled:   %s' % args.dev_mode)
-    print('  No Network:         %s' % args.no_network)
     print('  Demo mode:          %s' % args.demo)
-    print('  Edit Cloud:         %s' % args.edit_cloud)
-    print('  Edit Globals:       %s' % args.edit_globals)
     print('\n')
     time.sleep(2)
 
