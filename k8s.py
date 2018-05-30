@@ -139,6 +139,9 @@ def parse_args():
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='cleanup existing Kubernetes cluster '
                         'before creating a new one.')
+    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
+                        help='Cleanup existing Kubernetes cluster '
+                        'then exit, rebooting host is advised')
 
     return parser.parse_args()
 
@@ -1093,7 +1096,7 @@ def is_running(args, process):
 def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
-    if args.cleanup is True:
+    if args.cleanup is True or args.complete_cleanup is True:
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
 
@@ -1163,10 +1166,16 @@ def k8s_cleanup(args):
                   "$(sudo docker container ls -a -q) "
                   "&& sudo docker system prune -a -f")
 
-        print_progress('Kubernetes',
-                       'Cleanup done. Will attempt '
-                       'to proceed with installation.\n',
-                       K8S_CLEANUP_PROGRESS)
+        if args.complete_cleanup:
+            print_progress('Kubernetes',
+                           'Cleanup done. Highly recommend rebooting '
+                           'your host',
+                           K8S_CLEANUP_PROGRESS)
+        else:
+            print_progress('Kubernetes',
+                           'Cleanup done. Will attempt '
+                           'to proceed with installation. YMMV.\n',
+                           K8S_CLEANUP_PROGRESS)
 
         clean_progress()
         add_one_to_progress()
@@ -1417,9 +1426,14 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    print_versions(args)
+    if args.complete_cleanup is not True:
+        print_versions(args)
 
     try:
+        if args.complete_cleanup:
+            k8s_cleanup(args)
+            sys.exit(1)
+
         # k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         k8s_install_deploy_helm(args)
