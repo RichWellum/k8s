@@ -140,6 +140,8 @@ K8S_FINAL_PROGRESS = 1
 global K8S_CLEANUP_PROGRESS
 K8S_CLEANUP_PROGRESS = 0
 
+global JOIN_CMD
+
 
 def set_logging():
     '''Set basic logging format.'''
@@ -169,26 +171,6 @@ def parse_args():
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
         epilog='E.g.: ko.py eth0 eth1 -iv master -cni weave --logs\n')
-    # parser.add_argument('MGMT_INT',
-    #                     help='The interface to which Kolla binds '
-    #                     'API services, E.g: eth0')
-    # parser.add_argument('NEUTRON_INT',
-    #                     help='The interface that will be used for the '
-    #                     'external bridge in Neutron, E.g: eth1')
-    # parser.add_argument('-mi', '--mgmt_ip', type=str, default='None',
-    #                     help='Provide own MGMT ip address Address, '
-    #                     'E.g: 10.240.83.111')
-    # parser.add_argument('-vi', '--vip_ip', type=str, default='None',
-    #                     help='Provide own Keepalived VIP, used with '
-    #                     'keepalived, should be an unused IP on management '
-    #                     'NIC subnet, E.g: 10.240.83.112')
-    # parser.add_argument('-iv', '--image_version', type=str, default='ocata',
-    #                     help='Specify a different Kolla image version to '
-    #                     'the default (ocata)')
-    # parser.add_argument('-it', '--image_tag', type=str,
-    #                     help='Specify a different Kolla tag version to '
-    #                     'the default which is the same as the image_version '
-    #                     'by default')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
                         help='Specify a different helm version to the '
                         'latest')
@@ -196,25 +178,11 @@ def parse_args():
                         help='Specify a different kubernetes version to '
                         'the latest - note 1.8.0 is the minimum '
                         'supported')
-    # parser.add_argument('-av', '--ansible_version', type=str,
-    #                     default='2.4.2.0',
-    #                     help='Specify a different ansible version to '
-    #                     'the default(2.4.2.0)')
-    # parser.add_argument('-jv', '--jinja2_version', type=str, default='2.10',
-    #                     help='Specify a different jinja2 version to '
-    #                     'the default(2.10)')
-    # parser.add_argument('-dr', '--docker_repo', type=str, default='kolla',
-    #                     help='Specify a different docker repo from '
-    #                     'the default(kolla), for example "rwellum" has '
-    #                     'the latest pike images')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
                         help='Specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
     parser.add_argument('-l', '--logs', action='store_true',
                         help='Install fluent-bit container')
-    # parser.add_argument('-k8s', '--kubernetes', action='store_true',
-    #                     help='Stop after bringing up kubernetes, '
-    #                     'do not install OpenStack')
     parser.add_argument('-cm', '--create_minion', action='store_true',
                         help='Do not install Kubernetes or OpenStack, '
                         'useful for preparing a multi-node minion')
@@ -925,6 +893,8 @@ def k8s_deploy_k8s(args):
                 print('  You can now join any number of machines by '
                       'running the following on each node as root:')
                 line += ' ' * 2
+                global JOIN_CMD
+                JOIN_CMD = line
                 print(line)
 
 
@@ -1189,8 +1159,15 @@ def k8s_install_deploy_helm(args):
             print_progress('Kubernetes',
                            'Helm successfully installed',
                            K8S_FINAL_PROGRESS)
+            print_progress('Kubernetes',
+                           'Updating Helm Repo',
+                           K8S_FINAL_PROGRESS)
             run_shell(args, 'helm repo update')
             run_shell(args, 'kubectl get pods --all-namespaces')
+            print('  You can now join any number of machines by '
+                  'running the following on each node as root:')
+            print(JOIN_CMD)
+
             break
         else:
             time.sleep(1)
