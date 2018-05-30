@@ -1159,6 +1159,8 @@ def k8s_install_deploy_helm(args):
             print_progress('Kubernetes',
                            'Helm successfully installed',
                            K8S_FINAL_PROGRESS)
+            out = run_shell(args, 'kubectl get pods --all-namespaces')
+            print(out)
             print('  You can now join any number of machines by '
                   'running the following on each node as root:')
             print(JOIN_CMD)
