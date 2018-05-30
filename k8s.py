@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-k8s.py - Kubernetes deployer
+k8s.py - Simple Python Kubernetes deployer
 
 Purpose
 =======
@@ -10,83 +10,35 @@ Features
 ========
 1. Supports both Centos and Ubuntu natively.
 
-2. Requires just a VM with two NIC's, low congnitive overhead:
-'ko.py int1 int2'.
+2. Requires just a VM with one external NIC.
 
-4. Options to change the versions of all the tools, like helm, kubernetes etc.
+3. Easy on the eye output, with optional verbose mode for more information.
 
-6. Easy on the eye output, with optional verbose mode for more information.
-
-7. Contains a demo mode that walks the user through each step with additional
+4. Contains a demo mode that walks the user through each step with additional
 information and instruction.
 
-11. Cleans up previous deployment with --cc option
+5. Cleans up previous deployment with --cc option, or -c (cleanup and run)
 
-13. Select between Canal and Weave CNI's for inter-pod communications.
+6. Select between Canal and Weave CNI's for inter-pod communications.
 
-14. Optionally installs a fluent-bit container for log aggregation to ELK.
+7. Optionally installs a fluent-bit container for log aggregation to ELK.
 
-15. Option to create a kubernetes minion to add to existing deployment.
+8. Option to create a kubernetes minion to add to existing deployment.
 
 Host machine requirements
 =========================
 
 The host machine must satisfy the following minimum requirements:
 
-- 2 network interfaces
-- 8GB min, 16GB preferred RAM
-- 40G min, 80GB preferred disk space
+- 1 network interfaces
+- 4GB min, 8GB preferred RAM
+- 20G min, 40GB preferred disk space
 - 2 CPU's Min, 4 preferred CPU's
 - Root access to the deployment host machine
-
-Prerequisites
-=============
-
-Verify the state of network interfaces. If using a VM spawned on OpenStack as
-the host machine, the state of the second interface will be DOWN on booting
-the VM.
-
-    ip addr show
-
-Bring up the second network interface if it is down.
-
-    ip link set ens4 up
-
-However as this interface will be used for Neutron External, this Interface
-should not have an IP Address. Verify this with.
-
-    ip addr show
 
 
 Mandatory Inputs
 ================
-
-1. mgmt_int (network_interface):
-Name of the interface to be used for management operations.
-
-The `network_interface` variable is the interface to which Kolla binds API
-services. For example, when starting Mariadb, it will bind to the IP on the
-interface list in the ``network_interface`` variable.
-
-2. neutron_int (neutron_external_interface):
-Name of the interface to be used for Neutron operations.
-
-The `neutron_external_interface` variable is the interface that will be used
-for the external bridge in Neutron. Without this bridge the deployment instance
-traffic will be unable to access the rest of the Internet.
-
-To create two interfaces like this in Ubuntu, for example:
-
-Edit /etc/network/interfaces:
-
-# The primary network interface
-auto ens3
-iface ens3 inet dhcp
-
-# Neutron network interface (up but no ip address)
-auto ens4
-iface ens4 inet manual
-ifconfig ens4 up
 
 TODO
 ====
@@ -101,18 +53,8 @@ Recomendations
 sudo visudo
 Add: 'Defaults    timestamp_timeout=-1'
 
-2. Due to the length of time the script can run for, I recommend using nohup
-
-E.g. nohup python -u k8s.py eth0 eth1
-
-Then in another window:
-
-tail -f nohup.out
-
-3. Can be run remotely with:
-
-curl https://raw.githubusercontent.com/RichWellum/k8s/master/ko.py \
-| python - ens3 ens4 --image_version master -cni weave
+curl https://raw.githubusercontent.com/RichWellum/k8s/master/k8s.py \
+| python - -cni weave
 '''
 
 from __future__ import print_function
@@ -160,24 +102,16 @@ def parse_args():
 
     parser = argparse.ArgumentParser(  # todo: rewrite
         formatter_class=RawDescriptionHelpFormatter,
-        description='This tool provides a method to deploy OpenStack on a '
-        'Kubernetes Cluster using Kolla\nand Kolla-Kubernetes on bare metal '
-        'servers or virtual machines.\nVirtual machines supported are Ubuntu '
-        'and Centos. \nUsage as simple as: "ko.py eth0 eth1"\n'
+        description='This tool provides a method to deploy a Kubernetes '
+        'Cluster on bare metal servers or virtual machines.\nVirtual '
+        'machines supported are Ubuntu and Centos.\n'
         'The host machine must satisfy the following minimum requirements:\n'
-        '- 2 network interfaces\n'
-        '- 8GB min, 16GB preferred - main memory\n'
-        '- 40G min, 80GB preferred - disk space\n'
+        '- 1 network interfaces\n'
+        '- 4GB min, 8GB preferred - main memory\n'
+        '- 20G min, 40GB preferred - disk space\n'
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: ko.py eth0 eth1 -iv master -cni weave --logs\n')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
-                        help='Specify a different helm version to the '
-                        'latest')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
-                        help='Specify a different kubernetes version to '
-                        'the latest - note 1.8.0 is the minimum '
-                        'supported')
+        epilog='E.g.: python k8s.py -cni weave\n')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
                         help='Specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
@@ -197,11 +131,7 @@ def parse_args():
                         'will proceed without user input.')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster '
-                        'before creating a new one. '
-                        '"-cc" is far more reliable but requires a reboot')
-    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster '
-                        'then exit, rebooting host is advised')
+                        'before creating a new one.')
 
     return parser.parse_args()
 
@@ -707,24 +637,10 @@ def k8s_install_k8s(args):
           tools_versions(args, 'kubernetes')))
 
     if linux_ver() == 'centos':
-        # run_shell(args,
-        #           'sudo yum install -y ebtables kubelet-%s '
-        #           'kubeadm-%s kubectl-%s kubernetes-cni'
-        #           % (tools_versions(args, 'kubernetes'),
-        #              tools_versions(args, 'kubernetes'),
-        #              tools_versions(args, 'kubernetes')))
         run_shell(args,
                   'sudo yum install -y '
                   'ebtables kubelet kubeadm kubectl kubernetes-cni')
-
     else:
-        # todo - this breaks when ubuntu steps up a revision to -01 etc
-        # run_shell(args,
-        #           'sudo apt-get install -y --allow-downgrades '
-        #           'ebtables kubelet kubeadm kubectl '
-        #           'kubernetes-cni' % (tools_versions(args, 'kubernetes'),
-        #                               tools_versions(args, 'kubernetes'),
-        #                               tools_versions(args, 'kubernetes')))
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
                   'ebtables kubelet kubeadm kubectl kubernetes-cni')
@@ -859,10 +775,10 @@ def k8s_deploy_k8s(args):
          'Kubelet is running, and the\nKubelet makes sure our containers '
          'with the control plane components are running.')
 
-    out = print(run_shell(args,
-                          'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
-                          '--service-cidr=10.3.3.0/24 '
-                          '--ignore-preflight-errors=all'))
+    out = run_shell(args,
+                    'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
+                    '--service-cidr=10.3.3.0/24 '
+                    '--ignore-preflight-errors=all')
     demo(args, 'What happened?',
          'We can see above that kubeadm created the necessary '
          'certificates for\n'
@@ -1170,7 +1086,7 @@ def is_running(args, process):
 def k8s_cleanup(args):
     '''Cleanup on Isle 9'''
 
-    if args.cleanup is True or args.complete_cleanup is True:
+    if args.cleanup is True:
         clean_progress()
         banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
 
@@ -1240,19 +1156,13 @@ def k8s_cleanup(args):
                   "$(sudo docker container ls -a -q) "
                   "&& sudo docker system prune -a -f")
 
-        if args.complete_cleanup:
-            print_progress('Kubernetes',
-                           'Cleanup done. Highly recommend rebooting '
-                           'your host',
-                           K8S_CLEANUP_PROGRESS)
-        else:
-            print_progress('Kubernetes',
-                           'Cleanup done. Will attempt '
-                           'to proceed with installation.\n',
-                           K8S_CLEANUP_PROGRESS)
+        print_progress('Kubernetes',
+                       'Cleanup done. Will attempt '
+                       'to proceed with installation.\n',
+                       K8S_CLEANUP_PROGRESS)
 
-            clean_progress()
-            add_one_to_progress()
+        clean_progress()
+        add_one_to_progress()
 
     # After reboot, kubelet service comes back...
     run_shell(args, 'sudo kubeadm reset')
@@ -1500,14 +1410,9 @@ def main():
     set_logging()
     logger.setLevel(level=args.verbose)
 
-    if args.complete_cleanup is not True:
-        print_versions(args)
+    print_versions(args)
 
     try:
-        if args.complete_cleanup:
-            k8s_cleanup(args)
-            sys.exit(1)
-
         # k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         k8s_install_deploy_helm(args)
