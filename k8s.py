@@ -229,8 +229,7 @@ def parse_args():
                         'will proceed without user input.')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='YMMV: Cleanup existing Kubernetes cluster '
-                        'before creating a new one. Because LVM is not '
-                        'cleaned up, space will be used up. '
+                        'before creating a new one. '
                         '"-cc" is far more reliable but requires a reboot')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
                         help='Cleanup existing Kubernetes cluster '
@@ -1502,7 +1501,7 @@ resources:
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 ##
 tolerations: []
-#- key: "key"
+# - key: "key"
 #  operator: "Equal|Exists"
 #  value: "value"
 #  effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
@@ -1531,6 +1530,7 @@ def main():
     run_shell(args, 'sudo -v')
 
     global K8S_CLEANUP_PROGRESS
+    K8S_CLEANUP_PROGRESS = 6
 
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
