@@ -1148,17 +1148,22 @@ def k8s_install_deploy_helm(args):
     run_shell(args, 'sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell(args, 'helm init')
     k8s_wait_for_pod_start(args, 'tiller')
+    print('DEBUG1')
     k8s_wait_for_running_negate(args)
+    print('DEBUG2')
     # Check for helm version
     # Todo - replace this to using json path to check for that field
     while True:
         out = run_shell(args,
                         'helm version | grep "%s" | wc -l' %
                         args.helm_version)
+        print('DEBUG3')
         if int(out) == 2:
+            print('DEBUG4')
             print_progress('Kubernetes',
                            'Helm successfully installed',
                            K8S_FINAL_PROGRESS)
+            print('DEBUG5')
             out = run_shell(args, 'kubectl get pods --all-namespaces')
             print(out)
             print('  You can now join any number of machines by '
