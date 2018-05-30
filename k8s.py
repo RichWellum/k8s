@@ -1302,15 +1302,6 @@ def k8s_cleanup(args):
     run_shell(args, 'sudo kubeadm reset')
 
 
-def k8s_check_exit(k8s_only):
-    '''If the user only wants kubernetes and not kolla - stop here'''
-
-    if k8s_only is True:
-        print('Kubernetes Cluster is running and healthy and you do '
-              'not wish to install kolla')
-        sys.exit(1)
-
-
 def k8s_get_pods(args, namespace):
     '''Display all pods per namespace list'''
 
@@ -1445,7 +1436,6 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     k8s_check_nslookup(args)
-    k8s_check_exit(args.kubernetes)
     demo(args, 'Congrats - your kubernetes cluster should be up '
          'and running now', '')
 
