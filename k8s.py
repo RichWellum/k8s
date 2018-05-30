@@ -135,7 +135,7 @@ global PROGRESS
 PROGRESS = 0
 
 global K8S_FINAL_PROGRESS
-K8S_FINAL_PROGRESS = 0
+K8S_FINAL_PROGRESS = 1
 
 global K8S_CLEANUP_PROGRESS
 K8S_CLEANUP_PROGRESS = 0
@@ -189,7 +189,7 @@ def parse_args():
     #                     help='Specify a different Kolla tag version to '
     #                     'the default which is the same as the image_version '
     #                     'by default')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.8.1',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
                         help='Specify a different helm version to the '
                         'latest')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
@@ -411,7 +411,7 @@ def tools_versions(args, str):
 
     # This should match up with the defaults set in parse_args
     #           helm     k8s
-    versions = ["2.8.1", "1.10.0"]
+    versions = ["2.9.1", "1.10.0"]
 
     tools_dict = {}
     # Generate dictionary
@@ -1164,7 +1164,7 @@ def k8s_schedule_master_node(args):
 def k8s_install_deploy_helm(args):
     '''Deploy helm binary'''
 
-    print_progress('Kolla',
+    print_progress('Kubernetes',
                    'Deploy Helm Tiller pod',
                    K8S_FINAL_PROGRESS)
 
@@ -1187,9 +1187,11 @@ def k8s_install_deploy_helm(args):
                         'helm version | grep "%s" | wc -l' %
                         args.helm_version)
         if int(out) == 2:
-            print_progress('Kolla',
+            print_progress('Kubernetes',
                            'Helm successfully installed',
                            K8S_FINAL_PROGRESS)
+            run_shell(args, 'helm repo update')
+            run_shell(args, 'kubectl get pods --all-namespaces')
             break
         else:
             time.sleep(1)
