@@ -113,24 +113,24 @@ def parse_args():
         'Root access to the deployment host machine is required.',
         epilog='E.g.: python k8s.py -cni weave\n')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
-                        help='Specify a different CNI/SDN to '
+                        help='specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
     parser.add_argument('-l', '--logs', action='store_true',
-                        help='Install fluent-bit container')
+                        help='install fluent-bit container')
     parser.add_argument('-cm', '--create_minion', action='store_true',
-                        help='Do not install Kubernetes or OpenStack, '
-                        'useful for preparing a multi-node minion')
+                        help='install packages only for use as a minion '
+                        'to be joined to a master')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
-                        help='Turn on verbose messages')
+                        help='turn on verbose messages')
     parser.add_argument('-d', '--demo', action='store_true',
-                        help='Display some demo information and '
+                        help='display some demo information and '
                         'offer to move on')
     parser.add_argument('-f', '--force', action='store_true',
-                        help='When used in conjunction with --demo - it '
+                        help='when used in conjunction with --demo - it '
                         'will proceed without user input.')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster '
+                        help='cleanup existing Kubernetes cluster '
                         'before creating a new one.')
 
     return parser.parse_args()
