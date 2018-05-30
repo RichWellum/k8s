@@ -137,6 +137,9 @@ PROGRESS = 0
 global K8S_FINAL_PROGRESS
 K8S_FINAL_PROGRESS = 0
 
+global K8S_CLEANUP_PROGRESS
+K8S_CLEANUP_PROGRESS = 0
+
 
 def set_logging():
     '''Set basic logging format.'''
@@ -1436,7 +1439,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
-    #k8s_add_api_server(args)
+    # k8s_add_api_server(args)
     k8s_deploy_cni(args)
     k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
