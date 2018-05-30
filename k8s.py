@@ -191,10 +191,10 @@ def parse_args():
     #                     'by default')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.8.1',
                         help='Specify a different helm version to the '
-                        'default(2.8.1)')
+                        'latest')
     parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
                         help='Specify a different kubernetes version to '
-                        'the default(1.10.0) - note 1.8.0 is the minimum '
+                        'the latest - note 1.8.0 is the minimum '
                         'supported')
     # parser.add_argument('-av', '--ansible_version', type=str,
     #                     default='2.4.2.0',
