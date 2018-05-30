@@ -1166,6 +1166,7 @@ def k8s_install_deploy_helm(args):
             print(JOIN_CMD)
             break
         else:
+            print(int(out))
             time.sleep(1)
             continue
 
