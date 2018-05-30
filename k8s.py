@@ -112,6 +112,13 @@ def parse_args():
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
         epilog='E.g.: python k8s.py -cni weave\n')
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
+                        help='Specify a different helm version to the '
+                        'latest')
+    parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
+                        help='Specify a different kubernetes version to '
+                        'the latest - note 1.8.0 is the minimum '
+                        'supported')
     parser.add_argument('-cni', '--cni', type=str, default='canal',
                         help='specify a different CNI/SDN to '
                         'the default(canal), like "weave"')
