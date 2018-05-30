@@ -431,22 +431,6 @@ def print_versions(args):
     '''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster')
-    if args.edit_globals:
-        print('  *globals.yaml will be editable with this option*\n')
-
-    if args.edit_cloud:
-        print('  *cloud.yaml will be editable with this option*\n')
-
-    # This a good place to install docker - as it's always needed and we
-    # need the version anyway
-    # todo: don't do this here
-    # Note later versions of ubuntu require a change:
-    # https://github.com/moby/moby/issues/15651
-    # sudo vi /lib/systemd/system/docker.service
-    # ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS -s overlay2
-    # sudo systemctl daemon-reload
-    # sudo systemctl restart docker
-    # sudo docker info
     print('\nLinux Host Info:    %s' % linux_ver_det())
 
     print('\nNetworking Info:')
