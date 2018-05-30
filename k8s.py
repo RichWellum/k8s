@@ -196,7 +196,7 @@ def parse_args():
                         help='When used in conjunction with --demo - it '
                         'will proceed without user input.')
     parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='YMMV: Cleanup existing Kubernetes cluster '
+                        help='Cleanup existing Kubernetes cluster '
                         'before creating a new one. '
                         '"-cc" is far more reliable but requires a reboot')
     parser.add_argument('-cc', '--complete_cleanup', action='store_true',
@@ -1271,7 +1271,7 @@ def k8s_cleanup(args):
         else:
             print_progress('Kubernetes',
                            'Cleanup done. Will attempt '
-                           'to proceed with installation. YMMV.\n',
+                           'to proceed with installation.\n',
                            K8S_CLEANUP_PROGRESS)
 
             clean_progress()
