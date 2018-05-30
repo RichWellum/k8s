@@ -968,7 +968,6 @@ def k8s_load_kubeadm_creds(args):
              'https://10.240.0.2/version')
         print(run_shell(args, 'curl --cacert /etc/kubernetes/pki/ca.pem '
                         'https://10.240.0.2/version'))
-    print('  Note "kubectl get pods --all-namespaces" should work now')
 
 
 def k8s_deploy_cni(args):
