@@ -1112,7 +1112,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_check_nslookup(args)
 
 
-def kolla_install_logging(args):
+def k8s_install_logging(args):
     '''Install log collection
 
     Experimental to test out various centralized logging options
@@ -1227,6 +1227,7 @@ def main():
         # k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         k8s_install_deploy_helm(args)
+        k8s_install_logging(args)
         kubernetes_test_cli(args)
 
     except Exception:
