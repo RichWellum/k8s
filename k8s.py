@@ -973,7 +973,7 @@ def k8s_cleanup(args):
         else:
             print_progress('Kubernetes',
                            'Cleanup done. Will attempt '
-                           'to proceed with installation. YMMV.\n',
+                           'to proceed with installation.\n',
                            K8S_CLEANUP_PROGRESS)
 
         clean_progress()
