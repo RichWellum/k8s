@@ -14,16 +14,13 @@ Features
 
 3. Easy on the eye output, with optional verbose mode for more information.
 
-4. Contains a demo mode that walks the user through each step with additional
-information and instruction.
+4. Cleans up previous deployment with --cc option, or -c (cleanup and run)
 
-5. Cleans up previous deployment with --cc option, or -c (cleanup and run)
+5. Select between Canal and Weave CNI's for inter-pod communications.
 
-6. Select between Canal and Weave CNI's for inter-pod communications.
+6. Optionally installs a fluent-bit container for log aggregation to ELK.
 
-7. Optionally installs a fluent-bit container for log aggregation to ELK.
-
-8. Option to create a kubernetes minion to add to existing deployment.
+7. Option to create a kubernetes minion to add to existing deployment.
 
 Host machine requirements
 =========================
@@ -130,12 +127,6 @@ def parse_args():
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages')
-    parser.add_argument('-d', '--demo', action='store_true',
-                        help='display some demo information and '
-                        'offer to move on')
-    parser.add_argument('-f', '--force', action='store_true',
-                        help='when used in conjunction with --demo - it '
-                        'will proceed without user input.')
     parser.add_argument('-c', '--cleanup', action='store_true',
                         help='cleanup existing Kubernetes cluster '
                         'before creating a new one.')
@@ -159,10 +150,6 @@ def run_shell(args, cmd):
         stderr=subprocess.PIPE,
         shell=True)
     out, err = p.communicate()
-
-    if args.demo:
-        if not re.search('kubectl get pods', cmd):
-            print('DEMO: CMD: "%s"' % cmd)
 
     out = out.rstrip()
     err = err.rstrip()
@@ -215,41 +202,6 @@ def banner(description):
     for c in range(banner):
         print('*', end='')
     print('\n')
-
-
-def demo(args, title, description):
-    '''Pause the script to provide demo information'''
-
-    if not args.demo:
-        return
-
-    banner = len(description)
-    if banner > 100:
-        banner = 100
-
-    # First banner
-    print('\n')
-    for c in range(banner):
-        print('*', end='')
-
-    # Add DEMO string
-    print('\n%s'.ljust(banner - len('DEMO')) % 'DEMO')
-
-    # Add title formatted to banner length
-    print('%s'.ljust(banner - len(title)) % title)
-
-    # Add description
-    print('%s' % description)
-
-    # Final banner
-    for c in range(banner):
-        print('*', end='')
-    print('\n')
-
-    if not args.force:
-        raw_input('Press Enter to continue with demo...')
-    else:
-        print('Demo: Continuing with Demo')
 
 
 def curl(*args):
@@ -354,7 +306,6 @@ def print_versions(args):
 
     print('\nOptions:')
     print('  Logging enabled:    %s' % args.logs)
-    print('  Demo mode:          %s' % args.demo)
     print('\n')
     time.sleep(2)
 
@@ -640,12 +591,6 @@ def k8s_install_k8s(args):
     run_shell(args, 'sudo -H pip install --upgrade pip')
     k8s_create_repo(args)
 
-    demo(args, 'Installing Kubernetes', 'Installing docker ebtables '
-         'kubelet-%s kubeadm-%s kubectl-%s kubernetes-cni' %
-         (tools_versions(args, 'kubernetes'),
-          tools_versions(args, 'kubernetes'),
-          tools_versions(args, 'kubernetes')))
-
     if linux_ver() == 'centos':
         run_shell(args,
                   'sudo yum install -y '
@@ -710,10 +655,6 @@ def k8s_start_kubelet(args):
                    'Enable and start kubelet',
                    K8S_FINAL_PROGRESS)
 
-    demo(args, 'Enable and start kubelet',
-         'kubelet is a command line interface for running commands '
-         'against Kubernetes clusters')
-
     run_shell(args, 'sudo systemctl enable kubelet')
     run_shell(args, 'sudo systemctl start kubelet')
 
@@ -725,10 +666,6 @@ def k8s_fix_iptables(args):
     print_progress('Kubernetes',
                    'Fix iptables to enable bridging',
                    K8S_FINAL_PROGRESS)
-
-    demo(args, 'Centos fix bridging',
-         'Setting net.bridge.bridge-nf-call-iptables=1 '
-         'in /etc/sysctl.conf')
 
     run_shell(args, 'sudo cp /etc/sysctl.conf /tmp')
     run_shell(args, 'sudo chmod 777 /tmp/sysctl.conf')
@@ -755,59 +692,10 @@ def k8s_deploy_k8s(args):
                    'Deploying Kubernetes with kubeadm',
                    K8S_FINAL_PROGRESS)
 
-    demo(args, 'Initializes your Kubernetes Master',
-         'One of the most frequent criticisms of Kubernetes is that it is '
-         'hard to install.\n'
-         'Kubeadm is a new tool that is part of the Kubernetes distribution '
-         'that makes this easier')
-    demo(args, 'The Kubernetes Control Plane',
-         'The Kubernetes control plane consists of the Kubernetes '
-         'API server\n'
-         '(kube-apiserver), controller manager (kube-controller-manager),\n'
-         'and scheduler (kube-scheduler). The API server depends '
-         'on etcd so\nan etcd cluster is also required.\n'
-         'https://www.ianlewis.org/en/how-kubeadm-initializes-'
-         'your-kubernetes-master')
-    demo(args, 'kubeadm and the kubelet',
-         'Kubernetes has a component called the Kubelet which '
-         'manages containers\nrunning on a single host. It allows us to '
-         'use Kubelet to manage the\ncontrol plane components. This is '
-         'exactly what kubeadm sets us up to do.\n'
-         'We run:\n'
-         'kubeadm init --pod-network-cidr=10.1.0.0/16 '
-         '--service-cidr=10.3.3.0/24 --ignore-preflight-errors=all '
-         'and check output\n'
-         'Run: "watch -d sudo docker ps" in another window')
-    demo(args, 'Monitoring Kubernetes',
-         'What monitors Kubelet and make sure it is always running? This '
-         'is where we use systemd.\n Systemd is started as PID 1 so the OS\n'
-         'will make sure it is always running, systemd makes sure the '
-         'Kubelet is running, and the\nKubelet makes sure our containers '
-         'with the control plane components are running.')
-
     out = run_shell(args,
                     'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
                     '--service-cidr=10.3.3.0/24 '
                     '--ignore-preflight-errors=all')
-    demo(args, 'What happened?',
-         'We can see above that kubeadm created the necessary '
-         'certificates for\n'
-         'the API, started the control plane components, '
-         'and installed the essential addons.\n'
-         'The join command is important - it allows other nodes '
-         'to be added to the existing resources\n'
-         'Kubeadm does not mention anything about the Kubelet but '
-         'we can verify that it is running:')
-    demo(args,
-         'Kubelet was started. But what is it doing? ',
-         'The Kubelet will monitor the control plane components '
-         'but what monitors Kubelet and make sure\n'
-         'it is always running? This is where we use systemd. '
-         'Systemd is started as PID 1 so the OS\n'
-         'will make sure it is always running, systemd makes '
-         'sure the Kubelet is running, and the\nKubelet '
-         'makes sure our containers with the control plane '
-         'components are running.')
 
     # Even in no-verbose mode, we need to display the join command to
     # enabled multi-node
@@ -834,59 +722,6 @@ def k8s_load_kubeadm_creds(args):
     run_shell(args, 'sudo -H cp /etc/kubernetes/admin.conf %s' % config)
     run_shell(args, 'sudo chmod 777 %s' % kube)
     run_shell(args, 'sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
-    demo(args, 'Verify Kubelet',
-         'Kubelete should be running our control plane components and be\n'
-         'connected to the API server (like any other Kubelet node.\n'
-         'Run "watch -d kubectl get pods --all-namespaces" in another '
-         'window\nNote that the kube-dns-* pod is not ready yet. We do '
-         'not have a network yet')
-    demo(args, 'Verifying the Control Plane Components',
-         'We can see that kubeadm created a /etc/kubernetes/ '
-         'directory so check\nout what is there.')
-    if args.demo:
-        print(run_shell(args, 'ls -lh /etc/kubernetes/'))
-        demo(args, 'Files created by kubectl',
-             'The admin.conf and kubelet.conf are yaml files that mostly\n'
-             'contain certs used for authentication with the API. The pki\n'
-             'directory contains the certificate authority certs, '
-             'API server\ncerts, and tokens:')
-        print(run_shell(args, 'ls -lh /etc/kubernetes/pki'))
-        demo(args, 'The manifests directory ',
-             'This directory is where things get interesting. In the\n'
-             'manifests directory we have a number of json files for our\n'
-             'control plane components.')
-        print(run_shell(args, 'sudo ls -lh /etc/kubernetes/manifests/'))
-        demo(args, 'Pod Manifests',
-             'If you noticed earlier the Kubelet was passed the\n'
-             '--pod-manifest-path=/etc/kubernetes/manifests flag '
-             'which tells\nit to monitor the files in the '
-             '/etc/kubernetes/manifests directory\n'
-             'and makes sure the components defined therein are '
-             'always running.\nWe can see that they are running my '
-             'checking with the local Docker\nto list the running containers.')
-        print(
-            run_shell(args,
-                      'sudo docker ps --format="table {{.ID}}\t{{.Image}}"'))
-        demo(args, 'Note above containers',
-             'We can see that etcd, kube-apiserver, '
-             'kube-controller-manager, and\nkube-scheduler are running.')
-        demo(args, 'How can we connect to containers?',
-             'If we look at each of the json files in the '
-             '/etc/kubernetes/manifests\ndirectory we can see that they '
-             'each use the hostNetwork: true option\nwhich allows the '
-             'applications to bind to ports on the host just as\n'
-             'if they were running outside of a container.')
-        demo(args, 'Connect to the API',
-             'So we can connect to the API servers insecure local port.\n'
-             'curl http://127.0.0.1:8080/version')
-        print(run_shell(args, 'sudo curl http://127.0.0.1:8080/version'))
-        demo(args, 'Secure port?', 'The API server also binds a secure'
-             'port 443 which\nrequires a client cert and authentication. '
-             'Be careful to use the\npublic IP for your master here.\n'
-             'curl --cacert /etc/kubernetes/pki/ca.pem '
-             'https://10.240.0.2/version')
-        print(run_shell(args, 'curl --cacert /etc/kubernetes/pki/ca.pem '
-                        'https://10.240.0.2/version'))
 
 
 def k8s_deploy_cni(args):
@@ -936,28 +771,6 @@ def k8s_deploy_cni(args):
     logger.debug(answer)
     run_shell(args, 'kubectl create -f /tmp/rbac.yaml')
 
-    if args.demo:
-        demo(args, 'Why use a CNI Driver?',
-             'Container Network Interface (CNI) is a '
-             'specification started by CoreOS\n'
-             'with the input from the wider open '
-             'source community aimed to make network\n'
-             'plugins interoperable between container '
-             'execution engines. It aims to be\n'
-             'as common and vendor-neutral as possible '
-             'to support a wide variety of\n'
-             'networking options from MACVLAN to modern '
-             'SDNs such as Weave and flannel.\n\n'
-             'CNI is growing in popularity. It got its '
-             'start as a network plugin\n'
-             'layer for rkt, a container runtime from CoreOS. '
-             'CNI is getting even\n'
-             'wider adoption with Kubernetes adding support for '
-             'it. Kubernetes\n'
-             'accelerates development cycles while simplifying '
-             'operations, and with\n'
-             'support for CNI is taking the next step toward a '
-             'common ground for\nnetworking.')
     answer = curl(
         '-L',
         'https://raw.githubusercontent.com/projectcalico/canal/master/'
@@ -968,9 +781,6 @@ def k8s_deploy_cni(args):
     run_shell(args,
               'sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
     run_shell(args, 'kubectl create -f /tmp/canal.yaml')
-    demo(args,
-         'Wait for CNI to be deployed',
-         'A successfully deployed CNI will result in a valid dns pod')
 
 
 def k8s_add_api_server(args):
@@ -998,11 +808,6 @@ def k8s_schedule_master_node(args):
                    'Mark master node as schedulable by untainting the node',
                    K8S_FINAL_PROGRESS)
 
-    demo(args,
-         'Running on the master is different though',
-         'There is a special annotation on our node '
-         'telling Kubernetes not to\n'
-         'schedule containers on our master node.')
     run_shell(args,
               'kubectl taint nodes '
               '--all=true node-role.kubernetes.io/master:NoSchedule-')
@@ -1056,8 +861,6 @@ def k8s_install_deploy_helm(args):
                    'Deploy Helm Tiller pod',
                    K8S_FINAL_PROGRESS)
 
-    demo(args, 'Download the version of helm requested and install it',
-         'Installing means the Tiller Server will be instantiated in a pod')
     curl('-sSL',
          'https://storage.googleapis.com/kubernetes-helm/'
          'helm-v%s-linux-amd64.tar.gz' % args.helm_version,
@@ -1076,10 +879,6 @@ def k8s_install_deploy_helm(args):
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
     print(JOIN_CMD)
-
-    demo(args, 'Check running pods..',
-         'Note that the helm version in server and client is the same.\n'
-         'Tiller is ready to respond to helm chart requests')
 
 
 def is_running(args, process):
@@ -1211,8 +1010,6 @@ def k8s_check_nslookup(args):
                    "Test 'nslookup kubernetes' - bring up test pod",
                    K8S_FINAL_PROGRESS)
 
-    demo(args, 'Lets create a simple pod and verify that DNS works',
-         'If it does not then this deployment will not work.')
     name = './busybox.yaml'
     with open(name, "w") as w:
         w.write("""
@@ -1228,16 +1025,12 @@ spec:
     - sleep
     - "1000000"
 """)
-    demo(args, 'The busy box yaml is: %s' % name, '')
-    if args.demo:
-        print(run_shell(args, 'sudo cat ./busybox.yaml'))
 
     run_shell(args, 'kubectl create -f %s' % name)
     k8s_wait_for_running_negate(args)
     out = run_shell(args,
                     'kubectl exec kolla-dns-test -- nslookup '
                     'kubernetes | grep -i address | wc -l')
-    demo(args, 'Kolla DNS test output: "%s"' % out, '')
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
     else:
@@ -1247,45 +1040,44 @@ spec:
 def kubernetes_test_cli(args):
     '''Run some commands for demo purposes'''
 
-    if not args.demo:
-        return
+    return
 
-    demo(args, 'Test CLI:', 'Determine IP and port information from Service:')
+    print(args, 'Test CLI:', 'Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
     print(run_shell(args, 'kubectl get svc -n kolla'))
 
-    demo(args, 'Test CLI:', 'View all k8s namespaces:')
+    print(args, 'Test CLI:', 'View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
 
-    demo(args, 'Test CLI:', 'Kolla Describe a pod in full detail:')
+    print(args, 'Test CLI:', 'Kolla Describe a pod in full detail:')
     print(run_shell(args, 'kubectl describe pod ceph-admin -n kolla'))
 
-    demo(args, 'Test CLI:', 'View all deployed services:')
+    print(args, 'Test CLI:', 'View all deployed services:')
     print(run_shell(args, 'kubectl get deployment -n kube-system'))
 
-    demo(args, 'Test CLI:', 'View configuration maps:')
+    print(args, 'Test CLI:', 'View configuration maps:')
     print(run_shell(args, 'kubectl get configmap -n kube-system'))
 
-    demo(args, 'Test CLI:', 'General Cluster information:')
+    print(args, 'Test CLI:', 'General Cluster information:')
     print(run_shell(args, 'kubectl cluster-info'))
 
-    demo(args, 'Test CLI:', 'View all jobs:')
+    print(args, 'Test CLI:', 'View all jobs:')
     print(run_shell(args, 'kubectl get jobs --all-namespaces'))
 
-    demo(args, 'Test CLI:', 'View all deployments:')
+    print(args, 'Test CLI:', 'View all deployments:')
     print(run_shell(args, 'kubectl get deployments --all-namespaces'))
 
-    demo(args, 'Test CLI:', 'View secrets:')
+    print(args, 'Test CLI:', 'View secrets:')
     print(run_shell(args, 'kubectl get secrets'))
 
-    demo(args, 'Test CLI:', 'View docker images')
+    print(args, 'Test CLI:', 'View docker images')
     print(run_shell(args, 'sudo docker images'))
 
-    demo(args, 'Test CLI:', 'View deployed Helm Charts')
+    print(args, 'Test CLI:', 'View deployed Helm Charts')
     print(run_shell(args, 'helm list'))
 
-    demo(args, 'Test CLI:', 'Working cluster kill a pod and watch resilience.')
-    demo(args, 'Test CLI:', 'kubectl delete pods <name> -n kolla')
+    print(args, 'Test CLI:', 'Kill a pod and watch resilience.')
+    print(args, 'Test CLI:', 'kubectl delete pods <name> -n kolla')
 
 
 def k8s_bringup_kubernetes_cluster(args):
@@ -1318,8 +1110,6 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     k8s_check_nslookup(args)
-    demo(args, 'Congrats - your kubernetes cluster should be up '
-         'and running now', '')
 
 
 def kolla_install_logging(args):
