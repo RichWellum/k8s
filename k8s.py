@@ -489,7 +489,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-    print("(%02d/%02d/%0d) %s - %s - %s" %
+    print("(%02d/%02d/%02d) %s - %s - %s" %
           (PROGRESS, finalctr, (time.time() - start_time), process, msg))
     add_one_to_progress()
 
