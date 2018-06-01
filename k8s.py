@@ -144,6 +144,9 @@ def run_shell(args, cmd, print=False):
     Not using logger.debug as a bit noisy for this info
     '''
 
+    if print:
+        print(cmd)
+
     p = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -159,9 +162,6 @@ def run_shell(args, cmd, print=False):
             print("Shell STDOUT output: \n'%s'\n" % out)
         if err:
             print("Shell STDERR output: \n'%s'\n" % err)
-
-    if print:
-        print(cmd)
 
     return(out)
 
