@@ -813,45 +813,32 @@ def k8s_schedule_master_node(args):
               '--all=true node-role.kubernetes.io/master:NoSchedule-')
 
 
-# def kolla_update_rbac(args):
-#     '''Override the default RBAC settings'''
+def k8s_update_rbac(args):
+    '''Override the default RBAC settings'''
 
-#     print_progress('Kolla',
-#                    'Overide default RBAC settings',
-#                    KOLLA_FINAL_PROGRESS)
-
-#     demo(args, 'Role-based access control (RBAC)',
-#          'A method of regulating access to computer or '
-#          'network resources based\n'
-#          'on the roles of individual users within an enterprise. '
-#          'In this context,\n'
-#          'access is the ability of an individual user to perform a '
-#          'specific task\n'
-#          'such as view, create, or modify a file.')
-#     name = '/tmp/rbac'
-#     with open(name, "w") as w:
-#         w.write("""\
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRoleBinding
-# metadata:
-#   name: cluster-admin
-# roleRef:
-#   apiGroup: rbac.authorization.k8s.io
-#   kind: ClusterRole
-#   name: cluster-admin
-# subjects:
-# - kind: Group
-#   name: system:masters
-# - kind: Group
-#   name: system:authenticated
-# - kind: Group
-#   name: system:unauthenticated
-# """)
-#     if args.demo:
-#         print(run_shell(args, 'kubectl apply -f /tmp/rbac'))
-#         demo(args, 'Note the cluster-admin has been replaced', '')
-#     else:
-#         run_shell(args, 'kubectl apply -f /tmp/rbac')
+    print_progress('Kolla',
+                   'Overide default RBAC settings',
+                   K8S_FINAL_PROGRESS)
+    name = '/tmp/rbac'
+    with open(name, "w") as w:
+        w.write("""\
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: Group
+  name: system:masters
+- kind: Group
+  name: system:authenticated
+- kind: Group
+  name: system:unauthenticated
+""")
+    run_shell(args, 'kubectl apply -f /tmp/rbac')
 
 
 def k8s_install_deploy_helm(args):
@@ -1131,7 +1118,7 @@ def k8s_install_logging(args):
     print('DEBUG1')
     if not args.logs:
         return
-    print('DEBUG1')
+    print('DEBUG2')
 
     name = '/tmp/fluentd_values.yaml'
     with open(name, "w") as w:
@@ -1228,6 +1215,7 @@ def main():
 
         # k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
+        k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
         k8s_install_logging(args)
         kubernetes_test_cli(args)
