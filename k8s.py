@@ -1175,9 +1175,10 @@ nodeSelector: {}
     print_progress('k8s',
                    'Install fluent-bit log aggregator',
                    K8S_FINAL_PROGRESS)
-    run_shell(args,
-              'helm install --name my-release -f %s '
-              'stable/fluent-bit' % name)
+    out = run_shell(args,
+                    'helm install --name my-release -f %s '
+                    'stable/fluent-bit' % name)
+    print(out)
     k8s_wait_for_running_negate(args)
 
 
