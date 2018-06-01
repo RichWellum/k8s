@@ -1176,9 +1176,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 16
+        K8S_FINAL_PROGRESS = 19
     else:
-        K8S_FINAL_PROGRESS = 15
+        K8S_FINAL_PROGRESS = 18
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
