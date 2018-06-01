@@ -356,7 +356,7 @@ def k8s_wait_for_kube_system(args):
     prev_cnt = 0
     base_pods = 6
 
-    print('(%02d/%d -- %02ds --) Kubernetes - Wait for basic '
+    print('(%02d/%d -- %03ds --) Kubernetes - Wait for basic '
           'Kubernetes (6 pods) infrastructure'
           % (PROGRESS, K8S_FINAL_PROGRESS, (time.time() - start_time)))
 
@@ -492,7 +492,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-    print("(%02d/%02d -- %02ds --) %s - %s" %
+    print("(%02d/%02d -- %03ds --) %s - %s" %
           (PROGRESS, finalctr, (time.time() - start_time), process, msg))
     add_one_to_progress()
 
