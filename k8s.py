@@ -65,7 +65,7 @@ import subprocess
 import sys
 import tarfile
 import time
-
+start_time = time.time()
 
 logger = logging.getLogger(__name__)
 
@@ -489,7 +489,8 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
-    print("(%02d/%02d) %s - %s" % (PROGRESS, finalctr, process, msg))
+    print("(%02d/%02d/%0d) %s - %s - %s" %
+          (PROGRESS, finalctr, (time.time() - start_time), process, msg))
     add_one_to_progress()
 
 
@@ -1197,7 +1198,7 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
-        k8s_wait_for_running_negate()
+        k8s_wait_for_running_negate(args)
         k8s_install_logging(args)
         out = run_shell(args, 'kubectl get pods --all-namespaces')
         print(out)
