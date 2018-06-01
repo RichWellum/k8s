@@ -1017,11 +1017,11 @@ def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
     banner('Display data about your cluster')
     print('Determine IP and port information from Service:')
-    print(run_shell(args, 'kubectl get svc -n kube-system'))
+    print(run_shell(args, 'kubectl get svc -n kube-system', True))
     print()
 
     print('View all k8s namespaces:')
-    print(run_shell(args, 'kubectl get namespaces'))
+    print(run_shell(args, 'kubectl get namespaces', True))
     print()
 
     print('View all deployed services:')
