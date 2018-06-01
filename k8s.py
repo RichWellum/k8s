@@ -996,7 +996,7 @@ def k8s_check_nslookup(args):
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kolla-dns-test
+  name: k8s-dns-test
 spec:
   containers:
   - name: busybox
@@ -1009,7 +1009,7 @@ spec:
     run_shell(args, 'kubectl create -f %s' % name)
     k8s_wait_for_running_negate(args)
     out = run_shell(args,
-                    'kubectl exec kolla-dns-test -- nslookup '
+                    'kubectl exec k8s-dns-test -- nslookup '
                     'kubernetes | grep -i address | wc -l')
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
@@ -1022,7 +1022,6 @@ def k8s_verify_and_show(args):
 
     print('Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
-    print(run_shell(args, 'kubectl get svc -n kolla'))
 
     print('View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
