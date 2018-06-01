@@ -137,7 +137,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_shell(args, cmd):
+def run_shell(args, cmd, print=False):
     '''Run a shell command and return the output
 
     Print the output and errors if debug is enabled
@@ -159,6 +159,9 @@ def run_shell(args, cmd):
             print("Shell STDOUT output: \n'%s'\n" % out)
         if err:
             print("Shell STDERR output: \n'%s'\n" % err)
+
+    if print:
+        print(cmd)
 
     return(out)
 
@@ -1016,42 +1019,42 @@ spec:
 def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
 
-    print(args, 'Test CLI:', 'Determine IP and port information from Service:')
+    print('Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
     print(run_shell(args, 'kubectl get svc -n kolla'))
 
-    print(args, 'Test CLI:', 'View all k8s namespaces:')
+    print('View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
 
-    print(args, 'Test CLI:', 'Kolla Describe a pod in full detail:')
-    print(run_shell(args, 'kubectl describe pod ceph-admin -n kolla'))
+    print('Kolla Describe a pod in full detail:')
+    print(run_shell(args, 'kubectl describe pod ceph-admin -n kolla', True))
 
-    print(args, 'Test CLI:', 'View all deployed services:')
-    print(run_shell(args, 'kubectl get deployment -n kube-system'))
+    print('View all deployed services:')
+    print(run_shell(args, 'kubectl get deployment -n kube-system', True))
 
-    print(args, 'Test CLI:', 'View configuration maps:')
-    print(run_shell(args, 'kubectl get configmap -n kube-system'))
+    print('View configuration maps:')
+    print(run_shell(args, 'kubectl get configmap -n kube-system', True))
 
-    print(args, 'Test CLI:', 'General Cluster information:')
-    print(run_shell(args, 'kubectl cluster-info'))
+    print('General Cluster information:')
+    print(run_shell(args, 'kubectl cluster-info', True))
 
-    print(args, 'Test CLI:', 'View all jobs:')
-    print(run_shell(args, 'kubectl get jobs --all-namespaces'))
+    print('View all jobs:')
+    print(run_shell(args, 'kubectl get jobs --all-namespaces', True))
 
-    print(args, 'Test CLI:', 'View all deployments:')
-    print(run_shell(args, 'kubectl get deployments --all-namespaces'))
+    print('View all deployments:')
+    print(run_shell(args, 'kubectl get deployments --all-namespaces', True))
 
-    print(args, 'Test CLI:', 'View secrets:')
-    print(run_shell(args, 'kubectl get secrets'))
+    print('View secrets:')
+    print(run_shell(args, 'kubectl get secrets', True))
 
-    print(args, 'Test CLI:', 'View docker images')
-    print(run_shell(args, 'sudo docker images'))
+    print('View docker images')
+    print(run_shell(args, 'sudo docker images', True))
 
-    print(args, 'Test CLI:', 'View deployed Helm Charts')
-    print(run_shell(args, 'helm list'))
+    print('View deployed Helm Charts')
+    print(run_shell(args, 'helm list', True))
 
-    print(args, 'Test CLI:', 'View final cluster:')
-    print(run_shell(args, 'kubectl get pods --all-namespaces'))
+    print('View final cluster:')
+    print(run_shell(args, 'kubectl get pods --all-namespaces', True))
 
 
 def k8s_bringup_kubernetes_cluster(args):
