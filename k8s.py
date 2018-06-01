@@ -862,9 +862,7 @@ def k8s_install_deploy_helm(args):
     run_shell(args, 'helm init')
     k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
-    print_progress('Kubernetes',
-                   'Helm successfully installed',
-                   K8S_FINAL_PROGRESS)
+    banner("Kubernetes Cluster is up and running")
 
 
 def k8s_final_messages(args):
@@ -1013,42 +1011,50 @@ spec:
                     'kubernetes | grep -i address | wc -l')
     if int(out) != 2:
         print("  Warning 'nslookup kubernetes ' failed. YMMV continuing")
-    else:
-        banner("Kubernetes Cluster is up and running")
 
 
 def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
-
+    banner('Display data about your cluster')
     print('Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
+    print()
 
     print('View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
+    print()
 
     print('View all deployed services:')
     print(run_shell(args, 'kubectl get deployment -n kube-system', True))
+    print()
 
     print('View configuration maps:')
     print(run_shell(args, 'kubectl get configmap -n kube-system', True))
+    print()
 
     print('General Cluster information:')
     print(run_shell(args, 'kubectl cluster-info', True))
+    print()
 
     print('View all jobs:')
     print(run_shell(args, 'kubectl get jobs --all-namespaces', True))
+    print()
 
     print('View all deployments:')
     print(run_shell(args, 'kubectl get deployments --all-namespaces', True))
+    print()
 
     print('View secrets:')
     print(run_shell(args, 'kubectl get secrets', True))
+    print()
 
     print('View docker images')
     print(run_shell(args, 'sudo docker images', True))
+    print()
 
     print('View deployed Helm Charts')
     print(run_shell(args, 'helm list', True))
+    print()
 
     print('View final cluster:')
     print(run_shell(args, 'kubectl get pods --all-namespaces', True))
@@ -1181,9 +1187,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 18
-    else:
         K8S_FINAL_PROGRESS = 17
+    else:
+        K8S_FINAL_PROGRESS = 16
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
