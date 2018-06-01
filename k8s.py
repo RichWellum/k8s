@@ -1027,9 +1027,6 @@ def k8s_verify_and_show(args):
     print('View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
 
-    print('Kolla Describe a pod in full detail:')
-    print(run_shell(args, 'kubectl describe pod ceph-admin -n kolla', True))
-
     print('View all deployed services:')
     print(run_shell(args, 'kubectl get deployment -n kube-system', True))
 
