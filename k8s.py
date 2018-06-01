@@ -862,9 +862,16 @@ def k8s_install_deploy_helm(args):
     print_progress('Kubernetes',
                    'Helm successfully installed',
                    K8S_FINAL_PROGRESS)
+
+
+def k8s_final_messages(args):
+    '''Final messages and checks'''
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
     print(JOIN_CMD)
+    sys.pause(1)
+    k8s_verify_and_show(args)
+    banner('Kubernetes Cluster ready for use')
 
 
 def is_running(args, process):
@@ -1006,10 +1013,8 @@ spec:
         banner("Kubernetes Cluster is up and running")
 
 
-def kubernetes_test_cli(args):
+def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
-
-    return
 
     print(args, 'Test CLI:', 'Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
@@ -1045,8 +1050,8 @@ def kubernetes_test_cli(args):
     print(args, 'Test CLI:', 'View deployed Helm Charts')
     print(run_shell(args, 'helm list'))
 
-    print(args, 'Test CLI:', 'Kill a pod and watch resilience.')
-    print(args, 'Test CLI:', 'kubectl delete pods <name> -n kolla')
+    print(args, 'Test CLI:', 'View final cluster:')
+    print(run_shell(args, 'kubectl get pods --all-namespaces'))
 
 
 def k8s_bringup_kubernetes_cluster(args):
@@ -1176,9 +1181,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 19
-    else:
         K8S_FINAL_PROGRESS = 18
+    else:
+        K8S_FINAL_PROGRESS = 17
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
@@ -1198,12 +1203,8 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
-        k8s_wait_for_running_negate(args)
         # k8s_install_logging(args)
-        out = run_shell(args, 'kubectl get pods --all-namespaces')
-        print(out)
-        banner('Kubernetes Cluster ready for use')
-        kubernetes_test_cli(args)
+        k8s_final_messages(args)
 
     except Exception:
         print('Exception caught:')
