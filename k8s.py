@@ -137,14 +137,14 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_shell(args, cmd, print=False):
+def run_shell(args, cmd, print_cmd=False):
     '''Run a shell command and return the output
 
     Print the output and errors if debug is enabled
     Not using logger.debug as a bit noisy for this info
     '''
 
-    if print:
+    if print_cmd:
         print(str(cmd))
 
     p = subprocess.Popen(
