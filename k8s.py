@@ -861,8 +861,6 @@ def k8s_install_deploy_helm(args):
     print_progress('Kubernetes',
                    'Helm successfully installed',
                    K8S_FINAL_PROGRESS)
-    out = run_shell(args, 'kubectl get pods --all-namespaces')
-    print(out)
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
     print(JOIN_CMD)
@@ -1203,6 +1201,9 @@ def main():
         k8s_install_deploy_helm(args)
         k8s_wait_for_running_negate()
         k8s_install_logging(args)
+        out = run_shell(args, 'kubectl get pods --all-namespaces')
+        print(out)
+        banner('Kubernetes Cluster ready for use')
         kubernetes_test_cli(args)
 
     except Exception:
