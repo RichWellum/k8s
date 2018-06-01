@@ -1096,10 +1096,8 @@ def k8s_install_logging(args):
     the helm chart.
     '''
 
-    print('DEBUG1')
     if not args.logs:
         return
-    print('DEBUG2')
 
     name = '/tmp/fluentd_values.yaml'
     with open(name, "w") as w:
