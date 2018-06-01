@@ -1199,7 +1199,7 @@ def main():
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
         k8s_wait_for_running_negate(args)
-        k8s_install_logging(args)
+        # k8s_install_logging(args)
         out = run_shell(args, 'kubectl get pods --all-namespaces')
         print(out)
         banner('Kubernetes Cluster ready for use')
