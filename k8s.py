@@ -1128,8 +1128,10 @@ def k8s_install_logging(args):
     the helm chart.
     '''
 
+    print('DEBUG1')
     if not args.logs:
         return
+    print('DEBUG1')
 
     name = '/tmp/fluentd_values.yaml'
     with open(name, "w") as w:
@@ -1183,7 +1185,7 @@ tolerations: []
 nodeSelector: {}
 """)
 
-    print_progress('Kolla',
+    print_progress('k8s',
                    'Install fluent-bit log aggregator',
                    K8S_FINAL_PROGRESS)
     run_shell(args,
