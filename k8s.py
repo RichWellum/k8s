@@ -145,7 +145,7 @@ def run_shell(args, cmd, print=False):
     '''
 
     if print:
-        print(cmd)
+        print(str(cmd))
 
     p = subprocess.Popen(
         cmd,
@@ -872,6 +872,7 @@ def k8s_final_messages(args):
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
     print(JOIN_CMD)
+    print()
     time.sleep(1)
     k8s_verify_and_show(args)
     banner('Kubernetes Cluster ready for use')
