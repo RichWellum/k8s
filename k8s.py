@@ -816,7 +816,7 @@ def k8s_schedule_master_node(args):
 def k8s_update_rbac(args):
     '''Override the default RBAC settings'''
 
-    print_progress('Kolla',
+    print_progress('Kubernetes',
                    'Overide default RBAC settings',
                    K8S_FINAL_PROGRESS)
     name = '/tmp/rbac'
@@ -897,15 +897,12 @@ def k8s_cleanup(args):
                        'Delete /etc files and dirs',
                        K8S_CLEANUP_PROGRESS)
 
-        run_shell(args, 'sudo rm -rf /etc/kolla*')
         run_shell(args, 'sudo rm -rf /etc/kubernetes')
-        run_shell(args, 'sudo rm -rf /etc/kolla-kubernetes')
 
         print_progress('Kubernetes',
                        'Delete /var files and dirs',
                        K8S_CLEANUP_PROGRESS)
 
-        run_shell(args, 'sudo rm -rf /var/lib/kolla*')
         run_shell(args, 'sudo rm -rf /var/etcd')
         run_shell(args, 'sudo rm -rf /var/run/kubernetes/*')
         run_shell(args, 'sudo rm -rf /var/lib/kubelet/*')
@@ -968,20 +965,6 @@ def k8s_cleanup(args):
 
     # After reboot, kubelet service comes back...
     run_shell(args, 'sudo kubeadm reset')
-
-
-def k8s_get_pods(args, namespace):
-    '''Display all pods per namespace list'''
-
-    for name in namespace:
-        final = run_shell(args, 'kubectl get pods -n %s' % name)
-
-        print_progress('Kolla',
-                       'Final Kolla Kubernetes OpenStack '
-                       'pods for namespace %s:' % name,
-                       K8S_FINAL_PROGRESS)
-
-        print(final)
 
 
 def k8s_check_nslookup(args):
@@ -1218,6 +1201,7 @@ def main():
         k8s_bringup_kubernetes_cluster(args)
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
+        k8s_wait_for_running_negate()
         k8s_install_logging(args)
         kubernetes_test_cli(args)
 
