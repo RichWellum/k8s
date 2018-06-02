@@ -249,9 +249,8 @@ def linux_ver_det():
     '''
 
     return(platform.linux_distribution()[0],
-           platform.linux_distribution()[0],
-           platform.linux_distribution()[0])
-    # return(str(platform.linux_distribution())) # todo remove
+           platform.linux_distribution()[1],
+           platform.linux_distribution()[2])
 
 
 def docker_ver(args):
@@ -302,12 +301,13 @@ def print_versions(args):
     '''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster')
+
     print('\nLinux Host Info:')
     os, os_ver, os_ver_s = linux_ver_det()
     print('  OS:                %s' % os)
     print('  OS version:        %s' % os)
     print('  OS version str:    %s' % os)
-    sys.exit(1)
+
     print('\nNetworking Info:')
     print('  CNI/SDN:            %s' % args.cni)
 
