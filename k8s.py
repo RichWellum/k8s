@@ -239,8 +239,6 @@ def linux_ver():
         print('Linux "%s" is not supported yet' % find_os[0])
         sys.exit(1)
 
-    print(linux)
-    sys.exit(1)
     return(linux)
 
 
@@ -250,7 +248,10 @@ def linux_ver_det():
     Return the long string for output
     '''
 
-    return(str(platform.linux_distribution()))
+    return(platform.linux_distribution()[0],
+           platform.linux_distribution()[0],
+           platform.linux_distribution()[0])
+    # return(str(platform.linux_distribution())) # todo remove
 
 
 def docker_ver(args):
@@ -258,6 +259,7 @@ def docker_ver(args):
 
     oldstr = run_shell(args, "docker --version | awk '{print $3}'")
     newstr = oldstr.replace(",", "")
+
     return(newstr.rstrip())
 
 
@@ -300,8 +302,12 @@ def print_versions(args):
     '''
 
     banner('Kubernetes - Bring up a Kubernetes Cluster')
-    print('\nLinux Host Info:    %s' % linux_ver_det())
-
+    print('\nLinux Host Info:')
+    os, os_ver, os_ver_s = linux_ver_det()
+    print('  OS:                %s' % os)
+    print('  OS version:        %s' % os)
+    print('  OS version str:    %s' % os)
+    sys.exit(1)
     print('\nNetworking Info:')
     print('  CNI/SDN:            %s' % args.cni)
 
