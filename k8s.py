@@ -410,12 +410,6 @@ def k8s_wait_for_pod_start(args, chart):
     # Useful for debugging issues when Service fails to start
     return
 
-    if 'cinder' in chart:
-        chart = 'cinder'
-
-    if 'nova' in chart:
-        chart = 'nova'
-
     time.sleep(3)
 
     while True:
