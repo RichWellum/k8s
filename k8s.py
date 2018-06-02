@@ -1215,7 +1215,6 @@ def main():
             k8s_cleanup(args)
             sys.exit(1)
 
-        # k8s_test_vip_int(args)
         k8s_bringup_kubernetes_cluster(args)
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
