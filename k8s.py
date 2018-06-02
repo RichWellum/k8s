@@ -239,6 +239,8 @@ def linux_ver():
         print('Linux "%s" is not supported yet' % find_os[0])
         sys.exit(1)
 
+    print(linux)
+    sys.exit(1)
     return(linux)
 
 
