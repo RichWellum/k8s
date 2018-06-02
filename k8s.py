@@ -305,8 +305,8 @@ def print_versions(args):
     print('\nLinux Host Info:')
     os, os_ver, os_ver_s = linux_ver_det()
     print('  OS:                %s' % os)
-    print('  OS version:        %s' % os)
-    print('  OS version str:    %s' % os)
+    print('  OS version:        %s' % os_ver)
+    print('  OS version str:    %s' % os_ver_s)
 
     print('\nNetworking Info:')
     print('  CNI/SDN:            %s' % args.cni)
