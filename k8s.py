@@ -18,9 +18,7 @@ Features
 
 5. Select between Canal and Weave CNI's for inter-pod communications.
 
-6. Optionally installs a fluent-bit container for log aggregation to ELK.
-
-7. Option to create a kubernetes minion to add to existing deployment.
+6. Option to create a kubernetes minion to add to existing deployment.
 
 Host machine requirements
 =========================
@@ -40,17 +38,14 @@ Mandatory Inputs
 TODO
 ====
 
-1. Convert to using https://github.com/kubernetes-incubator/client-python
-2. Classify the code
-3. break the unix output down into same style
-4. Note there are various todo's scattered inline as well.
+- Convert to using https://github.com/kubernetes-incubator/client-python
+- Classify the code
+- Note there are various todo's scattered inline as well.
 
 Recomendations
 ==============
-1. Due to the length the script can run for, recomend disabling sudo timeout:
 
-sudo visudo
-Add: 'Defaults    timestamp_timeout=-1'
+Alt way to run:
 
 curl https://raw.githubusercontent.com/RichWellum/k8s/master/k8s.py \
 | python - -cni weave
@@ -81,6 +76,7 @@ K8S_FINAL_PROGRESS = 1
 global K8S_CLEANUP_PROGRESS
 K8S_CLEANUP_PROGRESS = 0
 
+# Store the kubeadm join command, and display to user at end of deployment
 global JOIN_CMD
 
 
@@ -99,7 +95,7 @@ class AbortScriptException(Exception):
 def parse_args():
     '''Parse sys.argv and return args'''
 
-    parser = argparse.ArgumentParser(  # todo: rewrite
+    parser = argparse.ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description='This tool provides a method to deploy a Kubernetes '
         'Cluster on bare metal servers or virtual machines.\nVirtual '
@@ -227,7 +223,6 @@ def linux_ver():
     '''Determine Linux version - Ubuntu or Centos
 
     Fail if it is not one of those.
-    Return the long string for output
     '''
 
     find_os = platform.linux_distribution()
@@ -243,9 +238,9 @@ def linux_ver():
 
 
 def linux_ver_det():
-    '''Determine Linux version - Ubuntu or Centos
+    '''Determine detailed Linux version - Ubuntu or Centos
 
-    Return the long string for output
+    Return OS, OS Versions
     '''
 
     return(platform.linux_distribution()[0],
@@ -253,8 +248,18 @@ def linux_ver_det():
            platform.linux_distribution()[2])
 
 
+def k8s_ver(args):
+    '''Display kubernetes version'''
+
+    oldstr = run_shell(
+        args, "kubectl version | grep 'Client Version' | 'awk '{print $5}'")
+    newstr = oldstr.replace(",", "")
+
+    return(newstr.rstrip())
+
+
 def docker_ver(args):
-    '''Display docker version'''
+    '''Display Docker version'''
 
     oldstr = run_shell(args, "docker --version | awk '{print $3}'")
     newstr = oldstr.replace(",", "")
@@ -270,11 +275,11 @@ def tools_versions(args, str):
     User can then overide each individual tool.
 
     Return a Version for a string.
+
+    Note that currently this is just for helm.
     '''
 
-    tools = [
-        "helm",
-        "kubernetes"]
+    tools = ["helm", "kubernetes"]
 
     # This should match up with the defaults set in parse_args
     #           helm     k8s
@@ -314,8 +319,7 @@ def print_versions(args):
     print('\nTool Versions:')
     print('  Docker version:     %s' % docker_ver(args))
     print('  Helm version:       %s' % tools_versions(args, 'helm'))
-    print('  K8s version:        %s'
-          % tools_versions(args, 'kubernetes').rstrip())
+    print('  K8s version:        %s' % k8s_ver(args).rstrip())
 
     print('\nOptions:')
     print('  Logging enabled:    %s' % args.logs)
@@ -543,6 +547,9 @@ def k8s_install_tools(args):
     # https://github.com/ansible/ansible/issues/26670
     run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
     run_shell(args, 'sudo -H pip install pyOpenSSL')
+
+    if args.complete_cleanup is not True:
+        print_versions(args)
 
 
 def k8s_setup_ntp(args):
@@ -1200,9 +1207,6 @@ def main():
 
     set_logging()
     logger.setLevel(level=args.verbose)
-
-    if args.complete_cleanup is not True:
-        print_versions(args)
 
     try:
         if args.complete_cleanup:
