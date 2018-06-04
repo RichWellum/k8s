@@ -308,24 +308,24 @@ def print_versions(args):
     Tool versions, networking, user options and more
     '''
 
-    banner('Kubernetes - Bring up a Kubernetes Cluster')
+    # banner('Kubernetes - Bring up a Kubernetes Cluster')
 
-    print('\nLinux Host Info:')
+    print('\n  Linux Host Info:')
     os, os_ver, os_ver_s = linux_ver_det()
-    print('  OS:                %s' % os)
-    print('  OS version:        %s' % os_ver)
-    print('  OS version str:    %s' % os_ver_s)
+    print('    OS:                %s' % os)
+    print('    OS version:        %s' % os_ver)
+    print('    OS version str:    %s' % os_ver_s)
 
-    print('\nNetworking Info:')
-    print('  CNI/SDN:            %s' % args.cni)
+    print('\n  Networking Info:')
+    print('    CNI/SDN:            %s' % args.cni)
 
-    print('\nTool Versions:')
-    print('  Docker version:     %s' % docker_ver(args))
-    print('  Helm version:       %s' % tools_versions(args, 'helm'))
-    print('  K8s version:        %s' % k8s_ver(args).rstrip())
+    print('\n  Tool Versions:')
+    print('    Docker version:     %s' % docker_ver(args))
+    print('    Helm version:       %s' % tools_versions(args, 'helm'))
+    print('    K8s version:        %s' % k8s_ver(args).rstrip())
 
-    print('\nOptions:')
-    print('  Logging enabled:    %s' % args.logs)
+    print('\n  Options:')
+    print('    Logging enabled:    %s' % args.logs)
     print('\n')
     time.sleep(2)
 
@@ -514,7 +514,7 @@ def k8s_install_tools(args):
     # Reset kubeadm if it's a new installation
     # run_shell(args, 'sudo kubeadm reset')
 
-    banner('Kubernetes - Install and Update Environment')
+    banner('Kubernetes - Bring up a Kubernetes Cluster')
 
     print_progress('Kubernetes',
                    'Installing environment',
@@ -557,6 +557,8 @@ def k8s_install_tools(args):
 
 def k8s_setup_ntp(args):
     '''Setup NTP'''
+
+    banner('Kubernetes - Start services')
 
     print_progress('Kubernetes',
                    'Setup NTP',
