@@ -255,6 +255,7 @@ def k8s_ver(args):
         args,
         "kubectl version | grep 'Client Version' | "
         "awk '{print $5}' | cut -d '\"' - f2")
+    return(oldstr)
     newstr = oldstr.replace(",", "")
 
     return(newstr.rstrip())
