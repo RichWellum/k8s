@@ -41,7 +41,7 @@ TODO
 ====
 
 1. Convert to using https://github.com/kubernetes-incubator/client-python
-2. Classigy the code
+2. Classify the code
 3. break the unix output down into same style
 4. Note there are various todo's scattered inline as well.
 
