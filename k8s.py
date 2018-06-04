@@ -254,6 +254,7 @@ def k8s_ver(args):
     oldstr = run_shell(
         args, "kubectl version | grep 'Client Version' | awk '{print $5}'")
     newstr = oldstr.replace(",", "")
+
     return(newstr.rstrip())
 
 
