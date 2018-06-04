@@ -253,8 +253,8 @@ def k8s_ver(args):
 
     oldstr = run_shell(
         args,
-        "kubectl version | grep 'Client Version' | "
-        "awk '{print $5}' | cut -d '\"' - f2")
+        "kubectl version | grep 'Client Version' "
+        "| awk '{print $5}' | cut -d '\"' -f2")
     return(oldstr)
     newstr = oldstr.replace(",", "")
 
