@@ -252,7 +252,7 @@ def k8s_ver(args):
     '''Display kubernetes version'''
 
     oldstr = run_shell(
-        args, "kubectl version | grep 'Client Version' | awk '{print $5}'")
+        args, "kubectl version | grep 'Client Version' | awk '{print $5}' | sed -E 's/.*\("(.*)"\).*/\1/'")
     newstr = oldstr.replace(",", "")
 
     return(newstr.rstrip())
