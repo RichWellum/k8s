@@ -3,6 +3,38 @@
 
 [Using Helm](https://docs.helm.sh/using_helm/)
 
+## Command Summary ##
+    $ helm search mysql
+    $ helm inspect stable/mariadb
+    $ helm install stable/mariadb
+    $ helm install --set dryRun=False
+    $ helm status happy-panda
+    $ helm inspect values stable/chaoskube
+    $ helm upgrade -f panda.yaml happy-panda stable/mariadb
+    $ helm get values happy-panda
+    $ helm rollback happy-panda 1
+    $ helm delete happy-panda
+    $ helm search mysql
+    $ helm inspect stable/mariadb
+    $ helm install stable/mariadb
+    $ helm status happy-panda
+    $ helm inspect values stable/chaoskube
+    $ helm install -f config.yaml stable/chaoskube
+    $ helm install --set dryRun=False
+    $ helm upgrade -f panda.yaml happy-panda stable/mariadb
+    $ helm get values happy-panda
+    $ helm rollback happy-panda 1
+    $ helm delete happy-panda
+    $ helm list
+    $ helm list --deleted shows those
+    $ helm repo list NAME URL stable
+    $ helm repo add dev https://example.com/dev-charts
+    $ helm repo update
+    $ helm create deis-workflow
+    $ helm lint
+    $ helm package deis-workflow
+
+
 ## THREE BIG CONCEPTS ##
 
 A Chart is a Helm package. It contains all of the resource definitions
@@ -80,7 +112,9 @@ simplest, it takes only one argument: The name of the chart.
 
 
     Notes:
-    MariaDB can be accessed via port 3306 on the following DNS name from within your cluster:
+    MariaDB can be accessed via port 3306 on the following DNS name
+    from within your cluster:
+    
     happy-panda-mariadb.default.svc.cluster.local
 
 Now the mariadb chart is installed. Note that installing a chart
@@ -132,10 +166,14 @@ customize the chart to use your preferred configuration.
     # label selector to filter pods by, e.g. app=foo,stage!=prod
     labels:
 
-    # annotation selector to filter pods by, e.g. chaos.alpha.kubernetes.io/enabled=true
+    # annotation selector to filter pods by,
+    e.g.chaos.alpha.kubernetes.io/enabled=true
+
     annotations:
 
-    # namespace selector to filter pods by, e.g. '!kube-system,!production' (use quotes)
+    # namespace selector to filter pods by,
+    e.g. '!kube-system,!production' (use quotes)
+
     namespaces:
 
     # don't kill pods, only log what would have been done
@@ -222,8 +260,8 @@ currently deployed releases with the helm list command:
 ### ‘HELM LIST’: List all deployed releases ###
 
     $ helm list
-    NAME           	VERSION	UPDATED                        	STATUS         	CHART
-    inky-cat       	1      	Wed Sep 28 12:59:46 2016       	DEPLOYED       	alpine-0.1.0
+    NAME            VERSION UPDATED                         STATUS          CHART
+    inky-cat        1       Wed Sep 28 12:59:46 2016        DEPLOYED        alpine-0.1.0
 
 From the output above, we can see that the happy-panda release was
 deleted.
