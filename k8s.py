@@ -520,6 +520,17 @@ def k8s_install_tools(args):
                    'Installing environment',
                    K8S_FINAL_PROGRESS)
 
+    run_shell(args, 'sudo swapoff -a')
+    curl(
+        '-L',
+        'https://bootstrap.pypa.io/get-pip.py',
+        '-o', '/tmp/get-pip.py')
+    run_shell(args, 'sudo python /tmp/get-pip.py')
+
+    # https://github.com/ansible/ansible/issues/26670
+    run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
+    run_shell(args, 'sudo -H pip install pyOpenSSL')
+
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
         run_shell(args, 'sudo yum install -y qemu epel-release bridge-utils')
@@ -540,17 +551,6 @@ def k8s_install_tools(args):
                   'ca-certificates make jq nmap curl uuid-runtime ipcalc')
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
-
-    run_shell(args, 'sudo swapoff -a')
-    curl(
-        '-L',
-        'https://bootstrap.pypa.io/get-pip.py',
-        '-o', '/tmp/get-pip.py')
-    run_shell(args, 'sudo python /tmp/get-pip.py')
-
-    # https://github.com/ansible/ansible/issues/26670
-    run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
-    run_shell(args, 'sudo -H pip install pyOpenSSL')
 
     if args.complete_cleanup is not True:
         print_versions(args)
