@@ -528,8 +528,9 @@ def k8s_install_tools(args):
     run_shell(args, 'sudo python /tmp/get-pip.py')
 
     # https://github.com/ansible/ansible/issues/26670
-    run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
-    run_shell(args, 'sudo -H pip install pyOpenSSL')
+    run_shell(args, 'sudo python -m easy_install --upgrade pyOpenSSL')
+    # run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
+    # run_shell(args, 'sudo -H pip install pyOpenSSL')
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
