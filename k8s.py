@@ -528,6 +528,7 @@ def k8s_install_tools(args):
     run_shell(args, 'sudo python /tmp/get-pip.py')
 
     # https://github.com/ansible/ansible/issues/26670
+    # TODO - not sure if this is centos compatible or not
     run_shell(args, 'sudo python -m easy_install --upgrade pyOpenSSL')
     # run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
     # run_shell(args, 'sudo -H pip install pyOpenSSL')
@@ -610,7 +611,6 @@ def k8s_install_k8s(args):
                    'Create Kubernetes repo and install Kubernetes ',
                    K8S_FINAL_PROGRESS)
 
-    # run_shell(args, 'sudo -H pip install --upgrade pip')
     k8s_create_repo(args)
 
     if linux_ver() == 'centos':
