@@ -528,19 +528,20 @@ def k8s_install_tools(args):
                   'gcc openssl-devel sshpass')
         run_shell(args, 'sudo yum install -y git crudini jq ansible curl lvm2')
         # Disable swap as not supported. TODO: check with ubuntu
-        run_shell(args, 'sudo swapoff -a')
         run_shell(args, 'sudo yum install -y docker')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
-        run_shell(args, 'sudo apt-get install -y qemu bridge-utils')
-        run_shell(args, 'sudo apt-get install -y python-dev libffi-dev gcc '
-                  'libssl-dev python-pip sshpass apt-transport-https')
-        run_shell(args, 'sudo apt-get install -y git gcc crudini jq '
-                  'ansible curl lvm2')
-        run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
-        run_shell(args, 'sudo apt-get install -y docker.io')
+        run_shell(args,
+                  'sudo apt-get install --no-install-recommends -y '
+                  'qemu bridge-utils python-dev libffi-dev gcc '
+                  'libssl-dev python-pip sshpass apt-transport-https git '
+                  'gcc crudini jq ansible curl lvm2 docker.io '
+                  'ca-certificates make jq nmap curl uuid-runtime ipcalc')
 
+        run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
+
+    run_shell(args, 'sudo swapoff -a')
     curl(
         '-L',
         'https://bootstrap.pypa.io/get-pip.py',
