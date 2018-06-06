@@ -609,7 +609,7 @@ def k8s_install_k8s(args):
                    'Create Kubernetes repo and install Kubernetes ',
                    K8S_FINAL_PROGRESS)
 
-    run_shell(args, 'sudo -H pip install --upgrade pip')
+    # run_shell(args, 'sudo -H pip install --upgrade pip')
     k8s_create_repo(args)
 
     if linux_ver() == 'centos':
