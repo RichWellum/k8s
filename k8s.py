@@ -554,6 +554,12 @@ def k8s_install_tools(args):
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
+    run_shell(args,
+              'sudo -H -E pip install "cmd2<=0.8.7"')
+    run_shell(args,
+              'sudo -H -E pip install python-openstackclient '
+              'python-heatclient')
+
     if args.complete_cleanup is not True:
         print_versions(args)
 
