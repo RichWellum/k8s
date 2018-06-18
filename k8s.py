@@ -887,7 +887,7 @@ def k8s_install_deploy_helm(args):
     k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
     run_shell(args, 'helm serve &')
-    run_shell(args, 'helm repo add local http://localhost:8879/chart')
+    run_shell(args, 'helm repo add local http://localhost:8879/charts')
     banner("Kubernetes Cluster is up and running")
 
 
