@@ -948,6 +948,7 @@ sudo rm -rf /etc/libvirt/qemu/*
 
 sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' | xargs -r -L1 -P16 sudo umount -f -l           
 """)
+        run_shell(args, 'sudo chmod 777 %s' % name)
         run_shell(args, name)
 
         run_shell(args, 'sudo kubeadm reset')
