@@ -558,6 +558,8 @@ def k8s_install_tools(args):
 
     run_shell(args,
               'sudo -H -E pip install "cmd2<=0.8.7"')
+    # Not related to k8s, but for openstack - install the following
+    # TODO: can be removed and placed in the osh deployer
     run_shell(args,
               'sudo -H -E pip install python-openstackclient '
               'python-heatclient python-neutronclient python-cinderclient')
