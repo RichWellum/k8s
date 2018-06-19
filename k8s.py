@@ -647,8 +647,8 @@ def k8s_setup_dns(args):
         args,
         'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
-    run_shell(args,
-              'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
+    # run_shell(args,
+              # 'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
 
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     # https://stackoverflow.com/questions/46726216/kubelet-fails-to-get-cgroup-stats-for-docker-and-kubelet-services
