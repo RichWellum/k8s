@@ -647,8 +647,6 @@ def k8s_setup_dns(args):
         args,
         'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
     run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
-    # run_shell(args,
-              # 'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
 
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     # https://stackoverflow.com/questions/46726216/kubelet-fails-to-get-cgroup-stats-for-docker-and-kubelet-services
@@ -928,6 +926,29 @@ def k8s_cleanup(args):
                        'Kubeadm reset',
                        K8S_CLEANUP_PROGRESS,
                        True)
+
+        # TODO: openstack-helm specific cleanup - move to option in new file
+        name = './clean_ceph'
+        with open(name, "w") as w:
+            w.write("""
+for NS in openstack ceph nfs libvirt; do
+   helm ls --namespace $NS --short | xargs -r -L1 -P2 helm delete --purge
+done
+
+sudo systemctl stop kubelet
+sudo systemctl disable kubelet
+
+sudo docker ps -aq | xargs -r -L1 -P16 sudo docker rm -f
+
+sudo rm -rf /var/lib/openstack-helm/*
+
+sudo rm -rf /var/lib/nova/*
+sudo rm -rf /var/lib/libvirt/*
+sudo rm -rf /etc/libvirt/qemu/*
+
+sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' | xargs -r -L1 -P16 sudo umount -f -l           
+""")
+        run_shell(args, name)
 
         run_shell(args, 'sudo kubeadm reset')
 
