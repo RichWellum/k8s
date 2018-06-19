@@ -550,7 +550,9 @@ def k8s_install_tools(args):
                   'qemu bridge-utils python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass apt-transport-https git '
                   'gcc crudini jq ansible curl lvm2 docker.io ceph-common '
-                  'ca-certificates make jq nmap curl uuid-runtime ipcalc')
+                  'ca-certificates make jq nmap curl uuid-runtime ipcalc '
+                  'ebtables ethtool iproute2 iptables libmnl0 '
+                  'libnfnetlink0 libwrap0 libxtables11 socat')
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
@@ -558,7 +560,7 @@ def k8s_install_tools(args):
               'sudo -H -E pip install "cmd2<=0.8.7"')
     run_shell(args,
               'sudo -H -E pip install python-openstackclient '
-              'python-heatclient')
+              'python-heatclient python-neutronclient python-cinderclient')
 
     if args.complete_cleanup is not True:
         print_versions(args)
