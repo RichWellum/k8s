@@ -2,14 +2,30 @@
 
 # To be converted to python
 sudo -v
+
+# Clean up previous installation
 rm -rf openstack-helm*
+
+# Clone anewly
 git clone https://git.openstack.org/openstack/openstack-helm-infra.git
 git clone https://git.openstack.org/openstack/openstack-helm.git
 
-# Add: nameserver 10.96.0.10 - to resolv.conf
-# Add: options ndots:5 timeout:1 attempts:1
+# Resolv.conf has to reflect the network that k8s is on
+# For example:
+
+# #nameserver 192.168.122.1
+# nameserver 10.3.3.10
+# options ndots:5 timeout:1 attempts:1
+
+# But really this should be followed:
+# https://github.com/openstack/openstack-helm-infra/blob/master/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubelet/templates/resolv.conf.j2#L2
+
+# Note that if this is not a clean deployment then ceph needs to be cleaned up
+# first
+# Install ceph client
 sudo apt install ceph-common -y
 
+# Build all helm charts
 helm repo add local http://localhost:8879/charts
 pushd openstack-helm-infra
 make clean
@@ -22,8 +38,10 @@ make clean
 git pull
 make all
 
-#helm serve &
+# Start helm server if not already
+# helm serve &
 
+# Label nodes
 kubectl label nodes osh openstack-helm-node-class=primary
 kubectl label nodes osh openstack-control-plane=enabled
 kubectl label nodes osh openstack-compute-node=enabled
@@ -35,6 +53,9 @@ kubectl label nodes osh ceph-mds=enabled
 kubectl label nodes osh ceph-rgw=enabled
 kubectl label nodes osh ceph-mgr=enabled
 
+# At this point can deploy osh scripts
+# Note this is the developer scripts which work on a single node
+# Eventually this can be moved to multinode/production
 pushd openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 ./tools/deployment/developer/common/030-ingress.sh
