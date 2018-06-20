@@ -12,11 +12,11 @@ sudo apt install ceph-common -y
 
 helm repo add local http://localhost:8879/charts
 
-cd ../openstack-helm-infra
+cd ./openstack-helm-infra
 make clean
 git pull
 make all
-cd ../openstack-helm
+cd ./openstack-helm
 make clean
 git pull
 make all
