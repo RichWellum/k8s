@@ -901,6 +901,10 @@ def k8s_final_messages(args):
           'running the following on each node as root:')
     print(JOIN_CMD)
     print()
+    output_file_name = 'join_cmd.txt'
+    with open('join_cmd.txt', 'a') as join:
+        join.write('%s\n' % JOIN_CMD)
+    print('\n Join command saved to: "%s"' % output_file_name)
     time.sleep(1)
     k8s_verify_and_show(args)
     banner('Kubernetes Cluster ready for use')

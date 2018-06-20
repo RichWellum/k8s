@@ -12,11 +12,12 @@ git clone https://git.openstack.org/openstack/openstack-helm.git
 
 # Resolv.conf has to reflect the network that k8s is on
 # For example:
-
 # #nameserver 192.168.122.1
+# search openstack.svc.cluster.local svc.cluster.local cluster.local
 # nameserver 10.3.3.10
 # options ndots:5 timeout:1 attempts:1
-
+# Use: kubectl -n kube-system get svc kube-dns -o json | jq -r .spec.clusterIP
+# to determine ip to add
 # But really this should be followed:
 # https://github.com/openstack/openstack-helm-infra/blob/master/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubelet/templates/resolv.conf.j2#L2
 
