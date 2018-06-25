@@ -735,7 +735,7 @@ def k8s_deploy_k8s(args):
         if re.search('kubeadm join', line):
             line += ' ' * 2
             global JOIN_CMD
-            JOIN_CMD = line
+            JOIN_CMD = 'sudo ' + line
 
 
 def k8s_load_kubeadm_creds(args):
@@ -890,7 +890,13 @@ def k8s_install_deploy_helm(args):
     run_shell(args, 'helm init')
     k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
+    print_progress('Kubernetes',
+                   'Start helm client',
+                   K8S_FINAL_PROGRESS)
     run_shell(args, 'helm serve &')
+    print_progress('Kubernetes',
+                   'Add local repos',
+                   K8S_FINAL_PROGRESS)
     run_shell(args, 'helm repo add local http://localhost:8879/charts')
     banner("Kubernetes Cluster is up and running")
 
@@ -952,7 +958,7 @@ sudo rm -rf /var/lib/nova/*
 sudo rm -rf /var/lib/libvirt/*
 sudo rm -rf /etc/libvirt/qemu/*
 
-sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' | xargs -r -L1 -P16 sudo umount -f -l           
+sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' \| xargs -r -L1 -P16 sudo umount -f -l
 """)
         run_shell(args, 'sudo chmod 777 %s' % name)
         run_shell(args, name)
@@ -1245,9 +1251,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 17
+        K8S_FINAL_PROGRESS = 19
     else:
-        K8S_FINAL_PROGRESS = 16
+        K8S_FINAL_PROGRESS = 18
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
