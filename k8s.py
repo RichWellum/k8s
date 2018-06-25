@@ -893,7 +893,8 @@ def k8s_install_deploy_helm(args):
     print_progress('Kubernetes',
                    'Start helm client',
                    K8S_FINAL_PROGRESS)
-    run_shell(args, 'helm serve &')
+    run_shell(args, 'helm serve')
+    sys.stdout.flush()
     print_progress('Kubernetes',
                    'Add local repos',
                    K8S_FINAL_PROGRESS)
