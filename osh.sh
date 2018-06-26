@@ -40,7 +40,8 @@ git pull
 make all
 
 # Start helm server if not already
-# helm serve &
+helm serve &
+helm repo add local http://localhost:8879/charts
 
 # Label nodes
 kubectl label nodes osh openstack-helm-node-class=primary
