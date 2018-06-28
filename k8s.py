@@ -940,29 +940,29 @@ def k8s_cleanup(args):
                        K8S_CLEANUP_PROGRESS,
                        True)
 
-        # TODO: openstack-helm specific cleanup - move to option in new file
-        name = './clean_ceph'
-        with open(name, "w") as w:
-            w.write("""
-for NS in openstack ceph nfs libvirt; do
-   helm ls --namespace $NS --short | xargs -r -L1 -P2 helm delete --purge
-done
+#         # TODO: openstack-helm specific cleanup - move to option in new file
+#         name = './clean_ceph'
+#         with open(name, "w") as w:
+#             w.write("""
+# for NS in openstack ceph nfs libvirt; do
+#    helm ls --namespace $NS --short | xargs -r -L1 -P2 helm delete --purge
+# done
 
-sudo systemctl stop kubelet
-sudo systemctl disable kubelet
+# sudo systemctl stop kubelet
+# sudo systemctl disable kubelet
 
-sudo docker ps -aq | xargs -r -L1 -P16 sudo docker rm -f
+# sudo docker ps -aq | xargs -r -L1 -P16 sudo docker rm -f
 
-sudo rm -rf /var/lib/openstack-helm/*
+# sudo rm -rf /var/lib/openstack-helm/*
 
-sudo rm -rf /var/lib/nova/*
-sudo rm -rf /var/lib/libvirt/*
-sudo rm -rf /etc/libvirt/qemu/*
+# sudo rm -rf /var/lib/nova/*
+# sudo rm -rf /var/lib/libvirt/*
+# sudo rm -rf /etc/libvirt/qemu/*
 
-sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' \| xargs -r -L1 -P16 sudo umount -f -l
-""")
-        run_shell(args, 'sudo chmod 777 %s' % name)
-        run_shell(args, name)
+# sudo findmnt --raw | awk '/^\/var\/lib\/kubelet\/pods/ { print $1 }' \| xargs -r -L1 -P16 sudo umount -f -l
+# """)
+        # run_shell(args, 'sudo chmod 777 %s' % name)
+        # run_shell(args, name)
 
         run_shell(args, 'sudo kubeadm reset')
 
