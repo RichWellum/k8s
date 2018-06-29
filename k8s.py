@@ -940,7 +940,7 @@ def k8s_cleanup(args):
                        K8S_CLEANUP_PROGRESS,
                        True)
 
-        run_shell(args, 'sudo kubeadm reset')
+        run_shell(args, 'sudo kubeadm reset -f')
 
         print_progress('Kubernetes',
                        'Delete /etc files and dirs',
@@ -1013,7 +1013,7 @@ def k8s_cleanup(args):
         add_one_to_progress()
 
     # After reboot, kubelet service comes back...
-    run_shell(args, 'sudo kubeadm reset')
+    run_shell(args, 'sudo kubeadm reset -f')
 
 
 def k8s_check_nslookup(args):
