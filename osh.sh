@@ -27,6 +27,7 @@ git clone https://git.openstack.org/openstack/openstack-helm.git
 sudo apt install ceph-common -y
 
 # Build all helm charts
+helm serve &
 helm repo add local http://localhost:8879/charts
 pushd openstack-helm-infra
 make clean
