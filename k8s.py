@@ -1118,7 +1118,7 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes tools installed, minion ready')
         sys.exit(1)
-    k8s_setup_dns(args)
+    # k8s_setup_dns(args)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
@@ -1129,6 +1129,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_cni(args)
     k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
+    k8s_setup_dns(args)
     k8s_schedule_master_node(args)
     k8s_check_nslookup(args)
 
