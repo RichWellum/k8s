@@ -724,8 +724,9 @@ def k8s_deploy_k8s(args):
                    'Deploying Kubernetes with kubeadm',
                    K8S_FINAL_PROGRESS)
 
-    out = run_shell(args,
+    out = run_shell(args,  # todo clean up
                     'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
+                    # 'sudo kubeadm init --pod-network-cidr=10.244.0.0/16 '
                     '--service-cidr=10.3.3.0/24 '
                     '--ignore-preflight-errors=all')
 
@@ -797,16 +798,20 @@ def k8s_deploy_cni(args):
 
     answer = curl(
         '-L',
-        'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        'k8s-install/1.7/rbac.yaml',
+        # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
+        # 'k8s-install/1.7/rbac.yaml',
+        'kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started'
+        '/kubernetes/installation/hosted/canal/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
     logger.debug(answer)
     run_shell(args, 'kubectl create -f /tmp/rbac.yaml')
 
     answer = curl(
         '-L',
-        'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        'k8s-install/1.7/canal.yaml',
+        # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
+        # 'k8s-install/1.7/canal.yaml',
+        'kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started'
+        '/kubernetes/installation/hosted/canal/canal.yaml',
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
     run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
