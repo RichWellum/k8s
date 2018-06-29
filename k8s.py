@@ -381,7 +381,7 @@ def k8s_wait_for_kube_system(args):
         pod_status = run_shell(args,
                                'kubectl get pods -n kube-system --no-headers')
         nlines = len(pod_status.splitlines())
-        if nlines > base_pods:
+        if nlines >= base_pods:
             print(
                 '  *All pods %s/%s are started, continuing*' %
                 (nlines, base_pods))
