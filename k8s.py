@@ -106,7 +106,7 @@ def parse_args():
         '- 20G min, 40GB preferred - disk space\n'
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: python k8s.py -cni weave\n')
+        epilog='E.g.: python k8s.py -cni canal\n')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
                         help='Specify a different helm version to the '
                         'latest')
@@ -114,9 +114,9 @@ def parse_args():
                         help='Specify a different kubernetes version to '
                         'the latest - note 1.8.0 is the minimum '
                         'supported')
-    parser.add_argument('-cni', '--cni', type=str, default='canal',
+    parser.add_argument('-cni', '--cni', type=str, default='weave',
                         help='specify a different CNI/SDN to '
-                        'the default(canal), like "weave"')
+                        'the default(weave), like "canal"')
     parser.add_argument('-l', '--logs', action='store_true',
                         help='install fluent-bit container')
     parser.add_argument('-cm', '--create_minion', action='store_true',
@@ -802,7 +802,7 @@ def k8s_deploy_cni(args):
         '-L',
         # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
         # 'k8s-install/1.7/rbac.yaml',
-        'kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started'
+        'https://docs.projectcalico.org/v3.1/getting-started'
         '/kubernetes/installation/hosted/canal/rbac.yaml',
         '-o', '/tmp/rbac.yaml')
     logger.debug(answer)
@@ -812,7 +812,7 @@ def k8s_deploy_cni(args):
         '-L',
         # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
         # 'k8s-install/1.7/canal.yaml',
-        'kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started'
+        'https://docs.projectcalico.org/v3.1/getting-started'
         '/kubernetes/installation/hosted/canal/canal.yaml',
         '-o', '/tmp/canal.yaml')
     logger.debug(answer)
