@@ -1109,10 +1109,7 @@ def k8s_verify_and_show(args):
 
 
 def k8s_bringup_kubernetes_cluster(args):
-    '''Bring up a working Kubernetes Cluster
-
-    Explicitly using the Canal CNI for now
-    '''
+    '''Bring up a working Kubernetes Cluster'''
 
     k8s_cleanup(args)
     k8s_install_tools(args)
@@ -1132,9 +1129,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
-    # k8s_add_api_server(args)
     k8s_deploy_cni(args)
-    k8s_wait_for_pod_start(args, 'canal')
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     k8s_check_nslookup(args)
