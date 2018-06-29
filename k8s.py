@@ -378,8 +378,10 @@ def k8s_wait_for_kube_system(args):
           % (PROGRESS, K8S_FINAL_PROGRESS, (time.time() - start_time)))
 
     while True:
-        pod_status = run_shell(args,
-                               'kubectl get pods -n kube-system --no-headers')
+        pod_status = run_shell(
+            args,
+            'kubectl get pods -n kube-system --no-headers | '
+            'grep "Running\|Pending"')
         nlines = len(pod_status.splitlines())
         if nlines >= base_pods:
             print(
