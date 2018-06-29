@@ -371,7 +371,7 @@ def k8s_wait_for_kube_system(args):
     RETRY_INTERVAL = 10
     elapsed_time = 0
     prev_cnt = 0
-    base_pods = 6
+    base_pods = 5 # changing from 6
 
     print('(%02d/%d -- %03ds --) Kubernetes - Wait for basic '
           'Kubernetes (6 pods) infrastructure'
