@@ -1033,7 +1033,7 @@ def k8s_check_nslookup(args):
     '''
 
     print_progress('Kubernetes',
-                   "Test 'nslookup kubernetes' - bring up test pod",
+                   "Bring up test DNS pod",
                    K8S_FINAL_PROGRESS)
 
     name = './busybox.yaml'
@@ -1054,6 +1054,11 @@ spec:
 
     run_shell(args, 'kubectl create -f %s' % name)
     k8s_wait_for_running_negate(args)
+
+    print_progress('Kubernetes',
+                   "Test 'nslookup kubernetes'",
+                   K8S_FINAL_PROGRESS)
+
     out = run_shell(args,
                     'kubectl exec k8s-dns-test -- nslookup '
                     'kubernetes | grep -i address | wc -l')
@@ -1230,9 +1235,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver() == 'centos':
-        K8S_FINAL_PROGRESS = 17
+        K8S_FINAL_PROGRESS = 18
     else:
-        K8S_FINAL_PROGRESS = 16
+        K8S_FINAL_PROGRESS = 17
 
     if args.create_minion:
         K8S_FINAL_PROGRESS = 5
