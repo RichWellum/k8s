@@ -1124,7 +1124,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_fix_iptables(args)
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
-    # k8s_wait_for_kube_system(args)
+    k8s_wait_for_kube_system(args)
     # k8s_add_api_server(args)
     k8s_deploy_cni(args)
     k8s_wait_for_pod_start(args, 'canal')
