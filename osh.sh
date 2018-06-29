@@ -6,7 +6,7 @@ sudo -v
 # Clean up previous installation
 rm -rf openstack-helm*
 
-# Clone anewly
+# Clone newly
 git clone https://git.openstack.org/openstack/openstack-helm-infra.git
 git clone https://git.openstack.org/openstack/openstack-helm.git
 
