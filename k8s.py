@@ -396,7 +396,7 @@ def k8s_wait_for_kube_system(args):
             if elapsed_time is not 0:
                 if cnt is not prev_cnt:
                     print(
-                        "  *Running pod(s) status after %d seconds %s:%s*"
+                        "  *Pod(s) status after %d seconds %s:%s*"
                         % (elapsed_time, cnt, base_pods))
             prev_cnt = cnt
             time.sleep(RETRY_INTERVAL)
