@@ -1,12 +1,16 @@
 #!/bin/bash
 
+set -x
+
 # To be converted to python
 sudo -v
 
+echo Clean up existing openstack-helm repos
 # Clean up previous installation
 rm -rf openstack-helm*
 
 # Clone newly
+echo Clone newly openstack-helm repos
 git clone https://git.openstack.org/openstack/openstack-helm-infra.git
 git clone https://git.openstack.org/openstack/openstack-helm.git
 
@@ -26,25 +30,25 @@ git clone https://git.openstack.org/openstack/openstack-helm.git
 # Install ceph client
 sudo apt install ceph-common -y
 
-# Build all helm charts
+# Start servers add repos
+echo start helm server and add repo
 helm serve &
 helm repo add local http://localhost:8879/charts
+
+# Build all helm charts
+echo build all helm charts
 pushd openstack-helm-infra
 make clean
 git pull
 make all
 popd
-
 pushd openstack-helm
 make clean
 git pull
 make all
 
-# Start helm server if not already
-helm serve &
-helm repo add local http://localhost:8879/charts
-
 # Label nodes
+echo label nodes
 kubectl label nodes osh openstack-helm-node-class=primary
 kubectl label nodes osh openstack-control-plane=enabled
 kubectl label nodes osh openstack-compute-node=enabled
@@ -59,6 +63,7 @@ kubectl label nodes osh ceph-mgr=enabled
 # At this point can deploy osh scripts
 # Note this is the developer scripts which work on a single node
 # Eventually this can be moved to multinode/production
+echo run openstack-helm deployment scripts
 pushd openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 ./tools/deployment/developer/common/030-ingress.sh
