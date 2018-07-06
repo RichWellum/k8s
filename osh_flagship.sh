@@ -4,7 +4,7 @@
 set -x
 
 # To be converted to python
-sudo -v
+# sudo -v
 
 echo Clean up existing openstack-helm repos
 # Clean up previous installation
