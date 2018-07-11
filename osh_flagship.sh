@@ -71,6 +71,8 @@ echo run openstack-helm deployment scripts
 pushd openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 #./tools/deployment/developer/common/030-ingress.sh
+read -p "Modify resolv,conf now, press [Enter] key to continue.."
+
 ./tools/deployment/developer/ceph/040-ceph.sh
 ./tools/deployment/developer/ceph/045-ceph-ns-activate.sh
 ./tools/deployment/developer/ceph/050-mariadb.sh
