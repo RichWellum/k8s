@@ -15,6 +15,18 @@ echo Clone newly openstack-helm repos
 git clone https://git.openstack.org/openstack/openstack-helm-infra.git
 git clone https://git.openstack.org/openstack/openstack-helm.git
 
+# Add paths to Flagship binaries
+export PATH="/opt/flagship:$PATH"
+export PATH="/opt/flagship/bin:$PATH"
+
+# Install pip
+curl -L https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+sudo python /tmp/get-pip.py
+
+# Add to installs missing in flagshirt
+sudo apt install jq
+pip install python-openstackclient
+
 # Resolv.conf has to reflect the network that k8s is on
 # For example:
 # #nameserver 192.168.122.1
@@ -71,6 +83,12 @@ echo run openstack-helm deployment scripts
 pushd openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 #./tools/deployment/developer/common/030-ingress.sh
+cluster_ip=$(kubectl -n kube-system get svc kube-dns -o json | jq -r .spec.clusterIP)
+echo resolv.conf should look like:
+echo search openstack.svc.cluster.local svc.cluster.local cluster.local
+echo nameserver $cluster_ip
+echo options ndots:5 timeout:1 attempts:1
+
 read -p "Modify resolv,conf now, press [Enter] key to continue.."
 
 ./tools/deployment/developer/ceph/040-ceph.sh
