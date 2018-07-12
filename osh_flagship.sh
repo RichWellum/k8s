@@ -1,7 +1,7 @@
 #!/bin/bash
 # Installs openstack-helm on a flagship provided k8s cluster
 
-set -x
+# set -x
 
 # To be converted to python
 # sudo -v
@@ -89,7 +89,7 @@ echo search openstack.svc.cluster.local svc.cluster.local cluster.local
 echo nameserver $cluster_ip
 echo options ndots:5 timeout:1 attempts:1
 
-read -p "Modify resolv,conf now, press [Enter] key to continue.."
+read -p "Modify resolv.conf now, press [Enter] key to continue.."
 
 ./tools/deployment/developer/ceph/040-ceph.sh
 ./tools/deployment/developer/ceph/045-ceph-ns-activate.sh
