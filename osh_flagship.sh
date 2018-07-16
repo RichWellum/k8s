@@ -56,6 +56,7 @@ helm repo add local http://localhost:8879/charts
 
 # Build all helm charts
 echo build all helm charts
+
 pushd openstack-helm-infra
 make clean
 git pull
@@ -65,6 +66,7 @@ pushd openstack-helm
 make clean
 git pull
 make all
+popd
 
 # Label nodes
 echo label nodes
