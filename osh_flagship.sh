@@ -1,10 +1,15 @@
 #!/bin/bash
 # Installs openstack-helm on a flagship provided k8s cluster
+# git clone https://github.com/RichWellum/k8s.git && \
+    # git clone https://github.com/v1k0d3n/flagship.git ${HOME}/flagship \
+    # && sudo mv ${HOME}/flagship /opt/ && cd /opt/flagship
 
 # set -x
 
 # To be converted to python
 # sudo -v
+sudo apt update && sudo apt full-upgrade -y && \
+    sudo apt autoremove -y && sudo apt autoclean \
 
 echo Clean up existing openstack-helm repos
 # Clean up previous installation
