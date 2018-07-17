@@ -6,6 +6,11 @@
 
 # set -x
 
+# Update flagship
+pushd /opt/flagship
+git pull
+popd
+
 # To be converted to python
 # sudo -v
 sudo apt update && sudo apt full-upgrade -y && \
