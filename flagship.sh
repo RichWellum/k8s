@@ -39,6 +39,7 @@ pip install python-openstackclient
 
 # Start flagship
 echo Start flagship
+read -p "Modify flagship.yaml now, press [Enter] key to continue.."
 flagship -i
 
 # Start servers add repos
