@@ -11,8 +11,8 @@ rm -rf /opt/flagship
 # Clone k8s and flagship - k8s because has some k8s cleanup and osh that can
 # run on top of flagship
 echo clone repos - passwords may be needed
-git clone https://github.com/RichWellum/k8s.git && \
-    git clone https://github.com/v1k0d3n/flagship.git ${HOME}/flagship \
+# git clone https://github.com/RichWellum/k8s.git
+git clone https://github.com/v1k0d3n/flagship.git ${HOME}/flagship \
     && sudo mv ${HOME}/flagship /opt/ && cd /opt/flagship
 
 # To be converted to python
