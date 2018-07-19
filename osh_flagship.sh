@@ -1,5 +1,6 @@
 #!/bin/bash
 # Installs openstack-helm on a flagship provided k8s cluster
+
 # git clone https://github.com/RichWellum/k8s.git && \
     # git clone https://github.com/v1k0d3n/flagship.git ${HOME}/flagship \
     # && sudo mv ${HOME}/flagship /opt/ && cd /opt/flagship
@@ -36,7 +37,7 @@ pip install python-openstackclient
 # For example:
 # #nameserver 192.168.122.1
 # search openstack.svc.cluster.local svc.cluster.local cluster.local
-# nameserver 10.3.3.10
+# nameserver 10.96.0.10
 # options ndots:5 timeout:1 attempts:1
 # Use: kubectl -n kube-system get svc kube-dns -o json | jq -r .spec.clusterIP
 # to determine ip to add
