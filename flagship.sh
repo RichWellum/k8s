@@ -34,7 +34,7 @@ sudo python /tmp/get-pip.py
 
 # Add to installs missing in flagshirt
 echo Install missing packages
-sudo apt install jq
+sudo apt install jq -y
 pip install python-openstackclient
 
 # Start flagship
