@@ -1,5 +1,6 @@
 #!/bin/bash
 # Installs flagship
+
 # set -x
 
 sudo -v
