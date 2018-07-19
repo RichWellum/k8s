@@ -6,46 +6,50 @@
 sudo -v
 
 # Delete old version
-echo remove old flagship
+echo Remove old flagship
 rm -rf /opt/flagship
 
 # Clone k8s and flagship - k8s because has some k8s cleanup and osh that can
 # run on top of flagship
-echo clone repos - passwords may be needed
+echo Clone repos - passwords may be needed
 # git clone https://github.com/RichWellum/k8s.git
 git clone https://github.com/v1k0d3n/flagship.git ${HOME}/flagship \
     && sudo mv ${HOME}/flagship /opt/ && cd /opt/flagship
 
 # To be converted to python
 # Update and clean ubuntu
-echo upgrade ubuntu
+echo Upgrade ubuntu
 sudo apt update && sudo apt full-upgrade -y && \
     sudo apt autoremove -y && sudo apt autoclean
 
 # Add paths to Flagship binaries
-echo set paths
+echo Set paths
 export PATH="/opt/flagship:$PATH"
 export PATH="/opt/flagship/bin:$PATH"
 
 # Install pip
-echo install pip
+echo Install pip
 curl -L https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
 sudo python /tmp/get-pip.py
 
 # Add to installs missing in flagshirt
-echo install missing packages
+echo Install missing packages
 sudo apt install jq
 pip install python-openstackclient
 
+# Start flagship
+echo Start flagship
+flagship -i
+
 # Start servers add repos
-echo start helm server and add repo
+echo Start helm server and add repo
 helm serve &
 helm repo add local http://localhost:8879/charts
 
 #Basic info about k8s
 echo display basic k8s info
 # Determine IP and port information from Service:
-echo  Determine IP and port information from Service:
+echo Determine IP and port information from Service:
 kubectl get svc -n kube-system
 kubectl get svc -n openstack
 
