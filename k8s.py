@@ -523,27 +523,27 @@ def k8s_install_tools(args):
                    K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo swapoff -a')
-    curl(
-        '-L',
-        'https://bootstrap.pypa.io/get-pip.py',
-        '-o', '/tmp/get-pip.py')
-    run_shell(args, 'sudo python /tmp/get-pip.py')
+    # Not needed for pure k8s
+    # curl(
+    #     '-L',
+    #     'https://bootstrap.pypa.io/get-pip.py',
+    #     '-o', '/tmp/get-pip.py')
+    # run_shell(args, 'sudo python /tmp/get-pip.py')
 
     # https://github.com/ansible/ansible/issues/26670
     # TODO - not sure if this is centos compatible or not
-    run_shell(args, 'sudo python -m easy_install --upgrade pyOpenSSL')
+    # TODO - remove for now
+    # run_shell(args, 'sudo python -m easy_install --upgrade pyOpenSSL')
     # run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
     # run_shell(args, 'sudo -H pip install pyOpenSSL')
 
     if linux_ver() == 'centos':
-        run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
-        run_shell(args, 'sudo yum install -y qemu epel-release bridge-utils')
+        # TODO : takes time lets not do it and assum VM OS is up to date
+        # run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
         run_shell(args,
-                  'sudo yum install -y python-pip python-devel libffi-devel '
-                  'gcc openssl-devel sshpass')
-        run_shell(args, 'sudo yum install -y git crudini jq ansible curl lvm2')
-        # Disable swap as not supported. TODO: check with ubuntu
-        run_shell(args, 'sudo yum install -y docker')
+                  'sudo yum install -y qemu epel-release bridge-utils '
+                  'python-pip python-devel libffi-devel gcc docker '
+                  'openssl-devel sshpass crudini jq ansible curl lvm2')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
@@ -558,13 +558,13 @@ def k8s_install_tools(args):
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
-    run_shell(args,
-              'sudo -H -E pip install "cmd2<=0.8.7"')
+    # run_shell(args,
+    #           'sudo -H -E pip install "cmd2<=0.8.7"')
     # Not related to k8s, but for openstack - install the following
     # TODO: can be removed and placed in the osh deployer
-    run_shell(args,
-              'sudo -H -E pip install python-openstackclient '
-              'python-heatclient python-neutronclient python-cinderclient')
+    # run_shell(args,
+    #           'sudo -H -E pip install python-openstackclient '
+    #           'python-heatclient python-neutronclient python-cinderclient')
 
     if args.complete_cleanup is not True:
         print_versions(args)

@@ -7,7 +7,12 @@ sudo -v
 
 # Delete old version
 echo Remove old flagship
+cd
+# brew reinstall gnu-sed --with-default-names
+flagship -s
+flagship -r
 rm -rf /opt/flagship
+rm -rf ~/.flagship
 
 # Clone k8s and flagship - k8s because has some k8s cleanup and osh that can
 # run on top of flagship
