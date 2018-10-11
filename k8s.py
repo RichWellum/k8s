@@ -591,10 +591,11 @@ def k8s_install_tools(args):
 """)
     run_shell(args, 'sudo chmod 777 %s' % name)
     run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
-
     run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
     run_shell(args, 'sudo systemctl daemon-reload')
-    run_shell(args, 'sudo systemctl restart docker')
+    run_shell(args, 'sudo systemctl enable docker.service')
+    run_shell(args, 'sudo systemctl start docker.service')
+    # run_shell(args, 'sudo systemctl restart docker')
 
     if args.complete_cleanup is not True:
         print_versions(args)
@@ -677,8 +678,6 @@ def k8s_setup_dns(args):
                    'the service CIDR',
                    K8S_FINAL_PROGRESS)
 
-    # run_shell(args, 'sudo systemctl enable docker')
-    # run_shell(args, 'sudo systemctl start docker')
     run_shell(
         args,
         'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
