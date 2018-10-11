@@ -576,17 +576,17 @@ def k8s_install_tools(args):
 
     name = '/tmp/daemon'
     with open(name, "w") as w:
-        w.write("""\docker
+        w.write("""\
  {
    "exec-opts": ["native.cgroupdriver=systemd"],
    "log-driver": "json-file",
    "log-opts": {
      "max-size": "100m"
    },
-  "storage-driver": "overlay2",
-  "storage-opts": [
-    "overlay2.override_kernel_check=true"
-  ]
+   "storage-driver": "overlay2",
+   "storage-opts": [
+     "overlay2.override_kernel_check=true"
+   ]
 }
 """)
     run_shell(args, 'sudo chmod 777 %s' % name)
@@ -628,7 +628,7 @@ def k8s_turn_things_off(args):
 
         run_shell(args, 'sudo setenforce 0')
         run_shell(args,
-                  "sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' "
+                  "sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' "
                   "/etc/selinux/config")
         # run_shell(args,
         #           "sudo sed -i --follow-symlinks "
@@ -677,8 +677,8 @@ def k8s_setup_dns(args):
                    'the service CIDR',
                    K8S_FINAL_PROGRESS)
 
-    run_shell(args, 'sudo systemctl enable docker')
-    run_shell(args, 'sudo systemctl start docker')
+    # run_shell(args, 'sudo systemctl enable docker')
+    # run_shell(args, 'sudo systemctl start docker')
     run_shell(
         args,
         'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp')
@@ -714,7 +714,7 @@ def k8s_reload_service_files(args):
                    K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo systemctl daemon-reload')
-    run_shell(args, 'systemctl restart kubelet')
+    run_shell(args, 'sudo systemctl restart kubelet')
 
 
 def k8s_start_kubelet(args):
