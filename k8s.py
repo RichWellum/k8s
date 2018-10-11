@@ -340,12 +340,12 @@ def k8s_create_repo(args):
             w.write("""\
 [kubernetes]
 name=Kubernetes
-baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=1
 repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kube*
 """)
         # todo: add -H to all sudo's see if it works in both envs
         run_shell(args, 'sudo mv ./kubernetes.repo %s' % repo)
@@ -561,6 +561,7 @@ def k8s_install_tools(args):
 
     # Install latest docker
     # Need to add Ubuntu equivalent
+    # https://kubernetes.io/docs/setup/cri/
     run_shell(args,
               'sudo yum remove -y docker docker-common docker-selinux '
               'docker-engine')
@@ -571,15 +572,29 @@ def k8s_install_tools(args):
               'sudo yum-config-manager --add-repo '
               'https://download.docker.com/linux/centos/docker-ce.repo')
     run_shell(args,
-              'sudo yum install -y docker-ce')
+              'sudo yum update && yum install docker-ce-18.06.1.ce')
 
-    # run_shell(args,
-    #           'sudo -H -E pip install "cmd2<=0.8.7"')
-    # Not related to k8s, but for openstack - install the following
-    # TODO: can be removed and placed in the osh deployer
-    # run_shell(args,
-    #           'sudo -H -E pip install python-openstackclient '
-    #           'python-heatclient python-neutronclient python-cinderclient')
+    name = '/tmp/daemon'
+    with open(name, "w") as w:
+        w.write("""\
+ {
+   "exec-opts": ["native.cgroupdriver=systemd"],
+   "log-driver": "json-file",
+   "log-opts": {
+     "max-size": "100m"
+   },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+""")
+    run_shell(args, 'sudo chmod 777 %s' % name)
+    run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
+
+    run_shell(args, 'mkdir -p /etc/systemd/system/docker.service.d')
+    run_shell(args, 'systemctl daemon-reload')
+    run_shell(args, 'systemctl restart docker')
 
     if args.complete_cleanup is not True:
         print_versions(args)
@@ -613,11 +628,12 @@ def k8s_turn_things_off(args):
 
         run_shell(args, 'sudo setenforce 0')
         run_shell(args,
-                  'sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
-        run_shell(args,
-                  "sudo sed -i --follow-symlinks "
-                  "'s/SELINUX=enforcing/SELINUX=disabled/g' "
-                  "/etc/sysconfig/selinux")
+                  "sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' "
+                  "/etc/selinux/config")
+        # run_shell(args,
+        #           "sudo sed -i --follow-symlinks "
+        #           "'s/SELINUX=enforcing/SELINUX=disabled/g' "
+        #           "/etc/sysconfig/selinux")
     print_progress('Kubernetes',
                    'Turn off firewall and ISCSID',
                    K8S_FINAL_PROGRESS)
@@ -645,7 +661,8 @@ def k8s_install_k8s(args):
 
     if linux_ver() == 'centos':
         run_shell(args,
-                  'sudo yum install -y kubelet kubeadm kubectl')
+                  'sudo yum install -y kubelet kubeadm kubectl '
+                  '--disableexcludes=kubernetes')
     else:
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
@@ -697,6 +714,7 @@ def k8s_reload_service_files(args):
                    K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo systemctl daemon-reload')
+    run_shell(args, 'systemctl restart kubelet')
 
 
 def k8s_start_kubelet(args):
@@ -731,7 +749,8 @@ def k8s_fix_iptables(args):
             reload_sysctl = True
     if reload_sysctl is True:
         run_shell(args, 'sudo mv /tmp/sysctl.conf /etc/sysctl.conf')
-        run_shell(args, 'sudo sysctl -p')
+        # run_shell(args, 'sudo sysctl -p')
+        run_shell(args, 'sudo sysctl --system')
 
 
 def k8s_deploy_k8s(args):
