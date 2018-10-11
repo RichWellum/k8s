@@ -342,7 +342,7 @@ def k8s_create_repo(args):
 name=Kubernetes
 baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
 enabled=1
-gpgcheck=0
+gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
@@ -523,6 +523,8 @@ def k8s_install_tools(args):
                    K8S_FINAL_PROGRESS)
 
     run_shell(args, 'sudo swapoff -a')
+    run_shell(args, 'sudo modprobe br_netfilter')
+
     # Not needed for pure k8s
     # curl(
     #     '-L',
@@ -538,11 +540,10 @@ def k8s_install_tools(args):
     # run_shell(args, 'sudo -H pip install pyOpenSSL')
 
     if linux_ver() == 'centos':
-        # TODO : takes time lets not do it and assum VM OS is up to date
-        # run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
+        run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
         run_shell(args,
                   'sudo yum install -y qemu epel-release bridge-utils '
-                  'python-pip python-devel libffi-devel gcc docker '
+                  'python-pip python-devel libffi-devel gcc '
                   'openssl-devel sshpass crudini jq ansible curl lvm2')
     else:
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
@@ -557,6 +558,20 @@ def k8s_install_tools(args):
                   'libnfnetlink0 libwrap0 libxtables11 socat')
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
+
+    # Install latest docker
+    # Need to add Ubuntu equivalent
+    run_shell(args,
+              'sudo yum remove -y docker docker-common docker-selinux '
+              'docker-engine')
+    run_shell(args,
+              'sudo yum install -y yum-utils '
+              'device-mapper-persistent-data lvm2')
+    run_shell(args,
+              'sudo yum-config-manager --add-repo '
+              'https://download.docker.com/linux/centos/docker-ce.repo')
+    run_shell(args,
+              'sudo yum install -y docker-ce')
 
     # run_shell(args,
     #           'sudo -H -E pip install "cmd2<=0.8.7"')
@@ -599,7 +614,10 @@ def k8s_turn_things_off(args):
         run_shell(args, 'sudo setenforce 0')
         run_shell(args,
                   'sudo sed -i s/enforcing/permissive/g /etc/selinux/config')
-
+        run_shell(args,
+                  "sudo sed -i --follow-symlinks "
+                  "'s/SELINUX=enforcing/SELINUX=disabled/g' "
+                  "/etc/sysconfig/selinux")
     print_progress('Kubernetes',
                    'Turn off firewall and ISCSID',
                    K8S_FINAL_PROGRESS)
@@ -627,8 +645,7 @@ def k8s_install_k8s(args):
 
     if linux_ver() == 'centos':
         run_shell(args,
-                  'sudo yum install -y '
-                  'ebtables kubelet kubeadm kubectl kubernetes-cni')
+                  'sudo yum install -y kubelet kubeadm kubectl')
     else:
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
@@ -728,7 +745,6 @@ def k8s_deploy_k8s(args):
 
     out = run_shell(args,  # todo clean up
                     'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
-                    # 'sudo kubeadm init --pod-network-cidr=10.244.0.0/16 '
                     '--service-cidr=10.3.3.0/24 '
                     '--ignore-preflight-errors=all')
 

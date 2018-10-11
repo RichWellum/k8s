@@ -5,7 +5,7 @@ sudo yum update -y
 
 sudo setenforce 0
 sudo sed -i s/enforcing/permissive/g /etc/selinux/config # needed?
-sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinuox
 
 sudo swapoff -a
 
@@ -77,12 +77,6 @@ mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-# sudo mkdir -p $HOME/.kube
-# sudo chmod 777 $HOME/.kube
-# sudo -H cp /etc/kubernetes/admin.conf /root/.kube/config
-# sudo -H chown $(id -u):$(id -g) $HOME/.kube/config
-
-
 #Google this
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
@@ -96,6 +90,8 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
 # sed -i '/fieldPath: spec.nodeName/ r /tmp/ipalloc.txt' /tmp/weave.yaml
 
 # kubectl apply -f /tmp/weave.yaml
+
+# Try canal
 
 kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-
 
