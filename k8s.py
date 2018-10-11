@@ -572,7 +572,7 @@ def k8s_install_tools(args):
               'sudo yum-config-manager --add-repo '
               'https://download.docker.com/linux/centos/docker-ce.repo')
     run_shell(args,
-              'sudo yum update && yum install docker-ce-18.06.1.ce')
+              'sudo yum update && sudo yum install docker-ce-18.06.1.ce')
 
     name = '/tmp/daemon'
     with open(name, "w") as w:
