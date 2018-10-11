@@ -576,7 +576,7 @@ def k8s_install_tools(args):
 
     name = '/tmp/daemon'
     with open(name, "w") as w:
-        w.write("""\
+        w.write("""\docker
  {
    "exec-opts": ["native.cgroupdriver=systemd"],
    "log-driver": "json-file",
@@ -592,9 +592,9 @@ def k8s_install_tools(args):
     run_shell(args, 'sudo chmod 777 %s' % name)
     run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
 
-    run_shell(args, 'mkdir -p /etc/systemd/system/docker.service.d')
-    run_shell(args, 'systemctl daemon-reload')
-    run_shell(args, 'systemctl restart docker')
+    run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
+    run_shell(args, 'sudo systemctl daemon-reload')
+    run_shell(args, 'sudo systemctl restart docker')
 
     if args.complete_cleanup is not True:
         print_versions(args)
