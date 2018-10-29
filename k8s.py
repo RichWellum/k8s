@@ -146,7 +146,7 @@ def run_shell(args, cmd):
         debug = True
 
     if debug is True:
-        print('CMD:"%s"' % str(cmd))
+        print('CMD: "%s"' % str(cmd))
 
     p = subprocess.Popen(
         cmd,
