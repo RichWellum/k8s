@@ -5,7 +5,7 @@ sudo yum update -y
 
 sudo setenforce 0
 sudo sed -i s/enforcing/permissive/g /etc/selinux/config # needed?
-sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinuox
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 
 sudo swapoff -a
 
