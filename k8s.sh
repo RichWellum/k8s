@@ -78,7 +78,7 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 #Google this
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+# kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
 # Don't allow Weave Net to crunch ip's used by k8s
 # name='/tmp/ipalloc.txt'
@@ -92,6 +92,17 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
 # kubectl apply -f /tmp/weave.yaml
 
 # Try canal
+curl -L https://docs.projectcalico.org/v3.1/getting-started \
+        /kubernetes/installation/hosted/canal/rbac.yaml \
+        -o /tmp/rbac.yaml
+kubectl create -f /tmp/rbac.yaml
+
+curl -L https://docs.projectcalico.org/v3.1/getting-started \
+        /kubernetes/installation/hosted/canal/canal.yaml \
+        -o /tmp/canal.yaml
+sudo chmod 777 /tmp/canal.yaml
+sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml
+kubectl create -f /tmp/canal.yaml
 
 kubectl taint nodes --all=true node-role.kubernetes.io/master:NoSchedule-
 
@@ -113,4 +124,4 @@ subjects:
   name: system:unauthenticated
 EOF
 
-kubectl apply -f /tmp/rbac
+kubectl apply -f /tmp/rbac.yaml
