@@ -143,7 +143,7 @@ def run_shell(args, cmd, print_cmd=False):
     '''
 
     if print_cmd:
-        print(str(cmd))
+        print('CMD:"%s"' % str(cmd))
 
     p = subprocess.Popen(
         cmd,
@@ -344,7 +344,9 @@ baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=1
 repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
 exclude=kube*
 """)
         # todo: add -H to all sudo's see if it works in both envs
@@ -378,10 +380,9 @@ def k8s_wait_for_kube_system(args):
           % (PROGRESS, K8S_FINAL_PROGRESS, (time.time() - start_time)))
 
     while True:
-        pod_status = run_shell(
-            args,
-            "kubectl get pods -n kube-system --no-headers | "
-            "grep 'Running\|Pending'")
+        pod_status = run_shell(args,
+                               'kubectl get pods -n kube-system --no-headers')
+
         nlines = len(pod_status.splitlines())
         if nlines >= base_pods:
             print(
@@ -631,10 +632,10 @@ def k8s_turn_things_off(args):
         run_shell(args,
                   "sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' "
                   "/etc/selinux/config")
-        # run_shell(args,
-        #           "sudo sed -i --follow-symlinks "
-        #           "'s/SELINUX=enforcing/SELINUX=disabled/g' "
-        #           "/etc/sysconfig/selinux")
+        run_shell(args,
+                  "sudo sed -i --follow-symlinks "
+                  "'s/SELINUX=enforcing/SELINUX=disabled/g' "
+                  "/etc/sysconfig/selinux")
     print_progress('Kubernetes',
                    'Turn off firewall and ISCSID',
                    K8S_FINAL_PROGRESS)
@@ -667,7 +668,7 @@ def k8s_install_k8s(args):
     else:
         run_shell(args,
                   'sudo apt-get install -y --allow-downgrades '
-                  'ebtables kubelet kubeadm kubectl kubernetes-cni')
+                  'ebtables kubelet kubeadm kubectl')
 
 
 def k8s_setup_dns(args):
