@@ -135,14 +135,17 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_shell(args, cmd, print_cmd=False):
+def run_shell(args, cmd):
     '''Run a shell command and return the output
 
     Print the output and errors if debug is enabled
     Not using logger.debug as a bit noisy for this info
     '''
 
-    if print_cmd:
+    if args.verbose == 10:  # Hack - debug enabled
+        debug = True
+
+    if debug is True:
         print('CMD:"%s"' % str(cmd))
 
     p = subprocess.Popen(
@@ -155,7 +158,7 @@ def run_shell(args, cmd, print_cmd=False):
     out = out.rstrip()
     err = err.rstrip()
 
-    if args.verbose == 10:  # Hack - debug enabled
+    if debug is True:
         if str(out) is not '0' and str(out) is not '1' and out:
             print("Shell STDOUT output: \n'%s'\n" % out)
         if err:
