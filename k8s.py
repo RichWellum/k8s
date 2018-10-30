@@ -768,6 +768,8 @@ def k8s_deploy_weave(args):
 
     weave_ver = run_shell(args,
                           "echo $(kubectl version | base64 | tr -d '\n')")
+    run_shell(args, 'sudo rm -rf /tmp/weave.yaml /tmp/ipalloc.txt')
+
     curl(
         '-L',
         'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
