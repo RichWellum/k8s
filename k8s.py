@@ -147,10 +147,10 @@ def run_shell(args, cmd):
     Not using logger.debug as a bit noisy for this info
     '''
     debug = False
-    if args.verbose == 10 or args.commmands:  # Hack - debug enabled
+    if args.verbose == 10:  # Hack - debug enabled
         debug = True
 
-    if debug is True:
+    if debug is True or args.commmands:
         print('CMD: "%s"' % str(cmd))
 
     p = subprocess.Popen(
