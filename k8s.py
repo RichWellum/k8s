@@ -546,17 +546,23 @@ def k8s_install_tools(args):
     # Install latest docker
     # Need to add Ubuntu equivalent
     # https://kubernetes.io/docs/setup/cri/
-    run_shell(args,
-              'sudo yum remove -y docker docker-common docker-selinux '
-              'docker-engine')
-    run_shell(args,
-              'sudo yum install -y yum-utils '
-              'device-mapper-persistent-data lvm2')
-    run_shell(args,
-              'sudo yum-config-manager --add-repo '
-              'https://download.docker.com/linux/centos/docker-ce.repo')
-    run_shell(args,
-              'sudo yum install docker-ce-18.06.1.ce -y')
+    if '18' in docker_ver() and 'ce' in docker_ver():
+        install_docker = False
+    else:
+        install_docker = True
+
+    if install_docker:
+        run_shell(args,
+                  'sudo yum remove -y docker docker-common docker-selinux '
+                  'docker-engine')
+        run_shell(args,
+                  'sudo yum install -y yum-utils '
+                  'device-mapper-persistent-data lvm2')
+        run_shell(args,
+                  'sudo yum-config-manager --add-repo '
+                  'https://download.docker.com/linux/centos/docker-ce.repo')
+        run_shell(args,
+                  'sudo yum install docker-ce-18.06.1.ce -y')
 
     name = '/tmp/daemon'
     with open(name, "w") as w:
