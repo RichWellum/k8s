@@ -503,25 +503,21 @@ def print_progress(process, msg, finalctr, add_one=False):
 
     if add_one:
         add_one_to_progress()
+
     print("(%02d/%02d -- %03ds --) %s - %s" %
           (PROGRESS, finalctr, (time.time() - start_time), process, msg))
+
     add_one_to_progress()
 
 
 def k8s_install_tools(args):
-    '''Basic tools needed for first pass'''
+    '''Install basic tools needed for first pass'''
 
-    # Reset kubeadm if it's a new installation
-    # run_shell(args, 'sudo kubeadm reset')
-
-    banner('Kubernetes - Bring up a Kubernetes Cluster')
+    banner('Kubernetes - Install needed packages')
 
     print_progress('Kubernetes',
-                   'Installing environment',
+                   'Installing packages',
                    K8S_FINAL_PROGRESS)
-
-    run_shell(args, 'sudo swapoff -a')
-    run_shell(args, 'sudo modprobe br_netfilter')
 
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y')
@@ -611,6 +607,9 @@ def k8s_setup_ntp(args):
 def k8s_turn_things_off(args):
     '''Currently turn off SELinux and Firewall'''
 
+    run_shell(args, 'sudo swapoff -a')
+    run_shell(args, 'sudo modprobe br_netfilter')
+
     if linux_ver() == 'centos':
         print_progress('Kubernetes',
                        'Turn off SELinux',
@@ -624,6 +623,7 @@ def k8s_turn_things_off(args):
                   "sudo sed -i --follow-symlinks "
                   "'s/SELINUX=enforcing/SELINUX=disabled/g' "
                   "/etc/sysconfig/selinux")
+
     print_progress('Kubernetes',
                    'Turn off firewall and ISCSID',
                    K8S_FINAL_PROGRESS)
