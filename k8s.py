@@ -294,7 +294,7 @@ def print_versions(args):
     print('    OS version str:    %s' % os_ver_s)
 
     print('\n  Networking Info:')
-    print('    CNI/SDN:            %s' % args.cni)
+    print('    CNI/SDN:            Weave')
 
     print('\n  Tool Versions:')
     print('    Docker version:     %s' % docker_ver(args))
@@ -759,7 +759,7 @@ def k8s_load_kubeadm_creds(args):
     run_shell(args, 'sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
 
 
-def k8s_deploy_cni(args):
+def k8s_deploy_weave(args):
     '''Deploy CNI/SDN to K8s cluster'''
 
     print_progress('Kubernetes',
@@ -1094,7 +1094,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
-    k8s_deploy_cni(args)
+    k8s_deploy_weave(args)
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     # k8s_check_nslookup(args)
