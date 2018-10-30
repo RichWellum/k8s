@@ -550,7 +550,7 @@ def k8s_install_tools(args):
     # run_shell(args, 'sudo -H pip install pyOpenSSL')
 
     if linux_ver() == 'centos':
-        run_shell(args, 'sudo yum update -y; sudo yum upgrade -y')
+        run_shell(args, 'sudo yum update -y')
         run_shell(args,
                   'sudo yum install -y qemu epel-release bridge-utils '
                   'python-pip python-devel libffi-devel gcc '
@@ -1181,7 +1181,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_cni(args)
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
-    k8s_check_nslookup(args)
+    # k8s_check_nslookup(args)
 
 
 def k8s_install_logging(args):
