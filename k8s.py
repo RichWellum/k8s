@@ -542,7 +542,7 @@ def k8s_install_tools(args):
     # Install latest docker
     # Need to add Ubuntu equivalent
     # https://kubernetes.io/docs/setup/cri/
-    if '18' in docker_ver() and 'ce' in docker_ver():
+    if '18' in docker_ver(args) and 'ce' in docker_ver(args):
         install_docker = False
     else:
         install_docker = True
