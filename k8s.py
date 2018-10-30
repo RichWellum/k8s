@@ -424,15 +424,15 @@ def k8s_wait_for_running_negate(args, timeout=None):
     elapsed_time = 0
     prev_not_running = 0
     while True:
-        etcd_check = run_shell(args,
-                               'kubectl get pods --no-headers --all-namespaces'
-                               ' | grep -i "request timed out" | wc -l')
+        # etcd_check = run_shell(args,
+        #                        'kubectl get pods --no-headers --all-namespaces'
+        #                        ' | grep -i "request timed out" | wc -l')
 
-        if int(etcd_check) != 0:
-            print('Kubernetes - etcdserver is busy - '
-                  'retrying after brief pause')
-            time.sleep(15)
-            continue
+        # if int(etcd_check) != 0:
+        #     print('Kubernetes - etcdserver is busy - '
+        #           'retrying after brief pause')
+        #     time.sleep(15)
+        #     continue
 
         not_running = run_shell(
             args,
@@ -777,8 +777,8 @@ def k8s_deploy_weave(args):
     name = '/tmp/ipalloc.txt'
     with open(name, "w") as w:
         w.write("""\
-        - name: IPALLOC_RANGE
-        value: 10.0.0.0/16
+            - name: IPALLOC_RANGE
+              value: 10.0.0.0/16
 """)
     run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
     run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
@@ -863,7 +863,7 @@ def k8s_install_deploy_helm(args):
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % args.helm_version)
     run_shell(args, 'sudo mv -f linux-amd64/helm /usr/local/bin/helm')
     run_shell(args, 'helm init')
-    k8s_wait_for_pod_start(args, 'tiller')
+    # k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
     banner("Kubernetes Cluster is up and running")
 
