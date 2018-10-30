@@ -49,6 +49,12 @@ Alt way to run:
 
 curl https://raw.githubusercontent.com/RichWellum/k8s/master/k8s.py \
 | python - -cni weave
+
+Proxy
+====
+
+To handle a proxy, add management ip (ip a) to the no_proxy in
+/etc/profile.d/nsnproxy.sh
 '''
 
 from __future__ import print_function
@@ -764,10 +770,11 @@ def k8s_deploy_k8s(args):
                    'Deploying Kubernetes with kubeadm',
                    K8S_FINAL_PROGRESS)
 
-    out = run_shell(args,  # todo clean up
-                    'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
-                    '--service-cidr=10.3.3.0/24 '
-                    '--ignore-preflight-errors=all')
+    # out = run_shell(args,  # todo clean up
+    #                 'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
+    #                 '--service-cidr=10.3.3.0/24 '
+    #                 '--ignore-preflight-errors=all')
+    out = run_shell(args, 'sudo kubeadm init')
 
     # Even in no-verbose mode, we need to display the join command to
     # enabled multi-node
@@ -1164,7 +1171,7 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes tools installed, minion ready')
         sys.exit(1)
-    k8s_setup_dns(args)
+    # k8s_setup_dns(args) - not needed anymore
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)

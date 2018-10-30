@@ -58,20 +58,28 @@ sudo systemctl enable kubelet.service
 sudo systemctl enable docker
 sudo systemctl start docker
 
-sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp
-sudo chmod 777 /tmp/10-kubeadm.conf
-sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf
-sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" >> \
-     /tmp/10-kubeadm.conf
-sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false" >> \
-     /tmp/10-kubeadm.conf
-sudo echo Environment="KUBELET_DOS_ARGS=--runtime-cgroups=/systemd/system.slice \
-     --kubelet-cgroups=/systemd/system.slice --hostname-override=$(hostname) \
-     --fail-swap-on=false" >> /tmp/10-kubeadm.conf
-sudo mv /tmp/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-sudo sysctl -p
+# Ignore the next block
+# sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp
+# sudo chmod 777 /tmp/10-kubeadm.conf
+# sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf
+# sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" >> \
+#      /tmp/10-kubeadm.conf
+# sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false" >> \
+#      /tmp/10-kubeadm.conf
+# sudo echo Environment="KUBELET_DOS_ARGS=--runtime-cgroups=/systemd/system.slice \
+#      --kubelet-cgroups=/systemd/system.slice --hostname-override=$(hostname) \
+#      --fail-swap-on=false" >> /tmp/10-kubeadm.conf
+# sudo mv /tmp/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+# sudo sysctl -p
 
-sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --ignore-preflight-errors=all
+# sudo kubeadm init --pod-network-cidr=10.1.0.0/16 --service-cidr=10.3.3.0/24 --ignore-preflight-errors=all
+
+# Add no proxy
+# ip a... add to:
+# vi /etc/profile.d/nsnproxy.sh
+# source /etc/profile.d/nsnproxy.sh
+
+sudo kubeadm init
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
