@@ -510,7 +510,7 @@ def k8s_install_tools(args):
                   'sudo apt-get install --no-install-recommends -y '
                   'qemu bridge-utils python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass apt-transport-https git '
-                  'gcc crudini jq ansible curl lvm2 docker-ce ceph-common '
+                  'gcc crudini jq ansible curl lvm2 ceph-common '
                   'ca-certificates make jq nmap curl uuid-runtime ipcalc '
                   'ebtables ethtool iproute2 iptables libmnl0 '
                   'libnfnetlink0 libwrap0 libxtables11 socat')
@@ -542,7 +542,7 @@ def k8s_install_tools(args):
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
             # using-the-repository
             run_shell(args,
-                      'sudo apt-get install '
+                      'sudo apt-get -y install '
                       'apt-transport-https '
                       'ca-certificates '
                       'curl '
@@ -557,8 +557,8 @@ def k8s_install_tools(args):
                       '/ubuntu '
                       '$(lsb_release -cs) '
                       'stable"')
-            run_shell(args, 'sudo apt-get update')
-            run_shell(args, 'sudo apt-get install docker-ce')
+            run_shell(args, 'sudo apt-get -y update')
+            run_shell(args, 'sudo apt-get -y install docker-ce')
 
         name = '/tmp/daemon'
         with open(name, "w") as w:
