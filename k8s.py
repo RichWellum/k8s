@@ -123,8 +123,6 @@ def parse_args():
     parser.add_argument('-cni', '--cni', type=str, default='weave',
                         help='specify a different CNI/SDN to '
                         'the default(weave), like "canal"')
-    parser.add_argument('-l', '--logs', action='store_true',
-                        help='install fluent-bit container')
     parser.add_argument('-cm', '--create_minion', action='store_true',
                         help='install packages only for use as a minion '
                         'to be joined to a master')
@@ -320,9 +318,6 @@ def print_versions(args):
     print('    Docker version:     %s' % docker_ver(args))
     print('    Helm version:       %s' % helm_version(args, 'helm'))
     print('    K8s version:        %s' % k8s_ver(args).rstrip())
-
-    print('\n  Options:')
-    print('    Logging enabled:    %s' % args.logs)
     print('\n')
     time.sleep(2)
 
@@ -1153,87 +1148,6 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
     # k8s_check_nslookup(args)
-
-
-def k8s_install_logging(args):
-    '''Install log collection
-
-    Experimental to test out various centralized logging options
-
-    https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
-
-    Kafka can be added, but it's only available in a dev image.
-
-    repository: fluent/fluent-bit-kafka-dev
-    tag: 0.4
-
-    Note that both changes to the forwarder and kafka require changes to
-    the helm chart.
-    '''
-
-    if not args.logs:
-        return
-
-    name = '/tmp/fluentd_values.yaml'
-    with open(name, "w") as w:
-        w.write("""\
-# Minikube stores its logs in a seperate directory.
-# enable if started in minikube.
-on_minikube: false
-
-image:
-  fluent_bit:
-    repository: fluent/fluent-bit
-    tag: 0.12.10
-  pullPolicy: Always
-
-backend:
-  type: forward
-  forward:
-    host: fluentd
-    port: 24284
-  es:
-    host: elasticsearch
-    port: 9200
-  kafka:
-    # See dev image note above
-    host: kafka
-    port: 9092
-    topics: test
-    brokers: kafka:9092
-
-env: []
-
-resources:
-  limits:
-    memory: 100Mi
-  requests:
-    cpu: 100m
-    memory: 100Mi
-
-# Node tolerations for fluent-bit scheduling to nodes with taints
-# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-##
-tolerations: []
-# - key: "key"
-#  operator: "Equal|Exists"
-#  value: "value"
-#  effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
-
-# Node labels for fluent-bit pod assignment
-# Ref: https://kubernetes.io/docs/user-guide/node-selection/
-##
-nodeSelector: {}
-""")
-
-    print_progress('k8s',
-                   'Install fluent-bit log aggregator',
-                   K8S_FINAL_PROGRESS)
-    out = run_shell(args,
-                    'helm install --name my-release -f %s '
-                    'stable/fluent-bit' % name)
-    print(out)
-    k8s_wait_for_running_negate(args)
 
 
 def main():
