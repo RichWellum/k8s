@@ -130,7 +130,9 @@ def parse_args():
                         'to be joined to a master')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
-                        help='turn on verbose messages')
+                        help='turn on verbose messages, commands and outputs')
+    parser.add_argument('-c', '--commmands', action='store_true',
+                        help='turn on commands used')
     parser.add_argument('-d', '--destroy', action='store_true',
                         help='destroy existing Kubernetes cluster '
                         'before creating a new one.')
@@ -145,7 +147,7 @@ def run_shell(args, cmd):
     Not using logger.debug as a bit noisy for this info
     '''
     debug = False
-    if args.verbose == 10:  # Hack - debug enabled
+    if args.verbose == 10 or args.commmands:  # Hack - debug enabled
         debug = True
 
     if debug is True:
@@ -926,8 +928,10 @@ def k8s_final_messages(args):
         join.write('%s\n' % JOIN_CMD)
     print('\n Join command saved to: "%s"' % output_file_name)
     time.sleep(1)
-    k8s_verify_and_show(args)
     banner('Kubernetes Cluster ready for use')
+
+    banner('Kubernetes Verify and Show Deployment')
+    k8s_verify_and_show(args)
 
 
 def is_running(args, process):
