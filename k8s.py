@@ -413,7 +413,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
     '''Query get pods until only state is Running'''
 
     if timeout is None:
-        TIMEOUT = 1000
+        TIMEOUT = 500
     else:
         TIMEOUT = timeout
 
@@ -456,9 +456,9 @@ def k8s_wait_for_running_negate(args, timeout=None):
             # Dump verbose output in case it helps...
             print(int(not_running))
             raise AbortScriptException(
-                "Kubernetes did not come up after {0} 1econds!"
+                "Kubernetes did not come up after {0} seconds!"
                 .format(elapsed_time))
-        sys.exit(1)
+            sys.exit(1)
 
 
 def add_one_to_progress():
