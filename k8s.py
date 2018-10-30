@@ -145,12 +145,12 @@ def run_shell(args, cmd):
 
     if debug is True:
         if str(out) is not '0' and str(out) is not '1' and out:
-            print('Shell STDOUT output:')
+            print('  Shell STDOUT output:')
             print()
             print(out)
             print()
         if err:
-            print('Shell STDERR output:')
+            print('  Shell STDERR output:')
             print()
             print(err)
             print()
