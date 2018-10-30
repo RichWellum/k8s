@@ -554,10 +554,11 @@ def k8s_install_tools(args):
    ]
 }
 """)
-    run_shell(args, 'sudo chmod 777 %s' % name)
-    run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
-    run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
-    run_shell(args, 'sudo systemctl daemon-reload')
+                run_shell(args, 'sudo chmod 777 %s' % name)
+                run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
+                run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
+                run_shell(args, 'sudo systemctl daemon-reload')
+
     run_shell(args, 'sudo systemctl enable docker.service')
     run_shell(args, 'sudo systemctl start docker.service')
 
