@@ -1114,47 +1114,47 @@ def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
     banner('Display data about your cluster')
     print('Determine IP and port information from Service:')
-    print(run_shell(args, 'kubectl get svc -n kube-system')
+    print(run_shell(args, 'kubectl get svc -n kube-system'))
     print()
 
     print('View all k8s namespaces:')
-    print(run_shell(args, 'kubectl get namespaces')
+    print(run_shell(args, 'kubectl get namespaces'))
     print()
 
     print('View all deployed services:')
-    print(run_shell(args, 'kubectl get deployment -n kube-system')
+    print(run_shell(args, 'kubectl get deployment -n kube-system'))
     print()
 
     print('View configuration maps:')
-    print(run_shell(args, 'kubectl get configmap -n kube-system')
+    print(run_shell(args, 'kubectl get configmap -n kube-system'))
     print()
 
     print('General Cluster information:')
-    print(run_shell(args, 'kubectl cluster-info')
+    print(run_shell(args, 'kubectl cluster-info'))
     print()
 
     print('View all jobs:')
-    print(run_shell(args, 'kubectl get jobs --all-namespaces')
+    print(run_shell(args, 'kubectl get jobs --all-namespaces'))
     print()
 
     print('View all deployments:')
-    print(run_shell(args, 'kubectl get deployments --all-namespaces')
+    print(run_shell(args, 'kubectl get deployments --all-namespaces'))
     print()
 
     print('View secrets:')
-    print(run_shell(args, 'kubectl get secrets')
+    print(run_shell(args, 'kubectl get secrets'))
     print()
 
     print('View docker images')
-    print(run_shell(args, 'sudo docker images')
+    print(run_shell(args, 'sudo docker images'))
     print()
 
     print('View deployed Helm Charts')
-    print(run_shell(args, 'helm list')
+    print(run_shell(args, 'helm list'))
     print()
 
     print('View final cluster:')
-    print(run_shell(args, 'kubectl get pods --all-namespaces')
+    print(run_shell(args, 'kubectl get pods --all-namespaces'))
 
 
 def k8s_bringup_kubernetes_cluster(args):
