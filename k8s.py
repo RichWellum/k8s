@@ -517,31 +517,52 @@ def k8s_install_tools(args):
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
-    if linux_ver() == 'centos':
-        # Install latest docker
-        # Need to add Ubuntu equivalent
-        # https://kubernetes.io/docs/setup/cri/
-        if '18' in docker_ver(args) and 'ce' in docker_ver(args):
-            install_docker = False
-        else:
-            install_docker = True
+    if '18' in docker_ver(args) and 'ce' in docker_ver(args):
+        install_docker = False
+    else:
+        install_docker = True
 
-            if install_docker:
-                run_shell(args,
-                          'sudo yum remove -y docker docker-common docker-selinux '
-                          'docker-engine')
-                run_shell(args,
-                          'sudo yum install -y yum-utils '
-                          'device-mapper-persistent-data lvm2')
-                run_shell(args,
-                          'sudo yum-config-manager --add-repo '
-                          'https://download.docker.com/linux/centos/docker-ce.repo')
-                run_shell(args,
-                          'sudo yum install docker-ce-18.06.1.ce -y')
+    if install_docker:
+        if linux_ver() == 'centos':
+            # https://kubernetes.io/docs/setup/cri/
 
-                name = '/tmp/daemon'
-                with open(name, "w") as w:
-                    w.write("""\
+            run_shell(args,
+                      'sudo yum remove -y docker docker-common docker-selinux '
+                      'docker-engine')
+            run_shell(args,
+                      'sudo yum install -y yum-utils '
+                      'device-mapper-persistent-data lvm2')
+            run_shell(args,
+                      'sudo yum-config-manager --add-repo '
+                      'https://download.docker.com/linux/centos/'
+                      'docker-ce.repo')
+            run_shell(args,
+                      'sudo yum install docker-ce-18.06.1.ce -y')
+        else:  # ubuntu
+            # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
+            # using-the-repository
+            run_shell(args,
+                      'sudo apt-get install '
+                      'apt-transport-https '
+                      'ca-certificates '
+                      'curl '
+                      'software-properties-common')
+            run_shell(args,
+                      'curl -fsSL '
+                      'https://download.docker.com/linux/ubuntu/gpg '
+                      '| sudo apt-key add -')
+            run_shell(args,
+                      'sudo add-apt-repository '
+                      '"deb [arch=amd64] https://download.docker.com/linux'
+                      '/ubuntu '
+                      '$(lsb_release -cs) '
+                      'stable"')
+            run_shell(args, 'sudo apt-get update')
+            run_shell(args, 'sudo apt-get install docker-ce')
+
+        name = '/tmp/daemon'
+        with open(name, "w") as w:
+            w.write("""\
  {
    "exec-opts": ["native.cgroupdriver=systemd"],
    "log-driver": "json-file",
@@ -554,13 +575,13 @@ def k8s_install_tools(args):
    ]
 }
 """)
-                run_shell(args, 'sudo chmod 777 %s' % name)
-                run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
-                run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
-                run_shell(args, 'sudo systemctl daemon-reload')
 
-    run_shell(args, 'sudo systemctl enable docker.service')
-    run_shell(args, 'sudo systemctl start docker.service')
+        run_shell(args, 'sudo chmod 777 %s' % name)
+        run_shell(args, 'sudo mv %s /etc/docker/daemon.json' % name)
+        run_shell(args, 'sudo mkdir -p /etc/systemd/system/docker.service.d')
+        run_shell(args, 'sudo systemctl daemon-reload')
+        run_shell(args, 'sudo systemctl enable docker.service')
+        run_shell(args, 'sudo systemctl start docker.service')
 
     if args.destroy is not True:
         print_versions(args)
