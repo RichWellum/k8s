@@ -517,30 +517,31 @@ def k8s_install_tools(args):
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
-    # Install latest docker
-    # Need to add Ubuntu equivalent
-    # https://kubernetes.io/docs/setup/cri/
-    if '18' in docker_ver(args) and 'ce' in docker_ver(args):
-        install_docker = False
-    else:
-        install_docker = True
+    if linux_ver() == 'centos':
+        # Install latest docker
+        # Need to add Ubuntu equivalent
+        # https://kubernetes.io/docs/setup/cri/
+        if '18' in docker_ver(args) and 'ce' in docker_ver(args):
+            install_docker = False
+        else:
+            install_docker = True
 
-    if install_docker:
-        run_shell(args,
-                  'sudo yum remove -y docker docker-common docker-selinux '
-                  'docker-engine')
-        run_shell(args,
-                  'sudo yum install -y yum-utils '
-                  'device-mapper-persistent-data lvm2')
-        run_shell(args,
-                  'sudo yum-config-manager --add-repo '
-                  'https://download.docker.com/linux/centos/docker-ce.repo')
-        run_shell(args,
-                  'sudo yum install docker-ce-18.06.1.ce -y')
+            if install_docker:
+                run_shell(args,
+                          'sudo yum remove -y docker docker-common docker-selinux '
+                          'docker-engine')
+                run_shell(args,
+                          'sudo yum install -y yum-utils '
+                          'device-mapper-persistent-data lvm2')
+                run_shell(args,
+                          'sudo yum-config-manager --add-repo '
+                          'https://download.docker.com/linux/centos/docker-ce.repo')
+                run_shell(args,
+                          'sudo yum install docker-ce-18.06.1.ce -y')
 
-    name = '/tmp/daemon'
-    with open(name, "w") as w:
-        w.write("""\
+                name = '/tmp/daemon'
+                with open(name, "w") as w:
+                    w.write("""\
  {
    "exec-opts": ["native.cgroupdriver=systemd"],
    "log-driver": "json-file",
