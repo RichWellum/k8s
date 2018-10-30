@@ -14,7 +14,7 @@ Features
 
 3. Easy on the eye output, with optional verbose mode for more information.
 
-4. Cleans up previous deployment with --cc option, or -c (cleanup and run)
+4. Cleans up previous deployment with --c option
 
 5. Select between Canal and Weave CNI's for inter-pod communications.
 
@@ -79,8 +79,8 @@ PROGRESS = 0
 global K8S_FINAL_PROGRESS
 K8S_FINAL_PROGRESS = 1
 
-global K8S_CLEANUP_PROGRESS
-K8S_CLEANUP_PROGRESS = 0
+global K8S_DESTROY_PROGRESS
+K8S_DESTROY_PROGRESS = 0
 
 # Store the kubeadm join command, and display to user at end of deployment
 global JOIN_CMD
@@ -113,13 +113,13 @@ def parse_args():
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
         epilog='E.g.: python k8s.py -cni canal\n')
-    parser.add_argument('-hv', '--helm_version', type=str, default='2.9.1',
+    parser.add_argument('-hv', '--helm_version', type=str, default='2.11.0',
                         help='Specify a different helm version to the '
                         'latest')
-    parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
-                        help='Specify a different kubernetes version to '
-                        'the latest - note 1.8.0 is the minimum '
-                        'supported')
+    # parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
+    #                     help='Specify a different kubernetes version to '
+    #                     'the latest - note 1.8.0 is the minimum '
+    #                     'supported')
     parser.add_argument('-cni', '--cni', type=str, default='weave',
                         help='specify a different CNI/SDN to '
                         'the default(weave), like "canal"')
@@ -131,12 +131,9 @@ def parse_args():
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages')
-    parser.add_argument('-c', '--cleanup', action='store_true',
-                        help='cleanup existing Kubernetes cluster '
+    parser.add_argument('-c', '--destroy', action='store_true',
+                        help='destroy existing Kubernetes cluster '
                         'before creating a new one.')
-    parser.add_argument('-cc', '--complete_cleanup', action='store_true',
-                        help='Cleanup existing Kubernetes cluster '
-                        'then exit, rebooting host is advised')
 
     return parser.parse_args()
 
@@ -184,13 +181,6 @@ def untar(fname):
         tar = tarfile.open(fname, "r:")
         tar.extractall()
         tar.close()
-
-
-# def pause_tool_execution(str):
-#     '''Pause the script for manual debugging of the VM before continuing'''
-
-#     print('Pause: "%s"' % str)
-#     raw_input('Press Enter to continue\n')
 
 
 def banner(description):
@@ -279,7 +269,7 @@ def docker_ver(args):
     return(newstr.rstrip())
 
 
-def tools_versions(args, str):
+def helm_version(args, str):
     '''A Dictionary of tools and their versions
 
     Defaults are populated by tested well known versions.
@@ -291,11 +281,11 @@ def tools_versions(args, str):
     Note that currently this is just for helm.
     '''
 
-    tools = ["helm", "kubernetes"]
+    tools = ["helm"]
 
     # This should match up with the defaults set in parse_args
-    #           helm     k8s
-    versions = ["2.9.1", "1.10.0"]
+    #           helm
+    versions = ["2.11.0"]
 
     tools_dict = {}
     # Generate dictionary
@@ -305,8 +295,6 @@ def tools_versions(args, str):
     # Now overide based on user input - first
     if tools_dict["helm"] is not args.helm_version:
         tools_dict["helm"] = args.helm_version
-    if tools_dict["kubernetes"] is not args.k8s_version:
-        tools_dict["kubernetes"] = args.k8s_version
 
     return(tools_dict[str])
 
@@ -316,8 +304,6 @@ def print_versions(args):
 
     Tool versions, networking, user options and more
     '''
-
-    # banner('Kubernetes - Bring up a Kubernetes Cluster')
 
     print('\n  Linux Host Info:')
     os, os_ver, os_ver_s = linux_ver_det()
@@ -330,7 +316,7 @@ def print_versions(args):
 
     print('\n  Tool Versions:')
     print('    Docker version:     %s' % docker_ver(args))
-    print('    Helm version:       %s' % tools_versions(args, 'helm'))
+    print('    Helm version:       %s' % helm_version(args, 'helm'))
     print('    K8s version:        %s' % k8s_ver(args).rstrip())
 
     print('\n  Options:')
@@ -535,20 +521,6 @@ def k8s_install_tools(args):
     run_shell(args, 'sudo swapoff -a')
     run_shell(args, 'sudo modprobe br_netfilter')
 
-    # Not needed for pure k8s
-    # curl(
-    #     '-L',
-    #     'https://bootstrap.pypa.io/get-pip.py',
-    #     '-o', '/tmp/get-pip.py')
-    # run_shell(args, 'sudo python /tmp/get-pip.py')
-
-    # https://github.com/ansible/ansible/issues/26670
-    # TODO - not sure if this is centos compatible or not
-    # TODO - remove for now
-    # run_shell(args, 'sudo python -m easy_install --upgrade pyOpenSSL')
-    # run_shell(args, 'sudo -H pip uninstall pyOpenSSL -y')
-    # run_shell(args, 'sudo -H pip install pyOpenSSL')
-
     if linux_ver() == 'centos':
         run_shell(args, 'sudo yum update -y')
         run_shell(args,
@@ -605,9 +577,8 @@ def k8s_install_tools(args):
     run_shell(args, 'sudo systemctl daemon-reload')
     run_shell(args, 'sudo systemctl enable docker.service')
     run_shell(args, 'sudo systemctl start docker.service')
-    # run_shell(args, 'sudo systemctl restart docker')
 
-    if args.complete_cleanup is not True:
+    if args.destroy is not True:
         print_versions(args)
 
 
@@ -941,15 +912,6 @@ def k8s_install_deploy_helm(args):
     run_shell(args, 'helm init')
     k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
-    # print_progress('Kubernetes',
-    #                'Start helm client',
-    #                K8S_FINAL_PROGRESS)
-    # run_shell(args, 'helm serve &')
-    # sys.stdout.flush()
-    # print_progress('Kubernetes',
-    #                'Add local repos',
-    #                K8S_FINAL_PROGRESS)
-    # run_shell(args, 'helm repo add local http://localhost:8879/charts')
     banner("Kubernetes Cluster is up and running")
 
 
@@ -979,92 +941,89 @@ def is_running(args, process):
             return False
 
 
-def k8s_cleanup(args):
-    '''Cleanup on Isle 9'''
+def k8s_destroy(args):
+    '''Destroy and clean up running k8s'''
 
-    if args.cleanup is True or args.complete_cleanup is True:
-        clean_progress()
-        banner('Kubernetes - Cleaning up an existing Kubernetes Cluster')
+    if args.destroy is not True:
+        return
 
+    clean_progress()
+    banner('Kubernetes - Destroying an existing Kubernetes Cluster')
+
+    print_progress('Kubernetes',
+                   'Kubeadm reset',
+                   K8S_DESTROY_PROGRESS,
+                   True)
+
+    run_shell(args, 'sudo kubeadm reset -f')
+
+    print_progress('Kubernetes',
+                   'Delete /etc files and dirs',
+                   K8S_DESTROY_PROGRESS)
+
+    run_shell(args, 'sudo rm -rf /etc/kubernetes')
+
+    print_progress('Kubernetes',
+                   'Delete /var files and dirs',
+                   K8S_DESTROY_PROGRESS)
+
+    run_shell(args, 'sudo rm -rf /var/etcd')
+    run_shell(args, 'sudo rm -rf /var/run/kubernetes/*')
+    run_shell(args, 'sudo rm -rf /var/lib/kubelet/*')
+    run_shell(args, 'sudo rm -rf /var/run/lock/kubelet.lock')
+    run_shell(args, 'sudo rm -rf /var/run/lock/api-server.lock')
+    run_shell(args, 'sudo rm -rf /var/run/lock/etcd.lock')
+    run_shell(args, 'sudo rm -rf /var/run/lock/kubelet.lock')
+
+    print_progress('Kubernetes',
+                   'Delete /tmp',
+                   K8S_DESTROY_PROGRESS)
+
+    run_shell(args, 'sudo rm -rf /tmp/*')
+
+    if os.path.exists('/data'):
         print_progress('Kubernetes',
-                       'Kubeadm reset',
-                       K8S_CLEANUP_PROGRESS,
-                       True)
+                       'Remove cinder volumes and data',
+                       K8S_DESTROY_PROGRESS)
 
-        run_shell(args, 'sudo kubeadm reset -f')
+        run_shell(args, 'sudo vgremove cinder-volumes -f')
+        run_shell(args, 'sudo losetup -d /dev/loop0')
+        run_shell(args, 'sudo rm -rf /data')
 
-        print_progress('Kubernetes',
-                       'Delete /etc files and dirs',
-                       K8S_CLEANUP_PROGRESS)
+    print_progress('Kubernetes',
+                   'Destroy docker containers and images',
+                   K8S_DESTROY_PROGRESS)
 
-        run_shell(args, 'sudo rm -rf /etc/kubernetes')
+    # Clean up docker containers
+    run_shell(args,
+              "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
+    run_shell(args,
+              "sudo docker rmi $(sudo docker images -q -f "
+              "'dangling=true')")
+    run_shell(args,
+              "sudo docker volume rm -f $(sudo docker volume "
+              "ls -qf dangling=true)")
 
-        print_progress('Kubernetes',
-                       'Delete /var files and dirs',
-                       K8S_CLEANUP_PROGRESS)
+    # Remove docker images on system
+    run_shell(args,
+              "sudo docker rmi -f $(sudo docker images -a -q)")
 
-        run_shell(args, 'sudo rm -rf /var/etcd')
-        run_shell(args, 'sudo rm -rf /var/run/kubernetes/*')
-        run_shell(args, 'sudo rm -rf /var/lib/kubelet/*')
-        run_shell(args, 'sudo rm -rf /var/run/lock/kubelet.lock')
-        run_shell(args, 'sudo rm -rf /var/run/lock/api-server.lock')
-        run_shell(args, 'sudo rm -rf /var/run/lock/etcd.lock')
-        run_shell(args, 'sudo rm -rf /var/run/lock/kubelet.lock')
+    run_shell(args,
+              "sudo docker container stop "
+              "$(sudo docker container ls -a -q) "
+              "&& sudo docker system prune -a -f")
 
-        print_progress('Kubernetes',
-                       'Delete /tmp',
-                       K8S_CLEANUP_PROGRESS)
+    print_progress('Kubernetes',
+                   'Destroy done. Highly recommend rebooting '
+                   'your host',
+                   K8S_DESTROY_PROGRESS)
 
-        run_shell(args, 'sudo rm -rf /tmp/*')
-
-        if os.path.exists('/data'):
-            print_progress('Kubernetes',
-                           'Remove cinder volumes and data',
-                           K8S_CLEANUP_PROGRESS)
-
-            run_shell(args, 'sudo vgremove cinder-volumes -f')
-            run_shell(args, 'sudo losetup -d /dev/loop0')
-            run_shell(args, 'sudo rm -rf /data')
-
-        print_progress('Kubernetes',
-                       'Cleanup docker containers and images',
-                       K8S_CLEANUP_PROGRESS)
-
-        # Clean up docker containers
-        run_shell(args,
-                  "sudo docker rm $(sudo docker ps -q -f 'status=exited')")
-        run_shell(args,
-                  "sudo docker rmi $(sudo docker images -q -f "
-                  "'dangling=true')")
-        run_shell(args,
-                  "sudo docker volume rm -f $(sudo docker volume "
-                  "ls -qf dangling=true)")
-
-        # Remove docker images on system
-        run_shell(args,
-                  "sudo docker rmi -f $(sudo docker images -a -q)")
-
-        run_shell(args,
-                  "sudo docker container stop "
-                  "$(sudo docker container ls -a -q) "
-                  "&& sudo docker system prune -a -f")
-
-        if args.complete_cleanup:
-            print_progress('Kubernetes',
-                           'Cleanup done. Highly recommend rebooting '
-                           'your host',
-                           K8S_CLEANUP_PROGRESS)
-        else:
-            print_progress('Kubernetes',
-                           'Cleanup done. Will attempt '
-                           'to proceed with installation.\n',
-                           K8S_CLEANUP_PROGRESS)
-
-        clean_progress()
-        add_one_to_progress()
+    clean_progress()
+    add_one_to_progress()
 
     # After reboot, kubelet service comes back...
     run_shell(args, 'sudo kubeadm reset -f')
+    sys.exit(1)
 
 
 def k8s_check_nslookup(args):
@@ -1160,7 +1119,7 @@ def k8s_verify_and_show(args):
 def k8s_bringup_kubernetes_cluster(args):
     '''Bring up a working Kubernetes Cluster'''
 
-    k8s_cleanup(args)
+    k8s_destroy(args)
     k8s_install_tools(args)
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
@@ -1273,8 +1232,8 @@ def main():
     # Force sudo early on
     run_shell(args, 'sudo -v')
 
-    global K8S_CLEANUP_PROGRESS
-    K8S_CLEANUP_PROGRESS = 6
+    global K8S_DESTROY_PROGRESS
+    K8S_DESTROY_PROGRESS = 6
 
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
@@ -1290,10 +1249,7 @@ def main():
     logger.setLevel(level=args.verbose)
 
     try:
-        if args.complete_cleanup:
-            k8s_cleanup(args)
-            sys.exit(1)
-
+        k8s_destroy(args)
         k8s_bringup_kubernetes_cluster(args)
         k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
