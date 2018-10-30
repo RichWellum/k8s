@@ -510,7 +510,7 @@ def k8s_install_tools(args):
                   'sudo apt-get install --no-install-recommends -y '
                   'qemu bridge-utils python-dev libffi-dev gcc '
                   'libssl-dev python-pip sshpass apt-transport-https git '
-                  'gcc crudini jq ansible curl lvm2 docker.io ceph-common '
+                  'gcc crudini jq ansible curl lvm2 docker-ce ceph-common '
                   'ca-certificates make jq nmap curl uuid-runtime ipcalc '
                   'ebtables ethtool iproute2 iptables libmnl0 '
                   'libnfnetlink0 libwrap0 libxtables11 socat')
