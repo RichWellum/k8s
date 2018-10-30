@@ -779,8 +779,8 @@ def k8s_deploy_weave(args):
     name = '/tmp/ipalloc.txt'
     with open(name, "w") as w:
         w.write("""\
-            - name: IPALLOC_RANGE
-              value: 10.0.0.0/16
+                - name: IPALLOC_RANGE
+                  value: 10.0.0.0/16
 """)
     run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
     run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
