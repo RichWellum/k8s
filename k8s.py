@@ -723,7 +723,7 @@ def k8s_deploy_k8s(args):
     banner('Kubernetes - Begin Deployment')
 
     print_progress('Kubernetes',
-                   'Deploying Kubernetes with kubeadm',
+                   'Deploying using kubeadm (can take a few minutes...)',
                    K8S_FINAL_PROGRESS)
 
     # out = run_shell(args,  # todo clean up
