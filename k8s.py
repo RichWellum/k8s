@@ -417,7 +417,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
     else:
         TIMEOUT = timeout
 
-    RETRY_INTERVAL = 3
+    RETRY_INTERVAL = 10
 
     print('  Wait for all pods to be in Running state:')
 
