@@ -417,22 +417,22 @@ def k8s_wait_for_running_negate(args, timeout=None):
     else:
         TIMEOUT = timeout
 
-    RETRY_INTERVAL = 10
+    RETRY_INTERVAL = 3
 
     print('  Wait for all pods to be in Running state:')
 
     elapsed_time = 0
     prev_not_running = 0
     while True:
-        # etcd_check = run_shell(args,
-        #                        'kubectl get pods --no-headers --all-namespaces'
-        #                        ' | grep -i "request timed out" | wc -l')
+        etcd_check = run_shell(args,
+                               'kubectl get pods --no-headers --all-namespaces'
+                               ' | grep -i "request timed out" | wc -l')
 
-        # if int(etcd_check) != 0:
-        #     print('Kubernetes - etcdserver is busy - '
-        #           'retrying after brief pause')
-        #     time.sleep(15)
-        #     continue
+        if int(etcd_check) != 0:
+            print('Kubernetes - etcdserver is busy - '
+                  'retrying after brief pause')
+            time.sleep(15)
+            continue
 
         not_running = run_shell(
             args,
@@ -458,7 +458,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
             raise AbortScriptException(
                 "Kubernetes did not come up after {0} seconds!"
                 .format(elapsed_time))
-            sys.exit(1)
+        sys.exit(1)
 
 
 def add_one_to_progress():
