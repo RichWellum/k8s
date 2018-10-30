@@ -151,7 +151,7 @@ def run_shell(args, cmd):
         debug = True
 
     if debug is True or args.commmands:
-        print('CMD: "%s"' % str(cmd))
+        print('  CMD: "%s"' % str(cmd))
 
     p = subprocess.Popen(
         cmd,
@@ -440,7 +440,7 @@ def k8s_wait_for_running_negate(args, timeout=None):
     else:
         TIMEOUT = timeout
 
-    RETRY_INTERVAL = 3
+    RETRY_INTERVAL = 10
 
     print('  Wait for all pods to be in Running state:')
 
@@ -928,10 +928,10 @@ def k8s_final_messages(args):
         join.write('%s\n' % JOIN_CMD)
     print('\n Join command saved to: "%s"' % output_file_name)
     time.sleep(1)
-    banner('Kubernetes Cluster ready for use')
 
-    banner('Kubernetes Verify and Show Deployment')
     k8s_verify_and_show(args)
+
+    banner('Kubernetes Cluster ready for use')
 
 
 def is_running(args, process):
@@ -1075,7 +1075,9 @@ spec:
 
 def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
-    banner('Display data about your cluster')
+
+    banner('Kubernetes Verify and Show Deployment')
+
     print('Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
     print()
