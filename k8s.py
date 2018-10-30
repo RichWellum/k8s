@@ -365,7 +365,7 @@ def k8s_wait_for_kube_system(args):
     RETRY_INTERVAL = 10
     elapsed_time = 0
     prev_cnt = 0
-    base_pods = 7  # changing from 6
+    base_pods = 7
 
     print('(%02d/%d -- %03ds --) Kubernetes - Wait for basic '
           'Kubernetes infrastructure'
@@ -836,7 +836,7 @@ def k8s_deploy_cni(args):
     logger.debug(answer)
     run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
     run_shell(args,
-              'sudo sed -i s@10.244.0.0/16@10.1.0.0/16@ /tmp/canal.yaml')
+              'sudo sed -i s@10.244.0.0/16@10.96.0.10/16@ /tmp/canal.yaml')
     run_shell(args, 'kubectl create -f /tmp/canal.yaml')
 
 
