@@ -141,7 +141,7 @@ def run_shell(args, cmd):
     Print the output and errors if debug is enabled
     Not using logger.debug as a bit noisy for this info
     '''
-
+    debug = False
     if args.verbose == 10:  # Hack - debug enabled
         debug = True
 
@@ -180,11 +180,11 @@ def untar(fname):
         tar.close()
 
 
-def pause_tool_execution(str):
-    '''Pause the script for manual debugging of the VM before continuing'''
+# def pause_tool_execution(str):
+#     '''Pause the script for manual debugging of the VM before continuing'''
 
-    print('Pause: "%s"' % str)
-    raw_input('Press Enter to continue\n')
+#     print('Pause: "%s"' % str)
+#     raw_input('Press Enter to continue\n')
 
 
 def banner(description):
@@ -576,7 +576,7 @@ def k8s_install_tools(args):
               'sudo yum-config-manager --add-repo '
               'https://download.docker.com/linux/centos/docker-ce.repo')
     run_shell(args,
-              'sudo yum update -y && sudo yum install docker-ce-18.06.1.ce -y')
+              'sudo yum install docker-ce-18.06.1.ce -y')
 
     name = '/tmp/daemon'
     with open(name, "w") as w:
