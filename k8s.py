@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 '''
-k8s.py - Simple Python Kubernetes deployer
+k8s.py - Simple Python Kubernetes wrapper around kubeadm
 
 Purpose
 =======
+Setup environment for running kubernetes, install a simple cluster with
+kubeadm.
 
 Features
 ========
@@ -16,9 +18,7 @@ Features
 
 4. Destroy previous deployment with -d option
 
-5. Select between Canal and Weave CNI's for inter-pod communications.
-
-6. Option to create a kubernetes minion to add to existing deployment.
+5. Option to create a kubernetes minion to add to existing deployment.
 
 Host machine requirements
 =========================
@@ -30,17 +30,6 @@ The host machine must satisfy the following minimum requirements:
 - 20G min, 40GB preferred disk space
 - 2 CPU's Min, 4 preferred CPU's
 - Root access to the deployment host machine
-
-
-Mandatory Inputs
-================
-
-TODO
-====
-
-- Convert to using https://github.com/kubernetes-incubator/client-python
-- Classify the code
-- Note there are various todo's scattered inline as well.
 
 Recomendations
 ==============
@@ -112,17 +101,10 @@ def parse_args():
         '- 20G min, 40GB preferred - disk space\n'
         '- 2 CPUs Min, 4 preferred - CPUs\n'
         'Root access to the deployment host machine is required.',
-        epilog='E.g.: python k8s.py -cni canal\n')
+        epilog='E.g.: python k8s.py -c\n')
     parser.add_argument('-hv', '--helm_version', type=str, default='2.11.0',
                         help='Specify a different helm version to the '
                         'latest')
-    # parser.add_argument('-kv', '--k8s_version', type=str, default='1.10.0',
-    #                     help='Specify a different kubernetes version to '
-    #                     'the latest - note 1.8.0 is the minimum '
-    #                     'supported')
-    parser.add_argument('-cni', '--cni', type=str, default='weave',
-                        help='specify a different CNI/SDN to '
-                        'the default(weave), like "canal"')
     parser.add_argument('-cm', '--create_minion', action='store_true',
                         help='install packages only for use as a minion '
                         'to be joined to a master')
@@ -780,64 +762,32 @@ def k8s_load_kubeadm_creds(args):
 def k8s_deploy_cni(args):
     '''Deploy CNI/SDN to K8s cluster'''
 
-    if args.cni == 'weave':
-        print_progress('Kubernetes',
-                       'Deploy pod network SDN using Weave CNI',
-                       K8S_FINAL_PROGRESS)
-
-        weave_ver = run_shell(args,
-                              "echo $(kubectl version | base64 | tr -d '\n')")
-        curl(
-            '-L',
-            'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
-            '-o', '/tmp/weave.yaml')
-
-        # Don't allow Weave Net to crunch ip's used by k8s
-        name = '/tmp/ipalloc.txt'
-        with open(name, "w") as w:
-            w.write("""\
-                - name: IPALLOC_RANGE
-                  value: 10.0.0.0/16
-""")
-        run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
-        run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
-                  "/tmp/ipalloc.txt' /tmp/weave.yaml")
-
-        run_shell(
-            args,
-            'kubectl apply -f /tmp/weave.yaml')
-        return
-
-    # If not weave then canal...
-    # The ip range in canal.yaml,
-    # /etc/kubernetes/manifests/kube-controller-manager.yaml
-    # and the kubeadm init command must match
     print_progress('Kubernetes',
-                   'Deploy pod network SDN using Canal CNI',
+                   'Deploy pod network SDN using Weave CNI',
                    K8S_FINAL_PROGRESS)
 
-    answer = curl(
+    weave_ver = run_shell(args,
+                          "echo $(kubectl version | base64 | tr -d '\n')")
+    curl(
         '-L',
-        # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        # 'k8s-install/1.7/rbac.yaml',
-        'https://docs.projectcalico.org/v3.1/getting-started'
-        '/kubernetes/installation/hosted/canal/rbac.yaml',
-        '-o', '/tmp/rbac.yaml')
-    logger.debug(answer)
-    run_shell(args, 'kubectl create -f /tmp/rbac.yaml')
+        'https://cloud.weave.works/k8s/net?k8s-version=%s' % weave_ver,
+        '-o', '/tmp/weave.yaml')
 
-    answer = curl(
-        '-L',
-        # 'https://raw.githubusercontent.com/projectcalico/canal/master/'
-        # 'k8s-install/1.7/canal.yaml',
-        'https://docs.projectcalico.org/v3.1/getting-started'
-        '/kubernetes/installation/hosted/canal/canal.yaml',
-        '-o', '/tmp/canal.yaml')
-    logger.debug(answer)
-    run_shell(args, 'sudo chmod 777 /tmp/canal.yaml')
-    run_shell(args,
-              'sudo sed -i s@10.244.0.0/16@10.96.0.10/16@ /tmp/canal.yaml')
-    run_shell(args, 'kubectl create -f /tmp/canal.yaml')
+    # Don't allow Weave Net to crunch ip's used by k8s
+    name = '/tmp/ipalloc.txt'
+    with open(name, "w") as w:
+        w.write("""\
+        - name: IPALLOC_RANGE
+        value: 10.0.0.0/16
+""")
+    run_shell(args, 'chmod 777 /tmp/ipalloc.txt /tmp/weave.yaml')
+    run_shell(args, "sed -i '/fieldPath: spec.nodeName/ r "
+              "/tmp/ipalloc.txt' /tmp/weave.yaml")
+
+    run_shell(
+        args,
+        'kubectl apply -f /tmp/weave.yaml')
+    return
 
 
 def k8s_add_api_server(args):
