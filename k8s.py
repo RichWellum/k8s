@@ -14,7 +14,7 @@ Features
 
 3. Easy on the eye output, with optional verbose mode for more information.
 
-4. Cleans up previous deployment with --c option
+4. Destroy previous deployment with -d option
 
 5. Select between Canal and Weave CNI's for inter-pod communications.
 
@@ -131,7 +131,7 @@ def parse_args():
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages')
-    parser.add_argument('-c', '--destroy', action='store_true',
+    parser.add_argument('-d', '--destroy', action='store_true',
                         help='destroy existing Kubernetes cluster '
                         'before creating a new one.')
 
