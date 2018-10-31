@@ -544,35 +544,36 @@ def k8s_install_tools(args):
             sys.exit(1)
 
         run_shell(args, 'systemctl enable docker && systemctl start docker')
-        run_shell(args, 'CNI_VERSION="v0.6.0"')
+        CNI_VERSION = "v0.6.0"
         run_shell(args, 'mkdir -p /opt/cni/bin')
         run_shell(args,
                   'curl -L "https://github.com/containernetworking/'
                   'plugins/releases/download/${CNI_VERSION}/cni-plugins-amd64-'
-                  '${CNI_VERSION}.tgz" | tar -C /opt/cni/bin -xz')
-        run_shell(args,
-                  'RELEASE="$(curl -sSL '
-                  'https://dl.k8s.io/release/stable.txt)"')
+                  '%s.tgz" | tar -C /opt/cni/bin -xz' % CNI_VERSION)
+        RELEASE = run_shell(
+            args,
+            '$(curl -sSL https://dl.k8s.io/release/stable.txt)')
         run_shell(args, 'mkdir -p /opt/bin')
         run_shell(args, 'cd /opt/bin')
         run_shell(args, 'PATH=$PATH:/opt/bin')
         run_shell(args,
                   'curl -L --remote-name-all https://storage.googleapis.com/'
-                  'kubernetes-release/release/${RELEASE}/bin/linux/amd64/'
-                  '{kubeadm,kubelet,kubectl}')
+                  'kubernetes-release/release/%s/bin/linux/amd64/'
+                  '{kubeadm,kubelet,kubectl}' % RELEASE)
         run_shell(args, 'chmod +x {kubeadm,kubelet,kubectl}')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
-                  'kubernetes/${RELEASE}/build/debs/kubelet.service" | '
+                  'kubernetes/%s/build/debs/kubelet.service" | '
                   'sed "s:/usr/bin:/opt/bin:g" > '
-                  '/etc/systemd/system/kubelet.service')
+                  '/etc/systemd/system/kubelet.service' % RELEASE)
         run_shell(args,
                   'mkdir -p /etc/systemd/system/kubelet.service.d')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
-                  'kubernetes/${RELEASE}/build/debs/10-kubeadm.conf" | '
+                  'kubernetes/%s/build/debs/10-kubeadm.conf" | '
                   'sed "s:/usr/bin:/opt/bin:g" > '
-                  '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
+                  '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
+                  % RELEASE)
         run_shell(args,
                   'systemctl enable kubelet && systemctl start kubelet')
         run_shell(args, '/opt/bin/kubeadm init')
