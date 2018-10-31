@@ -713,7 +713,7 @@ def k8s_install_k8s(args):
 
     k8s_create_repo(args)
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         run_shell(args,
                   'sudo yum install -y kubelet kubeadm kubectl '
                   '--disableexcludes=kubernetes')
@@ -1214,7 +1214,7 @@ def main():
 
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         K8S_FINAL_PROGRESS = 18
     else:
         K8S_FINAL_PROGRESS = 17
