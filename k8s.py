@@ -548,7 +548,7 @@ def k8s_install_tools(args):
         run_shell(args, 'mkdir -p /opt/cni/bin')
         run_shell(args,
                   'curl -L "https://github.com/containernetworking/'
-                  'plugins/releases/download/${CNI_VERSION}/cni-plugins-amd64-'
+                  'plugins/releases/download/%s/cni-plugins-amd64-'
                   '%s.tgz" | tar -C /opt/cni/bin -xz' % CNI_VERSION)
         RELEASE = run_shell(
             args,
