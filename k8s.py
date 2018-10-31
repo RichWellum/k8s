@@ -538,6 +538,11 @@ def k8s_install_tools(args):
     if linux_ver(args) == 'container':
         # Container Linux
         # Very experimental - do all the work here for now
+        whoami = run_shell(args, 'whoami')
+        if not re.search('root', whoami):
+            print('Error - Container Linux must be run as root (sudo su)')
+            sys.exit(1)
+
         run_shell(args, 'sudo su')
         run_shell(args, 'systemctl enable docker && systemctl start docker')
         run_shell(args, 'CNI_VERSION="v0.6.0"')
