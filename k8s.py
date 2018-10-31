@@ -44,6 +44,16 @@ Proxy
 
 To handle a proxy, add management ip (ip a) to the no_proxy in
 /etc/profile.d/nsnproxy.sh
+
+Flatcar / Coreos
+================
+Flatcare and Coreos is still experimental
+https://gist.github.com/kevashcraft/5aa85f44634c37a9ee05dde7e83ac7e2#install-kubernetes
+Install Python:
+
+wget -qO- https://raw.githubusercontent.com/judexzhu/Install-Python-on-\
+CoreOs/master/install-python.sh | sudo bash
+
 '''
 
 from __future__ import print_function
@@ -205,11 +215,8 @@ def curl(*args):
     return curl_result
 
 
-def linux_ver():
-    '''Determine Linux version - Ubuntu or Centos
-
-    Fail if it is not one of those.
-    '''
+def linux_ver(args):
+    '''Determine Linux version'''
 
     find_os = platform.linux_distribution()
     if re.search('Centos', find_os[0], re.IGNORECASE):
@@ -217,8 +224,14 @@ def linux_ver():
     elif re.search('Ubuntu', find_os[0], re.IGNORECASE):
         linux = 'ubuntu'
     else:
-        print('Linux "%s" is not supported yet' % find_os[0])
-        sys.exit(1)
+        find_os = run_shell(args, "cat /proc/version | cut -d' ' -f3")
+        if re.search('flatcar', find_os[0], re.IGNORECASE):
+            linux = 'container'
+        elif re.search('coreos', find_os[0], re.IGNORECASE):
+            linux = 'container'
+        else:
+            print('Linux "%s" is not supported yet' % find_os[0])
+            sys.exit(1)
 
     return(linux)
 
@@ -312,7 +325,7 @@ def print_versions(args):
 def k8s_create_repo(args):
     '''Create a k8s repository file'''
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         name = './kubernetes.repo'
         repo = '/etc/yum.repos.d/kubernetes.repo'
         with open(name, "w") as w:
@@ -330,7 +343,7 @@ exclude=kube*
 """)
         # todo: add -H to all sudo's see if it works in both envs
         run_shell(args, 'sudo mv ./kubernetes.repo %s' % repo)
-    else:
+    elif linux_ver(args) == 'ubuntu':
         run_shell(args,
                   'curl -s https://packages.cloud.google.com'
                   '/apt/doc/apt-key.gpg '
@@ -502,13 +515,13 @@ def k8s_install_tools(args):
                    'Installing packages',
                    K8S_FINAL_PROGRESS)
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         run_shell(args, 'sudo yum update -y')
         run_shell(args,
                   'sudo yum install -y qemu epel-release bridge-utils '
                   'python-pip python-devel libffi-devel gcc '
                   'openssl-devel sshpass crudini jq ansible curl lvm2')
-    else:
+    elif linux_ver(args) == 'centos':
         run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
                   '--allow-downgrades --no-install-recommends')
         run_shell(args,
@@ -522,13 +535,52 @@ def k8s_install_tools(args):
 
         run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
+    if linux_ver(args) == 'container':
+        # Container Linux
+        # Very experimental - do all the work here for now
+        run_shell(args, 'sudo su')
+        run_shell(args, 'systemctl enable docker && systemctl start docker')
+        run_shell(args, 'CNI_VERSION="v0.6.0"')
+        run_shell(args, 'mkdir -p /opt/cni/bin')
+        run_shell(args,
+                  'curl -L "https://github.com/containernetworking/'
+                  'plugins/releases/download/${CNI_VERSION}/cni-plugins-amd64-'
+                  '${CNI_VERSION}.tgz" | tar -C /opt/cni/bin -xz')
+        run_shell(args,
+                  'RELEASE="$(curl -sSL '
+                  'https://dl.k8s.io/release/stable.txt)"')
+        run_shell(args, 'mkdir -p /opt/bin')
+        run_shell(args, 'cd /opt/bin')
+        run_shell(args, 'PATH=$PATH:/opt/bin')
+        run_shell(args,
+                  'curl -L --remote-name-all https://storage.googleapis.com/'
+                  'kubernetes-release/release/${RELEASE}/bin/linux/amd64/'
+                  '{kubeadm,kubelet,kubectl}')
+        run_shell(args, 'chmod +x {kubeadm,kubelet,kubectl}')
+        run_shell(args,
+                  'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
+                  'kubernetes/${RELEASE}/build/debs/kubelet.service" | '
+                  'sed "s:/usr/bin:/opt/bin:g" > '
+                  '/etc/systemd/system/kubelet.service')
+        run_shell(args,
+                  'mkdir -p /etc/systemd/system/kubelet.service.d')
+        run_shell(args,
+                  'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
+                  'kubernetes/${RELEASE}/build/debs/10-kubeadm.conf" | '
+                  'sed "s:/usr/bin:/opt/bin:g" > '
+                  '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
+        run_shell(args,
+                  'systemctl enable kubelet && systemctl start kubelet')
+        run_shell(args, '/opt/bin/kubeadm init')
+        return
+
     if '18' in docker_ver(args) and 'ce' in docker_ver(args):
         install_docker = False
     else:
         install_docker = True
 
     if install_docker:
-        if linux_ver() == 'centos':
+        if linux_ver(args) == 'centos':
             # https://kubernetes.io/docs/setup/cri/
 
             run_shell(args,
@@ -595,13 +647,16 @@ def k8s_install_tools(args):
 def k8s_setup_ntp(args):
     '''Setup NTP'''
 
+    if linux_ver(args) == 'container':
+        return
+
     banner('Kubernetes - Start services')
 
     print_progress('Kubernetes',
                    'Setup NTP',
                    K8S_FINAL_PROGRESS)
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         run_shell(args, 'sudo yum install -y ntp')
         run_shell(args, 'sudo systemctl enable ntpd.service')
         run_shell(args, 'sudo systemctl start ntpd.service')
@@ -613,10 +668,13 @@ def k8s_setup_ntp(args):
 def k8s_turn_things_off(args):
     '''Currently turn off SELinux and Firewall'''
 
+    if linux_ver(args) == 'container':
+        return
+
     run_shell(args, 'sudo swapoff -a')
     run_shell(args, 'sudo modprobe br_netfilter')
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         print_progress('Kubernetes',
                        'Turn off SELinux',
                        K8S_FINAL_PROGRESS)
@@ -634,7 +692,7 @@ def k8s_turn_things_off(args):
                    'Turn off firewall and ISCSID',
                    K8S_FINAL_PROGRESS)
 
-    if linux_ver() == 'centos':
+    if linux_ver(args) == 'centos':
         run_shell(args, 'sudo systemctl stop firewalld')
         run_shell(args, 'sudo systemctl disable firewalld')
     else:
@@ -644,10 +702,10 @@ def k8s_turn_things_off(args):
 
 
 def k8s_install_k8s(args):
-    '''Necessary repo to install kubernetes and tools
+    '''Necessary repo to install kubernetes and tools'''
 
-    This is often broken and may need to be more programatic
-    '''
+    if linux_ver(args) == 'container':
+        return
 
     print_progress('Kubernetes',
                    'Create Kubernetes repo and install Kubernetes ',
@@ -702,6 +760,9 @@ def k8s_setup_dns(args):
 def k8s_reload_service_files(args):
     '''Service files where modified so bring them up again'''
 
+    if linux_ver(args) == 'container':
+        return
+
     print_progress('Kubernetes',
                    'Reload the hand-modified service files',
                    K8S_FINAL_PROGRESS)
@@ -713,6 +774,9 @@ def k8s_reload_service_files(args):
 def k8s_start_kubelet(args):
     '''Start kubelet'''
 
+    if linux_ver(args) == 'container':
+        return
+
     print_progress('Kubernetes',
                    'Enable and start kubelet',
                    K8S_FINAL_PROGRESS)
@@ -723,6 +787,9 @@ def k8s_start_kubelet(args):
 
 def k8s_fix_iptables(args):
     '''Maybe Centos only but this needs to be changed to proceed'''
+
+    if linux_ver(args) == 'container':
+        return
 
     reload_sysctl = False
     print_progress('Kubernetes',
@@ -748,6 +815,9 @@ def k8s_fix_iptables(args):
 
 def k8s_deploy_k8s(args):
     '''Start the kubernetes master'''
+
+    if linux_ver(args) == 'container':
+        return
 
     banner('Kubernetes - Begin Deployment')
 
