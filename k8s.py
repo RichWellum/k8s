@@ -225,9 +225,9 @@ def linux_ver(args):
         linux = 'ubuntu'
     else:
         find_os = run_shell(args, "cat /proc/version | cut -d' ' -f3")
-        if re.search('flatcar', find_os[0], re.IGNORECASE):
+        if re.search('flatcar', find_os, re.IGNORECASE):
             linux = 'container'
-        elif re.search('coreos', find_os[0], re.IGNORECASE):
+        elif re.search('coreos', find_os, re.IGNORECASE):
             linux = 'container'
         else:
             print('Linux "%s" is not supported yet' % find_os[0])
