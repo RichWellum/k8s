@@ -590,14 +590,6 @@ def k8s_install_tools(args):
                   % RELEASE)
         run_shell(args,
                   'systemctl enable kubelet && systemctl start kubelet')
-        # out = run_shell(args, '/opt/bin/kubeadm init')
-        # # Even in no-verbose mode, we need to display the join command to
-        # # enabled multi-node
-        # for line in out.splitlines():
-        #     if re.search('kubeadm join', line):
-        #         line += ' ' * 2
-        #         global JOIN_CMD
-        #         JOIN_CMD = 'sudo ' + line
         return
 
     if '18' in docker_ver(args) and 'ce' in docker_ver(args):
