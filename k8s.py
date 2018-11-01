@@ -50,9 +50,14 @@ Flatcar / Coreos
 Flatcare and Coreos is still experimental
 https://gist.github.com/kevashcraft/5aa85f44634c37a9ee05dde7e83ac7e2#install-kubernetes
 Install Python:
-
+https://github.com/judexzhu/Install-Python-on-CoreOs
+sudo su
 wget -qO- https://raw.githubusercontent.com/judexzhu/Install-Python-on-\
-CoreOs/master/install-python.sh | sudo bash
+CoreOs/master/install-python.sh | bash
+cat > ~/.bashrc << EOF
+export PATH=\$PATH:/opt/bin
+EOF
+source ~/.bashrc
 
 '''
 
@@ -560,8 +565,8 @@ def k8s_install_tools(args):
                   'curl -L --remote-name-all '
                   'https://storage.googleapis.com/'
                   'kubernetes-release/release/%s/bin/linux/amd64/'
-                  '{kubeadm,kubelet,kubectl} > '
-                  '/opt/bin/{kubeadm,kubelet,kubectl}' % RELEASE)
+                  '{kubeadm,kubelet,kubectl}' % RELEASE)
+        sys.exit(1)
         run_shell(args, 'chmod +x /opt/bin/kube*')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
