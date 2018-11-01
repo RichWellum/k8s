@@ -10,7 +10,7 @@ kubeadm.
 
 Features
 ========
-1. Supports both Centos and Ubuntu natively.
+1. Supports Centos and Ubuntu, Flatcar and CoreOS is in alpha.
 
 2. Requires just a VM with one external NIC.
 
@@ -48,14 +48,21 @@ To handle a proxy, add management ip (ip a) to the no_proxy in
 Flatcar / Coreos
 ================
 Flatcare and Coreos is still experimental
+
+See:
 https://gist.github.com/kevashcraft/5aa85f44634c37a9ee05dde7e83ac7e2#install-kubernetes
-Install Python:
-https://github.com/judexzhu/Install-Python-on-CoreOs
+
+Follow these steps first:
+
 sudo su
+
+https://github.com/judexzhu/Install-Python-on-CoreOs
+
 wget -qO- https://raw.githubusercontent.com/judexzhu/Install-Python-on-\
 CoreOs/master/install-python.sh | bash
+
 cat > ~/.bashrc << EOF
-export PATH=\$PATH:/opt/bin
+export PATH="/opt/bin:$PATH"
 EOF
 source ~/.bashrc
 
@@ -583,7 +590,14 @@ def k8s_install_tools(args):
                   % RELEASE)
         run_shell(args,
                   'systemctl enable kubelet && systemctl start kubelet')
-        run_shell(args, '/opt/bin/kubeadm init')
+        out = run_shell(args, '/opt/bin/kubeadm init')
+        # Even in no-verbose mode, we need to display the join command to
+        # enabled multi-node
+        for line in out.splitlines():
+            if re.search('kubeadm join', line):
+                line += ' ' * 2
+                global JOIN_CMD
+                JOIN_CMD = 'sudo ' + line
         return
 
     if '18' in docker_ver(args) and 'ce' in docker_ver(args):
@@ -974,7 +988,11 @@ def k8s_install_deploy_helm(args):
          '-o',
          '/tmp/helm-v%s-linux-amd64.tar.gz' % args.helm_version)
     untar('/tmp/helm-v%s-linux-amd64.tar.gz' % args.helm_version)
-    run_shell(args, 'sudo mv -f linux-amd64/helm /usr/local/bin/helm')
+    if linux_ver(args) == 'container':
+        run_shell(args, 'sudo mv -f linux-amd64/helm /opt/bin')
+    else:
+        run_shell(args, 'sudo mv -f linux-amd64/helm /usr/local/bin/helm')
+
     run_shell(args, 'helm init')
     # k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
