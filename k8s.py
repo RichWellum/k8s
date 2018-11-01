@@ -554,13 +554,14 @@ def k8s_install_tools(args):
         RELEASE = run_shell(
             args, 'curl -sSL https://dl.k8s.io/release/stable.txt')
         run_shell(args, 'mkdir -p /opt/bin')
-        run_shell(args, 'cd /opt/bin')
+        run_shell(args, 'pushd /opt/bin')
         run_shell(args, 'PATH=$PATH:/opt/bin')
         run_shell(args,
-                  'curl -L --remote-name-all https://storage.googleapis.com/'
+                  'curl -L --remote-name-all '
+                  'https://storage.googleapis.com/'
                   'kubernetes-release/release/%s/bin/linux/amd64/'
-                  '{kubeadm,kubelet,kubectl}' % RELEASE)
-        run_shell(args, 'chmod +x {kubeadm,kubelet,kubectl}')
+                  '{kubeadm,kubelet,kubectl} > /opt/bin' % RELEASE)
+        run_shell(args, 'chmod +x /opt/bin/kube*')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
                   'kubernetes/%s/build/debs/kubelet.service" | '
