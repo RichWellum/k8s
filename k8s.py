@@ -543,6 +543,10 @@ def k8s_install_tools(args):
             print('Error - Container Linux must be run as root (sudo su)')
             sys.exit(1)
 
+        run_shell(args,
+                  'wget -qO- https://raw.githubusercontent.com/'
+                  'judexzhu/Install-Python-on-CoreOs/master/install-'
+                  'python.sh | sudo bash')
         run_shell(args, 'systemctl enable docker && systemctl start docker')
         CNI_VERSION = "v0.6.0"
         run_shell(args, 'mkdir -p /opt/cni/bin')
