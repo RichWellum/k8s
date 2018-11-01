@@ -590,14 +590,14 @@ def k8s_install_tools(args):
                   % RELEASE)
         run_shell(args,
                   'systemctl enable kubelet && systemctl start kubelet')
-        out = run_shell(args, '/opt/bin/kubeadm init')
-        # Even in no-verbose mode, we need to display the join command to
-        # enabled multi-node
-        for line in out.splitlines():
-            if re.search('kubeadm join', line):
-                line += ' ' * 2
-                global JOIN_CMD
-                JOIN_CMD = 'sudo ' + line
+        # out = run_shell(args, '/opt/bin/kubeadm init')
+        # # Even in no-verbose mode, we need to display the join command to
+        # # enabled multi-node
+        # for line in out.splitlines():
+        #     if re.search('kubeadm join', line):
+        #         line += ' ' * 2
+        #         global JOIN_CMD
+        #         JOIN_CMD = 'sudo ' + line
         return
 
     if '18' in docker_ver(args) and 'ce' in docker_ver(args):
@@ -621,7 +621,8 @@ def k8s_install_tools(args):
                       'docker-ce.repo')
             run_shell(args,
                       'sudo yum install docker-ce-18.06.1.ce -y')
-        else:  # ubuntu
+        else:
+            # ubuntu
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
             # using-the-repository
             run_shell(args,
@@ -843,7 +844,9 @@ def k8s_deploy_k8s(args):
     '''Start the kubernetes master'''
 
     if linux_ver(args) == 'container':
-        return
+        cmd = '/opt/bin/kubeadm init'
+    else:
+        cmd = 'kubeadm init'
 
     banner('Kubernetes - Begin Deployment')
 
@@ -855,7 +858,7 @@ def k8s_deploy_k8s(args):
     #                 'sudo kubeadm init --pod-network-cidr=10.1.0.0/16 '
     #                 '--service-cidr=10.3.3.0/24 '
     #                 '--ignore-preflight-errors=all')
-    out = run_shell(args, 'sudo kubeadm init')
+    out = run_shell(args, cmd)
 
     # Even in no-verbose mode, we need to display the join command to
     # enabled multi-node
