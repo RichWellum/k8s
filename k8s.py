@@ -566,7 +566,7 @@ def k8s_install_tools(args):
                   'https://storage.googleapis.com/'
                   'kubernetes-release/release/%s/bin/linux/amd64/'
                   '{kubeadm,kubelet,kubectl}' % RELEASE)
-        sys.exit(1)
+        run_shell(args, 'mv kube* /opt/bin')
         run_shell(args, 'chmod +x /opt/bin/kube*')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
