@@ -552,8 +552,7 @@ def k8s_install_tools(args):
                   '%s.tgz" | tar -C /opt/cni/bin -xz'
                   % (CNI_VERSION, CNI_VERSION))
         RELEASE = run_shell(
-            args,
-            '$(curl -sSL https://dl.k8s.io/release/stable.txt)')
+            args, 'curl -sSL https://dl.k8s.io/release/stable.txt')
         run_shell(args, 'mkdir -p /opt/bin')
         run_shell(args, 'cd /opt/bin')
         run_shell(args, 'PATH=$PATH:/opt/bin')
