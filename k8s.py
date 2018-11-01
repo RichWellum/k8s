@@ -560,7 +560,8 @@ def k8s_install_tools(args):
                   'curl -L --remote-name-all '
                   'https://storage.googleapis.com/'
                   'kubernetes-release/release/%s/bin/linux/amd64/'
-                  '{kubeadm,kubelet,kubectl} > /opt/bin' % RELEASE)
+                  '{kubeadm,kubelet,kubectl} > '
+                  '/opt/bin/{kubeadm,kubelet,kubectl}' % RELEASE)
         run_shell(args, 'chmod +x /opt/bin/kube*')
         run_shell(args,
                   'curl -sSL "https://raw.githubusercontent.com/kubernetes/'
