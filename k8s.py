@@ -612,7 +612,7 @@ def k8s_install_tools(args):
                       'https://download.docker.com/linux/centos/'
                       'docker-ce.repo')
             run_shell(args,
-                      'sudo yum install docker-ce-18.06.1.ce -y')
+                      'sudo yum install docker-ce -y')
         else:
             # ubuntu
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
@@ -996,6 +996,7 @@ def k8s_install_deploy_helm(args):
 
 def k8s_final_messages(args):
     '''Final messages and checks'''
+
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
     print(JOIN_CMD)
