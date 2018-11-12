@@ -838,7 +838,7 @@ def k8s_deploy_k8s(args):
     if linux_ver(args) == 'container':
         cmd = '/opt/bin/kubeadm init'
     else:
-        cmd = 'kubeadm init'
+        cmd = 'kubeadm init --ignore-preflight-errors=all'
 
     banner('Kubernetes - Begin Deployment')
 
