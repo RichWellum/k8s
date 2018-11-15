@@ -1,4 +1,0 @@
-FROM ubuntu
-ADD ./guess.sh /usr/src/guess.sh
-RUN chmod +x /usr/src/guess.sh
-CMD ["/usr/src/guess.sh"]
