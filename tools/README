@@ -1,9 +1,13 @@
 # How to create a docker image and deploy into kubernetes with helm
 
-# Create Dockerfile (vi Dockerfile)
+kubectl run hello-node --image=gcr.io/hello-minikube-zero-install/hello-node --port=8080
+
+# Create Dockerfile (vim Dockerfile)
 
 FROM ubuntu
 ADD ./getip.sh /usr/src/getip.sh
+RUN apt-get update && \
+     apt-get install -y net-tools
 RUN chmod +x /usr/src/getip.sh
 CMD ["/usr/src/getip.sh"]
 
@@ -31,4 +35,7 @@ service:
 +  externalPort: 8181
 
 # Install
+cd tools/getip
 helm install -n getip . --debug
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=getip,app.kubernetes.io/instance=getip" -o jsonpath="{.items[0].metadata.name}")
+kubectl logs $POD_NAME
