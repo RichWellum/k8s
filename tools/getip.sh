@@ -33,3 +33,4 @@ while read lhs rhs; do
 done < <(/sbin/ifconfig)
 printf "%-12s: %s\n" Interface $iFace Local\ Ip $myIp \
        Gateway $gWay Net\ mask $netMask Run\ on\ mac $runOnMac
+sleep 10000

@@ -3,32 +3,32 @@
 # Create Dockerfile (vi Dockerfile)
 
 FROM ubuntu
-ADD ./guess.sh /usr/src/guess.sh
-RUN chmod +x /usr/src/guess.sh
-CMD ["/usr/src/guess.sh"]
+ADD ./getip.sh /usr/src/getip.sh
+RUN chmod +x /usr/src/getip.sh
+CMD ["/usr/src/getip.sh"]
 
-# Build image
+# Build image (from OS running docker)
 
 sudo docker login
-sudo docker build -t rwellum/guess:0.1.0 .
+sudo docker build -t rwellum/getip:0.1.0 .
 
 # Push image to dockerhub
-sudo docker push rwellum/guess:0.1.0
+sudo docker push rwellum/getip:0.1.0
 
 # Create helm chart
-helm create guess
+helm create getip
 
 # Edit values.yaml add:
 image:
-+  repository: rwellum/guess
++  repository: rwellum/getip
 +  tag: 0.1.0
   pullPolicy: IfNotPresent
 
 service:
-+  name: guess
++  name: getip
 +  type: NodePort
 +  internalPort: 8181
 +  externalPort: 8181
 
 # Install
-helm install -n guess . --debug
+helm install -n getip . --debug

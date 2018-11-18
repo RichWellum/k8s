@@ -1,4 +1,4 @@
 FROM ubuntu
-ADD ./guess.sh /usr/src/guess.sh
-RUN chmod +x /usr/src/guess.sh
-CMD ["/usr/src/guess.sh"]
+ADD ./getip.sh /usr/src/getip.sh
+RUN chmod +x /usr/src/getip.sh
+CMD ["/usr/src/getip.sh"]
