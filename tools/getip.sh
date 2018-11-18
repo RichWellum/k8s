@@ -14,7 +14,7 @@ while IFS=$' :\t\r\n' read a b c d; do
     else
         [ "$a" = "0.0.0.0" ] && [ "$c" = "$a" ] && iFace=${d##* } gWay=$b
     fi
-done < <(/sbin/route -n 2>&1 || /sbin/route -n get 0.0.0.0/0)
+done < <(route -n 2>&1 || route -n get 0.0.0.0/0)
 ip2int $gWay gw
 while read lhs rhs; do
     [ "$lhs" ] && {
@@ -30,7 +30,7 @@ while read lhs rhs; do
                 int2ip $ip myIp && int2ip $mask netMask
         }
     }
-done < <(/sbin/ifconfig)
+done < <(ifconfig)
 printf "%-12s: %s\n" Interface $iFace Local\ Ip $myIp \
        Gateway $gWay Net\ mask $netMask Run\ on\ mac $runOnMac
 sleep 10000
