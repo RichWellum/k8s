@@ -1,0 +1,34 @@
+# How to create a docker image and deploy into kubernetes with helm
+
+# Create Dockerfile (vi Dockerfile)
+
+FROM ubuntu
+ADD ./guess.sh /usr/src/guess.sh
+RUN chmod +x /usr/src/guess.sh
+CMD ["/usr/src/guess.sh"]
+
+# Build image
+
+sudo docker login
+sudo docker build -t rwellum/guess:0.1.0 .
+
+# Push image to dockerhub
+sudo docker push rwellum/guess:0.1.0
+
+# Create helm chart
+helm create guess
+
+# Edit values.yaml add:
+image:
++  repository: rwellum/guess
++  tag: 0.1.0
+  pullPolicy: IfNotPresent
+
+service:
++  name: guess
++  type: NodePort
++  internalPort: 8181
++  externalPort: 8181
+
+# Install
+helm install -n guess . --debug
