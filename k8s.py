@@ -1000,6 +1000,7 @@ def k8s_final_messages(args):
 
     print('\n  You can now join any number of machines by '
           'running the following on each node as root:')
+    global JOIN_CMD
     print(JOIN_CMD)
     print()
     output_file_name = 'join_cmd.txt'
