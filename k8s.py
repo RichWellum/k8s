@@ -1010,7 +1010,7 @@ def k8s_final_messages(args):
     k8s_verify_and_show(args)
 
     banner('Kubernetes Cluster ready for use')
-    print('\n Join command saved to: "%s"' % output_file_name)
+    banner('Join command saved to: "%s"' % output_file_name)
 
 
 def is_running(args, process):
