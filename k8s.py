@@ -1005,7 +1005,7 @@ def k8s_final_messages(args):
 
     k8s_verify_and_show(args)
 
-    print()
+    banner("Kuberntes Join")
     print('You can now join any number of machines by '
           'running the following on each node as root(%s):' % output_file_name)
     print('"sudo %s"' % JOIN_CMD.lstrip())
