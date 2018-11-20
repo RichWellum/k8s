@@ -998,19 +998,19 @@ def k8s_install_deploy_helm(args):
 def k8s_final_messages(args):
     '''Final messages and checks'''
 
+    # Store join command for future use
     global JOIN_CMD
-
-    k8s_verify_and_show(args)
-
-    print('\n  You can now join any number of machines by '
-          'running the following on each node as root:')
-    print(JOIN_CMD)
-    print()
     output_file_name = 'join_cmd.txt'
     with open('join_cmd.txt', 'a') as join:
         join.write('%s\n' % JOIN_CMD)
 
-    banner('Join command saved to: "%s"' % output_file_name)
+    k8s_verify_and_show(args)
+
+    print()
+    print('\n  You can now join any number of machines by '
+          'running the following on each node as root(%s)' % output_file_name)
+    print(JOIN_CMD)
+    print()
 
     banner('Kubernetes Cluster ready for use')
 
