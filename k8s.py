@@ -1008,7 +1008,7 @@ def k8s_final_messages(args):
     print()
     print('You can now join any number of machines by '
           'running the following on each node as root(%s):' % output_file_name)
-    print(JOIN_CMD)
+    print("%s" % JOIN_CMD)
     print()
 
     banner('Kubernetes Cluster ready for use')
