@@ -1000,7 +1000,7 @@ def k8s_final_messages(args):
     # Store join command for future use
     global JOIN_CMD
     output_file_name = 'join_cmd.txt'
-    with open('join_cmd.txt', 'a') as join:
+    with open('join_cmd.txt', 'w') as join:
         join.write('%s\n' % JOIN_CMD.lstrip())
 
     k8s_verify_and_show(args)
@@ -1008,7 +1008,7 @@ def k8s_final_messages(args):
     print()
     print('You can now join any number of machines by '
           'running the following on each node as root(%s):' % output_file_name)
-    print('"%s"' % JOIN_CMD)
+    print('"%s"' % JOIN_CMD.lstrip())
     print()
 
     banner('Kubernetes Cluster ready for use')
