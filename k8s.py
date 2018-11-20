@@ -1001,7 +1001,7 @@ def k8s_final_messages(args):
     global JOIN_CMD
     output_file_name = 'join_cmd.txt'
     with open('join_cmd.txt', 'w') as join:
-        join.write('%s\n' % JOIN_CMD.lstrip())
+        join.write('sudo %s\n' % JOIN_CMD.lstrip())
 
     k8s_verify_and_show(args)
 
