@@ -857,10 +857,7 @@ def k8s_deploy_k8s(args):
     # enabled multi-node
     for line in out.splitlines():
         if re.search('kubeadm join', line):
-            # line += ' '
-            # line += ' ' * 2
             global JOIN_CMD
-            # JOIN_CMD = 'sudo ' + line
             JOIN_CMD = line
 
 
@@ -1010,7 +1007,7 @@ def k8s_final_messages(args):
 
     print()
     print('You can now join any number of machines by '
-          'running the following on each node as root(%s)' % output_file_name)
+          'running the following on each node as root(%s):' % output_file_name)
     print(JOIN_CMD)
     print()
 
