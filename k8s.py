@@ -860,7 +860,8 @@ def k8s_deploy_k8s(args):
             # line += ' '
             # line += ' ' * 2
             global JOIN_CMD
-            JOIN_CMD = 'sudo ' + line
+            # JOIN_CMD = 'sudo ' + line
+            JOIN_CMD = line
 
 
 def k8s_load_kubeadm_creds(args):
