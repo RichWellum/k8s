@@ -26,18 +26,38 @@ Host machine requirements
 The host machine must satisfy the following minimum requirements:
 
 - 1 network interfaces
-- 4GB min, 8GB preferred RAM
-- 20G min, 40GB preferred disk space
-- 2 CPU's Min, 4 preferred CPU's
+- 2GB min, 4GB+ preferred RAM
+- 20G min, 40GB+ preferred disk space
+- 2 CPU's Min, 4+ preferred CPU's
 - Root access to the deployment host machine
+
+User Recomendations
+=================
+- Create an admin user - don't run from root
+- Disable timeouts
+
+Add user (centos/ubuntu)
+-------------------------------------
+Centos
+       adduser stack
+       passwd stack
+       usermod -aG wheel stack
+
+Ubuntu
+       adduser stack
+       usermod -aG sudo stack
+
+Both
+       visudo:
+       stack  ALL=(ALL) NOPASSWD: ALL
+       Defaults    timestamp_timeout=-1
 
 Recomendations
 ==============
 
 Alt way to run:
 
-curl https://raw.githubusercontent.com/RichWellum/k8s/master/k8s.py \
-| python - -cni weave
+curl https://raw.githubusercontent.com/RichWellum/k8s/master/k8s.py | python -
 
 Proxy
 ====
