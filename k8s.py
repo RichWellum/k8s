@@ -1027,7 +1027,7 @@ def k8s_final_messages(args):
 
     banner("Kuberntes Join")
     print('You can now join any number of Nodes by running the following on '
-          'each node as root"')
+          'each node as root:')
     print('1. Set up Node as a minion: "k8s.py -cm"')
     print('2. "sudo %s"' % JOIN_CMD.lstrip())
     print('3. Join command is also saved here: "%s"' % output_file_name)
