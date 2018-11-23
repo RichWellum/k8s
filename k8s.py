@@ -541,8 +541,6 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Install basic tools needed for first pass'''
 
-    banner('Kubernetes - Install packages - start Services')
-
     add_one_to_progress()
 
     print_progress('Kubernetes',
@@ -692,8 +690,6 @@ def k8s_setup_ntp(args):
     if linux_ver(args) == 'container':
         return
 
-    banner('Kubernetes - Start NTP')
-
     print_progress('Kubernetes',
                    'Setup NTP',
                    K8S_FINAL_PROGRESS)
@@ -709,8 +705,6 @@ def k8s_setup_ntp(args):
 
 def k8s_turn_things_off(args):
     '''Currently turn off SELinux and Firewall'''
-
-    banner('Kubernetes - turn things off')
 
     if linux_ver(args) == 'container':
         return
@@ -747,8 +741,6 @@ def k8s_turn_things_off(args):
 
 def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools'''
-
-    banner('Kubernetes - download and install Kubernetes')
 
     if linux_ver(args) == 'container':
         return
@@ -809,8 +801,6 @@ def k8s_reload_service_files(args):
     if linux_ver(args) == 'container':
         return
 
-    banner('Kubernetes - restart services')
-
     print_progress('Kubernetes',
                    'Reload the hand-modified service files',
                    K8S_FINAL_PROGRESS)
@@ -869,8 +859,6 @@ def k8s_deploy_k8s(args):
     else:
         cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
 
-    banner('Kubernetes - Begin Deployment')
-
     print_progress('Kubernetes',
                    'Deploying using kubeadm (can take a few minutes...)',
                    K8S_FINAL_PROGRESS)
@@ -909,8 +897,6 @@ def k8s_load_kubeadm_creds(args):
 
 def k8s_deploy_weave(args):
     '''Deploy CNI/SDN to K8s cluster'''
-
-    banner('Kubernetes - deploy Weave SDN')
 
     print_progress('Kubernetes',
                    'Deploy pod network SDN using Weave CNI',
@@ -1189,47 +1175,47 @@ def k8s_verify_and_show(args):
 
     banner('Kubernetes Verify and Show Deployment')
 
-    banner('Determine IP and port information from Service:')
+    print(args, 'Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
     print()
 
-    banner('View all k8s namespaces:')
+    print(args, 'View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
     print()
 
-    banner('View all deployed services:')
+    print(args, 'View all deployed services:')
     print(run_shell(args, 'kubectl get deployment -n kube-system'))
     print()
 
-    banner('View configuration maps:')
+    print(args, 'View configuration maps:')
     print(run_shell(args, 'kubectl get configmap -n kube-system'))
     print()
 
-    banner('General Cluster information:')
+    print(args, 'General Cluster information:')
     print(run_shell(args, 'kubectl cluster-info'))
     print()
 
-    banner('View all jobs:')
+    print(args, 'View all jobs:')
     print(run_shell(args, 'kubectl get jobs --all-namespaces'))
     print()
 
-    banner('View all deployments:')
+    print(args, 'View all deployments:')
     print(run_shell(args, 'kubectl get deployments --all-namespaces'))
     print()
 
-    banner('View secrets:')
+    print(args, 'View secrets:')
     print(run_shell(args, 'kubectl get secrets'))
     print()
 
-    banner('View docker images')
+    print(args, 'View docker images')
     print(run_shell(args, 'sudo docker images'))
     print()
 
-    banner('View deployed Helm Charts')
+    print(args, 'View deployed Helm Charts')
     print(run_shell(args, 'helm list'))
     print()
 
-    banner('View final cluster:')
+    print(args, 'View final cluster:')
     print(run_shell(args, 'kubectl get pods --all-namespaces'))
 
 
@@ -1237,6 +1223,11 @@ def k8s_bringup_kubernetes_cluster(args):
     '''Bring up a working Kubernetes Cluster'''
 
     k8s_destroy(args)
+    if args.minion:
+        banner('Kubernetes Minion - Install and start needed packages and '
+               'services')
+    else:
+        banner('Kubernetes - Bring up a Cluster')
     k8s_install_tools(args)
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
@@ -1248,7 +1239,7 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
         run_shell(args, 'sudo systemctl start docker.service')
-        banner('Kubernetes tools installed, minion ready')
+        banner('Kubernetes Minion ready for JOIN command')
         sys.exit(1)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
