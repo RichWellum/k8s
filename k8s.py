@@ -1028,7 +1028,7 @@ def k8s_final_messages(args):
     print('3. Join command is also saved here: "%s"' % output_file_name)
     print()
 
-    banner('Kubernetes Cluster ready for use')
+    banner('Kubernetes - Cluster ready for use')
 
 
 def is_running(args, process):
@@ -1114,9 +1114,7 @@ def k8s_destroy(args):
               "$(sudo docker container ls -a -q) "
               "&& sudo docker system prune -a -f")
 
-    banner('Kubernetes - ',
-           'Destroy done. Highly recommend rebooting ',
-           'your host')
+    banner('Kubernetes - Destroy done')
 
     clean_progress()
     add_one_to_progress()
@@ -1172,7 +1170,7 @@ spec:
 def k8s_verify_and_show(args):
     '''Run some commands for demo purposes'''
 
-    banner('Kubernetes Verify and Show Deployment')
+    banner('Kubernetes - Verify and Show Deployment')
 
     print(args, 'Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
@@ -1238,7 +1236,7 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
         run_shell(args, 'sudo systemctl start docker.service')
-        banner('Kubernetes Minion ready for JOIN command')
+        banner('Kubernetes Minion - Ready for JOIN command')
         sys.exit(1)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
