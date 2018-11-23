@@ -1030,7 +1030,7 @@ def k8s_final_messages(args):
           'each node as root"')
     print('1. Set up Node as a minion: "k8s.py -cm"')
     print('2. "sudo %s"' % JOIN_CMD.lstrip())
-    print('Join command is also saved here: "%s"' % output_file_name)
+    print('3. Join command is also saved here: "%s"' % output_file_name)
     print()
 
     banner('Kubernetes Cluster ready for use')
