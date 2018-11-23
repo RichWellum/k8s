@@ -1233,7 +1233,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
     if args.minion:
-        banner('Kubernetes - starting all services')
+        banner('Kubernetes minion start kubelet and docker services')
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
         run_shell(args, 'sudo systemctl start docker.service')
