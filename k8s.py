@@ -543,6 +543,9 @@ def k8s_install_tools(args):
 
     banner('Kubernetes - Install packages - start Services')
 
+    if args.minion:
+            add_one_to_progress()
+
     print_progress('Kubernetes',
                    'Installing packages',
                    K8S_FINAL_PROGRESS)
@@ -1279,7 +1282,7 @@ def main():
         K8S_FINAL_PROGRESS = 17
 
     if args.minion:
-        K8S_FINAL_PROGRESS = 4
+        K8S_FINAL_PROGRESS = 5
 
     set_logging()
     logger.setLevel(level=args.verbose)
