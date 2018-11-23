@@ -1234,7 +1234,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_install_k8s(args)
     if args.minion:
         print_progress('Kubernetes',
-                       'Minion start kubelet and docker services',
+                       'start kubelet and docker services',
                        K8S_FINAL_PROGRESS)
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
