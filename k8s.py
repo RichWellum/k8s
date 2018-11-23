@@ -1020,7 +1020,7 @@ def k8s_final_messages(args):
 
     k8s_verify_and_show(args)
 
-    banner("Kuberntes Join")
+    banner("Kubernetes Join")
     print('You can now join any number of Nodes by running the following on '
           'each node as root:')
     print('1. Set up Node as a minion: "k8s.py -m"')
