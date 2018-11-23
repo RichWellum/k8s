@@ -1021,7 +1021,6 @@ def k8s_install_deploy_helm(args):
     run_shell(args, 'helm init')
     # k8s_wait_for_pod_start(args, 'tiller')
     k8s_wait_for_running_negate(args)
-    banner("Kubernetes Cluster is up and running")
 
 
 def k8s_final_messages(args):
@@ -1276,9 +1275,9 @@ def main():
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
     if linux_ver(args) == 'centos':
-        K8S_FINAL_PROGRESS = 18
+        K8S_FINAL_PROGRESS = 14
     else:
-        K8S_FINAL_PROGRESS = 17
+        K8S_FINAL_PROGRESS = 13
 
     if args.minion:
         K8S_FINAL_PROGRESS = 5
