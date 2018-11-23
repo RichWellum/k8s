@@ -1232,7 +1232,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_setup_ntp(args)
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
-    if args.create_minion:
+    if args.minion:
         banner('Kubernetes - starting all services')
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
@@ -1268,7 +1268,7 @@ def main():
     else:
         K8S_FINAL_PROGRESS = 17
 
-    if args.create_minion:
+    if args.minion:
         K8S_FINAL_PROGRESS = 5
 
     set_logging()
