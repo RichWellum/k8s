@@ -1172,47 +1172,47 @@ def k8s_verify_and_show(args):
 
     banner('Kubernetes - Verify and Show Deployment')
 
-    print(args, 'Determine IP and port information from Service:')
+    print('Determine IP and port information from Service:')
     print(run_shell(args, 'kubectl get svc -n kube-system'))
     print()
 
-    print(args, 'View all k8s namespaces:')
+    print('View all k8s namespaces:')
     print(run_shell(args, 'kubectl get namespaces'))
     print()
 
-    print(args, 'View all deployed services:')
+    print('View all deployed services:')
     print(run_shell(args, 'kubectl get deployment -n kube-system'))
     print()
 
-    print(args, 'View configuration maps:')
+    print('View configuration maps:')
     print(run_shell(args, 'kubectl get configmap -n kube-system'))
     print()
 
-    print(args, 'General Cluster information:')
+    print('General Cluster information:')
     print(run_shell(args, 'kubectl cluster-info'))
     print()
 
-    print(args, 'View all jobs:')
+    print('View all jobs:')
     print(run_shell(args, 'kubectl get jobs --all-namespaces'))
     print()
 
-    print(args, 'View all deployments:')
+    print('View all deployments:')
     print(run_shell(args, 'kubectl get deployments --all-namespaces'))
     print()
 
-    print(args, 'View secrets:')
+    print('View secrets:')
     print(run_shell(args, 'kubectl get secrets'))
     print()
 
-    print(args, 'View docker images')
+    print('View docker images')
     print(run_shell(args, 'sudo docker images'))
     print()
 
-    print(args, 'View deployed Helm Charts')
+    print('View deployed Helm Charts')
     print(run_shell(args, 'helm list'))
     print()
 
-    print(args, 'View final cluster:')
+    print('View final cluster:')
     print(run_shell(args, 'kubectl get pods --all-namespaces'))
 
 
