@@ -541,7 +541,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Install basic tools needed for first pass'''
 
-    banner('Kubernetes - Install needed packages')
+    banner('Kubernetes - Install other packages - start Services')
 
     print_progress('Kubernetes',
                    'Installing packages',
@@ -690,7 +690,7 @@ def k8s_setup_ntp(args):
     if linux_ver(args) == 'container':
         return
 
-    banner('Kubernetes - Start services')
+    banner('Kubernetes - Start NTP')
 
     print_progress('Kubernetes',
                    'Setup NTP',
@@ -707,6 +707,8 @@ def k8s_setup_ntp(args):
 
 def k8s_turn_things_off(args):
     '''Currently turn off SELinux and Firewall'''
+
+    banner('Kubernetes - turn things off')
 
     if linux_ver(args) == 'container':
         return
@@ -743,6 +745,8 @@ def k8s_turn_things_off(args):
 
 def k8s_install_k8s(args):
     '''Necessary repo to install kubernetes and tools'''
+
+    banner('Kubernetes - download and install Kubernetes')
 
     if linux_ver(args) == 'container':
         return
@@ -798,10 +802,12 @@ def k8s_setup_dns(args):
 
 
 def k8s_reload_service_files(args):
-    '''Service files where modified so bring them up again'''
+    '''Service files were modified so bring them up again'''
 
     if linux_ver(args) == 'container':
         return
+
+    banner('Kubernetes - restart services')
 
     print_progress('Kubernetes',
                    'Reload the hand-modified service files',
@@ -901,6 +907,8 @@ def k8s_load_kubeadm_creds(args):
 
 def k8s_deploy_weave(args):
     '''Deploy CNI/SDN to K8s cluster'''
+
+    banner('Kubernetes - deploy Weave SDN')
 
     print_progress('Kubernetes',
                    'Deploy pod network SDN using Weave CNI',
@@ -1233,7 +1241,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
     if args.minion:
-        banner('Kubernetes minion start kubelet and docker services')
+        banner('Kubernetes - minion start kubelet and docker services')
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
         run_shell(args, 'sudo systemctl start docker.service')
