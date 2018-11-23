@@ -878,7 +878,7 @@ def k8s_deploy_k8s(args):
     for line in out.splitlines():
         if re.search('kubeadm join', line):
             global JOIN_CMD
-            JOIN_CMD = line
+            JOIN_CMD = line + '--ignore-preflight-errors=all'
 
 
 def k8s_load_kubeadm_creds(args):
@@ -1026,9 +1026,11 @@ def k8s_final_messages(args):
     k8s_verify_and_show(args)
 
     banner("Kuberntes Join")
-    print('You can now join any number of machines by '
-          'running the following on each node as root(%s):' % output_file_name)
-    print('"sudo %s"' % JOIN_CMD.lstrip())
+    print('You can now join any number of Nodes by running the following on '
+          'each node as root"')
+    print('1. Set up Node as a minion: "k8s.py -cm"')
+    print('2. "sudo %s"' % JOIN_CMD.lstrip())
+    print('Join command is also saved here: "%s"' % output_file_name)
     print()
 
     banner('Kubernetes Cluster ready for use')
