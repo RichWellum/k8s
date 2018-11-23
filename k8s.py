@@ -1114,10 +1114,9 @@ def k8s_destroy(args):
               "$(sudo docker container ls -a -q) "
               "&& sudo docker system prune -a -f")
 
-    print_progress('Kubernetes',
-                   'Destroy done. Highly recommend rebooting '
-                   'your host',
-                   K8S_DESTROY_PROGRESS)
+    banner('Kubernetes - ',
+           'Destroy done. Highly recommend rebooting ',
+           'your host')
 
     clean_progress()
     add_one_to_progress()
@@ -1261,7 +1260,7 @@ def main():
     run_shell(args, 'sudo -v')
 
     global K8S_DESTROY_PROGRESS
-    K8S_DESTROY_PROGRESS = 6
+    K8S_DESTROY_PROGRESS = 5
 
     # Ubuntu does not need the selinux step
     global K8S_FINAL_PROGRESS
