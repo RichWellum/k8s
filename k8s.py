@@ -147,9 +147,9 @@ def parse_args():
     parser.add_argument('-hv', '--helm_version', type=str, default='2.11.0',
                         help='Specify a different helm version to the '
                         'latest')
-    parser.add_argument('-cm', '--create_minion', action='store_true',
-                        help='install packages only for use as a minion '
-                        'to be joined to a master')
+    parser.add_argument('-m', '--minion', action='store_true',
+                        help='set up a node to be used as a minion '
+                        'to be JOINed to a master')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages, commands and outputs')
