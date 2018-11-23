@@ -878,7 +878,7 @@ def k8s_deploy_k8s(args):
     for line in out.splitlines():
         if re.search('kubeadm join', line):
             global JOIN_CMD
-            JOIN_CMD = line + '--ignore-preflight-errors=all'
+            JOIN_CMD = line + ' --ignore-preflight-errors=all'
 
 
 def k8s_load_kubeadm_creds(args):
