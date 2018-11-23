@@ -543,8 +543,7 @@ def k8s_install_tools(args):
 
     banner('Kubernetes - Install packages - start Services')
 
-    if args.minion:
-            add_one_to_progress()
+    add_one_to_progress()
 
     print_progress('Kubernetes',
                    'Installing packages',
