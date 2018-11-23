@@ -1036,7 +1036,7 @@ def k8s_final_messages(args):
     banner("Kuberntes Join")
     print('You can now join any number of Nodes by running the following on '
           'each node as root:')
-    print('1. Set up Node as a minion: "k8s.py -cm"')
+    print('1. Set up Node as a minion: "k8s.py -m"')
     print('2. "sudo %s"' % JOIN_CMD.lstrip())
     print('3. Join command is also saved here: "%s"' % output_file_name)
     print()
@@ -1241,7 +1241,9 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_turn_things_off(args)
     k8s_install_k8s(args)
     if args.minion:
-        banner('Kubernetes - minion start kubelet and docker services')
+        print_progress('Kubernetes',
+                       'Minion start kubelet and docker services',
+                       K8S_FINAL_PROGRESS)
         run_shell(args, 'sudo systemctl enable kubelet.service')
         run_shell(args, 'sudo systemctl enable docker.service')
         run_shell(args, 'sudo systemctl start docker.service')
@@ -1277,7 +1279,7 @@ def main():
         K8S_FINAL_PROGRESS = 17
 
     if args.minion:
-        K8S_FINAL_PROGRESS = 5
+        K8S_FINAL_PROGRESS = 4
 
     set_logging()
     logger.setLevel(level=args.verbose)
