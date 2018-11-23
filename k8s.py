@@ -541,7 +541,7 @@ def print_progress(process, msg, finalctr, add_one=False):
 def k8s_install_tools(args):
     '''Install basic tools needed for first pass'''
 
-    banner('Kubernetes - Install other packages - start Services')
+    banner('Kubernetes - Install packages - start Services')
 
     print_progress('Kubernetes',
                    'Installing packages',
