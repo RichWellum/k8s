@@ -1308,6 +1308,7 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
+    k8s_update_rbac(args)  # Move here - before starting cluster
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
@@ -1345,8 +1346,8 @@ def main():
 
     try:
         k8s_destroy(args)
-        k8s_update_rbac(args)  # TODO - swapped rbac around
         k8s_bringup_kubernetes_cluster(args)
+        # k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
         # k8s_install_logging(args)
         k8s_final_messages(args)
