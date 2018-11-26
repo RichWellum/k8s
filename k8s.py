@@ -151,8 +151,8 @@ def parse_args():
                         help='set up a node to be used as a minion '
                         'to be JOINed to a master')
     parser.add_argument('-cni', '--cni', type=str, default='weave',
-                        help='Select a CNI, Weave is default, also supported '
-                        'is Calico ')
+                        help='Select a CNI, "weave" is default, '
+                        'also supported is "calico"')
     parser.add_argument('-c', '--commmands', action='store_true',
                         help='turn on commands used')
     parser.add_argument('-v', '--verbose', action='store_const',
