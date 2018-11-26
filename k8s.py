@@ -150,11 +150,14 @@ def parse_args():
     parser.add_argument('-m', '--minion', action='store_true',
                         help='set up a node to be used as a minion '
                         'to be JOINed to a master')
+    parser.add_argument('-cni', '--cni', type=str, default='weave',
+                        help='Select a CNI, Weave is default, also supported '
+                        'is Calico ')
+    parser.add_argument('-c', '--commmands', action='store_true',
+                        help='turn on commands used')
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='turn on verbose messages, commands and outputs')
-    parser.add_argument('-c', '--commmands', action='store_true',
-                        help='turn on commands used')
     parser.add_argument('-d', '--destroy', action='store_true',
                         help='destroy existing Kubernetes cluster '
                         'before creating a new one.')
@@ -344,7 +347,7 @@ def print_versions(args):
     print('    OS version str:    %s' % os_ver_s)
 
     print('\n  Networking Info:')
-    print('    CNI/SDN:            Weave')
+    print('    CNI/SDN:            %s' % args.cni)
 
     print('\n  Tool Versions:')
     print('    Docker version:     %s' % docker_ver(args))
@@ -895,6 +898,18 @@ def k8s_load_kubeadm_creds(args):
     run_shell(args, 'sudo -H chown $(id -u):$(id -g) $HOME/.kube/config')
 
 
+def k8s_deploy_calico(args):
+    '''Deploy CNI/SDN to K8s cluster'''
+
+    print_progress('Kubernetes',
+                   'Deploy pod network SDN using Calico CNI',
+                   K8S_FINAL_PROGRESS)
+
+    run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v2.0/'
+              'getting-started/kubernetes/installation/hosted/kubeadm/'
+              'calico.yaml')
+
+
 def k8s_deploy_weave(args):
     '''Deploy CNI/SDN to K8s cluster'''
 
@@ -1244,7 +1259,10 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
-    k8s_deploy_weave(args)
+    if args.cni == 'weave':
+        k8s_deploy_weave(args)
+    else:
+        k8s_deploy_calico(args)
     k8s_wait_for_running_negate(args)
     k8s_schedule_master_node(args)
 
