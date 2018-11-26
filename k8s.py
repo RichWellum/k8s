@@ -885,11 +885,13 @@ def k8s_deploy_k8s(args):
 
     if args.cni == 'calico':
         # TODO: Do this here?
+        addr = 'https://docs.projectcalico.org/'
+        addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
+        addr = addr + 'etcd.yaml'
+
         curl(
             '-L',
-            'https://docs.projectcalico.org/'
-            'v3.3/getting-started/kubernetes/installation/hosted/'
-            'etcd.yaml'
+            addr,
             '-o', '/tmp/etcd.yaml')
 
         run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
