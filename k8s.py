@@ -1007,6 +1007,7 @@ def k8s_update_rbac(args):
             addr,
             '-o', '/tmp/rbac')
 
+        # Fix this bug: https://github.com/projectcalico/calico/issues/2063
         name = '/tmp/rbac'
         with open(name, "a") as w:
             w.write("""\
