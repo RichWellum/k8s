@@ -909,19 +909,23 @@ def k8s_deploy_calico(args):
                    'Deploy pod network SDN using Calico CNI',
                    K8S_FINAL_PROGRESS)
 
-    addr = 'https://docs.projectcalico.org/'
-    addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
-    addr = addr + 'etcd.yaml'
+    # addr = 'https://docs.projectcalico.org/'
+    # addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
+    # addr = addr + 'etcd.yaml'
 
-    curl(
-        '-L',
-        addr,
-        '-o', '/tmp/etcd.yaml')
+    # curl(
+    #     '-L',
+    #     addr,
+    #     '-o', '/tmp/etcd.yaml')
 
-    run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
+    # run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
+    # k8s_wait_for_running_negate(args)
 
+    # run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
+    #           'getting-started/kubernetes/installation/hosted/calico.yaml')
     run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-              'getting-started/kubernetes/installation/hosted/calico.yaml')
+              'getting-started/kubernetes/installation/hosted/'
+              'kubernetes-datastore/calico-networking/1.7/calico.yaml')
 
 
 def k8s_deploy_weave(args):
@@ -995,8 +999,12 @@ def k8s_update_rbac(args):
                    K8S_FINAL_PROGRESS)
 
     if args.cni == 'calico':
+        # run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
+        #           'getting-started/kubernetes/installation/rbac.yaml')
         run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-                  'getting-started/kubernetes/installation/rbac.yaml')
+                  'getting-started/kubernetes/installation/hosted/'
+                  'rbac-kdd.yaml')
+
         return
 
     name = '/tmp/rbac'
