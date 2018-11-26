@@ -635,7 +635,6 @@ def k8s_install_tools(args):
                       'https://download.docker.com/linux/centos/'
                       'docker-ce.repo')
             run_shell(args,
-                      # 'sudo yum install docker-ce-18.06.1.ce -y')
                       'sudo yum install docker-ce -y')
         else:
             # ubuntu
@@ -775,29 +774,17 @@ def k8s_setup_dns(args):
               'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf '
               '/tmp')
     run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
-    # run_shell(args,
-    #           'sudo sed -i s/10.96.0.10/10.3.3.10/g /tmp/10-kubeadm.conf')
 
-    # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
-    # https://stackoverflow.com/questions/46726216/kubelet-fails-to-get-cgroup-stats-for-docker-and-kubelet-services
     run_shell(
         args,
         'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
         '>> /tmp/10-kubeadm.conf')
+
     run_shell(
         args,
-        # 'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false '
-        # '--resolv-conf=/run/systemd/resolve/resolv.conf" ' #TODO for coredns issue
-        # '>> /tmp/10-kubeadm.conf')
         'sudo echo Environment="KUBELET_EXTRA_ARGS='
         '--resolv-conf=/run/systemd/resolve/resolv.conf" '
         '>> /tmp/10-kubeadm.conf')
-
-    # run_shell(
-    #     args,
-    #     'sudo echo Environment="KUBELET_DOS_ARGS=--runtime-cgroups=/systemd'
-    #     '/system.slice --kubelet-cgroups=/systemd/system.slice --hostname-'
-    #     'override=$(hostname) --fail-swap-on=false" >> /tmp/10-kubeadm.conf')
 
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
               '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
@@ -855,7 +842,6 @@ def k8s_fix_iptables(args):
             reload_sysctl = True
     if reload_sysctl is True:
         run_shell(args, 'sudo mv /tmp/sysctl.conf /etc/sysctl.conf')
-        # run_shell(args, 'sudo sysctl -p')
         run_shell(args, 'sudo sysctl --system')
 
 
@@ -914,20 +900,6 @@ def k8s_deploy_calico(args):
                    'Deploy pod network SDN using Calico CNI',
                    K8S_FINAL_PROGRESS)
 
-    # addr = 'https://docs.projectcalico.org/'
-    # addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
-    # addr = addr + 'etcd.yaml'
-
-    # curl(
-    #     '-L',
-    #     addr,
-    #     '-o', '/tmp/etcd.yaml')
-
-    # run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
-    # k8s_wait_for_running_negate(args)
-
-    # run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-    #           'getting-started/kubernetes/installation/hosted/calico.yaml')
     run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
               'getting-started/kubernetes/installation/hosted/'
               'kubernetes-datastore/calico-networking/1.7/calico.yaml')
@@ -1004,9 +976,6 @@ def k8s_update_rbac(args):
                    K8S_FINAL_PROGRESS)
 
     if args.cni == 'calico':
-        # addr = 'https://docs.projectcalico.org/v3.3/'
-        # addr = addr + 'getting-started/kubernetes/installation/hosted/'
-        # addr = addr + 'rbac-kdd.yaml'
         rbac = ('https://docs.projectcalico.org/v3.3/'
                 'getting-started/kubernetes/installation/hosted/'
                 'rbac-kdd.yaml')
@@ -1312,7 +1281,9 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes Minion - Ready for JOIN command')
         sys.exit(1)
-    k8s_setup_dns(args) #TODO test
+    if args.cni == 'calico':
+        # TODO: Calico is still a work in progress due to coredns loop bugs
+        k8s_setup_dns(args)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
@@ -1355,9 +1326,7 @@ def main():
     try:
         k8s_destroy(args)
         k8s_bringup_kubernetes_cluster(args)
-        # k8s_update_rbac(args)
         k8s_install_deploy_helm(args)
-        # k8s_install_logging(args)
         k8s_final_messages(args)
 
     except Exception:
