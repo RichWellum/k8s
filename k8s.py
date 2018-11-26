@@ -913,8 +913,9 @@ def k8s_deploy_calico(args):
                    'Deploy pod network SDN using Calico CNI',
                    K8S_FINAL_PROGRESS)
 
-    run_shell(args, 'https://docs.projectcalico.org/v3.3/getting-started/'
-              'kubernetes/installation/hosted/calico.yaml')
+    run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
+              'getting-started/kubernetes/installation/hosted/calico.yaml')
+
 
 def k8s_deploy_weave(args):
     '''Deploy CNI/SDN to K8s cluster'''
