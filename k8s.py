@@ -861,8 +861,8 @@ def k8s_deploy_k8s(args):
         cmd = '/opt/bin/kubeadm init'
     else:
         if args.cni == 'calico':
-            cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16 '
-            '--ignore-preflight-errors=all'
+            cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16'
+            cmd = cmd + ' --ignore-preflight-errors=all'
             # TODO: Do this here?
             run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/'
                       'v3.3/getting-started/kubernetes/installation/hosted/'
