@@ -860,7 +860,15 @@ def k8s_deploy_k8s(args):
     if linux_ver(args) == 'container':
         cmd = '/opt/bin/kubeadm init'
     else:
-        cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
+        if args.cni == 'calico':
+            cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16 '
+            '--ignore-preflight-errors=all'
+            # TODO: Do this here?
+            run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/'
+                      'v3.3/getting-started/kubernetes/installation/hosted/'
+                      'etcd.yaml')
+        else:  # weave
+            cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
 
     print_progress('Kubernetes',
                    'Deploying using kubeadm (can take a few minutes...)',
@@ -905,7 +913,7 @@ def k8s_deploy_calico(args):
                    'Deploy pod network SDN using Calico CNI',
                    K8S_FINAL_PROGRESS)
 
-    run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v2.0/'
+    run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
               'getting-started/kubernetes/installation/hosted/kubeadm/'
               'calico.yaml')
 
@@ -979,6 +987,12 @@ def k8s_update_rbac(args):
     print_progress('Kubernetes',
                    'Overide default RBAC settings',
                    K8S_FINAL_PROGRESS)
+
+    if args.cni == 'calico':
+        run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
+                  'getting-started/kubernetes/installation/rbac.yaml')
+        return
+
     name = '/tmp/rbac'
     with open(name, "w") as w:
         w.write("""\
