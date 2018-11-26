@@ -876,6 +876,8 @@ def k8s_deploy_k8s(args):
     #                 '--ignore-preflight-errors=all')
     out = run_shell(args, cmd)
 
+    k8s_update_rbac(args)  # Move here - after init but before networking
+
     # Even in no-verbose mode, we need to display the join command to
     # enabled multi-node
     for line in out.splitlines():
@@ -1306,7 +1308,6 @@ def k8s_bringup_kubernetes_cluster(args):
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
-    k8s_update_rbac(args)  # Move here - before starting cluster
     k8s_deploy_k8s(args)
     k8s_load_kubeadm_creds(args)
     k8s_wait_for_kube_system(args)
