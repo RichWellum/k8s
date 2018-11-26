@@ -780,10 +780,10 @@ def k8s_setup_dns(args):
 
     # https://github.com/kubernetes/kubernetes/issues/53333#issuecomment-339793601
     # https://stackoverflow.com/questions/46726216/kubelet-fails-to-get-cgroup-stats-for-docker-and-kubelet-services
-    # run_shell(
-    #     args,
-    #     'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
-    #     '>> /tmp/10-kubeadm.conf')
+    run_shell(
+        args,
+        'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
+        '>> /tmp/10-kubeadm.conf')
     run_shell(
         args,
         # 'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false '
