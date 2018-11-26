@@ -1009,7 +1009,7 @@ def k8s_update_rbac(args):
 
         # Fix this bug: https://github.com/projectcalico/calico/issues/2063
         name = '/tmp/rbac'
-        with open(name, "a") as w:
+        with open(name, "aw") as w:
             w.write("""\
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1025,9 +1025,7 @@ subjects:
   kind: Group
   name: system:nodes
 """)
-        run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-                  'getting-started/kubernetes/installation/hosted/'
-                  'rbac-kdd.yaml')
+        run_shell(args, 'kubectl apply -f /tmp/rbac')
 
         return
 
