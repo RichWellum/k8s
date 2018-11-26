@@ -1001,12 +1001,16 @@ def k8s_update_rbac(args):
                    K8S_FINAL_PROGRESS)
 
     if args.cni == 'calico':
-        addr = 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-        addr = addr + 'getting-started/kubernetes/installation/hosted/'
-        addr = addr + 'rbac-kdd.yaml'
+        # addr = 'https://docs.projectcalico.org/v3.3/'
+        # addr = addr + 'getting-started/kubernetes/installation/hosted/'
+        # addr = addr + 'rbac-kdd.yaml'
+        rbac = ('https://docs.projectcalico.org/v3.3/'
+                'getting-started/kubernetes/installation/hosted/'
+                'rbac-kdd.yaml')
+
         curl(
             '-L',
-            addr,
+            rbac,
             '-o', '/tmp/rbac')
 
         # Fix this bug: https://github.com/projectcalico/calico/issues/2063
