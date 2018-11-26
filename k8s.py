@@ -999,8 +999,31 @@ def k8s_update_rbac(args):
                    K8S_FINAL_PROGRESS)
 
     if args.cni == 'calico':
-        # run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
-        #           'getting-started/kubernetes/installation/rbac.yaml')
+        addr = 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
+        addr = addr + 'getting-started/kubernetes/installation/hosted/'
+        addr = addr + 'rbac-kdd.yaml'
+        curl(
+            '-L',
+            addr,
+            '-o', '/tmp/rbac')
+
+        name = '/tmp/rbac'
+        with open(name, "a") as w:
+            w.write("""\
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:calico-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-node
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:nodes
+""")
         run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
                   'getting-started/kubernetes/installation/hosted/'
                   'rbac-kdd.yaml')
