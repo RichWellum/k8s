@@ -786,9 +786,13 @@ def k8s_setup_dns(args):
     #     '>> /tmp/10-kubeadm.conf')
     run_shell(
         args,
-        'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false '
-        '--resolv-conf=/run/systemd/resolve/resolv.conf" ' #TODO for coredns issue
+        # 'sudo echo Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false '
+        # '--resolv-conf=/run/systemd/resolve/resolv.conf" ' #TODO for coredns issue
+        # '>> /tmp/10-kubeadm.conf')
+        'sudo echo Environment="KUBELET_EXTRA_ARGS=--cgroup-driver=systemd '
+        '--resolv-conf=/run/systemd/resolve/resolv.conf" '
         '>> /tmp/10-kubeadm.conf')
+
     # run_shell(
     #     args,
     #     'sudo echo Environment="KUBELET_DOS_ARGS=--runtime-cgroups=/systemd'
