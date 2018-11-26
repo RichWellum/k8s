@@ -883,19 +883,6 @@ def k8s_deploy_k8s(args):
             global JOIN_CMD
             JOIN_CMD = line + ' --ignore-preflight-errors=all'
 
-    if args.cni == 'calico':
-        # TODO: Do this here?
-        addr = 'https://docs.projectcalico.org/'
-        addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
-        addr = addr + 'etcd.yaml'
-
-        curl(
-            '-L',
-            addr,
-            '-o', '/tmp/etcd.yaml')
-
-        run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
-
 
 def k8s_load_kubeadm_creds(args):
     '''This ensures the user gets output from 'kubectl get pods'''
@@ -921,6 +908,17 @@ def k8s_deploy_calico(args):
     print_progress('Kubernetes',
                    'Deploy pod network SDN using Calico CNI',
                    K8S_FINAL_PROGRESS)
+
+    addr = 'https://docs.projectcalico.org/'
+    addr = addr + 'v3.3/getting-started/kubernetes/installation/hosted/'
+    addr = addr + 'etcd.yaml'
+
+    curl(
+        '-L',
+        addr,
+        '-o', '/tmp/etcd.yaml')
+
+    run_shell(args, 'kubectl apply -f /tmp/etcd.yaml')
 
     run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/v3.3/'
               'getting-started/kubernetes/installation/hosted/calico.yaml')
