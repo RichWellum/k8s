@@ -863,10 +863,6 @@ def k8s_deploy_k8s(args):
         if args.cni == 'calico':
             cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16'
             cmd = cmd + ' --ignore-preflight-errors=all'
-            # TODO: Do this here?
-            run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/'
-                      'v3.3/getting-started/kubernetes/installation/hosted/'
-                      'etcd.yaml')
         else:  # weave
             cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
 
@@ -886,6 +882,12 @@ def k8s_deploy_k8s(args):
         if re.search('kubeadm join', line):
             global JOIN_CMD
             JOIN_CMD = line + ' --ignore-preflight-errors=all'
+
+    if args.cni == 'calico':
+        # TODO: Do this here?
+        run_shell(args, 'kubectl apply -f https://docs.projectcalico.org/'
+                  'v3.3/getting-started/kubernetes/installation/hosted/'
+                  'etcd.yaml')
 
 
 def k8s_load_kubeadm_creds(args):
