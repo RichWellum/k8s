@@ -1312,7 +1312,7 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes Minion - Ready for JOIN command')
         sys.exit(1)
-    k8s_setup_dns(args) #TODO test
+    # k8s_setup_dns(args) #TODO test
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
