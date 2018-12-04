@@ -777,13 +777,14 @@ def k8s_set_cgroup(args):
 
     run_shell(
         args,
-        'sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" '
+        'sudo echo "Environment=\"KUBELET_CGROUP_ARGS='
+        '--cgroup-driver=systemd\"" '
         '>> /tmp/10-kubeadm.conf')
 
     run_shell(
         args,
-        'sudo echo Environment="KUBELET_EXTRA_ARGS='
-        '--resolv-conf=/run/systemd/resolve/resolv.conf" '
+        'sudo echo Environment=\"KUBELET_EXTRA_ARGS='
+        '--resolv-conf=/run/systemd/resolve/resolv.conf\" '
         '>> /tmp/10-kubeadm.conf')
 
     run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
