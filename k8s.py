@@ -759,17 +759,19 @@ def k8s_install_k8s(args):
                   '--disableexcludes=kubernetes')
     else:
         # Tie to a working version
-        # sudo apt-get install -qy kubelet=<version> kubectl=<version> kubeadm=<version>
+        # run_shell(args,
+        #           'sudo apt-get install -qy --allow-downgrades ebtables '
+        #           'kubelet=1.12.3-00 kubectl=1.12.3-00 kubeadm=1.12.3-00')
         run_shell(args,
                   'sudo apt-get install -qy --allow-downgrades ebtables '
-                  'kubelet=1.12.3-00 kubectl=1.12.3-00 kubeadm=1.12.3-00')
+                  'kubelet kubectl kubeadm')
         run_shell(args,
                   'sudo apt-mark hold kubeadm kubectl kubelet')
 
 
 def k8s_set_cgroup(args):
     '''Set cgroup'''
-#Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
+
     print_progress('Kubernetes',
                    'Set cgroupfs',
                    K8S_FINAL_PROGRESS)
@@ -779,9 +781,12 @@ def k8s_set_cgroup(args):
     with open(tmp, "w") as w:
         w.write("""\
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
+Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
 """)
     run_shell(args,
               'sudo mv %s %s' % (tmp, final))
+    run_shell(args,
+              'sudo chmod 766 %s' % final)
 
 
 def k8s_reload_service_files(args):
