@@ -763,8 +763,8 @@ def k8s_install_k8s(args):
                   'ebtables kubelet kubeadm kubectl')
 
 
-def k8s_setup_dns(args):
-    '''DNS services and kubectl fixups'''
+def k8s_set_cgroup(args):
+    '''Set cgroup'''
 
     print_progress('Kubernetes',
                    'Setup the DNS server with the service CIDR',
@@ -1281,9 +1281,9 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes Minion - Ready for JOIN command')
         sys.exit(1)
-    if args.cni == 'calico':
+        # if args.cni == 'calico':
         # TODO: Calico is still a work in progress due to coredns loop bugs
-        k8s_setup_dns(args)
+    k8s_set_cgroup(args)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
     k8s_fix_iptables(args)
