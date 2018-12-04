@@ -761,8 +761,8 @@ def k8s_install_k8s(args):
         # Tie to a working version
         # sudo apt-get install -qy kubelet=<version> kubectl=<version> kubeadm=<version>
         run_shell(args,
-                  'sudo apt-get install -qy '
-                  'ebtables kubelet=1.12 kubectl=1.12 kubeadm=1.12')
+                  'sudo apt-get install -qy ebtables '
+                  'kubelet=1.12.3-00 kubectl=1.12.3-00 kubeadm=1.12.3-00')
         run_shell(args,
                   'sudo apt-mark hold kubeadm kubectl kubelet')
 
