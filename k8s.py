@@ -771,11 +771,14 @@ def k8s_set_cgroup(args):
                    K8S_FINAL_PROGRESS)
 
     final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-    with open(final, "w") as w:
+    tmp = '/tmp/10-kubeadm.conf'
+    with open(tmp, "w") as w:
         w.write("""\
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
 Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
 """)
+    run_shell(args,
+              'sudo mv %s %s' % (tmp, final))
 
 
 def k8s_reload_service_files(args):
