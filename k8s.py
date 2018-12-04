@@ -763,6 +763,8 @@ def k8s_install_k8s(args):
         run_shell(args,
                   'sudo apt-get install -qy '
                   'ebtables kubelet=1.12 kubectl=1.12 kubeadm=1.12')
+        run_shell(args,
+                  'sudo apt-mark hold kubeadm kubectl kubelet')
 
 
 def k8s_set_cgroup(args):
