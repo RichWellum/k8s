@@ -774,7 +774,7 @@ def k8s_install_k8s(args):
 
 def k8s_set_cgroup(args):
     '''Set cgroup'''
-
+#Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
     print_progress('Kubernetes',
                    'Set systemd',
                    K8S_FINAL_PROGRESS)
@@ -785,7 +785,6 @@ def k8s_set_cgroup(args):
         w.write("""\
 [Service]
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
-Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
 """)
     run_shell(args,
               'sudo mv %s %s' % (tmp, final))
