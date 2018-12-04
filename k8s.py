@@ -854,8 +854,8 @@ def k8s_deploy_k8s(args):
             cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16'
             cmd = cmd + ' --ignore-preflight-errors=all'
         else:  # weave
-            # cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
-            cmd = 'sudo kubeadm init'
+            cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
+            # cmd = 'sudo kubeadm init'
 
     print_progress('Kubernetes',
                    'Deploying using kubeadm (can take a few minutes...)',
