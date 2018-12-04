@@ -663,7 +663,7 @@ def k8s_install_tools(args):
         with open(name, "w") as w:
             w.write("""\
  {
-   "exec-opts": ["native.cgroupdriver=cgroupfs"],
+   "exec-opts": ["native.cgroupdriver=systemd"],
    "log-driver": "json-file",
    "log-opts": {
      "max-size": "100m"
@@ -773,13 +773,14 @@ def k8s_set_cgroup(args):
     '''Set cgroup'''
 
     print_progress('Kubernetes',
-                   'Set cgroupfs',
+                   'Set systemd',
                    K8S_FINAL_PROGRESS)
 
     final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
     tmp = '/tmp/10-kubeadm.conf'
     with open(tmp, "w") as w:
         w.write("""\
+[Service]
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
 Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
 """)
