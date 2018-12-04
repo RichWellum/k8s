@@ -767,28 +767,36 @@ def k8s_set_cgroup(args):
     '''Set cgroup'''
 
     print_progress('Kubernetes',
-                   'Setup the DNS server with the service CIDR',
+                   'Set cgroupfs',
                    K8S_FINAL_PROGRESS)
 
-    run_shell(args,
-              'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf '
-              '/tmp')
-    run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
+    # tmp = '/tmp/10-kubeadm.conf'
+    final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
 
-    run_shell(
-        args,
-        "sudo echo Environment=\"KUBELET_CGROUP_ARGS="
-        "--cgroup-driver=systemd\" "
-        "> /tmp/10-kubeadm.conf")
+    with open(final, "w") as w:
+        w.write("""\
+Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
+Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
+""")
+    # run_shell(args,
+    #           'sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf '
+    #           '/tmp')
+    # run_shell(args, 'sudo chmod 777 /tmp/10-kubeadm.conf')
 
-    run_shell(
-        args,
-        'sudo echo Environment=\"KUBELET_EXTRA_ARGS='
-        '--resolv-conf=/run/systemd/resolve/resolv.conf\" '
-        '>> /tmp/10-kubeadm.conf')
+    # run_shell(
+    #     args,
+    #     "sudo echo Environment=\"KUBELET_CGROUP_ARGS="
+    #     "--cgroup-driver=systemd\" "
+    #     "> /tmp/10-kubeadm.conf")
 
-    run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
-              '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
+    # run_shell(
+    #     args,
+    #     'sudo echo Environment=\"KUBELET_EXTRA_ARGS='
+    #     '--resolv-conf=/run/systemd/resolve/resolv.conf\" '
+    #     '>> /tmp/10-kubeadm.conf')
+
+    # run_shell(args, 'sudo mv /tmp/10-kubeadm.conf '
+    #           '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf')
 
 
 def k8s_reload_service_files(args):
