@@ -771,7 +771,6 @@ def k8s_set_cgroup(args):
                    K8S_FINAL_PROGRESS)
 
     final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-
     with open(final, "w") as w:
         w.write("""\
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
