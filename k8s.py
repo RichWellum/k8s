@@ -1279,7 +1279,7 @@ def k8s_bringup_kubernetes_cluster(args):
         sys.exit(1)
         # if args.cni == 'calico':
         # TODO: Calico is still a work in progress due to coredns loop bugs
-    k8s_set_cgroup(args)
+    # k8s_set_cgroup(args)
     k8s_start_kubelet(args)
     k8s_reload_service_files(args)
     k8s_fix_iptables(args)
