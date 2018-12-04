@@ -657,7 +657,10 @@ def k8s_install_tools(args):
                       '$(lsb_release -cs) '
                       'stable"')
             run_shell(args, 'sudo apt-get -y update')
-            run_shell(args, 'sudo apt-get -y install docker-ce')
+            # run_shell(args, 'sudo apt-get -y install docker-ce')
+            # 18.06 is last certified version for kubernetes
+            run_shell(args, 'sudo apt-get install '
+                      'docker-ce=18.06.1~ce~3-0~ubuntu --allow-downgrades')
 
         name = '/tmp/daemon'
         with open(name, "w") as w:
@@ -857,7 +860,8 @@ def k8s_deploy_k8s(args):
             cmd = 'sudo kubeadm init --pod-network-cidr=192.168.0.0/16'
             cmd = cmd + ' --ignore-preflight-errors=all'
         else:  # weave
-            cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
+            # cmd = 'sudo kubeadm init --ignore-preflight-errors=all'
+            cmd = 'sudo kubeadm init'
 
     print_progress('Kubernetes',
                    'Deploying using kubeadm (can take a few minutes...)',
@@ -1285,7 +1289,7 @@ def k8s_bringup_kubernetes_cluster(args):
         sys.exit(1)
         # if args.cni == 'calico':
         # TODO: Calico is still a work in progress due to coredns loop bugs
-    # k8s_set_cgroup(args)
+    k8s_set_cgroup(args)
     k8s_start_kubelet(args)
     k8s_reload_service_files(args)
     k8s_fix_iptables(args)
