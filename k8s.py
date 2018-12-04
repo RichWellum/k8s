@@ -770,8 +770,7 @@ def k8s_set_cgroup(args):
                    'Set cgroupfs',
                    K8S_FINAL_PROGRESS)
 
-    # final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-    final = '/etc/default/kubelet'
+    final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
     with open(final, "w") as w:
         w.write("""\
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
@@ -836,6 +835,8 @@ def k8s_fix_iptables(args):
 
 def k8s_deploy_k8s(args):
     '''Start the kubernetes master'''
+
+    k8s_reload_service_files(args)
 
     if linux_ver(args) == 'container':
         cmd = '/opt/bin/kubeadm init'
