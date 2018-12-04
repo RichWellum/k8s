@@ -758,9 +758,11 @@ def k8s_install_k8s(args):
                   'sudo yum install -y kubelet kubeadm kubectl '
                   '--disableexcludes=kubernetes')
     else:
+        # Tie to a working version
+        # sudo apt-get install -qy kubelet=<version> kubectl=<version> kubeadm=<version>
         run_shell(args,
-                  'sudo apt-get install -y --allow-downgrades '
-                  'ebtables kubelet kubeadm kubectl')
+                  'sudo apt-get install -qy '
+                  'ebtables kubelet=1.12 kubectl=1.12 kubeadm=1.12')
 
 
 def k8s_set_cgroup(args):
