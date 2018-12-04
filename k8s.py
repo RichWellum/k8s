@@ -762,11 +762,11 @@ def k8s_install_k8s(args):
         # run_shell(args,
         #           'sudo apt-get install -qy --allow-downgrades ebtables '
         #           'kubelet=1.12.3-00 kubectl=1.12.3-00 kubeadm=1.12.3-00')
+        # run_shell(args,
+        #           'sudo apt-mark hold kubeadm kubectl kubelet')
         run_shell(args,
                   'sudo apt-get install -qy --allow-downgrades ebtables '
                   'kubelet kubectl kubeadm')
-        run_shell(args,
-                  'sudo apt-mark hold kubeadm kubectl kubelet')
 
 
 def k8s_set_cgroup(args):
