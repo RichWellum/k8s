@@ -777,9 +777,9 @@ def k8s_set_cgroup(args):
 
     run_shell(
         args,
-        'sudo echo "Environment=\"KUBELET_CGROUP_ARGS='
-        '--cgroup-driver=systemd\"" '
-        '>> /tmp/10-kubeadm.conf')
+        "sudo echo Environment=\"KUBELET_CGROUP_ARGS="
+        "--cgroup-driver=systemd\" "
+        "> /tmp/10-kubeadm.conf")
 
     run_shell(
         args,
