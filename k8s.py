@@ -659,7 +659,7 @@ def k8s_install_tools(args):
             run_shell(args, 'sudo apt-get -y update')
             # run_shell(args, 'sudo apt-get -y install docker-ce')
             # 18.06 is last certified version for kubernetes
-            run_shell(args, 'sudo apt-get install '
+            run_shell(args, 'sudo apt-get -y install '
                       'docker-ce=18.06.1~ce~3-0~ubuntu --allow-downgrades')
 
         name = '/tmp/daemon'
