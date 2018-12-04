@@ -781,9 +781,8 @@ def k8s_set_cgroup(args):
 
     final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
     tmp = '/tmp/10-kubeadm.conf'
-    with open(tmp, "w") as w:
+    with open(tmp, "a") as w:
         w.write("""\
-[Service]
 Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
 """)
     run_shell(args,
@@ -847,8 +846,6 @@ def k8s_fix_iptables(args):
 
 def k8s_deploy_k8s(args):
     '''Start the kubernetes master'''
-
-    k8s_reload_service_files(args)
 
     if linux_ver(args) == 'container':
         cmd = '/opt/bin/kubeadm init'
