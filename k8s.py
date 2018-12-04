@@ -663,7 +663,7 @@ def k8s_install_tools(args):
         with open(name, "w") as w:
             w.write("""\
  {
-   "exec-opts": ["native.cgroupdriver=systemd"],
+   "exec-opts": ["native.cgroupdriver=cgroupfs"],
    "log-driver": "json-file",
    "log-opts": {
      "max-size": "100m"
