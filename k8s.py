@@ -761,7 +761,7 @@ def k8s_install_k8s(args):
                   'sudo yum install -y kubelet kubeadm kubectl '
                   '--disableexcludes=kubernetes')
     else:
-        # Tie to a working version
+        # How to tie to a working version (future if needed)
         # run_shell(args,
         #           'sudo apt-get install -qy --allow-downgrades ebtables '
         #           'kubelet=1.12.3-00 kubectl=1.12.3-00 kubeadm=1.12.3-00')
@@ -770,23 +770,6 @@ def k8s_install_k8s(args):
         run_shell(args,
                   'sudo apt-get install -qy --allow-downgrades ebtables '
                   'kubelet kubectl kubeadm')
-
-
-# def k8s_set_cgroup(args):
-#     '''Set cgroup'''
-# #Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf"
-#     print_progress('Kubernetes',
-#                    'Set systemd',
-#                    K8S_FINAL_PROGRESS)
-
-#     final = '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-#     tmp = '/tmp/10-kubeadm.conf'
-#     with open(tmp, "a") as w:
-#         w.write("""\
-# Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
-# """)
-#     run_shell(args,
-#               'sudo mv %s %s' % (tmp, final))
 
 
 def k8s_set_cgroup(args):
@@ -1309,8 +1292,6 @@ def k8s_bringup_kubernetes_cluster(args):
         run_shell(args, 'sudo systemctl start docker.service')
         banner('Kubernetes Minion - Ready for JOIN command')
         sys.exit(1)
-        # if args.cni == 'calico':
-        # TODO: Calico is still a work in progress due to coredns loop bugs
     k8s_set_cgroup(args)
     k8s_reload_service_files(args)
     k8s_start_kubelet(args)
