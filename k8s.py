@@ -665,6 +665,8 @@ def k8s_install_tools(args):
             # 18.06 is last certified version for kubernetes
             run_shell(args, 'sudo apt-get -y install '
                       'docker-ce=18.06.1~ce~3-0~ubuntu --allow-downgrades')
+            run_shell(args,
+                      'sudo apt-mark hold kubeadm kubectl kubelet')
 
         name = '/tmp/daemon'
         with open(name, "w") as w:
