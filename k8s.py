@@ -556,19 +556,20 @@ def k8s_install_tools(args):
                   'sudo yum install -y qemu epel-release bridge-utils '
                   'python-pip python-devel libffi-devel gcc '
                   'openssl-devel sshpass crudini jq ansible curl lvm2')
-    elif linux_ver(args) == 'centos':
-        run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
-                  '--allow-downgrades --no-install-recommends')
-        run_shell(args,
-                  'sudo apt-get install --no-install-recommends -y '
-                  'qemu bridge-utils python-dev libffi-dev gcc '
-                  'libssl-dev python-pip sshpass apt-transport-https git '
-                  'gcc crudini jq ansible curl lvm2 ceph-common '
-                  'ca-certificates make jq nmap curl uuid-runtime ipcalc '
-                  'ebtables ethtool iproute2 iptables libmnl0 '
-                  'libnfnetlink0 libwrap0 libxtables11 socat')
+    # Ubuntu doesn't need this - maybe legacy from openstack
+    # elif linux_ver(args) == 'ubuntu':
+    #     run_shell(args, 'sudo apt-get update; sudo apt-get dist-upgrade -y '
+    #               '--allow-downgrades --no-install-recommends')
+    #     run_shell(args,
+    #               'sudo apt-get install --no-install-recommends -y '
+    #               'qemu bridge-utils python-dev libffi-dev gcc '
+    #               'libssl-dev python-pip sshpass apt-transport-https git '
+    #               'gcc crudini jq ansible curl lvm2 ceph-common '
+    #               'ca-certificates make jq nmap curl uuid-runtime ipcalc '
+    #               'ebtables ethtool iproute2 iptables libmnl0 '
+    #               'libnfnetlink0 libwrap0 libxtables11 socat')
 
-        run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
+    #     run_shell(args, 'sudo apt autoremove -y && sudo apt autoclean')
 
     if linux_ver(args) == 'container':
         # Container Linux
@@ -623,7 +624,6 @@ def k8s_install_tools(args):
     if install_docker:
         if linux_ver(args) == 'centos':
             # https://kubernetes.io/docs/setup/cri/
-
             run_shell(args,
                       'sudo yum remove -y docker docker-common docker-selinux '
                       'docker-engine')
@@ -635,7 +635,7 @@ def k8s_install_tools(args):
                       'https://download.docker.com/linux/centos/'
                       'docker-ce.repo')
             run_shell(args,
-                      'sudo yum install docker-ce -y')
+                      'sudo yum install docker-ce=18.06.1.ce-3.el7 -y')
         else:
             # ubuntu
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
