@@ -635,7 +635,7 @@ def k8s_install_tools(args):
                       'https://download.docker.com/linux/centos/'
                       'docker-ce.repo')
             run_shell(args,
-                      'sudo yum install docker-ce=18.06.1.ce-3.el7 -y')
+                      'sudo yum install docker-ce-18.06.1.ce-3.el7 -y')
         else:
             # ubuntu
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
