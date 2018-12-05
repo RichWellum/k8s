@@ -629,13 +629,17 @@ def k8s_install_tools(args):
                       'docker-engine')
             run_shell(args,
                       'sudo yum install -y yum-utils '
-                      'device-mapper-persistent-data lvm2')
+                      'device-mapper-persistent-data lvm2 '
+                      'yum-plugin-versionlock')
             run_shell(args,
                       'sudo yum-config-manager --add-repo '
                       'https://download.docker.com/linux/centos/'
                       'docker-ce.repo')
             run_shell(args,
                       'sudo yum install docker-ce-18.06.1.ce-3.el7 -y')
+            run_shell(args,
+                      'sudo yum versionlock docker-*')
+
         else:
             # ubuntu
             # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-
