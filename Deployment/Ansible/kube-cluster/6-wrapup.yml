@@ -1,0 +1,45 @@
+- hosts: master
+  - name: de-taint kubernetes master node for dashboard install
+    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl taint nodes --all node-role.kubernetes.io/master-
+    ignore_errors: yes
+    register: out
+   
+  - debug: var=out.stdout_lines
+   
+  - name: install kubernetes dashboard
+    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+    register: out
+   
+  - debug: var=out.stdout_lines
+   
+  # - name: copy xxx.yaml and yyy.yaml to server for creating admin user for bearer token access to dashboard
+  #   copy:
+  #     src:  ./files/
+  #     dest: /home/k8suser
+   
+  # - name: create admin user 1
+  #   shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl create -f /home/k8suser/xxx.yml
+  #   register: out
+   
+  # - debug: var=out.stdout_lines
+   
+  # - name: create admin user 2
+  #   shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl create -f /home/k8suser/yyy.yml
+  #   register: out
+   
+  # - debug: var=out.stdout_lines
+   
+  # - name: return bearer token
+  #   shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+  #   register: out
+   
+  # - debug: var=out.stdout_lines
+   
+  # - name: create local file with info returned by kubeadm init
+  #   local_action: copy content="{{ out }}" dest="./current_cluster/bearer-token.txt"
+   
+  - name: set up docker not to require sudo
+    shell: gpasswd -a k8suser docker
+    register: out
+   
+  - debug: var=out.stdout_lines

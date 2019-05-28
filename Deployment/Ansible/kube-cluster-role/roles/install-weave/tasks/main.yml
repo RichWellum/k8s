@@ -1,0 +1,26 @@
+---
+
+- name: precondition for weave network
+  command: sysctl net.bridge.bridge-nf-call-iptables=1
+  register: out
+
+- debug: var=out.stdout_lines
+
+# - name: create .kube directory
+#   file:
+#     path: /home/stack/.kube
+#     state: directory
+#     mode: 0777
+
+# - name: copy admin.conf to users kube config
+#   copy:
+#     src: /etc/kubernetes/admin.conf
+#     dest: /home/stack/.kube/config
+#     remote_src: yes
+#     owner: stack
+
+- name: set up weave network
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever=$(kubectl version | base64 | tr -d '\n') && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+
+- debug: var=out.stdout_lines
+...

@@ -1,0 +1,9 @@
+[masters]
+master ansible_host=192.168.3.249 ansible_user=stack ansible_become_pass=stack
+
+[workers]
+worker1 ansible_host=192.168.3.233 ansible_user=stack ansible_become_pass=stack
+worker2 ansible_host=192.168.3.232 ansible_user=stack ansible_become_pass=stack
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,17 @@
+---
+- name: reset Kubernetes workers (just in case)
+  command: kubeadm reset -f
+  register: out
+  ignore_errors: true
+
+- name: join workers
+  vars:
+    join_command: "{{ lookup('file', './current_cluster/kubeadm-init.txt') }}"
+  shell: "{{ join_command.stdout_lines[-1] }} --ignore-preflight-errors=all"
+  register: out
+  ignore_errors: true
+  become: true
+
+- debug: var=out.stdout_lines
+
+...

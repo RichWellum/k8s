@@ -1,0 +1,114 @@
+---
+- name: create .exrc idempotent
+  copy: content="set nocompatible\nset backspace=2\n" dest=.exrc
+
+- name: install system updates for ubuntu systems
+  apt: upgrade=dist update_cache=yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: turn swap off
+  command: swapoff -a
+
+- name: enable netfilter
+  command: modprobe br_netfilter
+
+- name: comment out swap line in /etc/fstab idempotent
+  lineinfile:
+    path: /etc/fstab 
+    backup: yes
+    backrefs: yes
+    regexp: '(^(?!#).*swap *sw.*$)'
+    line: '# \1'
+
+# Skipping reboot - for speed but may be needed
+# - name: reboot server
+#   shell: 'sleep 1 && shutdown -r now "Rebooting to ensure swap is off" && sleep 1'
+#   async: 1
+#   poll: 0
+#   become: true
+
+# - name: Wait for server to restart
+#   wait_for_connection:
+
+# - name: Pause a little more
+#   pause:
+#     minutes: 1
+
+- name: Install docker.io
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+#TODO - not sure if needed or not
+# - name: rewrite /lib/systemd/system/docker.service
+#   lineinfile:
+#     path: /lib/systemd/system/docker.service
+#     backup: yes
+#     backrefs: yes
+#     regexp: '(^ExecStart((?!-H tcp:\/\/0\.0\.0\.0:4243).)*)(\$DOCKER_OPTS$)'
+#     line: '\1 -H tcp://0.0.0.0:4243 \3'
+
+- name: reload the daemon
+  command: systemctl daemon-reload
+
+- name: restart dockerd
+  service:
+    name: docker
+    state: restarted
+
+- name: install libwww-perl
+  apt:
+    name: libwww-perl
+    state: present
+
+- name: install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: download and add Google GPG key
+  apt_key:
+    id: BA07F4FB
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+# Alt way - but useful to keep as good example of using shell 'here' doc
+# - name: add Google repos to apt sources
+#   shell:
+#     cmd: |
+#       cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+#       deb http://apt.kubernetes.io/ kubernetes-xenial main
+#       EOF
+
+- name: add Kubernetes APT repository
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: 'kubernetes'
+
+- name: install kubelet, kubeadm, and kubectl
+  apt:
+    force_apt_get: yes
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    update_cache: yes
+
+- name: configure Kubernetes cgroup driver to match Dockers (cgroupfs)
+  lineinfile:
+    path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    insertbefore: '^ExecStart'
+    firstmatch: yes
+    line: 'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=cgroupfs"'
+    state: present
+
+- name: reload daemon
+  command: systemctl daemon-reload
+
+- name: restart kubelet
+  command: systemctl restart kubelet
+
+...

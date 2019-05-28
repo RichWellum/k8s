@@ -1,0 +1,85 @@
+---
+- name: reset Kubernetes master (just in case)
+  command: kubeadm reset -f
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: initialize Kubernetes master
+  command: kubeadm init --ignore-preflight-errors=all
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: create local file with info returned by kubeadm init
+  become: false
+  local_action: copy content="{{ out }}" dest="./current_cluster/kubeadm-init.txt"
+
+- name: create .kube directory
+  file:
+    path: /home/stack/.kube
+    state: directory
+    mode: 0777
+
+- name: copy admin.conf to users kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/stack/.kube/config
+    remote_src: yes
+    owner: stack
+
+# Todo - not really enough time to pause.
+# Add logic to count number of pod (like k8s.py)
+- name: Wait few seconds for images pulls and cluster services to start
+  pause: seconds=10
+  changed_when: false
+
+- name: "sanity - wait for alls pod to be running (besides kube-dns/coredns which won't be ready yet as overlay network is not yet deployed, and worker nodes are not yet installed (on clusters with more than one machine))"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: "kubectl get --namespace kube-system pods --no-headers | grep -v -w 'Running' | grep -v 'kube-dns' | grep -v 'coredns' || true "
+  register: command_result
+  # tags:
+  # - sanity
+  until: command_result.stdout == ""
+  retries: 25
+  delay: 5
+  changed_when: false
+
+- name: "sanity - make sure master is up (sometimes the above condition is empty as master is in fact not working..."
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: "kubectl get --namespace kube-system pods --no-headers > /dev/null "
+  # tags:
+  # - sanity
+  delay: 5
+  changed_when: false
+
+- name: Set coredns replicas to number of masters (a good practice; by default there are 2 coredns)
+  shell: "export KUBECONFIG=/etc/kubernetes/admin.conf; kubectl scale --replicas={{ groups['masters'] | length }} -n kube-system deployment/coredns"
+  when:
+  - groups['masters'] | length > 1
+  - inventory_hostname in groups['primary-master']
+  tags:
+  - scale
+  - scale_dns
+
+# - name: Pause 1 minute for Master to be stable
+#   pause:
+#     minutes: 1
+
+# Require openshift package and despite installing it with
+# configure_master - it fails.
+# - name: Create a k8s namespace
+#   k8s_raw:
+#     name: testing
+#     api_version: v1
+#     kind: Namespace
+#     state: present
+
+# - name: Search for all running pods
+#   k8s_facts:
+#     kind: Pod
+#     field_selectors:
+#       - status.phase = running
+...

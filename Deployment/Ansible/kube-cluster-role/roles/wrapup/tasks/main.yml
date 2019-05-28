@@ -1,0 +1,80 @@
+---
+- name: de-taint kubernetes master node for dashboard install
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl taint nodes --all node-role.kubernetes.io/master-
+  ignore_errors: yes
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: install kubernetes dashboard
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: copy xxx.yaml and yyy.yaml to server for creating admin user for bearer token access to dashboard
+  copy:
+    src:  ./files/
+    dest: /home/stack
+
+- name: create admin user 1
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl create -f /home/stack/xxx.yml
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: return bearer token
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: create local file with info returned by kubeadm init
+  become: false
+  local_action: copy content="{{ out }}" dest="./current_cluster/bearer-token.txt"
+
+- name: set up docker not to require sudo
+  shell: gpasswd -a stack docker
+  register: out
+
+- debug: var=out.stdout_lines
+
+- name: 'Download "https://github.com/kubernetes/helm/raw/master/scripts/get" '
+  get_url: url="https://github.com/kubernetes/helm/raw/master/scripts/get" dest=/tmp/helm_install_script force=yes mode="0755"
+
+#todo - tried various helm installers none work to this point
+# - name: Run /tmp/helm_install_script
+#   become: true
+#   shell: /tmp/helm_install_script --version latest
+#   args:
+#     chdir: /tmp/
+
+# - name: Run helm
+#   become: true
+#   shell: helm init
+
+# - name: helm sanity - wait for tiller pod to be running
+#   shell: "kubectl get --namespace kube-system pods --no-headers | grep -w 'tiller-deploy' | grep -v -w 'Running' || true "
+#   register: command_result
+#   # tags:
+#   #   - helm_sanity
+#   #   - sanity
+#   #   - helm
+#   until: command_result.stdout == ""
+#   retries: 50
+#   delay: 3
+
+# - name: Install helm chart
+#   helm:
+#     host: localhost
+#     chart:
+#       name: memcached
+#       version: 0.4.0
+#       source:
+#         type: repo
+#         location: https://kubernetes-charts.storage.googleapis.com
+#     state: installed
+#     name: my-memcached
+#     namespace: default
+
+...

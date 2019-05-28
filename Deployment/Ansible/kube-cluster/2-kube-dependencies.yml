@@ -1,0 +1,111 @@
+- hosts: all
+  become: yes
+  tasks:
+   - name: install Docker
+     apt:
+       name: docker.io
+       state: present
+       update_cache: true
+
+   - name: install APT Transport HTTPS
+     apt:
+       name: apt-transport-https
+       state: present
+
+   - name: add Kubernetes apt-key
+     apt_key:
+       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+       state: present
+
+   - name: add Kubernetes APT repository
+     apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: 'kubernetes'
+
+   - name: install kubelet
+     apt:
+       name: kubelet
+       state: present
+       update_cache: true
+
+   - name: install kubeadm
+     apt:
+       name: kubeadm
+       state: present
+
+   - name: disable swap
+     become: yes
+     become_user: stack
+     shell: |
+       sudo swapoff -a
+       sudo modprobe br_netfilter
+
+   - name: comment out swap line in /etc/fstab idempotent
+     lineinfile:
+       path: /etc/fstab
+       backup: yes
+       backrefs: yes
+       regexp: '(^(?!#).*swap *sw.*$)'
+       line: '# \1'
+
+   - name: reboot server
+     shell: 'sleep 1 && shutdown -r now "Rebooting to ensure swap is off" && sleep 1'
+     async: 1
+     poll: 0
+     become: true
+
+   - name: Wait for server to restart
+     wait_for_connection:
+
+   - name: Pause a little more
+     pause:
+       minutes: 1
+
+   - name: configure Kubernetes cgroup driver to match Dockers (cgroupfs)
+     lineinfile:
+       path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+       insertbefore: '^ExecStart'
+       firstmatch: yes
+       line: 'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=cgroupfs"'
+       state: present
+
+   - name: reload daemon
+     command: systemctl daemon-reload
+
+   - name: restart kubelet
+     command: systemctl restart kubelet
+
+   # - name: disable firewalls
+   #   become: yes
+   #   become_user: stack
+   #   shell: |
+   #     sudo systemctl stop iscsid
+   #     sudo systemctl stop iscsid.service
+
+- hosts: master
+  become: yes
+  tasks:
+   - name: install kubectl
+     apt:
+       name: kubectl
+       state: present
+
+   # - name: setup systemd
+   #   become: yes
+   #   become_user: stack
+   #   shell: |
+   #     sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /tmp
+   #     sudo chmod 777 /tmp/10-kubeadm.conf
+   #     sudo echo Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd" >> /tmp/10-kubeadm.conf
+   #     sudo echo Environment="KUBELET_EXTRA_ARGS=--resolv-conf=/run/systemd/resolve/resolv.conf" >> /tmp/10-kubeadm.conf
+   #     sudo mv /tmp/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+   # - name: reload service files
+   #   become: yes
+   #   become_user: stack
+   #   shell: |
+   #     sudo systemctl daemon-reload
+   #     sudo systemctl restart kubelet
+   #     sudo systemctl enable kubelet
+   #     sudo systemctl start kubelet

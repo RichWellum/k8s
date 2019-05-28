@@ -1,0 +1,25 @@
+---
+# - name: Install pip packages
+  # apt: ['python-pip', 'python-dev', 'build-essential']
+  # apt: name={{item}} state=installed
+  # with_items:
+  #      - python-pip
+  #      - python-dev
+  #      - build-essential
+- name: install basic packages
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+
+- name: Install pip
+  command: pip install --upgrade pip
+  register: out
+
+- name: Install openshift
+  command: pip install openshift
+  register: out
+
+...

@@ -1,0 +1,18 @@
+- hosts: master
+  become: yes
+  tasks:
+    - name: reset Kubernetes master (just in case)
+      command: kubeadm reset -f
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    - name: initialize Kubernetes master
+      command: kubeadm init --ignore-preflight-errors=all
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    # todo: fix this
+    # - name: create local file with info returned by kubeadm init
+    #   local_action: copy content="{{ out }}" dest="$HOME/stack/kubeadm-init.txt"
